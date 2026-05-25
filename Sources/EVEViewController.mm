@@ -5,11 +5,13 @@
 
 #import "EVEFrameStreamClient.h"
 #import "EVEGLView.h"
+#import "EVEH264StreamDecoder.h"
 
 @interface EVEViewController () <EVEFrameStreamClientDelegate>
 
 @property(nonatomic, strong) EVEGLView *glView;
 @property(nonatomic, strong) UIImageView *streamImageView;
+@property(nonatomic, strong) EVEH264StreamDecoder *videoDecoder;
 @property(nonatomic, strong) UILabel *overlayLabel;
 @property(nonatomic, strong) CADisplayLink *displayLink;
 @property(nonatomic, strong) CMMotionManager *motionManager;
@@ -20,6 +22,7 @@
 @property(nonatomic, assign) CGSize streamViewportSize;
 @property(nonatomic, assign) CGFloat streamScale;
 @property(nonatomic, copy) NSString *streamStatus;
+@property(nonatomic, copy) NSString *streamCodec;
 
 @end
 
@@ -40,6 +43,11 @@
   self.streamImageView.backgroundColor = UIColor.blackColor;
   self.streamImageView.userInteractionEnabled = NO;
   [root addSubview:self.streamImageView];
+
+  self.videoDecoder = [[EVEH264StreamDecoder alloc] init];
+  self.videoDecoder.displayLayer.frame = root.bounds;
+  self.videoDecoder.displayLayer.hidden = YES;
+  [root.layer addSublayer:self.videoDecoder.displayLayer];
 
   self.overlayLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   self.overlayLabel.translatesAutoresizingMaskIntoConstraints = NO;
@@ -77,8 +85,12 @@
   self.streamViewportSize = CGSizeMake(1620.0, 2160.0);
   self.streamScale = 2.0;
   self.streamStatus = @"stream idle";
-  NSURL *streamURL = [NSURL URLWithString:@"ws://192.168.1.66:8792/stream"];
-  self.streamClient = [[EVEFrameStreamClient alloc] initWithURL:streamURL delegate:self];
+  self.streamCodec = @"jpeg";
+  NSArray<NSURL *> *streamURLs = @[
+    [NSURL URLWithString:@"ws://127.0.0.1:8792/stream"],
+    [NSURL URLWithString:@"ws://192.168.1.66:8792/stream"],
+  ];
+  self.streamClient = [[EVEFrameStreamClient alloc] initWithURLs:streamURLs delegate:self];
   [self.streamClient connect];
 
   self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(frameTick:)];
@@ -107,6 +119,7 @@
 - (void)viewDidLayoutSubviews {
   [super viewDidLayoutSubviews];
   [self.glView resizeDrawableIfNeeded];
+  self.videoDecoder.displayLayer.frame = self.view.bounds;
 }
 
 - (void)frameTick:(CADisplayLink *)link {
@@ -136,12 +149,14 @@
     @"EVE Canvas\n"
      "CEF stream + native touch\n"
      "%@\n"
+     "codec %@\n"
      "points %.0fx%.0f  pixels %.0fx%.0f @ %.1fx\n"
      "stream %.0fx%.0f @ %.1fx\n"
      "fps %.1f  touches %lu\n"
      "accel %+0.2f %+0.2f %+0.2f\n"
      "gyro  %+0.2f %+0.2f %+0.2f",
      self.streamStatus ?: @"stream",
+     self.streamCodec ?: @"unknown",
      points.width, points.height, pixels.width, pixels.height, scale,
      self.streamViewportSize.width, self.streamViewportSize.height, self.streamScale,
      self.filteredFPS, (unsigned long)self.touchCount,
@@ -211,7 +226,16 @@
 
 - (void)frameStreamClient:(EVEFrameStreamClient *)client didReceiveImage:(UIImage *)image {
   (void)client;
+  self.videoDecoder.displayLayer.hidden = YES;
+  self.streamImageView.hidden = NO;
   self.streamImageView.image = image;
+}
+
+- (void)frameStreamClient:(EVEFrameStreamClient *)client didReceiveVideoAccessUnit:(NSData *)data {
+  (void)client;
+  self.streamImageView.hidden = YES;
+  self.videoDecoder.displayLayer.hidden = NO;
+  [self.videoDecoder consumeAnnexBAccessUnit:data];
 }
 
 - (void)frameStreamClient:(EVEFrameStreamClient *)client didReceiveViewportWidth:(CGFloat)width height:(CGFloat)height scale:(CGFloat)scale {
@@ -222,6 +246,14 @@
   if (scale > 0) {
     self.streamScale = scale;
   }
+}
+
+- (void)frameStreamClient:(EVEFrameStreamClient *)client didReceiveCodec:(NSString *)codec {
+  (void)client;
+  if (![codec isEqualToString:self.streamCodec]) {
+    [self.videoDecoder reset];
+  }
+  self.streamCodec = codec;
 }
 
 - (void)frameStreamClient:(EVEFrameStreamClient *)client didChangeStatus:(NSString *)status {

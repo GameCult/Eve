@@ -2,7 +2,8 @@
 
 @interface EVEFrameStreamClient ()
 
-@property(nonatomic, strong) NSURL *url;
+@property(nonatomic, copy) NSArray<NSURL *> *urls;
+@property(nonatomic, assign) NSUInteger urlIndex;
 @property(nonatomic, weak) id<EVEFrameStreamClientDelegate> delegate;
 @property(nonatomic, strong) NSURLSession *session;
 @property(nonatomic, strong) NSURLSessionWebSocketTask *task;
@@ -13,12 +14,16 @@
 @implementation EVEFrameStreamClient
 
 - (instancetype)initWithURL:(NSURL *)url delegate:(id<EVEFrameStreamClientDelegate>)delegate {
+  return [self initWithURLs:url ? @[url] : @[] delegate:delegate];
+}
+
+- (instancetype)initWithURLs:(NSArray<NSURL *> *)urls delegate:(id<EVEFrameStreamClientDelegate>)delegate {
   self = [super init];
   if (!self) {
     return nil;
   }
 
-  self.url = url;
+  self.urls = urls.count > 0 ? urls : @[];
   self.delegate = delegate;
   self.session = [NSURLSession sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration];
   self.shouldReconnect = YES;
@@ -28,9 +33,15 @@
 - (void)connect {
   self.shouldReconnect = YES;
   [self.task cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure reason:nil];
-  self.task = [self.session webSocketTaskWithURL:self.url];
+  NSURL *url = self.urls.count > 0 ? self.urls[self.urlIndex % self.urls.count] : nil;
+  if (!url) {
+    [self publishStatus:@"stream URL missing"];
+    return;
+  }
+
+  self.task = [self.session webSocketTaskWithURL:url];
   [self.task resume];
-  [self publishStatus:@"connecting"];
+  [self publishStatus:[NSString stringWithFormat:@"connecting %@", url.host ?: @""]];
   [self receiveNextMessage];
 }
 
@@ -80,10 +91,18 @@
     }
 
     if (message.type == NSURLSessionWebSocketMessageTypeData) {
-      UIImage *image = [UIImage imageWithData:message.data];
-      if (image) {
+      const uint8_t *bytes = message.data.bytes;
+      BOOL isJpeg = message.data.length > 2 && bytes[0] == 0xff && bytes[1] == 0xd8;
+      if (isJpeg) {
+        UIImage *image = [UIImage imageWithData:message.data];
+        if (image) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate frameStreamClient:self didReceiveImage:image];
+          });
+        }
+      } else {
         dispatch_async(dispatch_get_main_queue(), ^{
-          [self.delegate frameStreamClient:self didReceiveImage:image];
+          [self.delegate frameStreamClient:self didReceiveVideoAccessUnit:message.data];
         });
       }
     } else if (message.type == NSURLSessionWebSocketMessageTypeString) {
@@ -114,6 +133,10 @@
     }
     dispatch_async(dispatch_get_main_queue(), ^{
       [self.delegate frameStreamClient:self didReceiveViewportWidth:width height:height scale:scale];
+      NSString *codec = message[@"codec"];
+      if ([codec isKindOfClass:NSString.class]) {
+        [self.delegate frameStreamClient:self didReceiveCodec:codec];
+      }
       [self.delegate frameStreamClient:self didChangeStatus:@"stream live"];
     });
   }
@@ -122,6 +145,10 @@
 - (void)reconnectSoon {
   if (!self.shouldReconnect) {
     return;
+  }
+
+  if (self.urls.count > 1) {
+    self.urlIndex = (self.urlIndex + 1) % self.urls.count;
   }
 
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
