@@ -39,9 +39,9 @@ make package
 make install
 ```
 
-EVE currently has SSH and jailbreak package management, but the native build
-toolchain still needs to be installed. In particular, a Theos install and an
-iPhoneOS SDK are required before `make package` can work.
+EVE has SSH, jailbreak package management, a Procursus native build toolchain,
+Theos at `/var/theos`, and the packaged iPhoneOS SDK linked under
+`/var/theos/sdks`.
 
 Expected EVE target:
 
@@ -52,12 +52,15 @@ iPadOS: 14.4
 install path: /Applications/EveCanvas.app
 ```
 
-## First Deployment Plan
+## Deployment
 
-1. Install or stage Theos on EVE.
-2. Stage a compatible iPhoneOS SDK under `$THEOS/sdks`.
-3. Copy this project to EVE, for example `/var/mobile/Projects/Eve`.
-4. Build on EVE:
+Stage from the workstation:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\stage-to-eve.ps1
+```
+
+Build and install on EVE:
 
 ```sh
 cd /var/mobile/Projects/Eve
@@ -67,7 +70,15 @@ make install
 uicache -p /Applications/EveCanvas.app
 ```
 
-5. Launch `EveCanvas` from SpringBoard.
+Launch `EveCanvas` from SpringBoard, or over SSH:
+
+```sh
+uiopen --bundleid org.gamecult.evecanvas
+```
+
+If OpenGL ES context creation fails on-device, the app stays alive with the
+UIKit overlay instead of aborting launch. The render surface can then be fixed
+without losing the basic app deployment path.
 
 ## Next Cut
 

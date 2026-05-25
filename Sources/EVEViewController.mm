@@ -113,7 +113,7 @@
 
   self.overlayLabel.text = [NSString stringWithFormat:
     @"EVE Canvas\n"
-     "OpenGL ES 3.0 + UIKit text\n"
+     "native shell + UIKit text\n"
      "points %.0fx%.0f  pixels %.0fx%.0f @ %.1fx\n"
      "fps %.1f  touches %lu\n"
      "accel %+0.2f %+0.2f %+0.2f\n"

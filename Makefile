@@ -12,7 +12,7 @@ EveCanvas_FILES = \
 	Sources/EVEGLView.mm
 
 EveCanvas_FRAMEWORKS = UIKit QuartzCore OpenGLES CoreMotion
-EveCanvas_CFLAGS = -fobjc-arc -Wall -Wextra
+EveCanvas_CFLAGS = -fobjc-arc -Wall -Wextra -DGLES_SILENCE_DEPRECATION
 EveCanvas_CODESIGN_FLAGS = -Sentitlements.plist
 EveCanvas_INSTALL_PATH = /Applications
 

@@ -38,7 +38,12 @@
   };
 
   self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
-  NSAssert(self.context != nil, @"EVE requires OpenGL ES 3.0.");
+  if (!self.context) {
+    self.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+  }
+  if (!self.context) {
+    return self;
+  }
   [EAGLContext setCurrentContext:self.context];
 
   glGenFramebuffers(1, &_framebuffer);
@@ -52,6 +57,9 @@
 }
 
 - (void)dealloc {
+  if (!self.context) {
+    return;
+  }
   [EAGLContext setCurrentContext:self.context];
   if (_colorRenderbuffer) {
     glDeleteRenderbuffers(1, &_colorRenderbuffer);
@@ -68,6 +76,9 @@
 }
 
 - (void)resizeDrawableIfNeeded {
+  if (!self.context) {
+    return;
+  }
   [EAGLContext setCurrentContext:self.context];
   glBindRenderbuffer(GL_RENDERBUFFER, self.colorRenderbuffer);
   [self.context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer];
@@ -77,6 +88,9 @@
 }
 
 - (void)renderAtTime:(NSTimeInterval)time {
+  if (!self.context) {
+    return;
+  }
   [EAGLContext setCurrentContext:self.context];
   glBindFramebuffer(GL_FRAMEBUFFER, self.framebuffer);
   glViewport(0, 0, self.drawableWidth, self.drawableHeight);
