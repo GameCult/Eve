@@ -1,0 +1,8 @@
+Package: org.gamecult.evecanvas
+Name: EveCanvas
+Version: 0.1.0
+Architecture: iphoneos-arm
+Description: Fullscreen OpenGL ES 3.0 render shell for EVE.
+Maintainer: GameCult <meta@gamecult.org>
+Author: GameCult
+Section: Applications
