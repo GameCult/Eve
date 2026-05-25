@@ -74,10 +74,10 @@
     [self.motionManager startGyroUpdates];
   }
 
-  self.streamViewportSize = CGSizeMake(2160.0, 1620.0);
+  self.streamViewportSize = CGSizeMake(1620.0, 2160.0);
   self.streamScale = 2.0;
   self.streamStatus = @"stream idle";
-  NSURL *streamURL = [NSURL URLWithString:@"ws://192.168.1.66:8791/stream"];
+  NSURL *streamURL = [NSURL URLWithString:@"ws://192.168.1.66:8792/stream"];
   self.streamClient = [[EVEFrameStreamClient alloc] initWithURL:streamURL delegate:self];
   [self.streamClient connect];
 

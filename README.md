@@ -40,10 +40,10 @@ the development machine.
 Start the Starfire relay from `E:\Projects\VoidBot`:
 
 ```powershell
-npm run swarm:eve-cef-relay -- --width 2160 --height 1620 --scale 2 --port 8791
+npm run swarm:eve-cef-relay -- --width 1620 --height 2160 --scale 2 --port 8792
 ```
 
-EveCanvas connects to `ws://192.168.1.66:8791/stream`, displays binary JPEG
+EveCanvas connects to `ws://192.168.1.66:8792/stream`, displays binary JPEG
 frames, and returns touch events to the relay.
 
 ## Build Shape
