@@ -9,7 +9,8 @@ EveCanvas_FILES = \
 	Sources/main.m \
 	Sources/EVEAppDelegate.m \
 	Sources/EVEViewController.mm \
-	Sources/EVEGLView.mm
+	Sources/EVEGLView.mm \
+	Sources/EVEFrameStreamClient.m
 
 EveCanvas_FRAMEWORKS = UIKit QuartzCore OpenGLES CoreMotion
 EveCanvas_CFLAGS = -fobjc-arc -Wall -Wextra -DGLES_SILENCE_DEPRECATION

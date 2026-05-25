@@ -3,8 +3,10 @@
 Fullscreen native render shell for EVE, the jailbroken iPad 8th generation test
 device.
 
-This is deliberately not a web app. UIKit owns the app/window lifecycle and the
-text overlay. OpenGL ES 3.0 owns the render surface.
+This is deliberately not a web app. UIKit owns the app/window lifecycle, the
+streamed frame surface, touch capture, and the text overlay. OpenGL ES remains a
+local render fallback, but the VoidBot dashboard path is a native frame stream
+from Starfire.
 
 ## Objective
 
@@ -15,20 +17,34 @@ the development machine.
 
 - `EVEAppDelegate` creates one fullscreen `UIWindow`.
 - `EVEViewController` installs:
-  - `EVEGLView`, a `CAEAGLLayer` backed OpenGL ES 3.0 render target.
-  - a native UIKit `UILabel` overlay for crisp Retina text.
+  - `EVEGLView`, a `CAEAGLLayer` backed OpenGL ES render target.
+  - a full-screen `UIImageView` that displays CEF relay frames.
+  - `EVEFrameStreamClient`, a native WebSocket client for frame/input transport.
+  - a native UIKit `UILabel` overlay for crisp Retina status text.
   - `CADisplayLink` for frame ticking.
   - `CMMotionManager` for accelerometer and gyro telemetry.
-- `EVEGLView` clears the full drawable with a slow color pulse and presents the
-  renderbuffer every frame.
+- `EVEFrameStreamClient` receives binary JPEG frames from the Starfire CEF relay
+  and sends touch events back as JSON viewport coordinates.
 
 ## Invariants
 
-- Browser/PWA layout is not part of this path.
-- UIKit is the text owner; OpenGL ES is the pixel owner.
+- Browser/PWA layout is not part of the iPad path.
+- Starfire CEF owns browser pixels; EveCanvas owns display and touch capture.
+- UIKit is the current streamed-frame owner; OpenGL ES is fallback/local render.
 - The status bar stays hidden.
 - Sensor reads are display-only telemetry until a later input model owns them.
 - CultMesh networking is not smuggled into the render shell yet.
+
+## VoidBot CEF Stream
+
+Start the Starfire relay from `E:\Projects\VoidBot`:
+
+```powershell
+npm run swarm:eve-cef-relay -- --width 2160 --height 1620 --scale 2 --port 8791
+```
+
+EveCanvas connects to `ws://192.168.1.66:8791/stream`, displays binary JPEG
+frames, and returns touch events to the relay.
 
 ## Build Shape
 
