@@ -6,8 +6,16 @@
 #import "EVEFrameStreamClient.h"
 #import "EVEGLView.h"
 #import "EVEH264StreamDecoder.h"
+#import "EVESensorUplinkClient.h"
 
-@interface EVEViewController () <EVEFrameStreamClientDelegate>
+@import AVFoundation;
+@import CoreImage;
+
+static int64_t EVEHostTimeNowNs(void) {
+  return (int64_t)(CACurrentMediaTime() * 1000000000.0);
+}
+
+@interface EVEViewController () <EVEFrameStreamClientDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
 
 @property(nonatomic, strong) EVEGLView *glView;
 @property(nonatomic, strong) UIImageView *streamImageView;
@@ -16,9 +24,18 @@
 @property(nonatomic, strong) CADisplayLink *displayLink;
 @property(nonatomic, strong) CMMotionManager *motionManager;
 @property(nonatomic, strong) EVEFrameStreamClient *streamClient;
+@property(nonatomic, strong) EVESensorUplinkClient *cameraUplink;
+@property(nonatomic, strong) EVESensorUplinkClient *micUplink;
+@property(nonatomic, strong) AVCaptureSession *captureSession;
+@property(nonatomic, strong) dispatch_queue_t captureQueue;
+@property(nonatomic, strong) CIContext *ciContext;
+@property(nonatomic, strong) AVAudioEngine *audioEngine;
 @property(nonatomic, assign) NSTimeInterval previousTimestamp;
+@property(nonatomic, assign) NSTimeInterval previousCameraSendTimestamp;
 @property(nonatomic, assign) double filteredFPS;
 @property(nonatomic, assign) NSUInteger touchCount;
+@property(nonatomic, assign) uint64_t cameraSequence;
+@property(nonatomic, assign) uint64_t micSequence;
 @property(nonatomic, assign) CGSize streamViewportSize;
 @property(nonatomic, assign) CGFloat streamScale;
 @property(nonatomic, copy) NSString *streamStatus;
@@ -93,6 +110,20 @@
   self.streamClient = [[EVEFrameStreamClient alloc] initWithURLs:streamURLs delegate:self];
   [self.streamClient connect];
 
+  NSArray<NSURL *> *cameraURLs = @[
+    [NSURL URLWithString:@"ws://127.0.0.1:8793/eve/camera"],
+    [NSURL URLWithString:@"ws://192.168.1.66:8793/eve/camera"],
+  ];
+  NSArray<NSURL *> *micURLs = @[
+    [NSURL URLWithString:@"ws://127.0.0.1:8794/eve/mic"],
+    [NSURL URLWithString:@"ws://192.168.1.66:8794/eve/mic"],
+  ];
+  self.cameraUplink = [[EVESensorUplinkClient alloc] initWithURLs:cameraURLs label:@"camera"];
+  self.micUplink = [[EVESensorUplinkClient alloc] initWithURLs:micURLs label:@"mic"];
+  [self.cameraUplink connect];
+  [self.micUplink connect];
+  [self startSensorCapture];
+
   self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(frameTick:)];
   [self.displayLink addToRunLoop:NSRunLoop.mainRunLoop forMode:NSRunLoopCommonModes];
 }
@@ -100,6 +131,10 @@
 - (void)dealloc {
   [self.displayLink invalidate];
   [self.streamClient disconnect];
+  [self.cameraUplink disconnect];
+  [self.micUplink disconnect];
+  [self.captureSession stopRunning];
+  [self.audioEngine stop];
   [self.motionManager stopAccelerometerUpdates];
   [self.motionManager stopGyroUpdates];
 }
@@ -153,6 +188,7 @@
      "points %.0fx%.0f  pixels %.0fx%.0f @ %.1fx\n"
      "stream %.0fx%.0f @ %.1fx\n"
      "fps %.1f  touches %lu\n"
+     "uplink %@ / %@\n"
      "accel %+0.2f %+0.2f %+0.2f\n"
      "gyro  %+0.2f %+0.2f %+0.2f",
      self.streamStatus ?: @"stream",
@@ -160,9 +196,163 @@
      points.width, points.height, pixels.width, pixels.height, scale,
      self.streamViewportSize.width, self.streamViewportSize.height, self.streamScale,
      self.filteredFPS, (unsigned long)self.touchCount,
+     self.cameraUplink.status ?: @"camera",
+     self.micUplink.status ?: @"mic",
      acceleration.x, acceleration.y, acceleration.z,
      rotation.x, rotation.y, rotation.z];
   [self.overlayLabel sizeToFit];
+}
+
+- (void)startSensorCapture {
+  self.ciContext = [CIContext contextWithOptions:nil];
+  self.captureQueue = dispatch_queue_create("org.gamecult.evecanvas.camera", DISPATCH_QUEUE_SERIAL);
+
+  [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+    NSLog(@"EveCanvas camera permission %@", granted ? @"granted" : @"denied");
+    if (granted) {
+      [self startCameraCapture];
+    }
+  }];
+
+  [AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio completionHandler:^(BOOL granted) {
+    NSLog(@"EveCanvas microphone permission %@", granted ? @"granted" : @"denied");
+    if (granted) {
+      [self startMicrophoneCapture];
+    }
+  }];
+}
+
+- (void)startCameraCapture {
+  NSLog(@"EveCanvas starting camera capture");
+  AVCaptureSession *session = [[AVCaptureSession alloc] init];
+  session.sessionPreset = AVCaptureSessionPreset640x480;
+  AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+  if (!device) {
+    NSLog(@"EveCanvas camera device missing");
+    return;
+  }
+
+  NSError *error = nil;
+  AVCaptureDeviceInput *input = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
+  if (!input || error || ![session canAddInput:input]) {
+    NSLog(@"EveCanvas camera input failed %@", error);
+    return;
+  }
+  [session addInput:input];
+
+  AVCaptureVideoDataOutput *output = [[AVCaptureVideoDataOutput alloc] init];
+  output.alwaysDiscardsLateVideoFrames = YES;
+  output.videoSettings = @{
+    (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+  };
+  [output setSampleBufferDelegate:self queue:self.captureQueue];
+  if (![session canAddOutput:output]) {
+    NSLog(@"EveCanvas camera output rejected");
+    return;
+  }
+  [session addOutput:output];
+
+  self.captureSession = session;
+  [session startRunning];
+  NSLog(@"EveCanvas camera capture running");
+}
+
+- (void)startMicrophoneCapture {
+  NSLog(@"EveCanvas starting microphone capture");
+  AVAudioEngine *engine = [[AVAudioEngine alloc] init];
+  AVAudioInputNode *input = engine.inputNode;
+  AVAudioFormat *format = [input outputFormatForBus:0];
+  if (!format) {
+    NSLog(@"EveCanvas microphone format missing");
+    return;
+  }
+
+  __weak typeof(self) weakSelf = self;
+  [input installTapOnBus:0 bufferSize:1024 format:format block:^(AVAudioPCMBuffer *buffer, AVAudioTime *when) {
+    (void)when;
+    __strong typeof(weakSelf) self = weakSelf;
+    if (!self || buffer.frameLength == 0 || !buffer.floatChannelData) {
+      return;
+    }
+
+    NSUInteger frameCount = buffer.frameLength;
+    NSUInteger channels = MAX((NSUInteger)1, MIN((NSUInteger)format.channelCount, (NSUInteger)2));
+    NSMutableData *samples = [NSMutableData dataWithLength:frameCount * channels * sizeof(float)];
+    float *dst = (float *)samples.mutableBytes;
+    for (NSUInteger frame = 0; frame < frameCount; frame++) {
+      for (NSUInteger channel = 0; channel < channels; channel++) {
+        dst[frame * channels + channel] = buffer.floatChannelData[channel][frame];
+      }
+    }
+
+    NSString *base64 = [samples base64EncodedStringWithOptions:0];
+    NSDictionary *payload = @{
+      @"type": @"audio-block",
+      @"sourceId": @"eve-mic",
+      @"timestampNs": @(EVEHostTimeNowNs()),
+      @"sequence": @(self.micSequence++),
+      @"sampleRate": @((int)format.sampleRate),
+      @"channels": @(channels),
+      @"sampleFormat": @"Float32",
+      @"frameCount": @(frameCount),
+      @"byteLength": @(samples.length),
+      @"samplesBase64": base64,
+    };
+    [self.micUplink sendJSONObject:payload];
+  }];
+
+  NSError *error = nil;
+  if ([engine startAndReturnError:&error]) {
+    self.audioEngine = engine;
+    NSLog(@"EveCanvas microphone capture running");
+  } else {
+    NSLog(@"EveCanvas microphone start failed %@", error);
+  }
+}
+
+- (void)captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+  (void)output;
+  (void)connection;
+
+  NSTimeInterval now = CACurrentMediaTime();
+  if (self.previousCameraSendTimestamp > 0 && now - self.previousCameraSendTimestamp < 0.10) {
+    return;
+  }
+  self.previousCameraSendTimestamp = now;
+
+  CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+  if (!pixelBuffer) {
+    return;
+  }
+
+  size_t width = CVPixelBufferGetWidth(pixelBuffer);
+  size_t height = CVPixelBufferGetHeight(pixelBuffer);
+  CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
+  CGImageRef cgImage = [self.ciContext createCGImage:image fromRect:CGRectMake(0, 0, width, height)];
+  if (!cgImage) {
+    return;
+  }
+
+  UIImage *uiImage = [UIImage imageWithCGImage:cgImage];
+  NSData *jpeg = UIImageJPEGRepresentation(uiImage, 0.55);
+  CGImageRelease(cgImage);
+  if (!jpeg) {
+    return;
+  }
+
+  NSString *base64 = [jpeg base64EncodedStringWithOptions:0];
+  NSDictionary *payload = @{
+    @"type": @"video-frame",
+    @"sourceId": @"eve-camera",
+    @"timestampNs": @(EVEHostTimeNowNs()),
+    @"sequence": @(self.cameraSequence++),
+    @"width": @(width),
+    @"height": @(height),
+    @"pixelFormat": @"MJPG",
+    @"byteLength": @(jpeg.length),
+    @"samplesBase64": base64,
+  };
+  [self.cameraUplink sendJSONObject:payload];
 }
 
 - (CGPoint)streamPointForTouch:(UITouch *)touch {

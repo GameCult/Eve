@@ -25,6 +25,12 @@ the development machine.
   - `CMMotionManager` for accelerometer and gyro telemetry.
 - `EVEFrameStreamClient` receives binary JPEG frames from the Starfire CEF relay
   and sends touch events back as JSON viewport coordinates.
+- `EVESensorUplinkClient` opens separate WebSocket uplinks for camera and
+  microphone frame-events so sensor traffic does not block display/control
+  traffic.
+- `EVEViewController` captures camera frames with AVFoundation and microphone
+  blocks with AVAudioEngine, then sends `eve-camera` and `eve-mic` samples to
+  Mimir.
 
 ## Invariants
 
@@ -32,7 +38,8 @@ the development machine.
 - Starfire CEF owns browser pixels; EveCanvas owns display and touch capture.
 - UIKit is the current streamed-frame owner; OpenGL ES is fallback/local render.
 - The status bar stays hidden.
-- Sensor reads are display-only telemetry until a later input model owns them.
+- EveCanvas owns Eve-local sensor reads. Mimir owns synchronization and final
+  interpretation after those samples arrive.
 - CultMesh networking is not smuggled into the render shell yet.
 
 ## VoidBot CEF Stream
@@ -45,6 +52,22 @@ npm run swarm:eve-cef-relay -- --width 1620 --height 2160 --scale 2 --port 8792
 
 EveCanvas connects to `ws://192.168.1.66:8792/stream`, displays binary JPEG
 frames, and returns touch events to the relay.
+
+## Mimir Sensor Uplink
+
+Start Mimir with `config/mimir-runtime.raven-eve.example.json` or run the
+receiver processes directly:
+
+```powershell
+dotnet run --project E:\Projects\Mimir\src\Mimir.EveSensorReceiver\Mimir.EveSensorReceiver.csproj -- --port 8793 --path /eve/camera --source-id eve-camera --type video-frame
+dotnet run --project E:\Projects\Mimir\src\Mimir.EveSensorReceiver\Mimir.EveSensorReceiver.csproj -- --port 8794 --path /eve/mic --source-id eve-mic --type audio-block
+```
+
+EveCanvas sends camera frame-events to `ws://192.168.1.66:8793/eve/camera` and
+microphone frame-events to `ws://192.168.1.66:8794/eve/mic`. The first transport
+uses JSON plus base64 payloads because it is inspectable and already matches
+Mimir's frame-event source. Replace it with binary framing only after the
+sample contract is proven on device.
 
 ## Build Shape
 
@@ -101,4 +124,5 @@ without losing the basic app deployment path.
 - Confirm actual fullscreen drawable size on EVE.
 - Add a simple triangle/quad shader so the renderer proves more than clear.
 - Add touch/Pencil visual markers.
-- Add a local telemetry bridge once the shell is stable.
+- Replace JSON/base64 sensor packets with binary framing once camera and mic
+  timing are proven through Mimir.

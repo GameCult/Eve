@@ -28,6 +28,10 @@
     <key>NSAllowsArbitraryLoads</key>
     <true/>
   </dict>
+  <key>NSCameraUsageDescription</key>
+  <string>EveCanvas sends camera frames to Mimir for synchronized scene capture.</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>EveCanvas sends microphone blocks to Mimir for synchronized audio capture.</string>
   <key>UIApplicationSupportsIndirectInputEvents</key>
   <true/>
   <key>UIRequiresFullScreen</key>

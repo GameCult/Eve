@@ -11,6 +11,7 @@ EveCanvas_FILES = \
 	Sources/EVEViewController.mm \
 	Sources/EVEGLView.mm \
 	Sources/EVEFrameStreamClient.m \
+	Sources/EVESensorUplinkClient.m \
 	Sources/EVEH264StreamDecoder.m
 
 EveCanvas_FRAMEWORKS = UIKit QuartzCore OpenGLES CoreMotion AVFoundation CoreMedia CoreVideo VideoToolbox
