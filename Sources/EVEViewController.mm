@@ -40,6 +40,7 @@ static int64_t EVEHostTimeNowNs(void) {
 @property(nonatomic, assign) CGFloat streamScale;
 @property(nonatomic, copy) NSString *streamStatus;
 @property(nonatomic, copy) NSString *streamCodec;
+@property(nonatomic, copy) NSString *dialogueLine;
 
 @end
 
@@ -103,6 +104,7 @@ static int64_t EVEHostTimeNowNs(void) {
   self.streamScale = 2.0;
   self.streamStatus = @"stream idle";
   self.streamCodec = @"jpeg";
+  self.dialogueLine = @"awaiting Mimir";
   NSArray<NSURL *> *streamURLs = @[
     [NSURL URLWithString:@"ws://127.0.0.1:8792/stream"],
     [NSURL URLWithString:@"ws://192.168.1.66:8792/stream"],
@@ -185,6 +187,7 @@ static int64_t EVEHostTimeNowNs(void) {
      "CEF stream + native touch\n"
      "%@\n"
      "codec %@\n"
+     "Mimir: %@\n"
      "points %.0fx%.0f  pixels %.0fx%.0f @ %.1fx\n"
      "stream %.0fx%.0f @ %.1fx\n"
      "fps %.1f  touches %lu\n"
@@ -193,6 +196,7 @@ static int64_t EVEHostTimeNowNs(void) {
      "gyro  %+0.2f %+0.2f %+0.2f",
      self.streamStatus ?: @"stream",
      self.streamCodec ?: @"unknown",
+     self.dialogueLine ?: @"",
      points.width, points.height, pixels.width, pixels.height, scale,
      self.streamViewportSize.width, self.streamViewportSize.height, self.streamScale,
      self.filteredFPS, (unsigned long)self.touchCount,
@@ -444,6 +448,11 @@ static int64_t EVEHostTimeNowNs(void) {
     [self.videoDecoder reset];
   }
   self.streamCodec = codec;
+}
+
+- (void)frameStreamClient:(EVEFrameStreamClient *)client didReceiveDialogueText:(NSString *)text {
+  (void)client;
+  self.dialogueLine = text;
 }
 
 - (void)frameStreamClient:(EVEFrameStreamClient *)client didChangeStatus:(NSString *)status {

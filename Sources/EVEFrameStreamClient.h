@@ -18,6 +18,7 @@
 - (void)frameStreamClient:(EVEFrameStreamClient *)client didReceiveVideoAccessUnit:(NSData *)data;
 - (void)frameStreamClient:(EVEFrameStreamClient *)client didReceiveViewportWidth:(CGFloat)width height:(CGFloat)height scale:(CGFloat)scale;
 - (void)frameStreamClient:(EVEFrameStreamClient *)client didReceiveCodec:(NSString *)codec;
+- (void)frameStreamClient:(EVEFrameStreamClient *)client didReceiveDialogueText:(NSString *)text;
 - (void)frameStreamClient:(EVEFrameStreamClient *)client didChangeStatus:(NSString *)status;
 
 @end

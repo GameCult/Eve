@@ -52,16 +52,20 @@
 }
 
 - (void)sendPointerPhase:(NSString *)phase x:(CGFloat)x y:(CGFloat)y {
-  if (!self.task) {
-    return;
-  }
-
   NSDictionary *payload = @{
     @"type": @"pointer",
     @"phase": phase,
     @"x": @(x),
     @"y": @(y),
   };
+  [self sendJSONObject:payload failureStatus:@"input send failed"];
+}
+
+- (void)sendJSONObject:(NSDictionary *)payload failureStatus:(NSString *)failureStatus {
+  if (!self.task) {
+    return;
+  }
+
   NSData *json = [NSJSONSerialization dataWithJSONObject:payload options:0 error:nil];
   if (!json) {
     return;
@@ -71,7 +75,7 @@
   NSURLSessionWebSocketMessage *message = [[NSURLSessionWebSocketMessage alloc] initWithString:text];
   [self.task sendMessage:message completionHandler:^(NSError *error) {
     if (error) {
-      [self publishStatus:@"input send failed"];
+      [self publishStatus:failureStatus ?: @"send failed"];
     }
   }];
 }
@@ -139,6 +143,22 @@
       }
       [self.delegate frameStreamClient:self didChangeStatus:@"stream live"];
     });
+  } else if ([message[@"type"] isEqualToString:@"dialogue"]) {
+    NSString *text = message[@"text"];
+    if (![text isKindOfClass:NSString.class]) {
+      return;
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self.delegate frameStreamClient:self didReceiveDialogueText:text];
+    });
+    NSDictionary *ack = @{
+      @"type": @"dialogue-ack",
+      @"device": @"eve",
+      @"text": text,
+      @"status": @"seen",
+    };
+    [self sendJSONObject:ack failureStatus:@"dialogue ack failed"];
   }
 }
 
