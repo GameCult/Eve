@@ -9,7 +9,6 @@
 #import "EVESensorUplinkClient.h"
 
 @import AVFoundation;
-@import CoreImage;
 
 static int64_t EVEHostTimeNowNs(void) {
   return (int64_t)(CACurrentMediaTime() * 1000000000.0);
@@ -28,7 +27,6 @@ static int64_t EVEHostTimeNowNs(void) {
 @property(nonatomic, strong) EVESensorUplinkClient *micUplink;
 @property(nonatomic, strong) AVCaptureSession *captureSession;
 @property(nonatomic, strong) dispatch_queue_t captureQueue;
-@property(nonatomic, strong) CIContext *ciContext;
 @property(nonatomic, strong) AVAudioEngine *audioEngine;
 @property(nonatomic, assign) NSTimeInterval previousTimestamp;
 @property(nonatomic, assign) NSTimeInterval previousCameraSendTimestamp;
@@ -208,7 +206,6 @@ static int64_t EVEHostTimeNowNs(void) {
 }
 
 - (void)startSensorCapture {
-  self.ciContext = [CIContext contextWithOptions:nil];
   self.captureQueue = dispatch_queue_create("org.gamecult.evecanvas.camera", DISPATCH_QUEUE_SERIAL);
 
   [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
@@ -329,17 +326,33 @@ static int64_t EVEHostTimeNowNs(void) {
     return;
   }
 
+  CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
   size_t width = CVPixelBufferGetWidth(pixelBuffer);
   size_t height = CVPixelBufferGetHeight(pixelBuffer);
-  CIImage *image = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-  CGImageRef cgImage = [self.ciContext createCGImage:image fromRect:CGRectMake(0, 0, width, height)];
+  size_t bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
+  void *baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer);
+  CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+  CGContextRef bitmapContext = CGBitmapContextCreate(baseAddress,
+                                                     width,
+                                                     height,
+                                                     8,
+                                                     bytesPerRow,
+                                                     colorSpace,
+                                                     kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst);
+  CGImageRef cgImage = bitmapContext ? CGBitmapContextCreateImage(bitmapContext) : NULL;
+  if (bitmapContext) {
+    CGContextRelease(bitmapContext);
+  }
+  CGColorSpaceRelease(colorSpace);
   if (!cgImage) {
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     return;
   }
 
   UIImage *uiImage = [UIImage imageWithCGImage:cgImage];
   NSData *jpeg = UIImageJPEGRepresentation(uiImage, 0.55);
   CGImageRelease(cgImage);
+  CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
   if (!jpeg) {
     return;
   }
