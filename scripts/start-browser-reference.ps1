@@ -25,7 +25,7 @@ const fs = require('fs');
 const path = require('path');
 const root = process.argv[2];
 const port = Number(process.argv[3]);
-const types = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8'};
+const types = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.eve':'text/plain; charset=utf-8'};
 http.createServer((req, res) => {
   const urlPath = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
   const clean = urlPath === '/' ? '/index.html' : urlPath;

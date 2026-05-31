@@ -234,6 +234,34 @@ p {
   background: var(--bg);
 }
 
+.cultui-grid {
+  min-height: calc(100vh - 138px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+  align-content: start;
+}
+
+.cultui-title {
+  color: var(--accent);
+  font: 700 16px "Cascadia Mono", Consolas, monospace;
+  line-height: 1.35;
+}
+
+.cultui-reactive-metric {
+  margin-top: 8px;
+}
+
+.cultui-reactive-list {
+  display: grid;
+  gap: 8px;
+}
+
+.cultui-stream-item {
+  border-left: 2px solid var(--line-hot);
+  padding-left: 8px;
+}
+
 .cultui-background {
   position: absolute;
   inset: 0;

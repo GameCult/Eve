@@ -1,3 +1,5 @@
+import { compileEveDsl } from "./eve-dsl.js";
+
 const statusEl = document.querySelector("#status");
 const app = document.querySelector("#app");
 const surfaceId = document.querySelector("#surface-id");
@@ -5,6 +7,7 @@ const surfaceVersion = document.querySelector("#surface-version");
 const voidBotTab = document.querySelector("#voidbot-tab");
 const fensalirTab = document.querySelector("#fensalir-tab");
 const saiTab = document.querySelector("#sai-tab");
+const dslTab = document.querySelector("#dsl-tab");
 
 let socket;
 
@@ -27,10 +30,17 @@ saiTab.addEventListener("click", async () => {
   renderSurface(await response.json(), "fixture");
 });
 
+dslTab.addEventListener("click", async () => {
+  setActiveTab(dslTab);
+  closeSocket();
+  const response = await fetch("./fixtures/reactive-composition.eve");
+  renderSurface(compileEveDsl(await response.text()), "dsl");
+});
+
 openVoidBot();
 
 function setActiveTab(tab) {
-  for (const button of [voidBotTab, fensalirTab, saiTab]) {
+  for (const button of [voidBotTab, fensalirTab, saiTab, dslTab]) {
     button.classList.toggle("active", button === tab);
   }
 }
@@ -68,6 +78,7 @@ function closeSocket() {
 }
 
 function renderSurface(state, source) {
+  window.__eveCurrentMesh = state.mesh;
   surfaceId.textContent = state.providerId || "surface unknown";
   surfaceVersion.textContent = `v${state.version ?? "?"}`;
   statusEl.textContent = `${state.title || "surface"} (${source})`;
@@ -110,6 +121,13 @@ function renderCultComponent(node) {
     const stage = el("section", "cultui-vn-stage");
     for (const child of children) stage.append(renderCultComponent(child));
     return stage;
+  }
+
+  if (kind === "grid") {
+    const grid = el("section", "cultui-grid");
+    if (props.columns) grid.style.gridTemplateColumns = props.columns;
+    for (const child of children) grid.append(renderCultComponent(child));
+    return grid;
   }
 
   if (kind === "image.background") {
@@ -156,6 +174,13 @@ function renderCultComponent(node) {
     return card;
   }
 
+  if (kind === "card") {
+    const card = el("article", "card cultui-card");
+    if (props.title) card.append(el("div", "card-title", props.title));
+    for (const child of children) card.append(renderCultComponent(child));
+    return card;
+  }
+
   if (kind === "panel.dialogue") {
     const panel = el("section", "cultui-dialogue pane");
     panel.append(el("h2", "", props.speaker || "Speaker"));
@@ -173,15 +198,28 @@ function renderCultComponent(node) {
     return image;
   }
 
-  if (kind === "text.dialogue" || kind === "text") {
-    return el("div", "detail", props.text || "");
+  if (kind === "text.dialogue" || kind === "text" || kind === "text.title") {
+    const text = el("div", kind === "text.title" ? "cultui-title" : "detail", props.text || "");
+    bindText(text, props);
+    return text;
+  }
+
+  if (kind === "metric") {
+    return renderCultMetric(props);
+  }
+
+  if (kind === "list") {
+    return renderCultList(props);
   }
 
   if (kind === "control.button") {
     const button = el("button", "cultui-button", props.label || "Action");
     button.type = "button";
     button.addEventListener("click", () => {
-      statusEl.textContent = `command ${props.action?.command || "invoke"} ${JSON.stringify(props.action?.payload || {})}`;
+      currentMesh()?.applyAction(props.action);
+      statusEl.textContent = props.action
+        ? `command ${props.action.type} ${props.action.target || ""}`
+        : `command ${props.action?.command || "invoke"} ${JSON.stringify(props.action?.payload || {})}`;
     });
     return button;
   }
@@ -231,6 +269,49 @@ function placeComponent(element, placement) {
     element.dataset.chromaKey = placement.chromaKey.color || "enabled";
   }
   return element;
+}
+
+function bindText(element, props) {
+  if (!props.bind) return;
+  currentMesh()?.var(props.bind).subscribe(value => {
+    element.textContent = `${props.prefix || ""}${value ?? ""}${props.suffix || ""}`;
+  });
+}
+
+function renderCultMetric(props) {
+  const metric = el("div", "metric cultui-reactive-metric");
+  const label = el("label", "", props.label || "Metric");
+  const valueEl = el("span", "metric-value", "");
+  label.append(valueEl);
+  const bar = el("div", "bar");
+  const fill = el("span");
+  bar.append(fill);
+  metric.append(label, bar);
+  if (props.bind) {
+    currentMesh()?.var(props.bind).subscribe(value => {
+      const number = Number(value) || 0;
+      valueEl.textContent = props.format === "percent" ? `${Math.round(number * 100)}%` : String(value ?? "");
+      fill.style.width = `${Math.max(0, Math.min(100, Math.round(number * 100)))}%`;
+    });
+  }
+  return metric;
+}
+
+function renderCultList(props) {
+  const panel = el("section", "cultui-reactive-list");
+  panel.append(el("div", "card-title", props.title || "List"));
+  const list = el("div", "list");
+  panel.append(list);
+  if (props.bind) {
+    currentMesh()?.collection(props.bind).subscribe(items => {
+      list.replaceChildren(...items.map(item => el("div", "detail cultui-stream-item", String(item))));
+    });
+  }
+  return panel;
+}
+
+function currentMesh() {
+  return window.__eveCurrentMesh;
 }
 
 function renderCultGraph(props) {

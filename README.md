@@ -93,6 +93,8 @@ See `docs/renderer-parity.md` for current browser/iOS/Android/Fensalir/Flutter
 renderer parity.
 See `docs/surface-contract-v1.md` for the shared CultUI/CultMesh surface and
 command contract.
+See `docs/eve-dsl-reactive-bindings.md` for the first Eve DSL and reactive
+CultMesh binding contract.
 
 ## Browser Reference
 
@@ -110,6 +112,9 @@ Open `http://127.0.0.1:8891/`. The page can spawn:
 - `Sai VN Surface`, a fixture for visual-novel scenes exported as
   `gamecult.eve.surface.v1`, including embedded Norn and TeX surfaces placed
   diegetically inside the scene.
+- `Reactive DSL`, a browser-reference fixture that compiles a small `.eve`
+  composition language into the same surface contract and binds UI controls to
+  live CultMesh-shaped vars, collections, and derived fields.
 
 ## VoidBot CEF Stream
 

@@ -1,0 +1,38 @@
+# Eve DSL browser-reference fixture.
+# This compiles to gamecult.eve.surface.v1 and binds UI controls to CultMesh-shaped vars.
+
+surface gamecult.eve.reactive-demo "Reactive Eve DSL"
+version 1
+
+var face.name "Eve"
+var face.body "browser reference renderer"
+var swarm.heat 0.42
+
+collection swarm.events
+item swarm.events "surface compiled from Eve DSL"
+item swarm.events "CultMesh vars surfaced as live UI fields"
+item swarm.events "collections behave like event streams"
+
+derive swarm.eventCount count swarm.events
+derive swarm.latestEvent latest swarm.events
+
+card identity "Identity Binding"
+title bind face.name prefix "Renderer: "
+text bind face.body prefix "Body: "
+text "Eve owns rendering; providers and CultMesh own truth."
+end
+
+card pulse "Reactive Pulse"
+metric "Swarm Heat" bind swarm.heat percent
+metric "Event Count" bind swarm.eventCount
+text bind swarm.latestEvent prefix "Latest: "
+button "Append Event" append swarm.events "operator touched the stream at {{now}}"
+end
+
+card doctrine "Binding Contract"
+text "Vars are single live values with subscribers."
+text "Collections are event-shaped surfaces."
+text "Derived fields update from their sources."
+text "Actions mutate through the mesh boundary, not the DOM."
+list "Event Stream" bind swarm.events
+end

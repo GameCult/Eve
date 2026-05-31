@@ -36,6 +36,27 @@ Compatibility fields:
 These fields are display projections. New renderers should prefer
 `surface.root`.
 
+## Eve DSL
+
+The Eve DSL is a source language for authoring `gamecult.eve.surface.v1`
+documents. It is not a second runtime authority. A DSL compiler may lower cards,
+text, metrics, lists, graphs, charts, formulas, and composites into
+`surface.root`, while CultMesh still owns live state identity and providers still
+own accepted commands.
+
+Browser reference support starts in `web/eve-dsl.js` and the fixture
+`web/fixtures/reactive-composition.eve`. The first binding primitives are:
+
+- `var`: one live value surfaced as a reactive field.
+- `collection`: event-shaped ordered values surfaced as lists or streams.
+- `derive`: computed fields such as counts and latest events.
+- `bind`: component props subscribe to a var, collection, or derived field.
+
+The compiled document remains the contract renderers consume. Native clients do
+not need to parse every authoring dialect immediately, but they must honor the
+surface tree and binding semantics once the provider/CultMesh layer publishes
+them.
+
 ## Component Shape
 
 Every component has:
