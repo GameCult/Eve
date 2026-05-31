@@ -6,6 +6,7 @@
 - (void)connect;
 - (void)disconnect;
 - (void)sendJSONObject:(NSDictionary *)payload;
+- (void)sendData:(NSData *)payload;
 
 @property(nonatomic, copy, readonly) NSString *status;
 

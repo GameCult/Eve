@@ -15,6 +15,117 @@ static int64_t EVEHostTimeNowNs(void) {
   return (int64_t)(CACurrentMediaTime() * 1000000000.0);
 }
 
+static void EVEAppendByte(NSMutableData *data, uint8_t value) {
+  [data appendBytes:&value length:1];
+}
+
+static void EVEAppendUInt16(NSMutableData *data, uint16_t value) {
+  uint8_t bytes[2] = { (uint8_t)((value >> 8) & 0xff), (uint8_t)(value & 0xff) };
+  [data appendBytes:bytes length:2];
+}
+
+static void EVEAppendUInt32(NSMutableData *data, uint32_t value) {
+  uint8_t bytes[4] = {
+    (uint8_t)((value >> 24) & 0xff),
+    (uint8_t)((value >> 16) & 0xff),
+    (uint8_t)((value >> 8) & 0xff),
+    (uint8_t)(value & 0xff),
+  };
+  [data appendBytes:bytes length:4];
+}
+
+static void EVEAppendInt64(NSMutableData *data, int64_t value) {
+  EVEAppendByte(data, 0xd3);
+  uint64_t raw = (uint64_t)value;
+  uint8_t bytes[8] = {
+    (uint8_t)((raw >> 56) & 0xff),
+    (uint8_t)((raw >> 48) & 0xff),
+    (uint8_t)((raw >> 40) & 0xff),
+    (uint8_t)((raw >> 32) & 0xff),
+    (uint8_t)((raw >> 24) & 0xff),
+    (uint8_t)((raw >> 16) & 0xff),
+    (uint8_t)((raw >> 8) & 0xff),
+    (uint8_t)(raw & 0xff),
+  };
+  [data appendBytes:bytes length:8];
+}
+
+static void EVEAppendNullableInt64(NSMutableData *data, NSNumber *value) {
+  if (!value) {
+    EVEAppendByte(data, 0xc0);
+    return;
+  }
+
+  EVEAppendInt64(data, value.longLongValue);
+}
+
+static void EVEAppendString(NSMutableData *data, NSString *value) {
+  NSData *bytes = [(value ?: @"") dataUsingEncoding:NSUTF8StringEncoding] ?: [NSData data];
+  NSUInteger length = bytes.length;
+  if (length < 32) {
+    EVEAppendByte(data, (uint8_t)(0xa0 | length));
+  } else if (length < 256) {
+    EVEAppendByte(data, 0xd9);
+    EVEAppendByte(data, (uint8_t)length);
+  } else {
+    EVEAppendByte(data, 0xda);
+    EVEAppendUInt16(data, (uint16_t)MIN(length, 65535));
+  }
+  [data appendData:bytes];
+}
+
+static void EVEAppendBinary(NSMutableData *data, NSData *payload) {
+  NSUInteger length = payload.length;
+  if (length < 256) {
+    EVEAppendByte(data, 0xc4);
+    EVEAppendByte(data, (uint8_t)length);
+  } else if (length <= 65535) {
+    EVEAppendByte(data, 0xc5);
+    EVEAppendUInt16(data, (uint16_t)length);
+  } else {
+    EVEAppendByte(data, 0xc6);
+    EVEAppendUInt32(data, (uint32_t)length);
+  }
+  [data appendData:payload ?: [NSData data]];
+}
+
+static NSData *EVEMediaObservation(NSString *observationId,
+                                   NSString *deviceId,
+                                   NSString *streamId,
+                                   NSString *kind,
+                                   uint64_t sequence,
+                                   int64_t sensorTimestampNs,
+                                   int64_t elapsedRealtimeNs,
+                                   NSString *format,
+                                   NSNumber *width,
+                                   NSNumber *height,
+                                   NSNumber *sampleRate,
+                                   NSNumber *channels,
+                                   NSNumber *frameCount,
+                                   NSData *payload) {
+  NSMutableData *data = [NSMutableData data];
+  EVEAppendByte(data, 0xdc);
+  EVEAppendUInt16(data, 17);
+  EVEAppendString(data, observationId);
+  EVEAppendString(data, deviceId);
+  EVEAppendString(data, streamId);
+  EVEAppendString(data, kind);
+  EVEAppendInt64(data, (int64_t)sequence);
+  EVEAppendInt64(data, sensorTimestampNs);
+  EVEAppendInt64(data, elapsedRealtimeNs);
+  EVEAppendString(data, [[NSDate date] descriptionWithLocale:nil]);
+  EVEAppendString(data, @"eve-host-time");
+  EVEAppendString(data, format);
+  EVEAppendNullableInt64(data, width);
+  EVEAppendNullableInt64(data, height);
+  EVEAppendNullableInt64(data, sampleRate);
+  EVEAppendNullableInt64(data, channels);
+  EVEAppendNullableInt64(data, frameCount);
+  EVEAppendString(data, @"raw");
+  EVEAppendBinary(data, payload ?: [NSData data]);
+  return data;
+}
+
 @interface EVEViewController () <EVEFrameStreamClientDelegate, EVEDashboardClientDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate>
 
 @property(nonatomic, strong) EVEGLView *glView;
@@ -418,20 +529,24 @@ static int64_t EVEHostTimeNowNs(void) {
       }
     }
 
-    NSString *base64 = [samples base64EncodedStringWithOptions:0];
-    NSDictionary *payload = @{
-      @"type": @"audio-block",
-      @"sourceId": @"eve-mic",
-      @"timestampNs": @(EVEHostTimeNowNs()),
-      @"sequence": @(self.micSequence++),
-      @"sampleRate": @((int)format.sampleRate),
-      @"channels": @(channels),
-      @"sampleFormat": @"Float32",
-      @"frameCount": @(frameCount),
-      @"byteLength": @(samples.length),
-      @"samplesBase64": base64,
-    };
-    [self.micUplink sendJSONObject:payload];
+    uint64_t sequence = self.micSequence++;
+    int64_t timestampNs = EVEHostTimeNowNs();
+    NSData *payload = EVEMediaObservation(
+      [NSString stringWithFormat:@"eve:microphone-float32-block:%llu", sequence],
+      @"eve",
+      @"eve-mic",
+      @"microphone-float32-block",
+      sequence,
+      timestampNs,
+      timestampNs,
+      @"float32le",
+      nil,
+      nil,
+      @((int)format.sampleRate),
+      @(channels),
+      @(frameCount),
+      samples);
+    [self.micUplink sendData:payload];
   }];
 
   NSError *error = nil;
@@ -489,19 +604,24 @@ static int64_t EVEHostTimeNowNs(void) {
     return;
   }
 
-  NSString *base64 = [jpeg base64EncodedStringWithOptions:0];
-  NSDictionary *payload = @{
-    @"type": @"video-frame",
-    @"sourceId": @"eve-camera",
-    @"timestampNs": @(EVEHostTimeNowNs()),
-    @"sequence": @(self.cameraSequence++),
-    @"width": @(width),
-    @"height": @(height),
-    @"pixelFormat": @"MJPG",
-    @"byteLength": @(jpeg.length),
-    @"samplesBase64": base64,
-  };
-  [self.cameraUplink sendJSONObject:payload];
+  uint64_t sequence = self.cameraSequence++;
+  int64_t timestampNs = EVEHostTimeNowNs();
+  NSData *payload = EVEMediaObservation(
+    [NSString stringWithFormat:@"eve:camera-mjpeg-frame:%llu", sequence],
+    @"eve",
+    @"eve-camera",
+    @"camera-mjpeg-frame",
+    sequence,
+    timestampNs,
+    timestampNs,
+    @"mjpeg",
+    @(width),
+    @(height),
+    nil,
+    nil,
+    @1,
+    jpeg);
+  [self.cameraUplink sendData:payload];
 }
 
 - (CGPoint)streamPointForTouch:(UITouch *)touch {

@@ -88,6 +88,37 @@
   }];
 }
 
+- (void)sendData:(NSData *)payload {
+  NSURLSessionWebSocketTask *task = self.task;
+  if (!task) {
+    [self connect];
+    return;
+  }
+
+  if (!payload) {
+    self.status = [NSString stringWithFormat:@"%@ binary missing", self.label];
+    return;
+  }
+
+  NSURLSessionWebSocketMessage *message = [[NSURLSessionWebSocketMessage alloc] initWithData:payload];
+  __weak typeof(self) weakSelf = self;
+  [task sendMessage:message completionHandler:^(NSError *error) {
+    __strong typeof(weakSelf) self = weakSelf;
+    if (!self) {
+      return;
+    }
+
+    if (error) {
+      self.status = [NSString stringWithFormat:@"%@ send failed", self.label];
+      NSLog(@"EveCanvas %@ uplink binary send failed: %@", self.label, error);
+      self.task = nil;
+      [self reconnectSoon];
+    } else {
+      self.status = [NSString stringWithFormat:@"%@ live", self.label];
+    }
+  }];
+}
+
 - (void)reconnectSoon {
   if (!self.shouldReconnect) {
     return;

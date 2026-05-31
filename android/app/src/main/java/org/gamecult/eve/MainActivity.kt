@@ -1,11 +1,23 @@
 package org.gamecult.eve
 
+import android.Manifest
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.ImageFormat
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraManager
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.Image
+import android.media.ImageReader
+import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -25,6 +37,7 @@ import org.gamecult.cultmesh.eve.EveDashboardCommandDocument
 import org.gamecult.cultmesh.eve.EveDashboardNodeSnapshot
 import org.gamecult.cultmesh.eve.EveDashboardStateDocument
 import org.gamecult.cultmesh.eve.EveDashboardUiElement
+import org.gamecult.cultmesh.eve.EveMediaObservationDocument
 import org.gamecult.cultmesh.eve.EveSensorObservationDocument
 import java.net.URI
 import java.text.SimpleDateFormat
@@ -49,11 +62,19 @@ class MainActivity : Activity(), SensorEventListener {
     private var commandSequence = 0L
     private var sensorSequence = 0L
     private var touchSequence = 0L
+    private var mediaSequence = 0L
+    @Volatile private var lastCameraSentElapsedNs = 0L
+    @Volatile private var mediaRunning = false
+    private var audioRecord: AudioRecord? = null
+    private var cameraDevice: CameraDevice? = null
+    private var cameraSession: CameraCaptureSession? = null
+    private var imageReader: ImageReader? = null
 
     private lateinit var brokerText: TextView
     private lateinit var selectedText: TextView
     private lateinit var sensorText: TextView
     private lateinit var touchText: TextView
+    private lateinit var mediaText: TextView
     private lateinit var surfaceList: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,11 +84,18 @@ class MainActivity : Activity(), SensorEventListener {
         startSensors()
         connectDashboard()
         connectSensorUplink()
+        requestMediaPermissionsAndStart()
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        mediaRunning = false
         sensorManager?.unregisterListener(this)
+        audioRecord?.stop()
+        audioRecord?.release()
+        cameraSession?.close()
+        cameraDevice?.close()
+        imageReader?.close()
         dashboardSocket?.close()
         sensorSocket?.close()
         workers.shutdownNow()
@@ -89,13 +117,15 @@ class MainActivity : Activity(), SensorEventListener {
         selectedText = card("selection\nwaiting for dashboard state")
         sensorText = card("CultMesh sensors\nconnecting $sensorUri")
         touchText = card("touch surface\nwaiting for operator input")
+        mediaText = card("media sensors\nwaiting for camera/mic permissions")
         surfaceList = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         root.addView(brokerText)
         root.addView(selectedText)
         root.addView(surfaceList)
         root.addView(sensorText)
+        root.addView(mediaText)
         root.addView(touchText)
-        root.addView(card("contract\nPeriwinkle consumes mimir.eve_dashboard_state.v1, sends mimir.eve_dashboard_command.v1, and publishes mimir.eve_sensor_observation.v1. Mimir accepts meaning; Android renders and observes."))
+        root.addView(card("contract\nPeriwinkle consumes mimir.eve_dashboard_state.v1, sends mimir.eve_dashboard_command.v1, and publishes mimir.eve_sensor_observation.v1 plus mimir.eve_media_observation.v1. Mimir accepts meaning; Android renders and observes."))
         return scroll
     }
 
@@ -323,6 +353,11 @@ class MainActivity : Activity(), SensorEventListener {
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 42) startLocalMedia()
+    }
+
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
         val sequence = ++touchSequence
         val elapsedNs = SystemClock.elapsedRealtimeNanos()
@@ -364,6 +399,204 @@ class MainActivity : Activity(), SensorEventListener {
         mesh.remember(EveSensorObservationDocument, observation.observationId, observation)
         workers.execute {
             runCatching { socket.sendBinary(EveSensorObservationDocument.encode(observation)) }
+                .onFailure {
+                    sensorSocket?.close()
+                    sensorSocket = null
+                    connectSensorUplink()
+                }
+        }
+    }
+
+    private fun requestMediaPermissionsAndStart() {
+        val missing = arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
+            .filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
+            .toTypedArray()
+        if (missing.isNotEmpty()) {
+            requestPermissions(missing, 42)
+            return
+        }
+
+        startLocalMedia()
+    }
+
+    private fun startLocalMedia() {
+        if (mediaRunning) return
+        mediaRunning = true
+        startMicrophone()
+        startCamera()
+    }
+
+    @Suppress("MissingPermission")
+    private fun startMicrophone() {
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            main.post { mediaText.text = "media sensors\nmicrophone permission missing" }
+            return
+        }
+
+        workers.execute {
+            val sampleRate = 16_000
+            val minBuffer = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
+            if (minBuffer <= 0) {
+                main.post { mediaText.text = "media sensors\nAudioRecord unavailable" }
+                return@execute
+            }
+
+            val blockBytes = 3_200
+            val record = AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBuffer.coerceAtLeast(blockBytes * 2))
+            audioRecord = record
+            val buffer = ByteArray(blockBytes)
+            record.startRecording()
+            while (mediaRunning && !Thread.currentThread().isInterrupted) {
+                val read = record.read(buffer, 0, buffer.size)
+                if (read > 0) {
+                    val payload = buffer.copyOf(read)
+                    val elapsedNs = SystemClock.elapsedRealtimeNanos()
+                    val sequence = ++mediaSequence
+                    main.post { mediaText.text = "media sensors\nmicrophone pcm16le seq=$sequence bytes=$read rate=$sampleRate" }
+                    sendMediaObservation(
+                        kind = "microphone-pcm16-block",
+                        streamId = "periwinkle-mic",
+                        sequence = sequence,
+                        sensorTimestampNs = elapsedNs,
+                        elapsedNs = elapsedNs,
+                        format = "pcm16le",
+                        sampleRate = sampleRate,
+                        channels = 1,
+                        frameCount = read / 2,
+                        payload = payload)
+                }
+            }
+        }
+    }
+
+    @Suppress("MissingPermission", "DEPRECATION")
+    private fun startCamera() {
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            main.post { mediaText.text = "media sensors\ncamera permission missing" }
+            return
+        }
+
+        val manager = getSystemService(CAMERA_SERVICE) as CameraManager
+        val cameraId = manager.cameraIdList.firstOrNull { id ->
+            manager.getCameraCharacteristics(id).get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK
+        } ?: manager.cameraIdList.firstOrNull()
+        if (cameraId == null) {
+            main.post { mediaText.text = "media sensors\ncamera unavailable" }
+            return
+        }
+
+        imageReader = ImageReader.newInstance(160, 120, ImageFormat.YUV_420_888, 2).apply {
+            setOnImageAvailableListener({ reader ->
+                val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
+                handleCameraImage(image)
+            }, main)
+        }
+
+        manager.openCamera(cameraId, object : CameraDevice.StateCallback() {
+            override fun onOpened(camera: CameraDevice) {
+                cameraDevice = camera
+                val reader = imageReader ?: return
+                val request = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
+                    addTarget(reader.surface)
+                }
+                camera.createCaptureSession(listOf(reader.surface), object : CameraCaptureSession.StateCallback() {
+                    override fun onConfigured(session: CameraCaptureSession) {
+                        cameraSession = session
+                        session.setRepeatingRequest(request.build(), null, main)
+                    }
+
+                    override fun onConfigureFailed(session: CameraCaptureSession) {
+                        mediaText.text = "media sensors\ncamera session configure failed"
+                    }
+                }, main)
+            }
+
+            override fun onDisconnected(camera: CameraDevice) {
+                camera.close()
+            }
+
+            override fun onError(camera: CameraDevice, error: Int) {
+                mediaText.text = "media sensors\ncamera error=$error"
+                camera.close()
+            }
+        }, main)
+    }
+
+    private fun handleCameraImage(image: Image) {
+        image.use {
+            val elapsedNs = SystemClock.elapsedRealtimeNanos()
+            if (elapsedNs - lastCameraSentElapsedNs < 200_000_000L) return
+            lastCameraSentElapsedNs = elapsedNs
+            val payload = copyLumaPlane(image)
+            val sequence = ++mediaSequence
+            mediaText.text = "media sensors\ncamera y8 seq=$sequence ${image.width}x${image.height} bytes=${payload.size}"
+            sendMediaObservation(
+                kind = "camera-luma-frame",
+                streamId = "periwinkle-camera",
+                sequence = sequence,
+                sensorTimestampNs = image.timestamp,
+                elapsedNs = elapsedNs,
+                format = "y8",
+                width = image.width,
+                height = image.height,
+                frameCount = 1,
+                payload = payload)
+        }
+    }
+
+    private fun copyLumaPlane(image: Image): ByteArray {
+        val plane = image.planes[0]
+        val buffer = plane.buffer
+        val rowStride = plane.rowStride
+        val pixelStride = plane.pixelStride
+        val data = ByteArray(image.width * image.height)
+        var out = 0
+        for (y in 0 until image.height) {
+            val rowStart = y * rowStride
+            for (x in 0 until image.width) {
+                data[out++] = buffer.get(rowStart + x * pixelStride)
+            }
+        }
+        return data
+    }
+
+    private fun sendMediaObservation(
+        kind: String,
+        streamId: String,
+        sequence: Long,
+        sensorTimestampNs: Long,
+        elapsedNs: Long,
+        format: String,
+        width: Int? = null,
+        height: Int? = null,
+        sampleRate: Int? = null,
+        channels: Int? = null,
+        frameCount: Int? = null,
+        payload: ByteArray,
+    ) {
+        val socket = sensorSocket ?: return
+        val observation = EveMediaObservationDocument(
+            observationId = "$deviceId:$kind:$sequence",
+            deviceId = deviceId,
+            streamId = streamId,
+            kind = kind,
+            sequence = sequence,
+            sensorTimestampNs = sensorTimestampNs,
+            elapsedRealtimeNs = elapsedNs,
+            wallClockUtc = utcNow(),
+            clockDomainId = "periwinkle-elapsed-realtime",
+            format = format,
+            width = width,
+            height = height,
+            sampleRate = sampleRate,
+            channels = channels,
+            frameCount = frameCount,
+            payloadEncoding = "raw",
+            payload = payload,
+        )
+        mesh.remember(EveMediaObservationDocument, observation.observationId, observation)
+        workers.execute {
+            runCatching { socket.sendBinary(EveMediaObservationDocument.encode(observation)) }
                 .onFailure {
                     sensorSocket?.close()
                     sensorSocket = null

@@ -43,7 +43,8 @@ the installed Android SDK and CultLib's `cultmesh-kotlin` package, without
 Gradle or Flutter. It exists to put Eve on Periwinkle immediately: it consumes
 typed `mimir.eve_dashboard_state.v1` CultMesh documents, sends
 `mimir.eve_dashboard_command.v1` command documents, and publishes timestamped
-touch/motion observations as `mimir.eve_sensor_observation.v1`.
+touch/motion observations as `mimir.eve_sensor_observation.v1` plus camera/mic
+payloads as `mimir.eve_media_observation.v1`.
 
 - `EVEAppDelegate` creates one fullscreen `UIWindow`.
 - `EVEViewController` installs:
@@ -56,13 +57,13 @@ touch/motion observations as `mimir.eve_sensor_observation.v1`.
 - `EVEFrameStreamClient` receives binary JPEG frames from the Starfire CEF relay
   and sends touch events back as JSON viewport coordinates.
 - `EVESensorUplinkClient` opens separate WebSocket uplinks for camera and
-  microphone frame-events so sensor traffic does not block display/control
+  microphone observations so sensor traffic does not block display/control
   traffic.
 - `EVEDashboardClient` opens the native Mimir dashboard socket and receives
   scene/control state snapshots.
 - `EVEViewController` captures camera frames with AVFoundation and microphone
-  blocks with AVAudioEngine, then sends `eve-camera` and `eve-mic` samples to
-  Mimir. It also renders the dashboard natively with UIKit: a scene graph,
+  blocks with AVAudioEngine, then sends binary CultMesh `eve-camera` and
+  `eve-mic` media observations to Mimir. It also renders the dashboard natively with UIKit: a scene graph,
   draggable source panels, visibility/reset controls, and multitouch
   pan/pinch/rotate transform commands.
 
@@ -131,11 +132,10 @@ dotnet run --project E:\Projects\Mimir\src\Mimir.EveSensorReceiver\Mimir.EveSens
 dotnet run --project E:\Projects\Mimir\src\Mimir.EveSensorReceiver\Mimir.EveSensorReceiver.csproj -- --port 8794 --path /eve/mic --source-id eve-mic --type audio-block
 ```
 
-EveCanvas sends camera frame-events to `ws://192.168.1.66:8793/eve/camera` and
-microphone frame-events to `ws://192.168.1.66:8794/eve/mic`. The first transport
-uses JSON plus base64 payloads because it is inspectable and already matches
-Mimir's frame-event source. Replace it with binary framing only after the
-sample contract is proven on device.
+EveCanvas sends binary `mimir.eve_media_observation.v1` camera observations to
+`ws://192.168.1.66:8793/eve/camera` and microphone observations to
+`ws://192.168.1.66:8794/eve/mic`. Periwinkle sends camera, microphone, motion,
+and touch observations through `ws://192.168.1.66:8796/eve/periwinkle`.
 
 ## Native Mimir Dashboard
 
