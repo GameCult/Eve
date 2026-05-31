@@ -4,6 +4,7 @@ const surfaceId = document.querySelector("#surface-id");
 const surfaceVersion = document.querySelector("#surface-version");
 const voidBotTab = document.querySelector("#voidbot-tab");
 const fensalirTab = document.querySelector("#fensalir-tab");
+const saiTab = document.querySelector("#sai-tab");
 
 let socket;
 
@@ -19,10 +20,17 @@ fensalirTab.addEventListener("click", async () => {
   renderSurface(await response.json(), "fixture");
 });
 
+saiTab.addEventListener("click", async () => {
+  setActiveTab(saiTab);
+  closeSocket();
+  const response = await fetch("./fixtures/sai-vn-surface.json");
+  renderSurface(await response.json(), "fixture");
+});
+
 openVoidBot();
 
 function setActiveTab(tab) {
-  for (const button of [voidBotTab, fensalirTab]) {
+  for (const button of [voidBotTab, fensalirTab, saiTab]) {
     button.classList.toggle("active", button === tab);
   }
 }
@@ -61,11 +69,155 @@ function renderSurface(state, source) {
   surfaceId.textContent = state.providerId || "surface unknown";
   surfaceVersion.textContent = `v${state.version ?? "?"}`;
   statusEl.textContent = `${state.title || "surface"} (${source})`;
-  if (state.providerId === "voidbot.swarm") {
+  applySurfaceStyles(state.surface?.styles);
+  if (state.surface?.root) {
+    app.replaceChildren(renderCultComponent(state.surface.root));
+  } else if (state.providerId === "voidbot.swarm") {
     renderVoidBot(state);
   } else {
     renderGraphSurface(state);
   }
+}
+
+function applySurfaceStyles(styles) {
+  const tokens = styles?.tokens || {};
+  const root = document.documentElement.style;
+  const map = {
+    colorBackground: "--bg",
+    colorPanel: "--panel",
+    colorPanelAlt: "--panel-2",
+    colorText: "--text",
+    colorMuted: "--quiet",
+    colorAccent: "--accent",
+    colorLink: "--cyan",
+  };
+  for (const [token, variable] of Object.entries(map)) {
+    if (tokens[token]) root.setProperty(variable, tokens[token]);
+  }
+  if (tokens.fontBody) root.setProperty("--font-body", tokens.fontBody);
+  if (tokens.fontTitle) root.setProperty("--font-title", tokens.fontTitle);
+}
+
+function renderCultComponent(node) {
+  const kind = node.kind || "panel";
+  const props = node.props || {};
+  const children = node.children || [];
+
+  if (kind === "vn.stage") {
+    const stage = el("section", "cultui-vn-stage");
+    for (const child of children) stage.append(renderCultComponent(child));
+    return stage;
+  }
+
+  if (kind === "image.background") {
+    const view = el("div", "cultui-background");
+    if (props.src) view.style.backgroundImage = `url("${props.src}")`;
+    view.setAttribute("aria-label", props.label || "background");
+    return view;
+  }
+
+  if (kind === "graph") {
+    return renderCultGraph(props);
+  }
+
+  if (kind === "layer.sprites" || kind === "layer.cards" || kind === "rail.actions") {
+    const layer = el("div", `cultui-${kind.replace(".", "-")}`);
+    for (const child of children) layer.append(renderCultComponent(child));
+    return layer;
+  }
+
+  if (kind === "image.sprite") {
+    const figure = el("figure", `cultui-sprite ${props.slot || "center"}`);
+    if (props.src) {
+      const image = el("img");
+      image.src = props.src;
+      image.alt = props.alt || props.actor || "";
+      figure.append(image);
+    }
+    return figure;
+  }
+
+  if (kind === "card.external") {
+    const card = el("article", "card cultui-card");
+    card.append(el("div", "card-title", props.title || props.key || "card"));
+    card.append(el("div", "detail", props.selector || props.htmlRef || "provider-owned fragment"));
+    return card;
+  }
+
+  if (kind === "panel.dialogue") {
+    const panel = el("section", "cultui-dialogue pane");
+    panel.append(el("h2", "", props.speaker || "Speaker"));
+    panel.append(el("div", "detail", props.text || ""));
+    for (const child of children) {
+      if (child.kind !== "text.dialogue") panel.append(renderCultComponent(child));
+    }
+    return panel;
+  }
+
+  if (kind === "avatar") {
+    const image = el("img", "avatar");
+    image.src = props.src || "";
+    image.alt = props.label || "";
+    return image;
+  }
+
+  if (kind === "text.dialogue" || kind === "text") {
+    return el("div", "detail", props.text || "");
+  }
+
+  if (kind === "control.button") {
+    const button = el("button", "cultui-button", props.label || "Action");
+    button.type = "button";
+    button.addEventListener("click", () => {
+      statusEl.textContent = `command ${props.action?.command || "invoke"} ${JSON.stringify(props.action?.payload || {})}`;
+    });
+    return button;
+  }
+
+  if (kind === "inspector.kv") {
+    const panel = el("section", "pane");
+    panel.append(el("h2", "", props.title || "Inspector"));
+    for (const item of props.items || []) {
+      panel.append(el("div", "detail", `${item.key}: ${item.value}`));
+    }
+    return panel;
+  }
+
+  const fallback = el("section", "pane");
+  fallback.append(el("h2", "", kind));
+  for (const child of children) fallback.append(renderCultComponent(child));
+  return fallback;
+}
+
+function renderCultGraph(props) {
+  const graph = el("section", "cultui-graph");
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 1 1");
+  svg.setAttribute("preserveAspectRatio", "none");
+  const nodes = props.nodes || [];
+  for (const edge of props.edges || []) {
+    const source = nodes.find(node => node.id === edge.source);
+    const target = nodes.find(node => node.id === edge.target);
+    if (!source || !target) continue;
+    const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line.setAttribute("x1", source.x ?? 0);
+    line.setAttribute("y1", source.y ?? 0);
+    line.setAttribute("x2", target.x ?? 0);
+    line.setAttribute("y2", target.y ?? 0);
+    svg.append(line);
+  }
+  graph.append(svg);
+  for (const node of nodes) {
+    const button = el("button", `cultui-node ${node.current ? "selected" : ""}`, node.label || node.id);
+    button.type = "button";
+    button.style.left = `${node.x * 100}%`;
+    button.style.top = `${node.y * 100}%`;
+    button.addEventListener("click", () => {
+      statusEl.textContent = `command story.jump {"targetPath":"${node.target || node.id}"}`;
+    });
+    graph.append(button);
+  }
+  return graph;
 }
 
 function renderVoidBot(state) {

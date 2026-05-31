@@ -39,9 +39,17 @@ distributed UI layer is `surface.root`, a CultUI-shaped tree:
   references.
 - `detail`: structured text, state paths, diagnostics, and provenance.
 
+The current contract id is `gamecult.eve.surface.v1`; command envelopes use
+`gamecult.eve.command.v1`. See `docs/surface-contract-v1.md`.
+
 The browser is the reference renderer for this model. Native renderers should
 match the document semantics, then choose native controls where that gives the
 device better latency, touch, media, or sensor access.
+
+Sai visual novels are now a first pressure test for this contract. Sai needs
+backgrounds, dialogue panels, choices, sprite layers, provider-owned cards,
+Norn graph navigation, and synchronized style controls. If a renderer can lower
+that tree, it can handle more than a dashboard pretending to be a list.
 
 ## Sensor Model
 

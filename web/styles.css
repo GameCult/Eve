@@ -20,7 +20,7 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-body, Inter), "Segoe UI", system-ui, sans-serif;
 }
 
 .topbar {
@@ -222,5 +222,132 @@ p {
 @media (max-width: 900px) {
   .cockpit {
     grid-template-columns: 1fr;
+  }
+}
+
+.cultui-vn-stage {
+  position: relative;
+  min-height: calc(100vh - 138px);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.cultui-background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  image-rendering: pixelated;
+  opacity: 0.72;
+}
+
+.cultui-graph {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  width: min(48rem, 46vw);
+  height: min(29rem, 52vh);
+  z-index: 4;
+}
+
+.cultui-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--cyan);
+  border-radius: 999px;
+  background: rgba(7, 17, 26, 0.76);
+  color: var(--text);
+  min-width: 68px;
+  min-height: 44px;
+  padding: 8px 10px;
+  font: 700 12px "Cascadia Mono", Consolas, monospace;
+}
+
+.cultui-node.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 184, 79, 0.28);
+}
+
+.cultui-graph svg {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.cultui-graph line {
+  stroke: rgba(142, 252, 255, 0.36);
+  stroke-width: 0.006;
+  stroke-linecap: round;
+}
+
+.cultui-layer-cards {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  left: calc(min(48rem, 46vw) + 36px);
+  z-index: 3;
+  display: grid;
+  gap: 10px;
+}
+
+.cultui-dialogue {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  min-height: 128px;
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-radius: 0;
+  background: rgba(5, 8, 13, 0.92);
+}
+
+.cultui-rail-actions {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 6;
+  display: grid;
+  gap: 8px;
+  width: min(28rem, 42vw);
+}
+
+.cultui-button {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(10, 36, 35, 0.94);
+  color: var(--text);
+  padding: 9px 10px;
+  text-align: left;
+  font: 700 12px "Cascadia Mono", Consolas, monospace;
+}
+
+.cultui-button:hover,
+.cultui-button:focus-visible {
+  border-color: var(--line-hot);
+  color: var(--accent);
+}
+
+@media (max-width: 900px) {
+  .cultui-graph {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    height: min(18rem, 34vh);
+  }
+
+  .cultui-layer-cards {
+    top: calc(30px + min(18rem, 34vh));
+    right: 12px;
+    left: 12px;
+  }
+
+  .cultui-rail-actions {
+    left: 12px;
+    width: auto;
   }
 }

@@ -90,6 +90,8 @@ touch/motion observations as `mimir.eve_sensor_observation.v1`.
 See `docs/cultmesh-streaming-ui-framework.md` for the target architecture.
 See `docs/renderer-parity.md` for current browser/iOS/Android/Fensalir/Flutter
 renderer parity.
+See `docs/surface-contract-v1.md` for the shared CultUI/CultMesh surface and
+command contract.
 
 ## Browser Reference
 
@@ -104,6 +106,8 @@ Open `http://127.0.0.1:8891/`. The page can spawn:
 - `VoidBot Live`, connected to Mimir's `/eve/deck` broker.
 - `Fensalir Direct2D`, a fixture surface for the planned
   CultMesh-to-`AquariumUiDocument` lowering.
+- `Sai VN Surface`, a fixture for visual-novel scenes exported as
+  `gamecult.eve.surface.v1`.
 
 ## VoidBot CEF Stream
 
@@ -237,7 +241,8 @@ without losing the basic app deployment path.
 
 - Create the browser reference Eve runtime and use it as the visual/behavior
   test oracle for native clients.
-- Split the shared CultNet/CultMesh surface contract from the iOS app code.
+- Split the shared CultNet/CultMesh surface contract from the iOS app code and
+  keep `gamecult.eve.surface.v1` as the renderer-facing contract.
 - Replace JSON/base64 sensor packets with binary framing once camera and mic
   timing are proven through Mimir.
 - Replace the dashboard fixture state with live `MimirPresentationControlState`

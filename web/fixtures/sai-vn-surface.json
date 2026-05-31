@@ -1,0 +1,137 @@
+{
+  "type": "surface-state",
+  "schema": "gamecult.eve.surface.v1",
+  "providerKind": "sai.visual_novel",
+  "providerId": "gamecult.home.vn",
+  "title": "GameCult Compound VN",
+  "version": 1,
+  "updatedAt": "2026-05-31T00:00:00.000Z",
+  "surface": {
+    "id": "sai.visual_novel.surface",
+    "styles": {
+      "themeId": "gamecult.vn",
+      "tokens": {
+        "colorBackground": "#05080d",
+        "colorPanel": "rgba(5, 8, 13, 0.92)",
+        "colorPanelAlt": "rgba(9, 14, 22, 0.82)",
+        "colorText": "#f6f1e2",
+        "colorMuted": "#b7c7d9",
+        "colorAccent": "#ff8a2a",
+        "colorLink": "#59b7ff",
+        "radiusPanel": 8,
+        "fontBody": "Ubuntu",
+        "fontTitle": "Montserrat",
+        "pixelArt": true,
+        "motion": "subtle"
+      },
+      "controls": [
+        {
+          "id": "theme.accent",
+          "kind": "color",
+          "label": "Accent",
+          "token": "colorAccent",
+          "command": "style.patch"
+        }
+      ]
+    },
+    "root": {
+      "id": "sai.root",
+      "kind": "vn.stage",
+      "props": {
+        "mode": "visual-novel",
+        "storyId": "gamecult-compound",
+        "currentPath": "hub",
+        "style": "gamecult.vn"
+      },
+      "children": [
+        {
+          "id": "sai.background",
+          "kind": "image.background",
+          "props": {
+            "src": "/static/interactive/cotsc-praxis/backgrounds/compound.png",
+            "label": "Front Gate",
+            "fit": "cover",
+            "pixelArt": true
+          }
+        },
+        {
+          "id": "sai.graph",
+          "kind": "graph",
+          "props": {
+            "label": "GameCult Ink Knot Graph",
+            "layout": "norn.2d",
+            "nodes": [
+              { "id": "hub", "label": "Hub", "target": "hub", "x": 0.2, "y": 0.2, "current": true },
+              { "id": "eve", "label": "Eve", "target": "eve", "x": 0.72, "y": 0.24 },
+              { "id": "sai", "label": "Sai", "target": "sai", "x": 0.48, "y": 0.55 }
+            ],
+            "edges": [
+              { "source": "hub", "target": "eve" },
+              { "source": "hub", "target": "sai" },
+              { "source": "sai", "target": "eve" }
+            ]
+          }
+        },
+        {
+          "id": "sai.cards",
+          "kind": "layer.cards",
+          "children": [
+            {
+              "id": "sai.card.projects",
+              "kind": "card.external",
+              "props": {
+                "key": "projects",
+                "title": "Project Atlas",
+                "selector": "#gamecult-vn-projects",
+                "mode": "provider-owned-fragment"
+              }
+            }
+          ]
+        },
+        {
+          "id": "sai.dialogue",
+          "kind": "panel.dialogue",
+          "props": {
+            "speaker": "Void",
+            "text": "Pick a door. The map will keep accusing us of being real.",
+            "scene": "Front Gate"
+          },
+          "children": [
+            {
+              "id": "sai.dialogue.text",
+              "kind": "text.dialogue",
+              "props": {
+                "speaker": "Void",
+                "text": "Pick a door. The map will keep accusing us of being real."
+              }
+            }
+          ]
+        },
+        {
+          "id": "sai.choices",
+          "kind": "rail.actions",
+          "children": [
+            {
+              "id": "sai.choice.eve",
+              "kind": "control.button",
+              "props": {
+                "label": "What is Eve trying to turn the web into?",
+                "action": {
+                  "schema": "gamecult.eve.command.v1",
+                  "command": "story.choose",
+                  "payload": { "index": 0, "targetPath": "eve" }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "commands": [
+    { "schema": "gamecult.eve.command.v1", "command": "story.continue", "label": "Continue" },
+    { "schema": "gamecult.eve.command.v1", "command": "story.choose", "label": "Choose" },
+    { "schema": "gamecult.eve.command.v1", "command": "story.jump", "label": "Jump to knot" },
+    { "schema": "gamecult.eve.command.v1", "command": "style.patch", "label": "Patch style" }
+  ]
+}
