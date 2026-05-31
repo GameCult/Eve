@@ -12,8 +12,10 @@ import android.os.Looper
 import android.os.SystemClock
 import android.view.Gravity
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.ScrollView
 import android.widget.TextView
 import org.gamecult.cultmesh.CultMeshNode
@@ -22,6 +24,7 @@ import org.gamecult.cultmesh.CultNetWebSocketClient
 import org.gamecult.cultmesh.eve.EveDashboardCommandDocument
 import org.gamecult.cultmesh.eve.EveDashboardNodeSnapshot
 import org.gamecult.cultmesh.eve.EveDashboardStateDocument
+import org.gamecult.cultmesh.eve.EveDashboardUiElement
 import org.gamecult.cultmesh.eve.EveSensorObservationDocument
 import java.net.URI
 import java.text.SimpleDateFormat
@@ -155,9 +158,17 @@ class MainActivity : Activity(), SensorEventListener {
 
     private fun renderState(state: EveDashboardStateDocument) {
         latestState = state
-        brokerText.text = "CultMesh broker\nprovider=${state.providerId}\nversion=${state.version} nodes=${state.nodes.size}\nupdated=${state.updatedAt}"
+        val surface = state.surface
+        brokerText.text = "CultMesh broker\nprovider=${state.providerId}\nversion=${state.version} nodes=${state.nodes.size} surface=${surface?.schema ?: "none"}\nupdated=${state.updatedAt}"
         selectedText.text = "selection\n${state.title}\nselected=${state.selectedNodeId}\nlut=${state.lutPreset}"
         surfaceList.removeAllViews()
+        if (surface != null) {
+            surfaceList.addView(label(surface.title.ifBlank { surface.id }, 16f, 0xff8efcff.toInt(), true).apply {
+                setPadding(0, dp(14), 0, 0)
+            })
+            surfaceList.addView(renderElement(surface.root, 0))
+            return
+        }
         state.nodes.filter { it.visible }.forEach { node ->
             surfaceList.addView(card("${node.label}\n${node.kind} / ${node.health}\n${node.id}").apply {
                 setOnClickListener {
@@ -170,6 +181,107 @@ class MainActivity : Activity(), SensorEventListener {
                 }
             })
         }
+    }
+
+    private fun renderElement(element: EveDashboardUiElement, depth: Int): View {
+        element.metric?.let { metric ->
+            return LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = elementLayoutParams(element, depth)
+                setPadding(dp(12), dp(10), dp(12), dp(10))
+                setBackgroundColor(toneColor(metric.tone, element.style?.variant))
+                addView(label("${metric.label}  ${(metric.value * 100.0).toInt()}%", 13f, 0xffe6f1f1.toInt(), true))
+                addView(ProgressBar(this@MainActivity, null, android.R.attr.progressBarStyleHorizontal).apply {
+                    max = 100
+                    progress = (metric.value.coerceIn(0.0, 1.0) * 100.0).toInt()
+                })
+                attachCommandHandlers(this, element)
+            }
+        }
+
+        if (element.children.isEmpty()) {
+            return label(elementText(element), textSizeFor(element), textColorFor(element), element.role == "title" || element.role == "strong").apply {
+                layoutParams = elementLayoutParams(element, depth)
+                setPadding(dp(10), dp(8), dp(10), dp(8))
+                if (element.kind == "card" || element.kind == "avatar") setBackgroundColor(toneColor(element.style?.tone, element.style?.variant))
+                attachCommandHandlers(this, element)
+            }
+        }
+
+        return LinearLayout(this).apply {
+            orientation = if (element.layout?.direction == "horizontal") LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
+            layoutParams = elementLayoutParams(element, depth)
+            val padding = element.layout?.padding?.toInt() ?: if (element.kind == "card" || element.kind == "pane") 10 else 0
+            setPadding(dp(padding), dp(padding), dp(padding), dp(padding))
+            if (element.kind == "card" || element.kind == "pane") setBackgroundColor(toneColor(element.style?.tone, element.style?.variant))
+            val heading = element.text
+            if (!heading.isNullOrBlank()) {
+                addView(label(heading, textSizeFor(element), textColorFor(element), element.kind == "pane" || element.role == "title").apply {
+                    setPadding(0, 0, 0, dp(6))
+                })
+            }
+            element.children.forEach { child -> addView(renderElement(child, depth + 1)) }
+            attachCommandHandlers(this, element)
+        }
+    }
+
+    private fun attachCommandHandlers(view: View, element: EveDashboardUiElement) {
+        if (element.bindNodeId.isNullOrBlank() && element.commandId.isNullOrBlank()) return
+        view.isClickable = true
+        view.setOnClickListener { sendSurfaceCommand(element) }
+        view.setOnLongClickListener {
+            val node = latestState?.nodes?.firstOrNull { it.id == element.bindNodeId }
+            if (node != null) sendCommand("toggle-visibility", node)
+            true
+        }
+    }
+
+    private fun sendSurfaceCommand(element: EveDashboardUiElement) {
+        val state = latestState ?: return
+        val node = state.nodes.firstOrNull { it.id == element.bindNodeId } ?: return
+        val type = when {
+            element.commandId?.startsWith("open-provider:", ignoreCase = true) == true -> "open-provider"
+            else -> "select"
+        }
+        sendCommand(type, node)
+    }
+
+    private fun elementLayoutParams(element: EveDashboardUiElement, depth: Int): LinearLayout.LayoutParams {
+        val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        params.setMargins(0, dp(if (depth == 0) 10 else 8), 0, 0)
+        return params
+    }
+
+    private fun elementText(element: EveDashboardUiElement): String =
+        when {
+            !element.text.isNullOrBlank() -> element.text ?: ""
+            !element.assetUri.isNullOrBlank() -> "avatar\n${element.assetUri ?: ""}"
+            !element.assetRef.isNullOrBlank() -> "asset\n${element.assetRef ?: ""}"
+            else -> "${element.kind}\n${element.id}"
+        }
+
+    private fun textSizeFor(element: EveDashboardUiElement): Float = when (element.role) {
+        "title" -> 18f
+        "strong" -> 15f
+        "caption" -> 12f
+        "mono" -> 12f
+        else -> if (element.kind == "pane") 16f else 14f
+    }
+
+    private fun textColorFor(element: EveDashboardUiElement): Int = when (element.role) {
+        "caption" -> 0xff9eb8b8.toInt()
+        "title", "strong" -> 0xffffffff.toInt()
+        else -> 0xffe6f1f1.toInt()
+    }
+
+    private fun toneColor(tone: String?, variant: String?): Int = when {
+        variant == "selected" -> Color.rgb(22, 58, 55)
+        variant == "active-turn" -> Color.rgb(12, 55, 58)
+        variant == "mention-turn" -> Color.rgb(58, 44, 12)
+        tone == "danger" -> Color.rgb(58, 18, 24)
+        tone == "warm" -> Color.rgb(50, 36, 15)
+        tone == "cool" -> Color.rgb(10, 38, 48)
+        else -> Color.rgb(7, 25, 24)
     }
 
     private fun sendCommand(type: String, node: EveDashboardNodeSnapshot) {
