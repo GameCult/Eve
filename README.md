@@ -107,7 +107,8 @@ Open `http://127.0.0.1:8891/`. The page can spawn:
 - `Fensalir Direct2D`, a fixture surface for the planned
   CultMesh-to-`AquariumUiDocument` lowering.
 - `Sai VN Surface`, a fixture for visual-novel scenes exported as
-  `gamecult.eve.surface.v1`.
+  `gamecult.eve.surface.v1`, including embedded Norn and TeX surfaces placed
+  diegetically inside the scene.
 
 ## VoidBot CEF Stream
 

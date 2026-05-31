@@ -48,8 +48,9 @@ device better latency, touch, media, or sensor access.
 
 Sai visual novels are now a first pressure test for this contract. Sai needs
 backgrounds, dialogue panels, choices, sprite layers, provider-owned cards,
-Norn graph navigation, and synchronized style controls. If a renderer can lower
-that tree, it can handle more than a dashboard pretending to be a list.
+embedded Norn graph navigation, embedded TeX surfaces, diegetic placement on
+scene props, and synchronized style controls. If a renderer can lower that
+tree, it can handle more than a dashboard pretending to be a list.
 
 ## Sensor Model
 

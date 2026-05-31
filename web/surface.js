@@ -102,6 +102,7 @@ function renderCultComponent(node) {
   const kind = node.kind || "panel";
   const props = node.props || {};
   const children = node.children || [];
+  let rendered;
 
   if (kind === "vn.stage") {
     const stage = el("section", "cultui-vn-stage");
@@ -113,14 +114,23 @@ function renderCultComponent(node) {
     const view = el("div", "cultui-background");
     if (props.src) view.style.backgroundImage = `url("${props.src}")`;
     view.setAttribute("aria-label", props.label || "background");
-    return view;
+    return placeComponent(view, props.placement);
   }
 
-  if (kind === "graph") {
-    return renderCultGraph(props);
+  if (kind === "graph" || kind === "embed.norn") {
+    return placeComponent(renderCultGraph(props), props.placement);
   }
 
-  if (kind === "layer.sprites" || kind === "layer.cards" || kind === "rail.actions") {
+  if (kind === "embed.tex") {
+    return placeComponent(renderCultTex(props), props.placement);
+  }
+
+  if (
+    kind === "layer.sprites" ||
+    kind === "layer.cards" ||
+    kind === "layer.embedded-surfaces" ||
+    kind === "rail.actions"
+  ) {
     const layer = el("div", `cultui-${kind.replace(".", "-")}`);
     for (const child of children) layer.append(renderCultComponent(child));
     return layer;
@@ -186,16 +196,51 @@ function renderCultComponent(node) {
   const fallback = el("section", "pane");
   fallback.append(el("h2", "", kind));
   for (const child of children) fallback.append(renderCultComponent(child));
-  return fallback;
+  rendered = fallback;
+  return placeComponent(rendered, props.placement);
+}
+
+function placeComponent(element, placement) {
+  if (!placement || placement.space !== "scene") return element;
+  element.classList.add("cultui-placed");
+  element.dataset.placementMode = placement.mode || "overlay";
+  element.dataset.placementAnchor = placement.anchor || "";
+  if (placement.zIndex !== undefined) element.style.zIndex = placement.zIndex;
+  if (placement.opacity !== undefined) element.style.opacity = placement.opacity;
+
+  const quad = placement.quad;
+  if (Array.isArray(quad) && quad.length >= 4) {
+    const xs = quad.map(point => point[0]);
+    const ys = quad.map(point => point[1]);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    element.style.left = `${minX * 100}%`;
+    element.style.top = `${minY * 100}%`;
+    element.style.width = `${Math.max(0.02, maxX - minX) * 100}%`;
+    element.style.height = `${Math.max(0.02, maxY - minY) * 100}%`;
+    const skewX = ((quad[1][1] - quad[0][1]) + (quad[2][1] - quad[3][1])) * 18;
+    const skewY = ((quad[3][0] - quad[0][0]) + (quad[2][0] - quad[1][0])) * -18;
+    element.style.transform = `skew(${skewX}deg, ${skewY}deg)`;
+  }
+
+  if (placement.chromaKey) {
+    element.dataset.chromaKey = placement.chromaKey.color || "enabled";
+  }
+  return element;
 }
 
 function renderCultGraph(props) {
   const graph = el("section", "cultui-graph");
+  graph.dataset.engine = props.engine?.id || "graph";
+  graph.dataset.contract = props.engine?.contract || "";
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("viewBox", "0 0 1 1");
   svg.setAttribute("preserveAspectRatio", "none");
-  const nodes = props.nodes || [];
-  for (const edge of props.edges || []) {
+  const graphState = props.graph || props;
+  const nodes = graphState.nodes || [];
+  for (const edge of graphState.edges || []) {
     const source = nodes.find(node => node.id === edge.source);
     const target = nodes.find(node => node.id === edge.target);
     if (!source || !target) continue;
@@ -218,6 +263,14 @@ function renderCultGraph(props) {
     graph.append(button);
   }
   return graph;
+}
+
+function renderCultTex(props) {
+  const panel = el("section", "cultui-tex");
+  panel.dataset.renderer = props.renderer?.web || "tex";
+  if (props.label) panel.append(el("div", "cultui-tex-label", props.label));
+  panel.append(el("div", "cultui-tex-source", props.source || props.sourceUri || ""));
+  return panel;
 }
 
 function renderVoidBot(state) {

@@ -54,6 +54,7 @@ Kinds are semantic, not HTML tags. Renderers lower them to native controls:
 - `surface`, `stack`, `grid`, `dock`, `panel`, `card`
 - `text`, `text.dialogue`, `avatar`
 - `image.background`, `image.sprite`, `media.stream`
+- `embed.norn`, `embed.tex`, `layer.embedded-surfaces`
 - `graph`, `tree`, `inspector.kv`
 - `rail.actions`, `control.button`, `control.toggle`, `control.slider`,
   `control.segmented`, `control.color`, `control.select`
@@ -62,6 +63,87 @@ Kinds are semantic, not HTML tags. Renderers lower them to native controls:
 If a renderer does not know a specialized kind, it should fall back through the
 kind path: `panel.dialogue` may render as `panel`; `image.sprite` may render as
 `image`.
+
+## Embedded Knowledge Surfaces
+
+Eve must be able to place rich interactive surfaces inside another surface. For
+Sai, this means the VN scene can host Norn and TeX as diegetic scene elements:
+whiteboards, handheld tablets, hologram panes, cockpit screens, chalkboards, or
+chromakey regions baked into sprite assets.
+
+### `embed.norn`
+
+`embed.norn` means "run Norn here." It is not a request to draw a static graph
+with whatever local widget happens to be nearby.
+
+Minimum props:
+
+- `engine.id`: `norn`
+- `engine.contract`: Norn surface contract id, currently
+  `gamecult.norn.surface.v1`.
+- `engine.web.wasm`: optional WASM asset for browser clients.
+- `engine.native.rustCrate`: native solver crate, usually `norn-rs`.
+- `layout`: layout mode and solver knobs.
+- `graph.nodes` and `graph.edges`: provider graph state.
+- `interaction.nodeAction`: command emitted when a node is activated.
+- `placement`: scene placement instructions.
+
+Each target renderer embeds Norn by using the strongest local path available:
+
+- Web: Norn WASM / `@gamecult/norn-viewer`.
+- iOS: native graph view using the Norn layout output, eventually Rust FFI.
+- Android: native graph view using the same Norn contract, eventually Rust FFI.
+- Windows Direct2D: Norn layout lowered to Direct2D/DirectWrite primitives.
+
+If a client cannot run Norn, it must report a capability gap. It may show a
+read-only fallback, but it must not silently pretend the fallback is full Norn.
+
+### `embed.tex`
+
+`embed.tex` is a portable TeX/LaTeX surface. It carries source, macros, display
+mode, renderer hints, and placement. Web clients may lower through KaTeX,
+MathJax, Typst-assisted renderers, or a TeX WASM path. Native clients should
+lower to vector/text primitives or cached images while preserving source,
+baseline, scale, and command provenance.
+
+Minimum props:
+
+- `source` or `sourceUri`
+- `format`: `latex`, `tex`, or a stricter future dialect.
+- `display`: `inline`, `block`, or `page`.
+- `macros`
+- `renderer`
+- `placement`
+
+## Scene Placement
+
+Any component can carry `props.placement` when it needs to live in scene space.
+
+```json
+{
+  "space": "scene",
+  "anchor": "whiteboard",
+  "mode": "keystone",
+  "quad": [[0.16, 0.18], [0.58, 0.13], [0.62, 0.50], [0.14, 0.56]],
+  "zIndex": 4,
+  "opacity": 0.94,
+  "chromaKey": { "color": "#00ff00", "tolerance": 0.12 },
+  "occlusion": "sprite-mask:whiteboard-hand",
+  "lighting": "scene"
+}
+```
+
+Placement modes:
+
+- `overlay`: normal 2D scene overlay.
+- `billboard`: scene-space panel facing the viewer.
+- `skew`: affine skew.
+- `keystone`: four-corner perspective fit.
+- `sprite-chromakey`: render into a keyed region of a sprite or prop.
+
+Coordinates are normalized to the stage unless an explicit coordinate space is
+named. Renderers that cannot do true perspective must preserve hit-testing and
+report the degradation.
 
 ## Commands
 
@@ -132,7 +214,10 @@ Sai requires Eve/CultUI to carry:
 - speaker, avatar, dialogue, and choices;
 - sprite layers with position, scale, and offsets;
 - external provider-owned cards/fragments;
-- Norn-style graph components with clickable node targets;
+- embedded Norn graph/map surfaces with clickable node targets;
+- embedded TeX surfaces for equations, whitepapers, ledgers, and proofs;
+- diegetic placement with perspective, skew, keystone, chromakey, and occlusion
+  metadata;
 - synchronized style tokens;
 - story commands for continue, choice, jump, and style patch.
 

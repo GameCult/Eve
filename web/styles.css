@@ -252,6 +252,21 @@ p {
   z-index: 4;
 }
 
+.cultui-placed {
+  position: absolute;
+  transform-origin: center;
+}
+
+.cultui-placed[data-placement-mode="keystone"],
+.cultui-placed[data-placement-mode="skew"],
+.cultui-placed[data-placement-mode="sprite-chromakey"] {
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+}
+
+.cultui-placed[data-chroma-key] {
+  outline: 1px dashed rgba(0, 255, 120, 0.45);
+}
+
 .cultui-node {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -280,6 +295,39 @@ p {
   stroke: rgba(142, 252, 255, 0.36);
   stroke-width: 0.006;
   stroke-linecap: round;
+}
+
+.cultui-layer-embedded-surfaces {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.cultui-layer-embedded-surfaces > * {
+  pointer-events: auto;
+}
+
+.cultui-tex {
+  min-width: 12rem;
+  min-height: 3.2rem;
+  border: 1px solid rgba(142, 252, 255, 0.34);
+  border-radius: 6px;
+  background: rgba(7, 17, 26, 0.78);
+  color: var(--text);
+  padding: 10px 12px;
+}
+
+.cultui-tex-label {
+  color: var(--accent);
+  font: 700 10px "Cascadia Mono", Consolas, monospace;
+  text-transform: uppercase;
+}
+
+.cultui-tex-source {
+  margin-top: 4px;
+  font: 700 15px "Cambria Math", "STIX Two Math", Georgia, serif;
+  white-space: pre-wrap;
 }
 
 .cultui-layer-cards {
