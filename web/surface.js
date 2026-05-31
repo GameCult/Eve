@@ -37,7 +37,9 @@ function setActiveTab(tab) {
 
 function openVoidBot() {
   closeSocket();
-  const url = "ws://127.0.0.1:8795/eve/deck";
+  const scheme = location.protocol === "https:" ? "wss:" : "ws:";
+  const host = location.hostname || "127.0.0.1";
+  const url = `${scheme}//${host}:8795/eve/deck`;
   statusEl.textContent = `connecting ${url}`;
   socket = new WebSocket(url);
   socket.addEventListener("open", () => {
