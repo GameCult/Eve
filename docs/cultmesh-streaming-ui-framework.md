@@ -85,6 +85,15 @@ Android:
 - camera, mic, motion, and display timing publisher;
 - native rendering where browser embedding would be weaker.
 
+Flutter:
+
+- likely shared native-client implementation path for Android/iOS parity;
+- useful for matching controls, layout primitives, animation, and local media
+  surfaces across native devices;
+- not the browser ground truth. Flutter Web may be a compatibility target, but
+  the canonical behavior still belongs to the browser Eve runtime and recorded
+  CultMesh surface fixtures.
+
 ## Current Proof
 
 The current iOS app consumes Mimir's `/eve/deck` WebSocket broker. That broker is
@@ -93,6 +102,12 @@ state, provider switching, commands, and typed node metadata. The VoidBot
 provider proves that Eve can render an app-specific native cockpit from a
 structured mesh snapshot: CTB rail, avatar images, selected Face/status pane,
 state tree, and detail panel.
+
+The Android proof under `android/` builds directly against the installed Android
+SDK and runs on Periwinkle. It is deliberately small: display Eve's role, poll
+the Mimir broker health endpoint, and show timestamped motion/touch samples.
+It is a device-edge proof while the browser reference and Flutter/native shared
+client are still being cut.
 
 ## Next Cut
 

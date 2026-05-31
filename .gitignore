@@ -1,6 +1,7 @@
 .theos/
 packages/
 obj/
+artifacts/
 *.deb
 *.ipa
 *.dSYM/

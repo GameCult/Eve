@@ -24,6 +24,9 @@ Build one deployable Eve runtime family:
 - iOS: native full-screen renderer, multitouch controller, camera/mic/motion
   sensor publisher, and low-latency media display.
 - Android: native renderer and sensor publisher with the same CultNet contracts.
+- Flutter: likely native client framework for Android/iOS parity once installed;
+  it should consume the browser-defined CultMesh surface model rather than
+  replacing the browser as ground truth.
 - Shared API: apps publish control surfaces and structured data; Eve publishes
   commands, pointer/touch input, and timestamped sensor packets.
 
@@ -31,6 +34,11 @@ Build one deployable Eve runtime family:
 
 The current checked-in client is the iOS Theos app, still named `EveCanvas` at
 the bundle level until the wider Eve runtime split exists.
+
+The Android proof under `android/` is a small native Java client that can be
+built with the installed Android SDK without Gradle or Flutter. It exists to
+put Eve on Periwinkle immediately: it shows the Eve/CultMesh role, polls the
+Mimir dashboard broker, and surfaces timestamped touch/motion sensor data.
 
 - `EVEAppDelegate` creates one fullscreen `UIWindow`.
 - `EVEViewController` installs:
@@ -132,6 +140,26 @@ avatar images, selected Face status panel, state tree, and detail pane from the
 same VoidBot `swarm-state.json` projection used by the web dashboard.
 
 ## Build Shape
+
+### Android / Periwinkle
+
+Build the Android proof APK from Starfire:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\build-android.ps1
+```
+
+Install to Periwinkle:
+
+```powershell
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s bad9dd01 install -r .\artifacts\android\eve-debug.apk
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s bad9dd01 shell monkey -p org.gamecult.eve -c android.intent.category.LAUNCHER 1
+```
+
+On Xiaomi/MIUI devices, ADB install may require enabling developer setting
+`Install via USB` and approving the on-device prompt.
+
+### iOS / EVE
 
 The project is a Theos-style iOS application:
 
