@@ -27,6 +27,9 @@ Build one deployable Eve runtime family:
 - Flutter: likely native client framework for Android/iOS parity once installed;
   it should consume the browser-defined CultMesh surface model rather than
   replacing the browser as ground truth.
+- Fensalir Direct2D: close-to-metal desktop/runtime client surface for the same
+  CultMesh UI documents, lowered through Fensalir's existing
+  DirectWrite/Direct2D overlay machinery.
 - Shared API: apps publish control surfaces and structured data; Eve publishes
   commands, pointer/touch input, and timestamped sensor packets.
 
@@ -68,6 +71,9 @@ Mimir dashboard broker, and surfaces timestamped touch/motion sensor data.
 - Native clients do not embed a browser as their only answer. They render the
   same surface documents with platform-native controls when that is the better
   machine.
+- Fensalir's Direct2D surface is a client renderer, not a second source of UI
+  truth. It consumes provider-owned CultMesh surface state and returns commands
+  through the same Eve/CultNet path.
 - CultNet carries typed surface state, commands, and timestamped sensor packets.
   Edge JSON is tolerated only as an interoperability envelope while the typed
   CultMesh document shape is being proven.

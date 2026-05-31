@@ -94,6 +94,16 @@ Flutter:
   the canonical behavior still belongs to the browser Eve runtime and recorded
   CultMesh surface fixtures.
 
+Fensalir Direct2D:
+
+- desktop/native client surface inside the Fensalir runtime;
+- lowers Eve/CultMesh surface documents into the existing DirectWrite/Direct2D
+  overlay path;
+- uses the same provider ownership and command contract as browser, iOS, and
+  Android clients;
+- keeps renderer mechanics in Fensalir while app-specific dashboard meaning
+  remains with the provider repo.
+
 ## Current Proof
 
 The current iOS app consumes Mimir's `/eve/deck` WebSocket broker. That broker is
@@ -120,3 +130,5 @@ client are still being cut.
 4. Replace JSON/base64 sensor payloads with binary packets while preserving the
    typed envelope.
 5. Add Android client scaffolding against the same provider and sensor API.
+6. Add the Fensalir Direct2D lowering for the shared surface contract so engine
+   clients can show the same dashboards without embedding a browser.
