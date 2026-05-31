@@ -23,11 +23,15 @@ visible and touchable.
 
 ## Surface Model
 
-Every app-facing UI surface should be expressible as a retained document:
+Every app-facing UI surface should be expressible as a retained compositing
+document. The old flat `nodes` list is a compatibility/data projection; the
+distributed UI layer is `surface.root`, a CultUI-shaped tree:
 
 - `surface`: provider id, title, schema, version, updated timestamp.
-- `nodes`: panels, controls, cards, trees, media views, avatars, text blocks,
-  graphs, and inspector panes.
+- `surface.root`: panels, rails, stacks, grids, controls, cards, trees, media
+  views, avatars, text blocks, metric bars, graphs, and inspector panes.
+- `nodes`: semantic state/selection/debug projection for clients that need a
+  graph-shaped view or older compatibility.
 - `selection`: current focus and provider-owned state path.
 - `commands`: allowed user intents such as select, open provider, move, scale,
   rotate, toggle visibility, invoke action, edit value, and apply preset.
