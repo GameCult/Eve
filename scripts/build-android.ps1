@@ -1,6 +1,8 @@
 param(
   [string] $AndroidSdk = "$env:LOCALAPPDATA\Android\Sdk",
   [string] $JavaHome = "C:\Program Files\Android\Android Studio\jbr",
+  [string] $KotlinHome = "C:\Program Files\Android\Android Studio\plugins\Kotlin\kotlinc",
+  [string] $CultLibRoot = "E:\Projects\CultLib",
   [string] $Configuration = "debug"
 )
 
@@ -26,9 +28,13 @@ $apksigner = Join-Path $buildTools.FullName "apksigner.bat"
 $javac = Join-Path $JavaHome "bin\javac.exe"
 $keytool = Join-Path $JavaHome "bin\keytool.exe"
 $jar = Join-Path $JavaHome "bin\jar.exe"
+$kotlinc = Join-Path $KotlinHome "bin\kotlinc.bat"
+$kotlinStdlib = Join-Path $KotlinHome "lib\kotlin-stdlib.jar"
 $androidJar = Join-Path $platform.FullName "android.jar"
+$cultMeshBuild = Join-Path $CultLibRoot "packages\cultmesh-kotlin\build.ps1"
+$cultMeshJar = Join-Path $CultLibRoot "artifacts\cultmesh-kotlin\cultmesh-kotlin.jar"
 
-foreach ($tool in @($aapt2, $d8, $zipalign, $apksigner, $javac, $keytool, $jar, $androidJar)) {
+foreach ($tool in @($aapt2, $d8, $zipalign, $apksigner, $javac, $keytool, $jar, $kotlinc, $kotlinStdlib, $androidJar, $cultMeshBuild)) {
   if (-not (Test-Path $tool)) {
     throw "Required Android build input missing: $tool"
   }
@@ -60,6 +66,11 @@ $keystore = Join-Path $outRoot "eve-debug.keystore"
 Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $compiled, $gen, $classes, $classesJar, $dex, $unsigned, $aligned, $signed
 New-Item -ItemType Directory -Force $gen, $classes, $dex | Out-Null
 
+powershell -ExecutionPolicy Bypass -File $cultMeshBuild -KotlinHome $KotlinHome -JavaHome $JavaHome
+if (-not (Test-Path $cultMeshJar)) {
+  throw "CultMesh Kotlin jar was not built: $cultMeshJar"
+}
+
 Invoke-Checked $aapt2 @("compile", "--dir", (Join-Path $androidRoot "src\main\res"), "-o", $compiled)
 Invoke-Checked $aapt2 @(
   "link",
@@ -71,12 +82,18 @@ Invoke-Checked $aapt2 @(
   "--target-sdk-version", "35",
   $compiled)
 
-$sources = @()
-$sources += Get-ChildItem (Join-Path $androidRoot "src\main\java") -Recurse -Filter *.java | Select-Object -ExpandProperty FullName
-$sources += Get-ChildItem $gen -Recurse -Filter *.java | Select-Object -ExpandProperty FullName
-Invoke-Checked $javac (@("-source", "8", "-target", "8", "-bootclasspath", $androidJar, "-d", $classes) + $sources)
+$javaSources = @()
+$javaSources += Get-ChildItem $gen -Recurse -Filter *.java | Select-Object -ExpandProperty FullName
+$javaSources += Get-ChildItem (Join-Path $androidRoot "src\main\java") -Recurse -Filter *.java | Select-Object -ExpandProperty FullName
+if ($javaSources.Count -gt 0) {
+  Invoke-Checked $javac (@("-source", "8", "-target", "8", "-bootclasspath", $androidJar, "-classpath", "$cultMeshJar;$kotlinStdlib", "-d", $classes) + $javaSources)
+}
+$kotlinSources = Get-ChildItem (Join-Path $androidRoot "src\main\java") -Recurse -Filter *.kt | Select-Object -ExpandProperty FullName
+if ($kotlinSources.Count -gt 0) {
+  Invoke-Checked $kotlinc (@("-jvm-target", "1.8", "-classpath", "$androidJar;$cultMeshJar;$kotlinStdlib;$classes", "-d", $classes) + $kotlinSources)
+}
 Invoke-Checked $jar @("cf", $classesJar, "-C", $classes, ".")
-Invoke-Checked $d8 @("--lib", $androidJar, "--output", $dex, $classesJar)
+Invoke-Checked $d8 @("--lib", $androidJar, "--output", $dex, $classesJar, $cultMeshJar, $kotlinStdlib)
 Invoke-Checked $jar @("uf", $unsigned, "-C", $dex, "classes.dex")
 Invoke-Checked $zipalign @("-f", "4", $unsigned, $aligned)
 

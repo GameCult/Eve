@@ -38,10 +38,12 @@ Build one deployable Eve runtime family:
 The current checked-in client is the iOS Theos app, still named `EveCanvas` at
 the bundle level until the wider Eve runtime split exists.
 
-The Android proof under `android/` is a small native Java client that can be
-built with the installed Android SDK without Gradle or Flutter. It exists to
-put Eve on Periwinkle immediately: it shows the Eve/CultMesh role, polls the
-Mimir dashboard broker, and surfaces timestamped touch/motion sensor data.
+The Android proof under `android/` is a small native Kotlin client built with
+the installed Android SDK and CultLib's `cultmesh-kotlin` package, without
+Gradle or Flutter. It exists to put Eve on Periwinkle immediately: it consumes
+typed `mimir.eve_dashboard_state.v1` CultMesh documents, sends
+`mimir.eve_dashboard_command.v1` command documents, and publishes timestamped
+touch/motion observations as `mimir.eve_sensor_observation.v1`.
 
 - `EVEAppDelegate` creates one fullscreen `UIWindow`.
 - `EVEViewController` installs:
@@ -240,4 +242,6 @@ without losing the basic app deployment path.
   timing are proven through Mimir.
 - Replace the dashboard fixture state with live `MimirPresentationControlState`
   and `MimirSceneEditorState` snapshots.
-- Add Android and browser clients that consume the same provider/sensor API.
+- Expand the Android Kotlin client from dashboard node rendering into the full
+  retained `surface.root` renderer, and add the browser client against the same
+  provider/sensor API.
