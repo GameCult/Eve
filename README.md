@@ -99,6 +99,10 @@ Eve renders and edits dashboard trees natively; each provider owns accepted
 state and command handling. Eve is the operator's hand on the scene graph, not a
 second compositor and not a remote WebKit runtime.
 
+The broker includes a native VoidBot tab/provider. Eve renders its CTB rail,
+agent status cards, and selected Face state detail from the same VoidBot
+`swarm-state.json` projection used by the web dashboard.
+
 ## Build Shape
 
 The project is a Theos-style iOS application:

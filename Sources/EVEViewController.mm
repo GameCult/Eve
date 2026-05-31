@@ -620,10 +620,23 @@ static int64_t EVEHostTimeNowNs(void) {
 
   UILabel *label = (UILabel *)[view viewWithTag:1001];
   if ([label isKindOfClass:UILabel.class]) {
-    label.text = [NSString stringWithFormat:@"%@\n%@  %@",
-                  node[@"label"] ?: nodeId,
-                  node[@"kind"] ?: @"source",
-                  node[@"health"] ?: @""];
+    NSString *detail = [node[@"detail"] isKindOfClass:NSString.class] ? node[@"detail"] : @"";
+    if (detail.length > 0) {
+      label.text = [NSString stringWithFormat:@"%@\n%@  %@\n%@",
+                    node[@"label"] ?: nodeId,
+                    node[@"kind"] ?: @"source",
+                    node[@"health"] ?: @"",
+                    detail];
+      label.font = [UIFont monospacedSystemFontOfSize:10.0 weight:UIFontWeightMedium];
+      label.numberOfLines = 6;
+    } else {
+      label.text = [NSString stringWithFormat:@"%@\n%@  %@",
+                    node[@"label"] ?: nodeId,
+                    node[@"kind"] ?: @"source",
+                    node[@"health"] ?: @""];
+      label.font = [UIFont monospacedSystemFontOfSize:12.0 weight:UIFontWeightMedium];
+      label.numberOfLines = 3;
+    }
   }
 }
 
