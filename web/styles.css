@@ -1,0 +1,226 @@
+:root {
+  color-scheme: dark;
+  --bg: #020909;
+  --panel: #071918;
+  --panel-2: #0a2423;
+  --line: rgba(103, 240, 228, 0.28);
+  --line-hot: rgba(142, 252, 255, 0.72);
+  --text: #e7f1f1;
+  --quiet: #8ba5a3;
+  --accent: #ffb84f;
+  --cyan: #8efcff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+.topbar {
+  height: 84px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: #010707;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0;
+}
+
+p {
+  margin: 4px 0 0;
+  color: var(--quiet);
+  font-size: 13px;
+}
+
+.hud {
+  min-width: 168px;
+  padding: 8px;
+  border: 1px solid var(--line-hot);
+  border-radius: 6px;
+  background: rgba(7, 25, 24, 0.88);
+  color: var(--accent);
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  display: grid;
+  gap: 2px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px 0;
+}
+
+.tabs button {
+  border: 1px solid var(--line);
+  border-radius: 6px 6px 0 0;
+  background: var(--panel);
+  color: var(--quiet);
+  padding: 8px 12px;
+  font: 600 13px "Cascadia Mono", Consolas, monospace;
+}
+
+.tabs button.active {
+  color: var(--cyan);
+  border-color: var(--line-hot);
+  background: var(--panel-2);
+}
+
+.surface {
+  padding: 10px 16px 16px;
+}
+
+.cockpit {
+  display: grid;
+  grid-template-columns: 0.78fr 1.08fr 1.34fr;
+  gap: 10px;
+  min-height: calc(100vh - 138px);
+}
+
+.ctb {
+  grid-column: 1 / -1;
+  min-height: 88px;
+  overflow-x: auto;
+  display: flex;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.pane {
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(7, 25, 24, 0.92);
+  padding: 12px;
+}
+
+.pane h2 {
+  margin: 0 0 10px;
+  color: var(--quiet);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(10, 36, 35, 0.96);
+  padding: 10px;
+}
+
+.ctb .card {
+  flex: 0 0 96px;
+  min-height: 76px;
+  padding: 6px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line-hot);
+  object-fit: cover;
+  background: #123;
+}
+
+.card-title {
+  white-space: pre-line;
+  margin-top: 4px;
+  font: 700 11px "Cascadia Mono", Consolas, monospace;
+}
+
+.health {
+  color: var(--accent);
+  font: 700 10px "Cascadia Mono", Consolas, monospace;
+}
+
+.detail {
+  white-space: pre-wrap;
+  font: 600 12px "Cascadia Mono", Consolas, monospace;
+  line-height: 1.45;
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+}
+
+.metrics {
+  display: grid;
+  gap: 9px;
+  margin: 12px 0;
+}
+
+.metric label {
+  display: flex;
+  justify-content: space-between;
+  color: var(--quiet);
+  font: 700 10px "Cascadia Mono", Consolas, monospace;
+}
+
+.bar {
+  height: 7px;
+  border-radius: 7px;
+  background: #010707;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #bca8ff, #8efcff);
+}
+
+.graph {
+  position: relative;
+  min-height: calc(100vh - 166px);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background:
+    linear-gradient(rgba(142, 252, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(142, 252, 255, 0.04) 1px, transparent 1px),
+    rgba(3, 15, 17, 0.94);
+  background-size: 44px 44px;
+}
+
+.node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: rgba(10, 36, 35, 0.95);
+  padding: 10px;
+  overflow: hidden;
+}
+
+.node.selected {
+  border-color: var(--line-hot);
+  box-shadow: 0 0 0 1px rgba(142, 252, 255, 0.38);
+}
+
+.node .detail {
+  margin-top: 6px;
+  color: var(--quiet);
+  font-size: 10px;
+}
+
+@media (max-width: 900px) {
+  .cockpit {
+    grid-template-columns: 1fr;
+  }
+}

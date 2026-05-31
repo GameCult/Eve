@@ -1,0 +1,88 @@
+{
+  "type": "dashboard-state",
+  "schema": "mimir.eve_dashboard_state.v1",
+  "providerId": "fensalir.direct2d",
+  "title": "Fensalir Direct2D Client Surface",
+  "version": 1,
+  "updatedAt": "2026-05-31T03:34:00.000Z",
+  "selectedNodeId": "surface-contract",
+  "nodes": [
+    {
+      "id": "surface-contract",
+      "label": "Eve Surface Contract\nCultMesh -> AquariumUiDocument",
+      "kind": "state-detail",
+      "x": -0.62,
+      "y": -0.18,
+      "width": 0.34,
+      "height": 0.34,
+      "health": "owner",
+      "detail": "Browser Eve is the reference renderer. Fensalir consumes the same provider-owned surface document and lowers it into AquariumUiDocument. Provider repos own state and command semantics; Fensalir owns DirectWrite/Direct2D rendering, focus, keyboard, pointer dispatch, and overlay timing."
+    },
+    {
+      "id": "direct2d-overlay",
+      "label": "DirectWriteOverlay\nD3D11-on-12 Direct2D",
+      "kind": "renderer",
+      "x": -0.12,
+      "y": -0.54,
+      "width": 0.34,
+      "height": 0.22,
+      "health": "ready",
+      "detail": "Draws Eve panels after the D3D12 scene. Existing Fensalir mechanism: DirectWriteOverlay.Render(frame, debugUi, clientUiPanels, performanceText)."
+    },
+    {
+      "id": "aquarium-ui",
+      "label": "AquariumUiDocument\npanels and controls",
+      "kind": "surface",
+      "x": 0.36,
+      "y": -0.48,
+      "width": 0.34,
+      "height": 0.22,
+      "health": "adapter target",
+      "detail": "First lowering target for shared Eve documents: readouts, buttons, toggles, sliders, options, text boxes, tree items, and detail panes."
+    },
+    {
+      "id": "field-reservoir",
+      "label": "Field Reservoir\nengine timing witness",
+      "kind": "telemetry",
+      "x": -0.12,
+      "y": 0.02,
+      "width": 0.34,
+      "height": 0.22,
+      "health": "live",
+      "detail": "Fensalir remains a field/evidence engine. Eve surface rendering must stay overlay/client UI; it must not become another field-truth path."
+    },
+    {
+      "id": "program-output",
+      "label": "Program Output\nshared D3D12 texture",
+      "kind": "media",
+      "x": 0.36,
+      "y": 0.06,
+      "width": 0.34,
+      "height": 0.22,
+      "health": "external surface",
+      "detail": "The program-output texture is external publication. Eve UI controls it; the resolved HDR scene and shared texture publication stay renderer-owned."
+    },
+    {
+      "id": "command-sink",
+      "label": "Command Sink\nEve/CultNet outbound",
+      "kind": "command",
+      "x": -0.38,
+      "y": 0.48,
+      "width": 0.30,
+      "height": 0.18,
+      "health": "pending",
+      "detail": "The first implementation cut needs a provider command sink so Direct2D control activation sends the same command messages as browser, iOS, and Android."
+    },
+    {
+      "id": "parity-probe",
+      "label": "Parity Probe\nbrowser reference fixture",
+      "kind": "test",
+      "x": 0.28,
+      "y": 0.50,
+      "width": 0.34,
+      "height": 0.18,
+      "health": "required",
+      "detail": "Recorded surface fixtures should render in browser and Fensalir with comparable hierarchy, selection, controls, and detail text before provider-specific polish."
+    }
+  ]
+}

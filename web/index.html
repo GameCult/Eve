@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Eve Surface Reference</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Eve Surface Reference</h1>
+      <p id="status">booting browser reference renderer</p>
+    </div>
+    <div class="hud">
+      <strong>EVE</strong>
+      <span id="surface-id">surface none</span>
+      <span id="surface-version">v0</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button id="voidbot-tab" class="active" type="button">VoidBot Live</button>
+    <button id="fensalir-tab" type="button">Fensalir Direct2D</button>
+  </nav>
+
+  <main id="app" class="surface"></main>
+
+  <script type="module" src="./surface.js"></script>
+</body>
+</html>

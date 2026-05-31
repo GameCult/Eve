@@ -86,6 +86,22 @@ Mimir dashboard broker, and surfaces timestamped touch/motion sensor data.
   accepted state, commands, and side effects.
 
 See `docs/cultmesh-streaming-ui-framework.md` for the target architecture.
+See `docs/renderer-parity.md` for current browser/iOS/Android/Fensalir/Flutter
+renderer parity.
+
+## Browser Reference
+
+Start the browser reference surface runner:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\start-browser-reference.ps1
+```
+
+Open `http://127.0.0.1:8891/`. The page can spawn:
+
+- `VoidBot Live`, connected to Mimir's `/eve/deck` broker.
+- `Fensalir Direct2D`, a fixture surface for the planned
+  CultMesh-to-`AquariumUiDocument` lowering.
 
 ## VoidBot CEF Stream
 
