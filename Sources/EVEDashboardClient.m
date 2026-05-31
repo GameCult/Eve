@@ -87,7 +87,6 @@
       if ([state isKindOfClass:NSDictionary.class]) {
         dispatch_async(dispatch_get_main_queue(), ^{
           [self.delegate dashboardClient:self didReceiveState:state];
-          [self.delegate dashboardClient:self didChangeStatus:@"dashboard live"];
         });
       }
     }

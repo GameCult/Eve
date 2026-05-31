@@ -81,9 +81,11 @@ Start the dashboard authority on Starfire:
 dotnet run --project E:\Projects\Mimir\src\Mimir.EveDashboard\Mimir.EveDashboard.csproj -- --port 8795
 ```
 
-EveCanvas connects to `ws://192.168.1.66:8795/eve/dashboard`. Mimir sends
-`dashboard-state` snapshots containing scene nodes, selection, visibility,
-transform, size, and health. EveCanvas sends compact commands back:
+EveCanvas connects first to `ws://192.168.1.66:8795/eve/deck`, with
+`/eve/dashboard` kept as a compatibility fallback. The Starfire broker sends
+native retained `dashboard-state` snapshots containing provider id, title,
+scene nodes, selection, visibility, transform, size, and health. EveCanvas sends
+compact commands back:
 
 - `select`
 - `move`
@@ -91,9 +93,11 @@ transform, size, and health. EveCanvas sends compact commands back:
 - `rotate`
 - `toggle-visibility`
 - `reset-transform`
+- `open-provider`
 
-Eve renders and edits the dashboard; Mimir owns the accepted state. Eve is the
-operator's hand on the scene graph, not a second compositor.
+Eve renders and edits dashboard trees natively; each provider owns accepted
+state and command handling. Eve is the operator's hand on the scene graph, not a
+second compositor and not a remote WebKit runtime.
 
 ## Build Shape
 

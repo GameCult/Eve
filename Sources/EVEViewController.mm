@@ -129,6 +129,8 @@ static int64_t EVEHostTimeNowNs(void) {
   [self.streamClient connect];
 
   NSArray<NSURL *> *dashboardURLs = @[
+    [NSURL URLWithString:@"ws://127.0.0.1:8795/eve/deck"],
+    [NSURL URLWithString:@"ws://192.168.1.66:8795/eve/deck"],
     [NSURL URLWithString:@"ws://127.0.0.1:8795/eve/dashboard"],
     [NSURL URLWithString:@"ws://192.168.1.66:8795/eve/dashboard"],
   ];
@@ -515,7 +517,9 @@ static int64_t EVEHostTimeNowNs(void) {
 
 - (void)dashboardClient:(EVEDashboardClient *)client didReceiveState:(NSDictionary *)state {
   (void)client;
-  self.dashboardStatus = [NSString stringWithFormat:@"v%@", state[@"version"] ?: @"?"];
+  NSString *title = [state[@"title"] isKindOfClass:NSString.class] ? state[@"title"] : @"dashboard";
+  self.dashboardStatus = [NSString stringWithFormat:@"%@ v%@", title, state[@"version"] ?: @"?"];
+  self.dashboardStatusLabel.text = self.dashboardStatus;
   NSString *selected = state[@"selectedNodeId"];
   if ([selected isKindOfClass:NSString.class]) {
     self.selectedNodeId = selected;
@@ -630,7 +634,7 @@ static int64_t EVEHostTimeNowNs(void) {
   }
 
   UILabel *title = [[UILabel alloc] initWithFrame:CGRectZero];
-  title.text = @"Scene Graph";
+  title.text = @"Dashboards";
   title.textColor = UIColor.whiteColor;
   title.font = [UIFont systemFontOfSize:16.0 weight:UIFontWeightBold];
   [self.hierarchyStackView addArrangedSubview:title];
@@ -659,8 +663,7 @@ static int64_t EVEHostTimeNowNs(void) {
     return;
   }
 
-  self.selectedNodeId = nodeId;
-  [self.dashboardClient sendCommand:@{@"type": @"select", @"nodeId": nodeId}];
+  [self selectOrOpenDashboardNode:nodeId];
 }
 
 - (void)nodePanned:(UIPanGestureRecognizer *)recognizer {
@@ -722,7 +725,19 @@ static int64_t EVEHostTimeNowNs(void) {
     return;
   }
 
+  [self selectOrOpenDashboardNode:nodeId];
+}
+
+- (void)selectOrOpenDashboardNode:(NSString *)nodeId {
   self.selectedNodeId = nodeId;
+  NSDictionary *node = self.dashboardNodes[nodeId];
+  NSString *command = [node[@"command"] isKindOfClass:NSString.class] ? node[@"command"] : nil;
+  NSString *providerId = [node[@"providerId"] isKindOfClass:NSString.class] ? node[@"providerId"] : nil;
+  if ([command isEqualToString:@"open-provider"] && providerId) {
+    [self.dashboardClient sendCommand:@{@"type": @"open-provider", @"nodeId": nodeId, @"providerId": providerId}];
+    return;
+  }
+
   [self.dashboardClient sendCommand:@{@"type": @"select", @"nodeId": nodeId}];
 }
 
