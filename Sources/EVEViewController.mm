@@ -4,6 +4,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "EVEFrameStreamClient.h"
+#import "EVEDashboardClient.h"
 #import "EVEGLView.h"
 #import "EVEH264StreamDecoder.h"
 #import "EVESensorUplinkClient.h"
@@ -14,15 +15,23 @@ static int64_t EVEHostTimeNowNs(void) {
   return (int64_t)(CACurrentMediaTime() * 1000000000.0);
 }
 
-@interface EVEViewController () <EVEFrameStreamClientDelegate, AVCaptureVideoDataOutputSampleBufferDelegate>
+@interface EVEViewController () <EVEFrameStreamClientDelegate, EVEDashboardClientDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate>
 
 @property(nonatomic, strong) EVEGLView *glView;
 @property(nonatomic, strong) UIImageView *streamImageView;
 @property(nonatomic, strong) EVEH264StreamDecoder *videoDecoder;
 @property(nonatomic, strong) UILabel *overlayLabel;
+@property(nonatomic, strong) UIView *dashboardView;
+@property(nonatomic, strong) UIView *sceneCanvasView;
+@property(nonatomic, strong) UIStackView *hierarchyStackView;
+@property(nonatomic, strong) UIStackView *toolbarStackView;
+@property(nonatomic, strong) UILabel *dashboardStatusLabel;
+@property(nonatomic, strong) NSMutableDictionary<NSString *, UIView *> *nodeViews;
+@property(nonatomic, strong) NSMutableDictionary<NSString *, NSDictionary *> *dashboardNodes;
 @property(nonatomic, strong) CADisplayLink *displayLink;
 @property(nonatomic, strong) CMMotionManager *motionManager;
 @property(nonatomic, strong) EVEFrameStreamClient *streamClient;
+@property(nonatomic, strong) EVEDashboardClient *dashboardClient;
 @property(nonatomic, strong) EVESensorUplinkClient *cameraUplink;
 @property(nonatomic, strong) EVESensorUplinkClient *micUplink;
 @property(nonatomic, strong) AVCaptureSession *captureSession;
@@ -39,6 +48,10 @@ static int64_t EVEHostTimeNowNs(void) {
 @property(nonatomic, copy) NSString *streamStatus;
 @property(nonatomic, copy) NSString *streamCodec;
 @property(nonatomic, copy) NSString *dialogueLine;
+@property(nonatomic, copy) NSString *dashboardStatus;
+@property(nonatomic, copy) NSString *selectedNodeId;
+@property(nonatomic, assign) CGFloat activeGestureStartScale;
+@property(nonatomic, assign) CGFloat activeGestureStartRotation;
 
 @end
 
@@ -64,6 +77,8 @@ static int64_t EVEHostTimeNowNs(void) {
   self.videoDecoder.displayLayer.frame = root.bounds;
   self.videoDecoder.displayLayer.hidden = YES;
   [root.layer addSublayer:self.videoDecoder.displayLayer];
+
+  [self installDashboardInRoot:root];
 
   self.overlayLabel = [[UILabel alloc] initWithFrame:CGRectZero];
   self.overlayLabel.translatesAutoresizingMaskIntoConstraints = NO;
@@ -103,12 +118,22 @@ static int64_t EVEHostTimeNowNs(void) {
   self.streamStatus = @"stream idle";
   self.streamCodec = @"jpeg";
   self.dialogueLine = @"awaiting Mimir";
+  self.dashboardStatus = @"dashboard idle";
+  self.nodeViews = [NSMutableDictionary dictionary];
+  self.dashboardNodes = [NSMutableDictionary dictionary];
   NSArray<NSURL *> *streamURLs = @[
     [NSURL URLWithString:@"ws://127.0.0.1:8792/stream"],
     [NSURL URLWithString:@"ws://192.168.1.66:8792/stream"],
   ];
   self.streamClient = [[EVEFrameStreamClient alloc] initWithURLs:streamURLs delegate:self];
   [self.streamClient connect];
+
+  NSArray<NSURL *> *dashboardURLs = @[
+    [NSURL URLWithString:@"ws://127.0.0.1:8795/eve/dashboard"],
+    [NSURL URLWithString:@"ws://192.168.1.66:8795/eve/dashboard"],
+  ];
+  self.dashboardClient = [[EVEDashboardClient alloc] initWithURLs:dashboardURLs delegate:self];
+  [self.dashboardClient connect];
 
   NSArray<NSURL *> *cameraURLs = @[
     [NSURL URLWithString:@"ws://127.0.0.1:8793/eve/camera"],
@@ -131,6 +156,7 @@ static int64_t EVEHostTimeNowNs(void) {
 - (void)dealloc {
   [self.displayLink invalidate];
   [self.streamClient disconnect];
+  [self.dashboardClient disconnect];
   [self.cameraUplink disconnect];
   [self.micUplink disconnect];
   [self.captureSession stopRunning];
@@ -155,6 +181,9 @@ static int64_t EVEHostTimeNowNs(void) {
   [super viewDidLayoutSubviews];
   [self.glView resizeDrawableIfNeeded];
   self.videoDecoder.displayLayer.frame = self.view.bounds;
+  for (NSString *nodeId in self.dashboardNodes) {
+    [self updateDashboardNodeView:self.dashboardNodes[nodeId]];
+  }
 }
 
 - (void)frameTick:(CADisplayLink *)link {
@@ -172,6 +201,12 @@ static int64_t EVEHostTimeNowNs(void) {
 }
 
 - (void)updateOverlay {
+  if (self.dashboardView) {
+    self.overlayLabel.hidden = YES;
+    return;
+  }
+
+  self.overlayLabel.hidden = NO;
   UIScreen *screen = UIScreen.mainScreen;
   CGSize points = screen.bounds.size;
   CGFloat scale = screen.scale;
@@ -186,6 +221,7 @@ static int64_t EVEHostTimeNowNs(void) {
      "%@\n"
      "codec %@\n"
      "Mimir: %@\n"
+     "dashboard %@\n"
      "points %.0fx%.0f  pixels %.0fx%.0f @ %.1fx\n"
      "stream %.0fx%.0f @ %.1fx\n"
      "fps %.1f  touches %lu\n"
@@ -195,6 +231,7 @@ static int64_t EVEHostTimeNowNs(void) {
      self.streamStatus ?: @"stream",
      self.streamCodec ?: @"unknown",
      self.dialogueLine ?: @"",
+     self.dashboardStatus ?: @"dashboard",
      points.width, points.height, pixels.width, pixels.height, scale,
      self.streamViewportSize.width, self.streamViewportSize.height, self.streamScale,
      self.filteredFPS, (unsigned long)self.touchCount,
@@ -203,6 +240,81 @@ static int64_t EVEHostTimeNowNs(void) {
      acceleration.x, acceleration.y, acceleration.z,
      rotation.x, rotation.y, rotation.z];
   [self.overlayLabel sizeToFit];
+}
+
+- (void)installDashboardInRoot:(UIView *)root {
+  self.dashboardView = [[UIView alloc] initWithFrame:root.bounds];
+  self.dashboardView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  self.dashboardView.backgroundColor = [[UIColor colorWithRed:0.02 green:0.025 blue:0.03 alpha:1.0] colorWithAlphaComponent:0.92];
+  [root addSubview:self.dashboardView];
+
+  self.sceneCanvasView = [[UIView alloc] initWithFrame:CGRectZero];
+  self.sceneCanvasView.translatesAutoresizingMaskIntoConstraints = NO;
+  self.sceneCanvasView.backgroundColor = [UIColor colorWithRed:0.05 green:0.055 blue:0.06 alpha:1.0];
+  self.sceneCanvasView.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.12].CGColor;
+  self.sceneCanvasView.layer.borderWidth = 1.0;
+  self.sceneCanvasView.multipleTouchEnabled = YES;
+  [self.dashboardView addSubview:self.sceneCanvasView];
+
+  self.hierarchyStackView = [[UIStackView alloc] initWithFrame:CGRectZero];
+  self.hierarchyStackView.translatesAutoresizingMaskIntoConstraints = NO;
+  self.hierarchyStackView.axis = UILayoutConstraintAxisVertical;
+  self.hierarchyStackView.spacing = 6.0;
+  self.hierarchyStackView.alignment = UIStackViewAlignmentFill;
+  [self.dashboardView addSubview:self.hierarchyStackView];
+
+  self.toolbarStackView = [[UIStackView alloc] initWithFrame:CGRectZero];
+  self.toolbarStackView.translatesAutoresizingMaskIntoConstraints = NO;
+  self.toolbarStackView.axis = UILayoutConstraintAxisHorizontal;
+  self.toolbarStackView.spacing = 8.0;
+  self.toolbarStackView.alignment = UIStackViewAlignmentCenter;
+  [self.dashboardView addSubview:self.toolbarStackView];
+
+  self.dashboardStatusLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+  self.dashboardStatusLabel.translatesAutoresizingMaskIntoConstraints = NO;
+  self.dashboardStatusLabel.textColor = [UIColor colorWithWhite:0.90 alpha:1.0];
+  self.dashboardStatusLabel.font = [UIFont monospacedSystemFontOfSize:12.0 weight:UIFontWeightRegular];
+  self.dashboardStatusLabel.text = @"dashboard idle";
+  [self.dashboardView addSubview:self.dashboardStatusLabel];
+
+  UILayoutGuide *safe = self.dashboardView.safeAreaLayoutGuide;
+  [NSLayoutConstraint activateConstraints:@[
+    [self.hierarchyStackView.leadingAnchor constraintEqualToAnchor:safe.leadingAnchor constant:14.0],
+    [self.hierarchyStackView.topAnchor constraintEqualToAnchor:safe.topAnchor constant:74.0],
+    [self.hierarchyStackView.widthAnchor constraintEqualToConstant:230.0],
+    [self.hierarchyStackView.bottomAnchor constraintLessThanOrEqualToAnchor:safe.bottomAnchor constant:-18.0],
+
+    [self.sceneCanvasView.leadingAnchor constraintEqualToAnchor:self.hierarchyStackView.trailingAnchor constant:14.0],
+    [self.sceneCanvasView.topAnchor constraintEqualToAnchor:safe.topAnchor constant:74.0],
+    [self.sceneCanvasView.trailingAnchor constraintEqualToAnchor:safe.trailingAnchor constant:-14.0],
+    [self.sceneCanvasView.bottomAnchor constraintEqualToAnchor:safe.bottomAnchor constant:-64.0],
+
+    [self.toolbarStackView.leadingAnchor constraintEqualToAnchor:self.sceneCanvasView.leadingAnchor],
+    [self.toolbarStackView.topAnchor constraintEqualToAnchor:safe.topAnchor constant:18.0],
+    [self.toolbarStackView.trailingAnchor constraintLessThanOrEqualToAnchor:safe.trailingAnchor constant:-14.0],
+    [self.toolbarStackView.heightAnchor constraintEqualToConstant:42.0],
+
+    [self.dashboardStatusLabel.leadingAnchor constraintEqualToAnchor:self.sceneCanvasView.leadingAnchor],
+    [self.dashboardStatusLabel.topAnchor constraintEqualToAnchor:self.sceneCanvasView.bottomAnchor constant:10.0],
+    [self.dashboardStatusLabel.trailingAnchor constraintEqualToAnchor:self.sceneCanvasView.trailingAnchor],
+  ]];
+
+  NSArray<NSDictionary *> *buttons = @[
+    @{@"title": @"Reset", @"action": @"reset-transform"},
+    @{@"title": @"Hide/Show", @"action": @"toggle-visibility"},
+  ];
+  for (NSDictionary *entry in buttons) {
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+    [button setTitle:entry[@"title"] forState:UIControlStateNormal];
+    button.accessibilityIdentifier = entry[@"action"];
+    button.titleLabel.font = [UIFont systemFontOfSize:15.0 weight:UIFontWeightSemibold];
+    button.tintColor = UIColor.whiteColor;
+    button.backgroundColor = [UIColor colorWithRed:0.16 green:0.18 blue:0.20 alpha:1.0];
+    button.layer.cornerRadius = 6.0;
+    button.contentEdgeInsets = UIEdgeInsetsMake(8, 12, 8, 12);
+    [button addTarget:self action:@selector(toolbarButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.toolbarStackView addArrangedSubview:button];
+  }
 }
 
 - (void)startSensorCapture {
@@ -399,6 +511,235 @@ static int64_t EVEHostTimeNowNs(void) {
   x = MIN(MAX(x, 0.0), viewport.width - 1.0);
   y = MIN(MAX(y, 0.0), viewport.height - 1.0);
   return CGPointMake(x, y);
+}
+
+- (void)dashboardClient:(EVEDashboardClient *)client didReceiveState:(NSDictionary *)state {
+  (void)client;
+  self.dashboardStatus = [NSString stringWithFormat:@"v%@", state[@"version"] ?: @"?"];
+  NSString *selected = state[@"selectedNodeId"];
+  if ([selected isKindOfClass:NSString.class]) {
+    self.selectedNodeId = selected;
+  }
+
+  NSArray *nodes = state[@"nodes"];
+  if (![nodes isKindOfClass:NSArray.class]) {
+    return;
+  }
+
+  [self.dashboardNodes removeAllObjects];
+  for (NSDictionary *node in nodes) {
+    if (![node isKindOfClass:NSDictionary.class]) {
+      continue;
+    }
+
+    NSString *nodeId = node[@"id"];
+    if (![nodeId isKindOfClass:NSString.class]) {
+      continue;
+    }
+
+    self.dashboardNodes[nodeId] = node;
+    [self ensureDashboardNodeView:node];
+    [self updateDashboardNodeView:node];
+  }
+
+  [self rebuildHierarchyWithNodes:nodes];
+}
+
+- (void)dashboardClient:(EVEDashboardClient *)client didChangeStatus:(NSString *)status {
+  (void)client;
+  self.dashboardStatus = status;
+  self.dashboardStatusLabel.text = status;
+}
+
+- (void)ensureDashboardNodeView:(NSDictionary *)node {
+  NSString *nodeId = node[@"id"];
+  if (self.nodeViews[nodeId]) {
+    return;
+  }
+
+  UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 120, 80)];
+  view.backgroundColor = [UIColor colorWithRed:0.10 green:0.13 blue:0.16 alpha:1.0];
+  view.layer.borderWidth = 1.0;
+  view.layer.cornerRadius = 6.0;
+  view.multipleTouchEnabled = YES;
+  view.accessibilityIdentifier = nodeId;
+
+  UILabel *label = [[UILabel alloc] initWithFrame:CGRectInset(view.bounds, 8.0, 6.0)];
+  label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  label.numberOfLines = 3;
+  label.textColor = UIColor.whiteColor;
+  label.font = [UIFont monospacedSystemFontOfSize:12.0 weight:UIFontWeightMedium];
+  label.tag = 1001;
+  [view addSubview:label];
+
+  UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(nodeTapped:)];
+  [view addGestureRecognizer:tap];
+  UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(nodePanned:)];
+  [view addGestureRecognizer:pan];
+  UIPinchGestureRecognizer *pinch = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(nodePinched:)];
+  pinch.delegate = self;
+  [view addGestureRecognizer:pinch];
+  UIRotationGestureRecognizer *rotation = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(nodeRotated:)];
+  rotation.delegate = self;
+  [view addGestureRecognizer:rotation];
+
+  [self.sceneCanvasView addSubview:view];
+  self.nodeViews[nodeId] = view;
+}
+
+- (void)updateDashboardNodeView:(NSDictionary *)node {
+  NSString *nodeId = node[@"id"];
+  UIView *view = self.nodeViews[nodeId];
+  if (!view) {
+    return;
+  }
+
+  CGFloat canvasWidth = MAX(1.0, self.sceneCanvasView.bounds.size.width);
+  CGFloat canvasHeight = MAX(1.0, self.sceneCanvasView.bounds.size.height);
+  CGFloat width = MAX(72.0, [node[@"width"] doubleValue] * canvasWidth);
+  CGFloat height = MAX(54.0, [node[@"height"] doubleValue] * canvasHeight);
+  CGFloat x = ([node[@"x"] doubleValue] + 1.0) * 0.5 * canvasWidth;
+  CGFloat y = ([node[@"y"] doubleValue] + 1.0) * 0.5 * canvasHeight;
+  view.bounds = CGRectMake(0, 0, width, height);
+  view.center = CGPointMake(x, y);
+
+  CGFloat scale = MAX(0.25, [node[@"scale"] doubleValue]);
+  CGFloat rotation = [node[@"rotation"] doubleValue];
+  view.transform = CGAffineTransformRotate(CGAffineTransformMakeScale(scale, scale), rotation);
+  BOOL visible = [node[@"visible"] boolValue];
+  view.alpha = visible ? 1.0 : 0.28;
+  BOOL selected = [nodeId isEqualToString:self.selectedNodeId];
+  view.layer.borderColor = selected
+    ? [UIColor colorWithRed:0.45 green:0.80 blue:1.0 alpha:1.0].CGColor
+    : [UIColor colorWithWhite:1.0 alpha:0.16].CGColor;
+  view.layer.borderWidth = selected ? 2.0 : 1.0;
+
+  UILabel *label = (UILabel *)[view viewWithTag:1001];
+  if ([label isKindOfClass:UILabel.class]) {
+    label.text = [NSString stringWithFormat:@"%@\n%@  %@",
+                  node[@"label"] ?: nodeId,
+                  node[@"kind"] ?: @"source",
+                  node[@"health"] ?: @""];
+  }
+}
+
+- (void)rebuildHierarchyWithNodes:(NSArray *)nodes {
+  for (UIView *view in self.hierarchyStackView.arrangedSubviews) {
+    [self.hierarchyStackView removeArrangedSubview:view];
+    [view removeFromSuperview];
+  }
+
+  UILabel *title = [[UILabel alloc] initWithFrame:CGRectZero];
+  title.text = @"Scene Graph";
+  title.textColor = UIColor.whiteColor;
+  title.font = [UIFont systemFontOfSize:16.0 weight:UIFontWeightBold];
+  [self.hierarchyStackView addArrangedSubview:title];
+
+  for (NSDictionary *node in nodes) {
+    NSString *nodeId = node[@"id"];
+    if (![nodeId isKindOfClass:NSString.class]) {
+      continue;
+    }
+
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+    NSString *visible = [node[@"visible"] boolValue] ? @"●" : @"○";
+    [button setTitle:[NSString stringWithFormat:@"%@  %@", visible, node[@"label"] ?: nodeId] forState:UIControlStateNormal];
+    button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    button.accessibilityIdentifier = nodeId;
+    button.titleLabel.font = [UIFont monospacedSystemFontOfSize:13.0 weight:[nodeId isEqualToString:self.selectedNodeId] ? UIFontWeightBold : UIFontWeightRegular];
+    button.tintColor = [nodeId isEqualToString:self.selectedNodeId] ? [UIColor colorWithRed:0.55 green:0.85 blue:1.0 alpha:1.0] : [UIColor colorWithWhite:0.85 alpha:1.0];
+    [button addTarget:self action:@selector(hierarchyNodePressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.hierarchyStackView addArrangedSubview:button];
+  }
+}
+
+- (void)nodeTapped:(UITapGestureRecognizer *)recognizer {
+  NSString *nodeId = recognizer.view.accessibilityIdentifier;
+  if (!nodeId) {
+    return;
+  }
+
+  self.selectedNodeId = nodeId;
+  [self.dashboardClient sendCommand:@{@"type": @"select", @"nodeId": nodeId}];
+}
+
+- (void)nodePanned:(UIPanGestureRecognizer *)recognizer {
+  UIView *view = recognizer.view;
+  NSString *nodeId = view.accessibilityIdentifier;
+  if (!nodeId) {
+    return;
+  }
+
+  CGPoint translation = [recognizer translationInView:self.sceneCanvasView];
+  view.center = CGPointMake(view.center.x + translation.x, view.center.y + translation.y);
+  [recognizer setTranslation:CGPointZero inView:self.sceneCanvasView];
+  if (recognizer.state == UIGestureRecognizerStateChanged || recognizer.state == UIGestureRecognizerStateEnded) {
+    [self sendMoveForNodeId:nodeId center:view.center];
+  }
+}
+
+- (void)nodePinched:(UIPinchGestureRecognizer *)recognizer {
+  NSString *nodeId = recognizer.view.accessibilityIdentifier;
+  NSDictionary *node = nodeId ? self.dashboardNodes[nodeId] : nil;
+  if (!nodeId || !node) {
+    return;
+  }
+
+  if (recognizer.state == UIGestureRecognizerStateBegan) {
+    self.activeGestureStartScale = MAX(0.25, [node[@"scale"] doubleValue]);
+  }
+
+  CGFloat scale = MAX(0.25, MIN(3.0, self.activeGestureStartScale * recognizer.scale));
+  [self.dashboardClient sendCommand:@{@"type": @"scale", @"nodeId": nodeId, @"scale": @(scale)}];
+}
+
+- (void)nodeRotated:(UIRotationGestureRecognizer *)recognizer {
+  NSString *nodeId = recognizer.view.accessibilityIdentifier;
+  NSDictionary *node = nodeId ? self.dashboardNodes[nodeId] : nil;
+  if (!nodeId || !node) {
+    return;
+  }
+
+  if (recognizer.state == UIGestureRecognizerStateBegan) {
+    self.activeGestureStartRotation = [node[@"rotation"] doubleValue];
+  }
+
+  CGFloat rotation = self.activeGestureStartRotation + recognizer.rotation;
+  [self.dashboardClient sendCommand:@{@"type": @"rotate", @"nodeId": nodeId, @"rotation": @(rotation)}];
+}
+
+- (void)sendMoveForNodeId:(NSString *)nodeId center:(CGPoint)center {
+  CGFloat canvasWidth = MAX(1.0, self.sceneCanvasView.bounds.size.width);
+  CGFloat canvasHeight = MAX(1.0, self.sceneCanvasView.bounds.size.height);
+  CGFloat x = MIN(1.0, MAX(-1.0, (center.x / canvasWidth) * 2.0 - 1.0));
+  CGFloat y = MIN(1.0, MAX(-1.0, (center.y / canvasHeight) * 2.0 - 1.0));
+  [self.dashboardClient sendCommand:@{@"type": @"move", @"nodeId": nodeId, @"x": @(x), @"y": @(y)}];
+}
+
+- (void)hierarchyNodePressed:(UIButton *)button {
+  NSString *nodeId = button.accessibilityIdentifier;
+  if (!nodeId) {
+    return;
+  }
+
+  self.selectedNodeId = nodeId;
+  [self.dashboardClient sendCommand:@{@"type": @"select", @"nodeId": nodeId}];
+}
+
+- (void)toolbarButtonPressed:(UIButton *)button {
+  NSString *nodeId = self.selectedNodeId;
+  NSString *action = button.accessibilityIdentifier;
+  if (!nodeId || !action) {
+    return;
+  }
+
+  [self.dashboardClient sendCommand:@{@"type": action, @"nodeId": nodeId}];
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+  (void)gestureRecognizer;
+  (void)otherGestureRecognizer;
+  return YES;
 }
 
 - (void)sendTouches:(NSSet<UITouch *> *)touches event:(UIEvent *)event phase:(NSString *)phase {

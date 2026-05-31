@@ -28,9 +28,13 @@ the development machine.
 - `EVESensorUplinkClient` opens separate WebSocket uplinks for camera and
   microphone frame-events so sensor traffic does not block display/control
   traffic.
+- `EVEDashboardClient` opens the native Mimir dashboard socket and receives
+  scene/control state snapshots.
 - `EVEViewController` captures camera frames with AVFoundation and microphone
   blocks with AVAudioEngine, then sends `eve-camera` and `eve-mic` samples to
-  Mimir.
+  Mimir. It also renders the dashboard natively with UIKit: a scene graph,
+  draggable source panels, visibility/reset controls, and multitouch
+  pan/pinch/rotate transform commands.
 
 ## Invariants
 
@@ -68,6 +72,28 @@ microphone frame-events to `ws://192.168.1.66:8794/eve/mic`. The first transport
 uses JSON plus base64 payloads because it is inspectable and already matches
 Mimir's frame-event source. Replace it with binary framing only after the
 sample contract is proven on device.
+
+## Native Mimir Dashboard
+
+Start the dashboard authority on Starfire:
+
+```powershell
+dotnet run --project E:\Projects\Mimir\src\Mimir.EveDashboard\Mimir.EveDashboard.csproj -- --port 8795
+```
+
+EveCanvas connects to `ws://192.168.1.66:8795/eve/dashboard`. Mimir sends
+`dashboard-state` snapshots containing scene nodes, selection, visibility,
+transform, size, and health. EveCanvas sends compact commands back:
+
+- `select`
+- `move`
+- `scale`
+- `rotate`
+- `toggle-visibility`
+- `reset-transform`
+
+Eve renders and edits the dashboard; Mimir owns the accepted state. Eve is the
+operator's hand on the scene graph, not a second compositor.
 
 ## Build Shape
 
@@ -126,3 +152,5 @@ without losing the basic app deployment path.
 - Add touch/Pencil visual markers.
 - Replace JSON/base64 sensor packets with binary framing once camera and mic
   timing are proven through Mimir.
+- Replace the dashboard fixture state with live `MimirPresentationControlState`
+  and `MimirSceneEditorState` snapshots.
