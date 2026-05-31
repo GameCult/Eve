@@ -1,19 +1,36 @@
-# EveCanvas
+# Eve
 
-Fullscreen native render shell for EVE, the jailbroken iPad 8th generation test
-device.
+CultMesh-based streaming UI composition framework and timestamped sensor
+sharing network.
 
-This is deliberately not a web app. UIKit owns the app/window lifecycle, the
-streamed frame surface, touch capture, and the text overlay. OpenGL ES remains a
-local render fallback, but the VoidBot dashboard path is a native frame stream
-from Starfire.
+Eve is the display/control/sensor edge for GameCult apps. Every app should be
+able to expose a structured control surface, live data tree, media panel, or
+operator dashboard through CultNet. Eve clients render those surfaces, return
+operator intent, and publish local sensors with timestamps so Mimir, VoidBot,
+Fensalir, and the rest of the mesh can share one inspectable field of state.
+
+The browser implementation is the ground-truth renderer and behavior reference.
+Native clients on iOS, Android, and other surfaces should match the browser's
+CultMesh document semantics as closely as possible, using platform-native UI
+and media paths where that makes the surface faster, more direct, or more
+capable.
 
 ## Objective
 
-Put a real fullscreen native rendering surface on EVE without requiring macOS as
-the development machine.
+Build one deployable Eve runtime family:
+
+- Browser: canonical CultMesh UI compositor, test oracle, and reference
+  behavior.
+- iOS: native full-screen renderer, multitouch controller, camera/mic/motion
+  sensor publisher, and low-latency media display.
+- Android: native renderer and sensor publisher with the same CultNet contracts.
+- Shared API: apps publish control surfaces and structured data; Eve publishes
+  commands, pointer/touch input, and timestamped sensor packets.
 
 ## Current Mechanism
+
+The current checked-in client is the iOS Theos app, still named `EveCanvas` at
+the bundle level until the wider Eve runtime split exists.
 
 - `EVEAppDelegate` creates one fullscreen `UIWindow`.
 - `EVEViewController` installs:
@@ -38,13 +55,23 @@ the development machine.
 
 ## Invariants
 
-- Browser/PWA layout is not part of the iPad path.
-- Starfire CEF owns browser pixels; EveCanvas owns display and touch capture.
-- UIKit is the current streamed-frame owner; OpenGL ES is fallback/local render.
+- Browser layout is the reference behavior. Native clients do not improvise new
+  semantics when a CultMesh surface already defines them.
+- Native clients do not embed a browser as their only answer. They render the
+  same surface documents with platform-native controls when that is the better
+  machine.
+- CultNet carries typed surface state, commands, and timestamped sensor packets.
+  Edge JSON is tolerated only as an interoperability envelope while the typed
+  CultMesh document shape is being proven.
+- UIKit is the current iOS streamed-frame owner; OpenGL ES is fallback/local
+  render.
 - The status bar stays hidden.
-- EveCanvas owns Eve-local sensor reads. Mimir owns synchronization and final
-  interpretation after those samples arrive.
-- CultMesh networking is not smuggled into the render shell yet.
+- Eve clients own local sensor reads and timestamps. Mimir owns synchronization
+  and final interpretation after those samples arrive.
+- App-specific dashboards are providers. Eve renders them; the provider owns
+  accepted state, commands, and side effects.
+
+See `docs/cultmesh-streaming-ui-framework.md` for the target architecture.
 
 ## VoidBot CEF Stream
 
@@ -83,9 +110,10 @@ dotnet run --project E:\Projects\Mimir\src\Mimir.EveDashboard\Mimir.EveDashboard
 
 EveCanvas connects first to `ws://192.168.1.66:8795/eve/deck`, with
 `/eve/dashboard` kept as a compatibility fallback. The Starfire broker sends
-native retained `dashboard-state` snapshots containing provider id, title,
-scene nodes, selection, visibility, transform, size, and health. EveCanvas sends
-compact commands back:
+native retained `dashboard-state` snapshots. This is the current CultNet-shaped
+surface document for provider id, title, scene nodes, selection, visibility,
+transform, size, health, detail text, identity ids, and avatar URLs. EveCanvas
+sends compact commands back:
 
 - `select`
 - `move`
@@ -99,9 +127,9 @@ Eve renders and edits dashboard trees natively; each provider owns accepted
 state and command handling. Eve is the operator's hand on the scene graph, not a
 second compositor and not a remote WebKit runtime.
 
-The broker includes a native VoidBot tab/provider. Eve renders its CTB rail,
-agent status cards, and selected Face state detail from the same VoidBot
-`swarm-state.json` projection used by the web dashboard.
+The broker includes a native VoidBot tab/provider. Eve renders its CTB rail with
+avatar images, selected Face status panel, state tree, and detail pane from the
+same VoidBot `swarm-state.json` projection used by the web dashboard.
 
 ## Build Shape
 
@@ -155,10 +183,11 @@ without losing the basic app deployment path.
 
 ## Next Cut
 
-- Confirm actual fullscreen drawable size on EVE.
-- Add a simple triangle/quad shader so the renderer proves more than clear.
-- Add touch/Pencil visual markers.
+- Create the browser reference Eve runtime and use it as the visual/behavior
+  test oracle for native clients.
+- Split the shared CultNet/CultMesh surface contract from the iOS app code.
 - Replace JSON/base64 sensor packets with binary framing once camera and mic
   timing are proven through Mimir.
 - Replace the dashboard fixture state with live `MimirPresentationControlState`
   and `MimirSceneEditorState` snapshots.
+- Add Android and browser clients that consume the same provider/sensor API.

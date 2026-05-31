@@ -26,8 +26,10 @@ static int64_t EVEHostTimeNowNs(void) {
 @property(nonatomic, strong) UIStackView *hierarchyStackView;
 @property(nonatomic, strong) UIStackView *toolbarStackView;
 @property(nonatomic, strong) UILabel *dashboardStatusLabel;
+@property(nonatomic, strong) UIView *voidBotDashboardView;
 @property(nonatomic, strong) NSMutableDictionary<NSString *, UIView *> *nodeViews;
 @property(nonatomic, strong) NSMutableDictionary<NSString *, NSDictionary *> *dashboardNodes;
+@property(nonatomic, strong) NSMutableDictionary<NSString *, UIImage *> *avatarCache;
 @property(nonatomic, strong) CADisplayLink *displayLink;
 @property(nonatomic, strong) CMMotionManager *motionManager;
 @property(nonatomic, strong) EVEFrameStreamClient *streamClient;
@@ -49,6 +51,7 @@ static int64_t EVEHostTimeNowNs(void) {
 @property(nonatomic, copy) NSString *streamCodec;
 @property(nonatomic, copy) NSString *dialogueLine;
 @property(nonatomic, copy) NSString *dashboardStatus;
+@property(nonatomic, copy) NSString *dashboardProviderId;
 @property(nonatomic, copy) NSString *selectedNodeId;
 @property(nonatomic, assign) CGFloat activeGestureStartScale;
 @property(nonatomic, assign) CGFloat activeGestureStartRotation;
@@ -119,8 +122,10 @@ static int64_t EVEHostTimeNowNs(void) {
   self.streamCodec = @"jpeg";
   self.dialogueLine = @"awaiting Mimir";
   self.dashboardStatus = @"dashboard idle";
+  self.dashboardProviderId = @"";
   self.nodeViews = [NSMutableDictionary dictionary];
   self.dashboardNodes = [NSMutableDictionary dictionary];
+  self.avatarCache = [NSMutableDictionary dictionary];
   NSArray<NSURL *> *streamURLs = @[
     [NSURL URLWithString:@"ws://127.0.0.1:8792/stream"],
     [NSURL URLWithString:@"ws://192.168.1.66:8792/stream"],
@@ -279,6 +284,14 @@ static int64_t EVEHostTimeNowNs(void) {
   self.dashboardStatusLabel.text = @"dashboard idle";
   [self.dashboardView addSubview:self.dashboardStatusLabel];
 
+  self.voidBotDashboardView = [[UIView alloc] initWithFrame:CGRectZero];
+  self.voidBotDashboardView.translatesAutoresizingMaskIntoConstraints = NO;
+  self.voidBotDashboardView.hidden = YES;
+  self.voidBotDashboardView.backgroundColor = [UIColor colorWithRed:0.005 green:0.025 blue:0.026 alpha:0.98];
+  self.voidBotDashboardView.layer.borderColor = [UIColor colorWithRed:0.22 green:0.88 blue:0.86 alpha:0.20].CGColor;
+  self.voidBotDashboardView.layer.borderWidth = 1.0;
+  [self.dashboardView addSubview:self.voidBotDashboardView];
+
   UILayoutGuide *safe = self.dashboardView.safeAreaLayoutGuide;
   [NSLayoutConstraint activateConstraints:@[
     [self.hierarchyStackView.leadingAnchor constraintEqualToAnchor:safe.leadingAnchor constant:14.0],
@@ -299,6 +312,11 @@ static int64_t EVEHostTimeNowNs(void) {
     [self.dashboardStatusLabel.leadingAnchor constraintEqualToAnchor:self.sceneCanvasView.leadingAnchor],
     [self.dashboardStatusLabel.topAnchor constraintEqualToAnchor:self.sceneCanvasView.bottomAnchor constant:10.0],
     [self.dashboardStatusLabel.trailingAnchor constraintEqualToAnchor:self.sceneCanvasView.trailingAnchor],
+
+    [self.voidBotDashboardView.leadingAnchor constraintEqualToAnchor:safe.leadingAnchor constant:6.0],
+    [self.voidBotDashboardView.topAnchor constraintEqualToAnchor:safe.topAnchor constant:6.0],
+    [self.voidBotDashboardView.trailingAnchor constraintEqualToAnchor:safe.trailingAnchor constant:-6.0],
+    [self.voidBotDashboardView.bottomAnchor constraintEqualToAnchor:safe.bottomAnchor constant:-6.0],
   ]];
 
   NSArray<NSDictionary *> *buttons = @[
@@ -520,6 +538,8 @@ static int64_t EVEHostTimeNowNs(void) {
   NSString *title = [state[@"title"] isKindOfClass:NSString.class] ? state[@"title"] : @"dashboard";
   self.dashboardStatus = [NSString stringWithFormat:@"%@ v%@", title, state[@"version"] ?: @"?"];
   self.dashboardStatusLabel.text = self.dashboardStatus;
+  NSString *providerId = [state[@"providerId"] isKindOfClass:NSString.class] ? state[@"providerId"] : @"";
+  self.dashboardProviderId = providerId;
   NSString *selected = state[@"selectedNodeId"];
   if ([selected isKindOfClass:NSString.class]) {
     self.selectedNodeId = selected;
@@ -531,6 +551,7 @@ static int64_t EVEHostTimeNowNs(void) {
   }
 
   [self.dashboardNodes removeAllObjects];
+  NSMutableSet<NSString *> *liveNodeIds = [NSMutableSet set];
   for (NSDictionary *node in nodes) {
     if (![node isKindOfClass:NSDictionary.class]) {
       continue;
@@ -542,11 +563,364 @@ static int64_t EVEHostTimeNowNs(void) {
     }
 
     self.dashboardNodes[nodeId] = node;
+    [liveNodeIds addObject:nodeId];
+  }
+
+  BOOL isVoidBot = [providerId isEqualToString:@"voidbot.swarm"];
+  self.voidBotDashboardView.hidden = !isVoidBot;
+  self.sceneCanvasView.hidden = isVoidBot;
+  self.hierarchyStackView.hidden = isVoidBot;
+  self.toolbarStackView.hidden = isVoidBot;
+  self.dashboardStatusLabel.hidden = isVoidBot;
+
+  if (isVoidBot) {
+    for (UIView *view in self.nodeViews.allValues) {
+      [view removeFromSuperview];
+    }
+    [self.nodeViews removeAllObjects];
+    [self renderVoidBotDashboardWithNodes:nodes title:title version:state[@"version"]];
+    return;
+  }
+
+  for (NSString *existingNodeId in self.nodeViews.allKeys.copy) {
+    if (![liveNodeIds containsObject:existingNodeId]) {
+      [self.nodeViews[existingNodeId] removeFromSuperview];
+      [self.nodeViews removeObjectForKey:existingNodeId];
+    }
+  }
+
+  for (NSDictionary *node in nodes) {
+    if (![node isKindOfClass:NSDictionary.class]) {
+      continue;
+    }
+    NSString *nodeId = node[@"id"];
+    if (![nodeId isKindOfClass:NSString.class]) {
+      continue;
+    }
     [self ensureDashboardNodeView:node];
     [self updateDashboardNodeView:node];
   }
 
   [self rebuildHierarchyWithNodes:nodes];
+}
+
+- (void)renderVoidBotDashboardWithNodes:(NSArray *)nodes title:(NSString *)title version:(id)version {
+  for (UIView *view in self.voidBotDashboardView.subviews) {
+    [view removeFromSuperview];
+  }
+
+  [self.voidBotDashboardView layoutIfNeeded];
+  CGRect bounds = self.voidBotDashboardView.bounds;
+  if (bounds.size.width < 20.0 || bounds.size.height < 20.0) {
+    bounds = UIEdgeInsetsInsetRect(self.dashboardView.bounds, UIEdgeInsetsMake(6, 6, 6, 6));
+  }
+
+  UIView *grid = [[UIView alloc] initWithFrame:bounds];
+  grid.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  grid.backgroundColor = [UIColor colorWithRed:0.004 green:0.018 blue:0.020 alpha:1.0];
+  [self.voidBotDashboardView addSubview:grid];
+
+  UILabel *hud = [self voidBotLabelWithFrame:CGRectMake(bounds.size.width - 138.0, 8.0, 128.0, 46.0)
+                                        text:[NSString stringWithFormat:@"VOID\n%@  RUNN\n%@", title ?: @"swarm", version ?: @"?"]
+                                        size:9.0
+                                      weight:UIFontWeightBold
+                                      color:[UIColor colorWithRed:1.0 green:0.72 blue:0.32 alpha:1.0]];
+  hud.textAlignment = NSTextAlignmentLeft;
+  hud.layer.borderColor = [UIColor colorWithRed:0.34 green:0.92 blue:0.88 alpha:0.42].CGColor;
+  hud.layer.borderWidth = 1.0;
+  hud.layer.cornerRadius = 4.0;
+  hud.layer.masksToBounds = YES;
+  hud.backgroundColor = [UIColor colorWithRed:0.03 green:0.06 blue:0.06 alpha:0.80];
+  [grid addSubview:hud];
+
+  CGFloat topHeight = 88.0;
+  UIScrollView *ctbScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0.0, 0.0, bounds.size.width - 150.0, topHeight)];
+  ctbScroll.showsHorizontalScrollIndicator = NO;
+  ctbScroll.backgroundColor = [UIColor colorWithRed:0.01 green:0.035 blue:0.037 alpha:1.0];
+  [grid addSubview:ctbScroll];
+
+  NSArray *ctbNodes = [self dashboardNodesOfKind:@"ctb-turn"];
+  CGFloat ctbX = 6.0;
+  for (NSDictionary *node in ctbNodes) {
+    UIView *card = [self voidBotAgentCardForNode:node frame:CGRectMake(ctbX, 7.0, 92.0, 74.0) compact:YES];
+    [ctbScroll addSubview:card];
+    ctbX += 98.0;
+  }
+  ctbScroll.contentSize = CGSizeMake(MAX(ctbX + 6.0, ctbScroll.bounds.size.width + 1.0), topHeight);
+
+  CGFloat paneTop = topHeight + 10.0;
+  CGFloat paneHeight = bounds.size.height - paneTop - 8.0;
+  CGFloat gutter = 8.0;
+  CGFloat leftWidth = floor(bounds.size.width * 0.235);
+  CGFloat middleWidth = floor(bounds.size.width * 0.34);
+  CGFloat rightWidth = bounds.size.width - leftWidth - middleWidth - (gutter * 2.0);
+
+  UIView *leftPane = [self voidBotPaneWithFrame:CGRectMake(6.0, paneTop, leftWidth - 6.0, paneHeight)];
+  UIView *statePane = [self voidBotPaneWithFrame:CGRectMake(leftPane.frame.origin.x + leftPane.frame.size.width + gutter, paneTop, middleWidth, paneHeight)];
+  UIView *detailPane = [self voidBotPaneWithFrame:CGRectMake(statePane.frame.origin.x + statePane.frame.size.width + gutter, paneTop, rightWidth - 6.0, paneHeight)];
+  [grid addSubview:leftPane];
+  [grid addSubview:statePane];
+  [grid addSubview:detailPane];
+
+  [self fillVoidBotLeftPane:leftPane nodes:nodes];
+  [self fillVoidBotStatePane:statePane nodes:nodes];
+  [self fillVoidBotDetailPane:detailPane nodes:nodes];
+}
+
+- (void)fillVoidBotLeftPane:(UIView *)pane nodes:(NSArray *)nodes {
+  NSDictionary *summary = [self dashboardNodeWithId:@"voidbot-summary"];
+  NSDictionary *selected = [self dashboardNodeWithId:@"agent-detail"];
+  [pane addSubview:[self voidBotLabelWithFrame:CGRectMake(10.0, 10.0, pane.bounds.size.width - 20.0, 18.0)
+                                          text:@"CONTROLS"
+                                          size:10.0
+                                        weight:UIFontWeightRegular
+                                        color:[UIColor colorWithRed:0.38 green:0.78 blue:0.70 alpha:0.78]]];
+
+  UIButton *pause = [self voidBotButtonWithFrame:CGRectMake(pane.bounds.size.width - 70.0, 34.0, 58.0, 28.0) title:@"Pause"];
+  pause.accessibilityIdentifier = @"voidbot-summary";
+  [pause addTarget:self action:@selector(hierarchyNodePressed:) forControlEvents:UIControlEventTouchUpInside];
+  [pane addSubview:pause];
+
+  NSString *summaryText = [NSString stringWithFormat:@"%@\n%@",
+                           summary[@"label"] ?: @"VoidBot Swarm",
+                           summary[@"detail"] ?: @""];
+  [pane addSubview:[self voidBotLabelWithFrame:CGRectMake(10.0, 34.0, pane.bounds.size.width - 92.0, 82.0)
+                                          text:summaryText
+                                          size:10.5
+                                        weight:UIFontWeightSemibold
+                                        color:[UIColor colorWithWhite:0.84 alpha:1.0]]];
+
+  CGFloat y = 126.0;
+  if (selected) {
+    UIImageView *avatar = [[UIImageView alloc] initWithFrame:CGRectMake(10.0, y, 48.0, 48.0)];
+    avatar.layer.cornerRadius = 24.0;
+    avatar.layer.masksToBounds = YES;
+    avatar.backgroundColor = [UIColor colorWithRed:0.06 green:0.16 blue:0.17 alpha:1.0];
+    [pane addSubview:avatar];
+    [self loadAvatarURLString:selected[@"avatarUrl"] intoImageView:avatar];
+
+    UILabel *name = [self voidBotLabelWithFrame:CGRectMake(68.0, y - 2.0, pane.bounds.size.width - 78.0, 54.0)
+                                           text:[NSString stringWithFormat:@"SELECTED FACE\n%@", selected[@"label"] ?: @"agent"]
+                                           size:20.0
+                                         weight:UIFontWeightLight
+                                         color:[UIColor colorWithWhite:0.88 alpha:1.0]];
+    name.numberOfLines = 3;
+    [pane addSubview:name];
+    y += 70.0;
+
+    [self addVoidBotMetric:@"TURN" value:0.96 color:[UIColor colorWithRed:0.50 green:0.88 blue:1.0 alpha:1.0] toPane:pane y:&y];
+    [self addVoidBotMetric:@"MEMORY" value:0.70 color:[UIColor colorWithRed:0.72 green:0.62 blue:1.0 alpha:1.0] toPane:pane y:&y];
+    [self addVoidBotMetric:@"PRESSURE" value:0.42 color:[UIColor colorWithRed:0.55 green:0.92 blue:0.78 alpha:1.0] toPane:pane y:&y];
+    [self addVoidBotMetric:@"HEAT" value:0.34 color:[UIColor colorWithRed:0.44 green:0.86 blue:0.92 alpha:1.0] toPane:pane y:&y];
+    [self addVoidBotMetric:@"LOAD" value:0.99 color:[UIColor colorWithRed:1.0 green:0.50 blue:0.40 alpha:1.0] toPane:pane y:&y];
+    [self addVoidBotMetric:@"SPEED" value:0.88 color:[UIColor colorWithRed:0.48 green:0.92 blue:0.75 alpha:1.0] toPane:pane y:&y];
+
+    UILabel *description = [self voidBotLabelWithFrame:CGRectMake(10.0, y + 8.0, pane.bounds.size.width - 20.0, pane.bounds.size.height - y - 18.0)
+                                                  text:selected[@"detail"] ?: @"No Face state detail."
+                                                  size:9.5
+                                                weight:UIFontWeightMedium
+                                                color:[UIColor colorWithWhite:0.78 alpha:1.0]];
+    description.numberOfLines = 0;
+    [pane addSubview:description];
+  }
+}
+
+- (void)fillVoidBotStatePane:(UIView *)pane nodes:(NSArray *)nodes {
+  [pane addSubview:[self voidBotLabelWithFrame:CGRectMake(10.0, 10.0, pane.bounds.size.width - 20.0, 38.0)
+                                          text:@"STATE GRAPH\nNIBU MEMORY TREE"
+                                          size:11.0
+                                        weight:UIFontWeightRegular
+                                        color:[UIColor colorWithRed:0.54 green:0.76 blue:0.74 alpha:0.82]]];
+  NSArray *leaves = [self dashboardNodesOfKind:@"state-leaf"];
+  CGFloat y = 56.0;
+  for (NSDictionary *node in leaves) {
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+    button.frame = CGRectMake(10.0, y, pane.bounds.size.width - 20.0, 50.0);
+    button.accessibilityIdentifier = node[@"id"];
+    button.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    button.titleLabel.font = [UIFont systemFontOfSize:12.0 weight:UIFontWeightRegular];
+    button.titleLabel.numberOfLines = 2;
+    button.tintColor = [node[@"id"] isEqualToString:self.selectedNodeId] ? [UIColor colorWithRed:1.0 green:0.72 blue:0.32 alpha:1.0] : [UIColor colorWithWhite:0.82 alpha:1.0];
+    button.backgroundColor = [UIColor colorWithRed:0.04 green:0.11 blue:0.105 alpha:0.95];
+    button.layer.borderWidth = 1.0;
+    button.layer.borderColor = [UIColor colorWithRed:0.21 green:0.75 blue:0.70 alpha:0.25].CGColor;
+    button.layer.cornerRadius = 5.0;
+    [button setTitle:[NSString stringWithFormat:@"  %@", node[@"label"] ?: node[@"id"]] forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(hierarchyNodePressed:) forControlEvents:UIControlEventTouchUpInside];
+    [pane addSubview:button];
+    y += 58.0;
+    if (y > pane.bounds.size.height - 58.0) {
+      break;
+    }
+  }
+}
+
+- (void)fillVoidBotDetailPane:(UIView *)pane nodes:(NSArray *)nodes {
+  NSDictionary *detail = [self dashboardNodeWithId:@"state-detail"] ?: [self dashboardNodeWithId:@"agent-detail"] ?: [self dashboardNodeWithId:@"voidbot-summary"];
+  NSString *heading = [NSString stringWithFormat:@"STATE DETAIL\n%@", detail[@"label"] ?: @"VoidBot"];
+  [pane addSubview:[self voidBotLabelWithFrame:CGRectMake(10.0, 10.0, pane.bounds.size.width - 20.0, 44.0)
+                                          text:heading
+                                          size:12.0
+                                        weight:UIFontWeightRegular
+                                        color:[UIColor colorWithRed:0.70 green:0.84 blue:0.82 alpha:0.88]]];
+  UILabel *body = [self voidBotLabelWithFrame:CGRectMake(14.0, 66.0, pane.bounds.size.width - 28.0, pane.bounds.size.height - 80.0)
+                                         text:detail[@"detail"] ?: @"No state detail."
+                                         size:10.5
+                                       weight:UIFontWeightBold
+                                       color:[UIColor colorWithWhite:0.88 alpha:1.0]];
+  body.numberOfLines = 0;
+  body.backgroundColor = [UIColor colorWithRed:0.01 green:0.04 blue:0.045 alpha:1.0];
+  body.layer.borderWidth = 1.0;
+  body.layer.borderColor = [UIColor colorWithRed:0.21 green:0.75 blue:0.70 alpha:0.25].CGColor;
+  body.layer.cornerRadius = 5.0;
+  body.layer.masksToBounds = YES;
+  [pane addSubview:body];
+}
+
+- (NSArray *)dashboardNodesOfKind:(NSString *)kind {
+  NSMutableArray *matches = [NSMutableArray array];
+  for (NSDictionary *node in self.dashboardNodes.allValues) {
+    if ([node[@"kind"] isKindOfClass:NSString.class] && [node[@"kind"] isEqualToString:kind]) {
+      [matches addObject:node];
+    }
+  }
+  [matches sortUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) {
+    NSString *left = [a[@"id"] isKindOfClass:NSString.class] ? a[@"id"] : @"";
+    NSString *right = [b[@"id"] isKindOfClass:NSString.class] ? b[@"id"] : @"";
+    return [left compare:right options:NSNumericSearch];
+  }];
+  return matches;
+}
+
+- (NSDictionary *)dashboardNodeWithId:(NSString *)nodeId {
+  NSDictionary *node = self.dashboardNodes[nodeId];
+  return [node isKindOfClass:NSDictionary.class] ? node : nil;
+}
+
+- (UIView *)voidBotPaneWithFrame:(CGRect)frame {
+  UIView *pane = [[UIView alloc] initWithFrame:frame];
+  pane.backgroundColor = [UIColor colorWithRed:0.018 green:0.060 blue:0.058 alpha:0.92];
+  pane.layer.borderWidth = 1.0;
+  pane.layer.borderColor = [UIColor colorWithRed:0.22 green:0.88 blue:0.82 alpha:0.22].CGColor;
+  pane.layer.cornerRadius = 5.0;
+  return pane;
+}
+
+- (UIView *)voidBotAgentCardForNode:(NSDictionary *)node frame:(CGRect)frame compact:(BOOL)compact {
+  UIView *card = [[UIView alloc] initWithFrame:frame];
+  card.accessibilityIdentifier = node[@"id"];
+  card.backgroundColor = [UIColor colorWithRed:0.035 green:0.075 blue:0.088 alpha:1.0];
+  card.layer.borderWidth = 1.0;
+  card.layer.borderColor = [UIColor colorWithRed:0.38 green:0.92 blue:0.95 alpha:0.62].CGColor;
+  card.layer.cornerRadius = 6.0;
+
+  UIImageView *avatar = [[UIImageView alloc] initWithFrame:CGRectMake(8.0, 7.0, compact ? 34.0 : 44.0, compact ? 34.0 : 44.0)];
+  avatar.layer.cornerRadius = avatar.bounds.size.width * 0.5;
+  avatar.layer.masksToBounds = YES;
+  avatar.backgroundColor = [UIColor colorWithRed:0.05 green:0.15 blue:0.17 alpha:1.0];
+  [card addSubview:avatar];
+  [self loadAvatarURLString:node[@"avatarUrl"] intoImageView:avatar];
+
+  CGFloat textX = compact ? 6.0 : 60.0;
+  CGFloat textY = compact ? 42.0 : 8.0;
+  CGFloat size = compact ? 8.0 : 11.0;
+  NSString *label = node[@"label"] ?: node[@"id"] ?: @"agent";
+  NSString *health = node[@"health"] ?: @"ready";
+  UILabel *text = [self voidBotLabelWithFrame:CGRectMake(textX, textY, frame.size.width - textX - 6.0, frame.size.height - textY - 5.0)
+                                         text:[NSString stringWithFormat:@"%@\n%@", label, health]
+                                         size:size
+                                       weight:UIFontWeightBold
+                                       color:[UIColor colorWithWhite:0.92 alpha:1.0]];
+  text.numberOfLines = compact ? 3 : 4;
+  [card addSubview:text];
+
+  UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(voidBotNodeTapped:)];
+  [card addGestureRecognizer:tap];
+  return card;
+}
+
+- (UILabel *)voidBotLabelWithFrame:(CGRect)frame text:(NSString *)text size:(CGFloat)size weight:(UIFontWeight)weight color:(UIColor *)color {
+  UILabel *label = [[UILabel alloc] initWithFrame:frame];
+  label.text = text ?: @"";
+  label.numberOfLines = 0;
+  label.textColor = color;
+  label.font = [UIFont monospacedSystemFontOfSize:size weight:weight];
+  label.lineBreakMode = NSLineBreakByTruncatingTail;
+  return label;
+}
+
+- (UIButton *)voidBotButtonWithFrame:(CGRect)frame title:(NSString *)title {
+  UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+  button.frame = frame;
+  [button setTitle:title forState:UIControlStateNormal];
+  button.titleLabel.font = [UIFont systemFontOfSize:12.0 weight:UIFontWeightBold];
+  button.tintColor = UIColor.whiteColor;
+  button.backgroundColor = [UIColor colorWithRed:0.09 green:0.16 blue:0.16 alpha:1.0];
+  button.layer.cornerRadius = 5.0;
+  button.layer.borderWidth = 1.0;
+  button.layer.borderColor = [UIColor colorWithRed:0.30 green:0.80 blue:0.75 alpha:0.28].CGColor;
+  return button;
+}
+
+- (void)addVoidBotMetric:(NSString *)label value:(CGFloat)value color:(UIColor *)color toPane:(UIView *)pane y:(CGFloat *)y {
+  UILabel *caption = [self voidBotLabelWithFrame:CGRectMake(10.0, *y, pane.bounds.size.width - 20.0, 12.0)
+                                           text:label
+                                           size:8.5
+                                         weight:UIFontWeightRegular
+                                         color:[UIColor colorWithWhite:0.66 alpha:1.0]];
+  [pane addSubview:caption];
+  UIView *track = [[UIView alloc] initWithFrame:CGRectMake(10.0, *y + 15.0, pane.bounds.size.width - 20.0, 6.0)];
+  track.backgroundColor = [UIColor colorWithRed:0.0 green:0.02 blue:0.025 alpha:1.0];
+  track.layer.borderWidth = 1.0;
+  track.layer.borderColor = [UIColor colorWithWhite:1.0 alpha:0.12].CGColor;
+  track.layer.cornerRadius = 3.0;
+  [pane addSubview:track];
+  UIView *fill = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, track.bounds.size.width * MIN(1.0, MAX(0.0, value)), track.bounds.size.height)];
+  fill.backgroundColor = color;
+  fill.layer.cornerRadius = 3.0;
+  [track addSubview:fill];
+  *y += 34.0;
+}
+
+- (void)loadAvatarURLString:(id)urlValue intoImageView:(UIImageView *)imageView {
+  if (![urlValue isKindOfClass:NSString.class] || ((NSString *)urlValue).length == 0) {
+    return;
+  }
+  NSString *urlString = (NSString *)urlValue;
+  UIImage *cached = self.avatarCache[urlString];
+  if (cached) {
+    imageView.image = cached;
+    return;
+  }
+  NSURL *url = [NSURL URLWithString:urlString];
+  if (!url) {
+    return;
+  }
+  __weak typeof(self) weakSelf = self;
+  __weak UIImageView *weakImageView = imageView;
+  dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+    NSData *data = [NSData dataWithContentsOfURL:url];
+    UIImage *image = data ? [UIImage imageWithData:data] : nil;
+    if (!image) {
+      return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+      __strong typeof(weakSelf) self = weakSelf;
+      UIImageView *imageView = weakImageView;
+      if (!self || !imageView) {
+        return;
+      }
+      self.avatarCache[urlString] = image;
+      imageView.image = image;
+    });
+  });
+}
+
+- (void)voidBotNodeTapped:(UITapGestureRecognizer *)recognizer {
+  NSString *nodeId = recognizer.view.accessibilityIdentifier;
+  if (nodeId) {
+    [self selectOrOpenDashboardNode:nodeId];
+  }
 }
 
 - (void)dashboardClient:(EVEDashboardClient *)client didChangeStatus:(NSString *)status {
