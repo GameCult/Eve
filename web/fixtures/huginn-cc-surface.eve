@@ -1,0 +1,30 @@
+# Huginn emits Eve DSL. Renderers compile and lower it.
+surface cultcache.huginn.inspector "Huginn .cc Inspector"
+version 1
+
+collection huginn.catalog.entries
+item huginn.catalog.entries "gamecult.persona_state | gamecult.persona_state.v0 | sha256:persona-state | 12 members"
+item huginn.catalog.entries "voidbot.moderation_cursor | voidbot.moderation_cursor.v1 | sha256:moderation-cursor | 4 members"
+item huginn.catalog.entries "voidbot.face_affect | voidbot.face_affect.v1 | sha256:face-affect | 7 members"
+
+collection huginn.records.entries
+item huginn.records.entries "persona:huginn | gamecult.persona_state | 2026-05-31T22:14:12.000Z | 2048 bytes | decoded"
+item huginn.records.entries "cursor:moderation | voidbot.moderation_cursor | 2026-05-31T22:12:03.000Z | 640 bytes | decoded"
+item huginn.records.entries "affect:face | voidbot.face_affect | 2026-05-31T22:13:44.000Z | 768 bytes | decoded"
+
+card source "Source Witness"
+text "file: E:\\Projects\\CultCacheTS\\.voidbot\\state\\huginn.cc"
+text "format: cultcache.store.v1"
+text "bytes: 3456"
+text ".cc bytes are authority; Huginn only emits Eve DSL."
+end
+
+card catalog "Schema Catalog"
+text "schemas: 3"
+list "Catalog Entries" bind huginn.catalog.entries
+end
+
+card records "Persisted Records"
+text "records: 3"
+list "Record Entries" bind huginn.records.entries
+end

@@ -174,6 +174,9 @@ Open `http://127.0.0.1:8891/`. The page can spawn:
 - `Sai VN Surface`, a fixture for visual-novel scenes exported as
   `gamecult.eve.surface.v1`, including embedded Norn and TeX surfaces placed
   diegetically inside the scene.
+- `Huginn .cc`, a read-only `.eve` fixture emitted by CultCache/Huginn for
+  `.cc` files: source witness, schema catalog, persisted records, payload byte
+  counts, and decode status. Huginn emits Eve DSL; Eve compiles and renders it.
 - `Reactive DSL`, a browser-reference fixture that compiles a small `.eve`
   composition language into the same surface contract and binds UI controls to
   live CultMesh-shaped vars, collections, and derived fields.

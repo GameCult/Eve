@@ -7,6 +7,7 @@ const surfaceVersion = document.querySelector("#surface-version");
 const voidBotTab = document.querySelector("#voidbot-tab");
 const fensalirTab = document.querySelector("#fensalir-tab");
 const saiTab = document.querySelector("#sai-tab");
+const huginnTab = document.querySelector("#huginn-tab");
 const dslTab = document.querySelector("#dsl-tab");
 
 let socket;
@@ -30,6 +31,13 @@ saiTab.addEventListener("click", async () => {
   renderSurface(await response.json(), "fixture");
 });
 
+huginnTab.addEventListener("click", async () => {
+  setActiveTab(huginnTab);
+  closeSocket();
+  const response = await fetch("./fixtures/huginn-cc-surface.eve");
+  renderSurface(compileEveDsl(await response.text()), "dsl");
+});
+
 dslTab.addEventListener("click", async () => {
   setActiveTab(dslTab);
   closeSocket();
@@ -40,7 +48,7 @@ dslTab.addEventListener("click", async () => {
 openVoidBot();
 
 function setActiveTab(tab) {
-  for (const button of [voidBotTab, fensalirTab, saiTab, dslTab]) {
+  for (const button of [voidBotTab, fensalirTab, saiTab, huginnTab, dslTab]) {
     button.classList.toggle("active", button === tab);
   }
 }
@@ -52,20 +60,25 @@ function openVoidBot() {
   const url = `${scheme}//${host}:8795/eve/deck`;
   statusEl.textContent = `connecting ${url}`;
   socket = new WebSocket(url);
+  const activeSocket = socket;
   socket.addEventListener("open", () => {
+    if (socket !== activeSocket) return;
     statusEl.textContent = "connected to Mimir Eve broker";
-    socket.send(JSON.stringify({ type: "open-provider", providerId: "voidbot.swarm" }));
+    activeSocket.send(JSON.stringify({ type: "open-provider", providerId: "voidbot.swarm" }));
   });
   socket.addEventListener("message", event => {
+    if (socket !== activeSocket) return;
     const state = JSON.parse(event.data);
     if (state.providerId === "voidbot.swarm") {
       renderSurface(state, "live");
     }
   });
   socket.addEventListener("close", () => {
+    if (socket !== activeSocket) return;
     statusEl.textContent = "Mimir broker disconnected";
   });
   socket.addEventListener("error", () => {
+    if (socket !== activeSocket) return;
     statusEl.textContent = "Mimir broker error; is port 8795 running?";
   });
 }
