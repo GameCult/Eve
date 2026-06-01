@@ -1,19 +1,40 @@
 # Eve
 
-CultMesh-based streaming UI composition framework and timestamped sensor
-sharing network.
+CultMesh-based surface web, portable control layer, and timestamped sensor
+edge.
 
-Eve is the display/control/sensor edge for GameCult apps. Every app should be
-able to expose a structured control surface, live data tree, media panel, or
-operator dashboard through CultNet. Eve clients render those surfaces, return
-operator intent, and publish local sensors with timestamps so Mimir, VoidBot,
-Fensalir, and the rest of the mesh can share one inspectable field of state.
+Eve is the display/control/sensor edge for GameCult apps. Every participant in
+a Verse should be able to publish a structured control surface, live data tree,
+media panel, story scene, or operator dashboard through CultMesh. Eve clients
+render those surfaces, return operator intent, and publish local sensors with
+timestamps so Mimir, VoidBot, Fensalir, Sai, Odin, StreamPixels, and the rest of
+the mesh can share one inspectable field of state.
+
+The promise is the Eve MultiVerse: chosen CultCache backing stores become Verse
+consensus shards; annotated typed documents become reactive state; Eve surface
+documents bind to those document fields; users touch native-feeling controls on
+browser, iOS, Android, Fensalir Direct2D, Unity, overlays, and future clients;
+providers still own accepted truth. Eve makes distributed state visible,
+touchable, and answerable without stealing authority from the system that owns
+the consequence.
 
 The browser implementation is the ground-truth renderer and behavior reference.
 Native clients on iOS, Android, and other surfaces should match the browser's
 CultMesh document semantics as closely as possible, using platform-native UI
 and media paths where that makes the surface faster, more direct, or more
 capable.
+
+This repo is part of the wider public argument already visible on
+`gamecult.org`: the [integrated dossier](https://gamecult.org/dossier) names
+CultMesh as typed distributed state; the
+[Week 07 damage report](https://gamecult.org/Blog/daily-damage-report/week-07)
+records Eve, Fensalir, CultLib, Sai, and Odin turning operator surfaces into
+first-class state; [The Free Mouth And The Native Body](https://gamecult.org/Blog/the-free-mouth-and-the-native-body)
+describes the Face/native-body split Eve must serve; and
+[The Sleeping Colossus Learns To Refuse The Throne](https://gamecult.org/Blog/the-sleeping-colossus-refuses-the-throne)
+is the praxis warning: means and ends must match. Eve's means are local
+projection, consentful command boundaries, inspectable stale state, and clear
+provider authority.
 
 ## Objective
 
@@ -32,6 +53,41 @@ Build one deployable Eve runtime family:
   DirectWrite/Direct2D overlay machinery.
 - Shared API: apps publish control surfaces and structured data; Eve publishes
   commands, pointer/touch input, and timestamped sensor packets.
+
+## Philosophy
+
+Eve is not remote DOM streaming in a new hat. Remote pixels are tolerated only
+where they are the honest edge of an existing system. The durable shape is a
+retained surface document backed by typed CultCache state and carried through a
+Verse.
+
+The user story should be this simple:
+
+```csharp
+using var node = await CultMesh.StartNodeAsync("mimir.ccmp");
+
+var surface = node.Documents
+    .Document<MimirProgramSurfaceConfigDocument>("mimir.program.default");
+
+element.Bind(
+    surface.Field(x => x.Layers[1].Opacity),
+    access: CultAccess.ReadWrite);
+```
+
+That exact ergonomic API is still a target, not a completed substrate feature.
+The existing CultMesh/CultNet database layer already exposes typed document
+watch streams such as `Watch<T>()`, `WatchRecord<T>()`, `WatchByName<T>()`, and
+`WatchByIndex<T>()`; the missing Eve-facing cut is field-level binding over
+annotated POCOs, authority labels, and native renderer adapters that can expose
+staleness, denial, prediction, and reconciliation without making every provider
+write dashboard plumbing by hand.
+
+The invariant is blunt: CultCache owns typed document identity and local
+persistence; CultMesh owns Verse visibility, shard authority, leases,
+subscription fanout, and reconciliation; providers own domain truth and side
+effects; Eve owns projection, input capture, timestamped sensor publication,
+and renderer parity. If a pretty panel cannot say which fields are stale, denied,
+predicted, or authoritative, it is not done. It is flirting with the operator.
 
 ## Current Mechanism
 
@@ -77,6 +133,9 @@ payloads as `mimir.eve_media_observation.v1`.
 - Fensalir's Direct2D surface is a client renderer, not a second source of UI
   truth. It consumes provider-owned CultMesh surface state and returns commands
   through the same Eve/CultNet path.
+- Reactive bindings name typed document fields and authority. Local callbacks,
+  DOM handlers, UIKit actions, and Direct2D hit tests are renderer actuators,
+  not portable state owners.
 - CultNet carries typed surface state, commands, and timestamped sensor packets.
   Edge JSON is tolerated only as an interoperability envelope while the typed
   CultMesh document shape is being proven.
@@ -95,6 +154,9 @@ See `docs/surface-contract-v1.md` for the shared CultUI/CultMesh surface and
 command contract.
 See `docs/eve-dsl-reactive-bindings.md` for the first Eve DSL and reactive
 CultMesh binding contract.
+See `docs/eve-multiverse.md` for the Eve MultiVerse philosophy and missing API
+surface.
+See `docs/eve-face.md` for Eve's persistent mission memory.
 
 ## Browser Reference
 

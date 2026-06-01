@@ -17,6 +17,41 @@ portable way to describe a surface that Eve can lower into the shared
 
 Eve makes state feel local. CultMesh decides what is true.
 
+## CultCache Field Binding Target
+
+The intended user story is that a provider can move a field into CultCache and
+Eve can bind to it without inventing a bespoke dashboard store:
+
+```csharp
+[CultDocument("mimir.program_surface_config", "mimir.program_surface_config.v1")]
+public sealed record MimirProgramSurfaceConfigDocument(...);
+
+using var node = await CultMesh.StartNodeAsync("mimir.ccmp");
+
+var program = node.Documents
+    .Document<MimirProgramSurfaceConfigDocument>("mimir.program.default");
+
+metric "Opacity" bind program.Field(x => x.Layers[1].Opacity)
+```
+
+Today the lower substrate exposes reactive document changes through CultMesh /
+CultNet database watch streams. The field-level POCO binding handle is the
+next ergonomic cut. Until that lands, Eve documents should still carry explicit
+binding descriptors:
+
+- document schema;
+- document id, key, or named handle;
+- field path;
+- value kind;
+- access mode;
+- authority label;
+- optional command id for writes;
+- freshness, prediction, denial, and reconciliation metadata where available.
+
+This keeps the DSL honest. The visual language can name a field; the provider
+and CultMesh decide whether that field is readable, writable, predicted,
+accepted, denied, stale, or missing.
+
 ## Reactive Surface Model
 
 The ergonomic layer has three reactive shapes:
@@ -24,6 +59,11 @@ The ergonomic layer has three reactive shapes:
 - `var`: one live value with subscribers.
 - `collection`: an ordered event-shaped set with append/update streams.
 - `derive`: a computed field that updates from vars or collections.
+
+These are browser-reference fixture names, not a rival state model. In the
+Eve MultiVerse target, `var`, `collection`, and `derive` become convenient
+views over typed CultCache/CultMesh state. If they cannot explain their backing
+document, authority, and freshness, they are only mock state.
 
 The browser reference fixture proves the first cut with `web/eve-dsl.js` and
 `web/fixtures/reactive-composition.eve`:
@@ -91,3 +131,13 @@ Next primitives should map onto the existing surface contract:
 Do not turn this into a universal scripting language. If a feature needs
 authority, persistence, or side effects, it belongs behind a provider command or
 CultMesh action, not inside the visual DSL.
+
+## Public Context
+
+The DSL is the renderer-facing half of the public surface-web claim. The
+integrated dossier calls CultMesh the typed distributed-state layer behind
+GameCult's human/agent work. The Week 07 damage report records the same pressure
+showing up in Eve, Fensalir, CultLib, Sai, Mimir, and Odin: operator surfaces
+are becoming first-class state instead of UI exhaust. The DSL should embody
+that pressure by making state binding explicit rather than making renderers
+guess what a pretty control means.

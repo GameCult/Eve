@@ -6,6 +6,13 @@ larger framework: apps publish structured surfaces through CultNet, Eve clients
 render those surfaces, and local devices publish timestamped sensor packets
 back into the mesh.
 
+The larger frame is the Eve MultiVerse. CultMesh Verses let different local
+systems share typed state without pretending they all have the same authority,
+privacy, or rules. Eve is the surface layer for those Verses: a provider-owned
+document becomes a CultUI-shaped retained tree, the tree binds to typed
+CultCache fields, and each client lowers the same semantics into its local
+body.
+
 ## Authority Map
 
 - Owner: each app owns its provider state and command side effects.
@@ -16,6 +23,9 @@ back into the mesh.
 - CultNet API: owns transport of surface snapshots, command messages, and sensor
   packets.
 - CultMesh documents: own typed state shape, provenance, versioning, and replay.
+- CultCache/CultMesh bindings: own the path from a visible UI field to the
+  typed document field, access mode, authority, freshness, prediction, denial,
+  and reconciliation status.
 
 Eve does not become the business-logic owner for every dashboard. It is the
 composition and device edge. Providers decide truth; Eve makes that truth
@@ -38,6 +48,9 @@ distributed UI layer is `surface.root`, a CultUI-shaped tree:
 - `assets`: image URLs, local cache keys, font/material hints, and media stream
   references.
 - `detail`: structured text, state paths, diagnostics, and provenance.
+- `bindings`: field-level links to CultCache/CultMesh document fields. A
+  binding names schema, document identity, field path, value kind, access,
+  authority, and command boundary.
 
 The current contract id is `gamecult.eve.surface.v1`; command envelopes use
 `gamecult.eve.command.v1`. See `docs/surface-contract-v1.md`.
@@ -132,6 +145,14 @@ the Mimir broker health endpoint, and show timestamped motion/touch samples.
 It is a device-edge proof while the browser reference and Flutter/native shared
 client are still being cut.
 
+The public site now reflects the same pressure. The integrated dossier frames
+CultMesh as typed distributed state. The Week 07 damage report records Fensalir
+adding Eve surface authority pieces, CultLib adding Kotlin Eve/CultMesh support,
+Sai embedding Eve surfaces in narrative scenes, and Odin persisting discovered
+Eve interface layout intent. This repo should treat that public story as a
+receipt: the surface web is not a future slogan; it is already exerting design
+pressure across the bench.
+
 ## Next Cut
 
 1. Extract the shared surface schema from the iOS app and Mimir broker into a
@@ -145,3 +166,6 @@ client are still being cut.
 5. Add Android client scaffolding against the same provider and sensor API.
 6. Add the Fensalir Direct2D lowering for the shared surface contract so engine
    clients can show the same dashboards without embedding a browser.
+7. Add a visible stale/authority witness strip to the reference surface: bound
+   fields must show when they are stale, predicted, denied, reconciled, or
+   missing.
