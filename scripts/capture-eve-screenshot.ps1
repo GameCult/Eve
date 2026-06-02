@@ -15,7 +15,7 @@ $remoteDir = "/var/mobile/Library/EveCanvas"
 $remotePath = "$remoteDir/latest-screenshot.png"
 $requestPath = "$remoteDir/capture-request"
 
-ssh $Target "mkdir -p '$remoteDir' && chown mobile:mobile '$remoteDir' && rm -f '$remotePath' '$requestPath' && touch '$requestPath' && chown mobile:mobile '$requestPath'"
+ssh $Target "mkdir -p '$remoteDir' && chown mobile:mobile '$remoteDir' && rm -f '$remotePath' '$requestPath' && touch '$requestPath' && chown mobile:mobile '$requestPath' 2>/dev/null || true"
 
 $deadline = (Get-Date).AddSeconds(10)
 do {

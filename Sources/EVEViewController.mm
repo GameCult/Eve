@@ -911,7 +911,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
   [self.surfaceDashboardView addSubview:wall];
 
   NSUInteger count = interfaces.count;
-  NSUInteger columns = count <= 1 ? 1 : (count <= 4 ? 2 : (NSUInteger)ceil(sqrt((double)count)));
+  NSUInteger columns = count <= 1 ? 1 : (count <= 6 ? 2 : (NSUInteger)ceil(sqrt((double)count)));
   NSUInteger rows = (count + columns - 1) / columns;
   CGFloat gap = 8.0;
   CGFloat tileWidth = floor((bounds.size.width - gap * (CGFloat)(columns + 1)) / (CGFloat)columns);
@@ -920,9 +920,10 @@ static NSData *EVEMediaObservation(NSString *observationId,
   for (NSUInteger index = 0; index < count; index++) {
     NSUInteger row = index / columns;
     NSUInteger column = index % columns;
+    BOOL spansLastRow = columns == 2 && count % 2 == 1 && index == count - 1;
     CGRect frame = CGRectMake(gap + (CGFloat)column * (tileWidth + gap),
                               gap + (CGFloat)row * (tileHeight + gap),
-                              tileWidth,
+                              spansLastRow ? (bounds.size.width - gap * 2.0) : tileWidth,
                               tileHeight);
     [wall addSubview:[self odinInterfaceTile:interfaces[index] frame:frame]];
   }
@@ -952,7 +953,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
   UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(6.0, 30.0, frame.size.width - 12.0, frame.size.height - 36.0)];
   scroll.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   scroll.alwaysBounceVertical = YES;
-  scroll.showsVerticalScrollIndicator = NO;
+  scroll.showsVerticalScrollIndicator = YES;
   [tile addSubview:scroll];
 
   UIStackView *stack = [[UIStackView alloc] initWithFrame:CGRectZero];
@@ -992,17 +993,27 @@ static NSData *EVEMediaObservation(NSString *observationId,
                                 color:[UIColor colorWithWhite:0.88 alpha:1.0]];
   }
 
+  if ([kind isEqualToString:@"rail"]) {
+    return [self renderSurfaceRail:element props:props children:children depth:depth];
+  }
+
+  if ([kind isEqualToString:@"avatar"]) {
+    return [self renderSurfaceAvatar:element props:props];
+  }
+
   UIView *panel = [[UIView alloc] initWithFrame:CGRectZero];
-  panel.backgroundColor = [UIColor colorWithRed:0.018 green:0.060 blue:0.058 alpha:0.92];
+  BOOL isRootContainer = depth == 0 && ([kind isEqualToString:@"dashboard"] || [kind isEqualToString:@"cockpit"]);
+  panel.backgroundColor = isRootContainer ? UIColor.clearColor : [UIColor colorWithRed:0.018 green:0.060 blue:0.058 alpha:0.92];
   panel.layer.borderWidth = 1.0;
-  panel.layer.borderColor = [UIColor colorWithRed:0.22 green:0.88 blue:0.82 alpha:0.22].CGColor;
+  panel.layer.borderColor = (isRootContainer ? [UIColor colorWithRed:0.22 green:0.88 blue:0.82 alpha:0.12] : [UIColor colorWithRed:0.22 green:0.88 blue:0.82 alpha:0.22]).CGColor;
   panel.layer.cornerRadius = 5.0;
 
   UIStackView *stack = [[UIStackView alloc] initWithFrame:CGRectZero];
   stack.translatesAutoresizingMaskIntoConstraints = NO;
   NSDictionary *layout = [element[@"layout"] isKindOfClass:NSDictionary.class] ? element[@"layout"] : ([props[@"layout"] isKindOfClass:NSDictionary.class] ? props[@"layout"] : @{});
   NSString *direction = [layout[@"direction"] isKindOfClass:NSString.class] ? layout[@"direction"] : @"";
-  stack.axis = [kind isEqualToString:@"row"] || [direction isEqualToString:@"horizontal"] ? UILayoutConstraintAxisHorizontal : UILayoutConstraintAxisVertical;
+  BOOL wantsHorizontal = ![kind isEqualToString:@"row"] && [direction isEqualToString:@"horizontal"];
+  stack.axis = wantsHorizontal ? UILayoutConstraintAxisHorizontal : UILayoutConstraintAxisVertical;
   stack.spacing = 6.0;
   stack.alignment = UIStackViewAlignmentFill;
   if (stack.axis == UILayoutConstraintAxisHorizontal) {
@@ -1011,10 +1022,12 @@ static NSData *EVEMediaObservation(NSString *observationId,
   [panel addSubview:stack];
 
   NSString *title = [self surfaceTitleForElement:element props:props fallback:kind];
-  [stack addArrangedSubview:[self surfaceLabelWithText:title
-                                                  size:depth == 0 ? 15.0 : 12.0
-                                                weight:depth == 0 ? UIFontWeightBold : UIFontWeightSemibold
-                                                 color:[UIColor colorWithRed:0.54 green:0.86 blue:0.84 alpha:1.0]]];
+  if (title.length > 0 && ![title isEqualToString:kind]) {
+    [stack addArrangedSubview:[self surfaceLabelWithText:title
+                                                    size:depth == 0 ? 15.0 : 12.0
+                                                  weight:depth == 0 ? UIFontWeightBold : UIFontWeightSemibold
+                                                   color:[UIColor colorWithRed:0.54 green:0.86 blue:0.84 alpha:1.0]]];
+  }
 
   NSUInteger childCount = 0;
   for (NSDictionary *child in children) {
@@ -1036,6 +1049,85 @@ static NSData *EVEMediaObservation(NSString *observationId,
     [stack.bottomAnchor constraintEqualToAnchor:panel.bottomAnchor constant:-10.0],
   ]];
   return panel;
+}
+
+- (UIView *)renderSurfaceRail:(NSDictionary *)element props:(NSDictionary *)props children:(NSArray *)children depth:(NSUInteger)depth {
+  UIView *panel = [[UIView alloc] initWithFrame:CGRectZero];
+  panel.backgroundColor = [UIColor colorWithRed:0.014 green:0.050 blue:0.052 alpha:0.92];
+  panel.layer.borderWidth = 1.0;
+  panel.layer.borderColor = [UIColor colorWithRed:0.22 green:0.88 blue:0.82 alpha:0.22].CGColor;
+  panel.layer.cornerRadius = 5.0;
+
+  UIStackView *stack = [[UIStackView alloc] initWithFrame:CGRectZero];
+  stack.translatesAutoresizingMaskIntoConstraints = NO;
+  stack.axis = UILayoutConstraintAxisVertical;
+  stack.spacing = 6.0;
+  [panel addSubview:stack];
+
+  NSString *title = [self surfaceTitleForElement:element props:props fallback:@"rail"];
+  [stack addArrangedSubview:[self surfaceLabelWithText:title size:depth == 0 ? 14.0 : 11.0 weight:UIFontWeightSemibold color:[UIColor colorWithRed:0.54 green:0.86 blue:0.84 alpha:1.0]]];
+
+  UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectZero];
+  scroll.translatesAutoresizingMaskIntoConstraints = NO;
+  scroll.showsHorizontalScrollIndicator = YES;
+  [stack addArrangedSubview:scroll];
+
+  UIStackView *rail = [[UIStackView alloc] initWithFrame:CGRectZero];
+  rail.translatesAutoresizingMaskIntoConstraints = NO;
+  rail.axis = UILayoutConstraintAxisHorizontal;
+  rail.spacing = 6.0;
+  rail.alignment = UIStackViewAlignmentFill;
+  [scroll addSubview:rail];
+
+  NSUInteger childCount = 0;
+  for (NSDictionary *child in children) {
+    if (![child isKindOfClass:NSDictionary.class]) {
+      continue;
+    }
+    UIView *card = [self renderSurfaceElement:child depth:depth + 1];
+    card.translatesAutoresizingMaskIntoConstraints = NO;
+    [rail addArrangedSubview:card];
+    [card.widthAnchor constraintEqualToConstant:78.0].active = YES;
+    [card.heightAnchor constraintEqualToConstant:56.0].active = YES;
+    childCount += 1;
+    if (childCount >= 16) {
+      break;
+    }
+  }
+
+  [NSLayoutConstraint activateConstraints:@[
+    [stack.leadingAnchor constraintEqualToAnchor:panel.leadingAnchor constant:8.0],
+    [stack.trailingAnchor constraintEqualToAnchor:panel.trailingAnchor constant:-8.0],
+    [stack.topAnchor constraintEqualToAnchor:panel.topAnchor constant:8.0],
+    [stack.bottomAnchor constraintEqualToAnchor:panel.bottomAnchor constant:-8.0],
+    [scroll.heightAnchor constraintEqualToConstant:64.0],
+    [rail.leadingAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.leadingAnchor],
+    [rail.trailingAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.trailingAnchor],
+    [rail.topAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.topAnchor],
+    [rail.bottomAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.bottomAnchor],
+    [rail.heightAnchor constraintEqualToAnchor:scroll.frameLayoutGuide.heightAnchor],
+  ]];
+  return panel;
+}
+
+- (UIView *)renderSurfaceAvatar:(NSDictionary *)element props:(NSDictionary *)props {
+  UIView *card = [[UIView alloc] initWithFrame:CGRectZero];
+  card.backgroundColor = [UIColor colorWithRed:0.025 green:0.075 blue:0.080 alpha:0.95];
+  card.layer.borderWidth = 1.0;
+  card.layer.borderColor = [UIColor colorWithRed:0.24 green:0.90 blue:0.84 alpha:0.30].CGColor;
+  card.layer.cornerRadius = 5.0;
+
+  NSString *name = [self surfaceTextForElement:element props:props fallback:@"agent"];
+  NSString *detail = [props[@"detail"] isKindOfClass:NSString.class] ? props[@"detail"] : @"";
+  NSString *status = [props[@"status"] isKindOfClass:NSString.class] ? props[@"status"] : @"";
+  UILabel *label = [self surfaceLabelWithText:[NSString stringWithFormat:@"%@\n%@ %@", name, status, detail]
+                                         size:9.0
+                                       weight:UIFontWeightSemibold
+                                        color:[UIColor colorWithWhite:0.90 alpha:1.0]];
+  label.frame = CGRectMake(6.0, 5.0, 66.0, 48.0);
+  label.numberOfLines = 3;
+  [card addSubview:label];
+  return card;
 }
 
 - (NSString *)surfaceTextForElement:(NSDictionary *)element props:(NSDictionary *)props fallback:(NSString *)fallback {
@@ -1063,7 +1155,9 @@ static NSData *EVEMediaObservation(NSString *observationId,
   if (!title) {
     title = [props[@"label"] isKindOfClass:NSString.class] ? props[@"label"] : nil;
   }
-  if (!title) {
+  NSString *kind = [element[@"kind"] isKindOfClass:NSString.class] ? element[@"kind"] : @"";
+  BOOL structural = [kind isEqualToString:@"row"] || [kind isEqualToString:@"dashboard"] || [kind isEqualToString:@"cockpit"];
+  if (!title && !structural) {
     title = [element[@"id"] isKindOfClass:NSString.class] ? element[@"id"] : nil;
   }
   return title ?: fallback ?: @"surface";
@@ -1075,7 +1169,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
   label.numberOfLines = 0;
   label.textColor = color;
   label.font = [UIFont monospacedSystemFontOfSize:size weight:weight];
-  label.lineBreakMode = NSLineBreakByTruncatingTail;
+  label.lineBreakMode = NSLineBreakByWordWrapping;
   return label;
 }
 
