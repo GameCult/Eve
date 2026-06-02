@@ -137,6 +137,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
 @property(nonatomic, strong) UIStackView *hierarchyStackView;
 @property(nonatomic, strong) UIStackView *toolbarStackView;
 @property(nonatomic, strong) UILabel *dashboardStatusLabel;
+@property(nonatomic, strong) UIView *surfaceDashboardView;
 @property(nonatomic, strong) UIView *voidBotDashboardView;
 @property(nonatomic, strong) NSMutableDictionary<NSString *, UIView *> *nodeViews;
 @property(nonatomic, strong) NSMutableDictionary<NSString *, NSDictionary *> *dashboardNodes;
@@ -245,6 +246,8 @@ static NSData *EVEMediaObservation(NSString *observationId,
   [self.streamClient connect];
 
   NSArray<NSURL *> *dashboardURLs = @[
+    [NSURL URLWithString:@"ws://127.0.0.1:8797/eve/deck"],
+    [NSURL URLWithString:@"ws://192.168.1.66:8797/eve/deck"],
     [NSURL URLWithString:@"ws://127.0.0.1:8795/eve/deck"],
     [NSURL URLWithString:@"ws://192.168.1.66:8795/eve/deck"],
     [NSURL URLWithString:@"ws://127.0.0.1:8795/eve/dashboard"],
@@ -395,6 +398,14 @@ static NSData *EVEMediaObservation(NSString *observationId,
   self.dashboardStatusLabel.text = @"dashboard idle";
   [self.dashboardView addSubview:self.dashboardStatusLabel];
 
+  self.surfaceDashboardView = [[UIView alloc] initWithFrame:CGRectZero];
+  self.surfaceDashboardView.translatesAutoresizingMaskIntoConstraints = NO;
+  self.surfaceDashboardView.hidden = YES;
+  self.surfaceDashboardView.backgroundColor = [UIColor colorWithRed:0.006 green:0.018 blue:0.020 alpha:0.98];
+  self.surfaceDashboardView.layer.borderColor = [UIColor colorWithRed:0.22 green:0.88 blue:0.86 alpha:0.20].CGColor;
+  self.surfaceDashboardView.layer.borderWidth = 1.0;
+  [self.dashboardView addSubview:self.surfaceDashboardView];
+
   self.voidBotDashboardView = [[UIView alloc] initWithFrame:CGRectZero];
   self.voidBotDashboardView.translatesAutoresizingMaskIntoConstraints = NO;
   self.voidBotDashboardView.hidden = YES;
@@ -423,6 +434,11 @@ static NSData *EVEMediaObservation(NSString *observationId,
     [self.dashboardStatusLabel.leadingAnchor constraintEqualToAnchor:self.sceneCanvasView.leadingAnchor],
     [self.dashboardStatusLabel.topAnchor constraintEqualToAnchor:self.sceneCanvasView.bottomAnchor constant:10.0],
     [self.dashboardStatusLabel.trailingAnchor constraintEqualToAnchor:self.sceneCanvasView.trailingAnchor],
+
+    [self.surfaceDashboardView.leadingAnchor constraintEqualToAnchor:safe.leadingAnchor constant:6.0],
+    [self.surfaceDashboardView.topAnchor constraintEqualToAnchor:safe.topAnchor constant:6.0],
+    [self.surfaceDashboardView.trailingAnchor constraintEqualToAnchor:safe.trailingAnchor constant:-6.0],
+    [self.surfaceDashboardView.bottomAnchor constraintEqualToAnchor:safe.bottomAnchor constant:-6.0],
 
     [self.voidBotDashboardView.leadingAnchor constraintEqualToAnchor:safe.leadingAnchor constant:6.0],
     [self.voidBotDashboardView.topAnchor constraintEqualToAnchor:safe.topAnchor constant:6.0],
@@ -687,11 +703,13 @@ static NSData *EVEMediaObservation(NSString *observationId,
   }
 
   BOOL isVoidBot = [providerId isEqualToString:@"voidbot.swarm"];
+  BOOL isFullscreenSurface = !isVoidBot && [self shouldRenderFullscreenSurfaceForState:state];
   self.voidBotDashboardView.hidden = !isVoidBot;
-  self.sceneCanvasView.hidden = isVoidBot;
-  self.hierarchyStackView.hidden = isVoidBot;
-  self.toolbarStackView.hidden = isVoidBot;
-  self.dashboardStatusLabel.hidden = isVoidBot;
+  self.surfaceDashboardView.hidden = !isFullscreenSurface;
+  self.sceneCanvasView.hidden = isVoidBot || isFullscreenSurface;
+  self.hierarchyStackView.hidden = isVoidBot || isFullscreenSurface;
+  self.toolbarStackView.hidden = isVoidBot || isFullscreenSurface;
+  self.dashboardStatusLabel.hidden = isVoidBot || isFullscreenSurface;
 
   if (isVoidBot) {
     for (UIView *view in self.nodeViews.allValues) {
@@ -699,6 +717,15 @@ static NSData *EVEMediaObservation(NSString *observationId,
     }
     [self.nodeViews removeAllObjects];
     [self renderVoidBotDashboardWithNodes:nodes title:title version:state[@"version"]];
+    return;
+  }
+
+  if (isFullscreenSurface) {
+    for (UIView *view in self.nodeViews.allValues) {
+      [view removeFromSuperview];
+    }
+    [self.nodeViews removeAllObjects];
+    [self renderFullscreenSurfaceState:state title:title version:state[@"version"]];
     return;
   }
 
@@ -722,6 +749,126 @@ static NSData *EVEMediaObservation(NSString *observationId,
   }
 
   [self rebuildHierarchyWithNodes:nodes];
+}
+
+- (BOOL)shouldRenderFullscreenSurfaceForState:(NSDictionary *)state {
+  NSDictionary *surface = [state[@"surface"] isKindOfClass:NSDictionary.class] ? state[@"surface"] : nil;
+  NSDictionary *root = [surface[@"root"] isKindOfClass:NSDictionary.class] ? surface[@"root"] : nil;
+  if (!root) {
+    return NO;
+  }
+
+  NSString *providerId = [state[@"providerId"] isKindOfClass:NSString.class] ? state[@"providerId"] : @"";
+  if ([providerId isEqualToString:@"odin.allseer"]) {
+    return YES;
+  }
+
+  NSDictionary *props = [root[@"props"] isKindOfClass:NSDictionary.class] ? root[@"props"] : nil;
+  NSDictionary *layout = [props[@"layout"] isKindOfClass:NSDictionary.class] ? props[@"layout"] : nil;
+  NSString *viewportMode = [layout[@"viewportMode"] isKindOfClass:NSString.class] ? layout[@"viewportMode"] : @"";
+  return [viewportMode isEqualToString:@"fullscreen"];
+}
+
+- (void)renderFullscreenSurfaceState:(NSDictionary *)state title:(NSString *)title version:(id)version {
+  for (UIView *view in self.surfaceDashboardView.subviews) {
+    [view removeFromSuperview];
+  }
+
+  UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:self.surfaceDashboardView.bounds];
+  scroll.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  scroll.alwaysBounceVertical = YES;
+  [self.surfaceDashboardView addSubview:scroll];
+
+  UIStackView *stack = [[UIStackView alloc] initWithFrame:CGRectZero];
+  stack.translatesAutoresizingMaskIntoConstraints = NO;
+  stack.axis = UILayoutConstraintAxisVertical;
+  stack.spacing = 8.0;
+  stack.alignment = UIStackViewAlignmentFill;
+  [scroll addSubview:stack];
+
+  UILabel *heading = [self surfaceLabelWithText:[NSString stringWithFormat:@"%@  v%@", title ?: @"Surface", version ?: @"?"]
+                                           size:18.0
+                                         weight:UIFontWeightBold
+                                          color:[UIColor colorWithRed:1.0 green:0.72 blue:0.32 alpha:1.0]];
+  [stack addArrangedSubview:heading];
+
+  NSDictionary *surface = [state[@"surface"] isKindOfClass:NSDictionary.class] ? state[@"surface"] : nil;
+  NSDictionary *root = [surface[@"root"] isKindOfClass:NSDictionary.class] ? surface[@"root"] : nil;
+  if (root) {
+    [stack addArrangedSubview:[self renderSurfaceElement:root depth:0]];
+  }
+
+  [NSLayoutConstraint activateConstraints:@[
+    [stack.leadingAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.leadingAnchor constant:8.0],
+    [stack.trailingAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.trailingAnchor constant:-8.0],
+    [stack.topAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.topAnchor constant:8.0],
+    [stack.bottomAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.bottomAnchor constant:-8.0],
+    [stack.widthAnchor constraintEqualToAnchor:scroll.frameLayoutGuide.widthAnchor constant:-16.0],
+  ]];
+}
+
+- (UIView *)renderSurfaceElement:(NSDictionary *)element depth:(NSUInteger)depth {
+  NSString *kind = [element[@"kind"] isKindOfClass:NSString.class] ? element[@"kind"] : @"element";
+  NSDictionary *props = [element[@"props"] isKindOfClass:NSDictionary.class] ? element[@"props"] : @{};
+  NSArray *children = [element[@"children"] isKindOfClass:NSArray.class] ? element[@"children"] : @[];
+
+  if ([kind isEqualToString:@"text"] || [kind isEqualToString:@"metric"]) {
+    NSString *text = [props[@"text"] isKindOfClass:NSString.class] ? props[@"text"] : ([props[@"label"] isKindOfClass:NSString.class] ? props[@"label"] : kind);
+    return [self surfaceLabelWithText:text
+                                 size:depth < 2 ? 12.0 : 10.5
+                               weight:UIFontWeightMedium
+                                color:[UIColor colorWithWhite:0.88 alpha:1.0]];
+  }
+
+  UIView *panel = [[UIView alloc] initWithFrame:CGRectZero];
+  panel.backgroundColor = [UIColor colorWithRed:0.018 green:0.060 blue:0.058 alpha:0.92];
+  panel.layer.borderWidth = 1.0;
+  panel.layer.borderColor = [UIColor colorWithRed:0.22 green:0.88 blue:0.82 alpha:0.22].CGColor;
+  panel.layer.cornerRadius = 5.0;
+
+  UIStackView *stack = [[UIStackView alloc] initWithFrame:CGRectZero];
+  stack.translatesAutoresizingMaskIntoConstraints = NO;
+  stack.axis = UILayoutConstraintAxisVertical;
+  stack.spacing = 6.0;
+  stack.alignment = UIStackViewAlignmentFill;
+  [panel addSubview:stack];
+
+  NSString *title = [props[@"title"] isKindOfClass:NSString.class] ? props[@"title"] : kind;
+  [stack addArrangedSubview:[self surfaceLabelWithText:title
+                                                  size:depth == 0 ? 15.0 : 12.0
+                                                weight:depth == 0 ? UIFontWeightBold : UIFontWeightSemibold
+                                                 color:[UIColor colorWithRed:0.54 green:0.86 blue:0.84 alpha:1.0]]];
+
+  NSUInteger childCount = 0;
+  for (NSDictionary *child in children) {
+    if (![child isKindOfClass:NSDictionary.class]) {
+      continue;
+    }
+    [stack addArrangedSubview:[self renderSurfaceElement:child depth:depth + 1]];
+    childCount += 1;
+    if (depth >= 2 && childCount >= 8) {
+      [stack addArrangedSubview:[self surfaceLabelWithText:@"more..." size:10.0 weight:UIFontWeightRegular color:[UIColor colorWithWhite:0.62 alpha:1.0]]];
+      break;
+    }
+  }
+
+  [NSLayoutConstraint activateConstraints:@[
+    [stack.leadingAnchor constraintEqualToAnchor:panel.leadingAnchor constant:10.0],
+    [stack.trailingAnchor constraintEqualToAnchor:panel.trailingAnchor constant:-10.0],
+    [stack.topAnchor constraintEqualToAnchor:panel.topAnchor constant:10.0],
+    [stack.bottomAnchor constraintEqualToAnchor:panel.bottomAnchor constant:-10.0],
+  ]];
+  return panel;
+}
+
+- (UILabel *)surfaceLabelWithText:(NSString *)text size:(CGFloat)size weight:(UIFontWeight)weight color:(UIColor *)color {
+  UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
+  label.text = text ?: @"";
+  label.numberOfLines = 0;
+  label.textColor = color;
+  label.font = [UIFont monospacedSystemFontOfSize:size weight:weight];
+  label.lineBreakMode = NSLineBreakByTruncatingTail;
+  return label;
 }
 
 - (void)renderVoidBotDashboardWithNodes:(NSArray *)nodes title:(NSString *)title version:(id)version {
