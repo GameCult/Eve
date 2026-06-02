@@ -15,7 +15,7 @@ EveCanvas_FILES = \
 	Sources/EVESensorUplinkClient.m \
 	Sources/EVEH264StreamDecoder.m
 
-EveCanvas_FRAMEWORKS = UIKit QuartzCore OpenGLES CoreMotion AVFoundation CoreMedia CoreVideo VideoToolbox
+EveCanvas_FRAMEWORKS = UIKit QuartzCore OpenGLES CoreMotion AVFoundation CoreMedia CoreVideo VideoToolbox CoreText
 EveCanvas_CFLAGS = -fobjc-arc -Wall -Wextra -DGLES_SILENCE_DEPRECATION
 EveCanvas_CODESIGN_FLAGS = -Sentitlements.plist
 EveCanvas_INSTALL_PATH = /Applications

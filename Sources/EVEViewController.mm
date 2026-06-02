@@ -12,6 +12,7 @@
 #include <math.h>
 
 @import AVFoundation;
+@import CoreText;
 
 static int64_t EVEHostTimeNowNs(void) {
   return (int64_t)(CACurrentMediaTime() * 1000000000.0);
@@ -175,6 +176,8 @@ static NSData *EVEMediaObservation(NSString *observationId,
 @implementation EVEViewController
 
 - (void)loadView {
+  [self registerFensalirFontsIfNeeded];
+
   UIView *root = [[UIView alloc] initWithFrame:UIScreen.mainScreen.bounds];
   root.backgroundColor = UIColor.blackColor;
   root.multipleTouchEnabled = YES;
@@ -856,10 +859,8 @@ static NSData *EVEMediaObservation(NSString *observationId,
   stack.alignment = UIStackViewAlignmentFill;
   [scroll addSubview:stack];
 
-  UILabel *heading = [self surfaceLabelWithText:[NSString stringWithFormat:@"%@  v%@", title ?: @"Surface", version ?: @"?"]
-                                           size:18.0
-                                         weight:UIFontWeightBold
-                                          color:[UIColor colorWithRed:1.0 green:0.72 blue:0.32 alpha:1.0]];
+  UILabel *heading = [self surfaceHeaderLabelWithText:[NSString stringWithFormat:@"%@  v%@", title ?: @"Surface", version ?: @"?"]
+                                                 size:18.0];
   [stack addArrangedSubview:heading];
 
   NSDictionary *surface = [state[@"surface"] isKindOfClass:NSDictionary.class] ? state[@"surface"] : nil;
@@ -907,7 +908,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
 
   UIView *wall = [[UIView alloc] initWithFrame:bounds];
   wall.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-  wall.backgroundColor = [UIColor colorWithRed:0.003 green:0.014 blue:0.016 alpha:1.0];
+  wall.backgroundColor = [self fensalirBackdropColor];
   [self.surfaceDashboardView addSubview:wall];
 
   NSUInteger count = interfaces.count;
@@ -934,23 +935,41 @@ static NSData *EVEMediaObservation(NSString *observationId,
 - (UIView *)odinInterfaceTile:(NSDictionary *)interface frame:(CGRect)frame {
   NSDictionary *props = [interface[@"props"] isKindOfClass:NSDictionary.class] ? interface[@"props"] : @{};
   UIView *tile = [[UIView alloc] initWithFrame:frame];
-  tile.backgroundColor = [UIColor colorWithRed:0.014 green:0.042 blue:0.044 alpha:0.98];
+  tile.backgroundColor = [self fensalirPanelColor];
   tile.layer.borderWidth = 1.0;
-  tile.layer.borderColor = [UIColor colorWithRed:0.24 green:0.90 blue:0.84 alpha:0.34].CGColor;
-  tile.layer.cornerRadius = 5.0;
+  tile.layer.borderColor = [self fensalirOutlineColor].CGColor;
+  tile.layer.cornerRadius = 7.0;
+  tile.layer.shadowColor = UIColor.blackColor.CGColor;
+  tile.layer.shadowOpacity = 0.35;
+  tile.layer.shadowRadius = 10.0;
+  tile.layer.shadowOffset = CGSizeMake(0.0, 4.0);
   tile.clipsToBounds = YES;
+
+  UIView *accent = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, frame.size.width, 3.0)];
+  accent.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+  accent.backgroundColor = [self fensalirAccentColor];
+  [tile addSubview:accent];
+
+  UIView *header = [[UIView alloc] initWithFrame:CGRectMake(0.0, 3.0, frame.size.width, 31.0)];
+  header.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+  header.backgroundColor = [self fensalirRowColor];
+  [tile addSubview:header];
 
   NSString *title = [props[@"title"] isKindOfClass:NSString.class] ? props[@"title"] : ([interface[@"id"] isKindOfClass:NSString.class] ? interface[@"id"] : @"interface");
   NSString *providerId = [props[@"providerId"] isKindOfClass:NSString.class] ? props[@"providerId"] : @"provider";
-  UILabel *heading = [self surfaceLabelWithText:[NSString stringWithFormat:@"%@  %@", title, providerId]
-                                           size:11.0
-                                         weight:UIFontWeightBold
-                                          color:[UIColor colorWithRed:0.72 green:0.96 blue:0.92 alpha:1.0]];
-  heading.frame = CGRectMake(8.0, 6.0, frame.size.width - 16.0, 20.0);
+  UILabel *heading = [self surfaceHeaderLabelWithText:title size:15.0];
+  heading.frame = CGRectMake(11.0, 6.0, floor(frame.size.width * 0.46), 24.0);
   heading.numberOfLines = 1;
-  [tile addSubview:heading];
+  [header addSubview:heading];
 
-  UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(6.0, 30.0, frame.size.width - 12.0, frame.size.height - 36.0)];
+  UILabel *provider = [self surfaceHeaderLabelWithText:providerId size:10.0];
+  provider.frame = CGRectMake(frame.size.width * 0.48, 8.0, frame.size.width * 0.50 - 10.0, 20.0);
+  provider.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleWidth;
+  provider.textAlignment = NSTextAlignmentRight;
+  provider.numberOfLines = 1;
+  [header addSubview:provider];
+
+  UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(8.0, 42.0, frame.size.width - 16.0, frame.size.height - 50.0)];
   scroll.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   scroll.alwaysBounceVertical = YES;
   scroll.showsVerticalScrollIndicator = YES;
@@ -980,6 +999,42 @@ static NSData *EVEMediaObservation(NSString *observationId,
   return tile;
 }
 
+- (UIColor *)fensalirBackdropColor {
+  return [UIColor colorWithRed:0.010 green:0.012 blue:0.018 alpha:1.0];
+}
+
+- (UIColor *)fensalirPanelColor {
+  return [UIColor colorWithRed:0.018 green:0.022 blue:0.032 alpha:0.96];
+}
+
+- (UIColor *)fensalirRowColor {
+  return [UIColor colorWithRed:0.085 green:0.084 blue:0.120 alpha:0.96];
+}
+
+- (UIColor *)fensalirActiveRowColor {
+  return [UIColor colorWithRed:0.190 green:0.180 blue:0.240 alpha:0.99];
+}
+
+- (UIColor *)fensalirOutlineColor {
+  return [UIColor colorWithRed:0.280 green:0.340 blue:0.360 alpha:0.72];
+}
+
+- (UIColor *)fensalirAccentColor {
+  return [UIColor colorWithRed:1.000 green:0.380 blue:0.055 alpha:0.96];
+}
+
+- (UIColor *)fensalirAccentSoftColor {
+  return [UIColor colorWithRed:1.000 green:0.580 blue:0.300 alpha:0.98];
+}
+
+- (UIColor *)fensalirPrimaryTextColor {
+  return [UIColor colorWithWhite:0.96 alpha:0.94];
+}
+
+- (UIColor *)fensalirQuietTextColor {
+  return [UIColor colorWithRed:0.540 green:0.680 blue:0.720 alpha:0.78];
+}
+
 - (UIView *)renderSurfaceElement:(NSDictionary *)element depth:(NSUInteger)depth {
   NSString *kind = [element[@"kind"] isKindOfClass:NSString.class] ? element[@"kind"] : @"element";
   NSDictionary *props = [element[@"props"] isKindOfClass:NSDictionary.class] ? element[@"props"] : @{};
@@ -990,7 +1045,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
     return [self surfaceLabelWithText:text
                                  size:depth < 2 ? 12.0 : 10.5
                                weight:UIFontWeightMedium
-                                color:[UIColor colorWithWhite:0.88 alpha:1.0]];
+                                color:[self fensalirPrimaryTextColor]];
   }
 
   if ([kind isEqualToString:@"rail"]) {
@@ -1003,10 +1058,10 @@ static NSData *EVEMediaObservation(NSString *observationId,
 
   UIView *panel = [[UIView alloc] initWithFrame:CGRectZero];
   BOOL isRootContainer = depth == 0 && ([kind isEqualToString:@"dashboard"] || [kind isEqualToString:@"cockpit"]);
-  panel.backgroundColor = isRootContainer ? UIColor.clearColor : [UIColor colorWithRed:0.018 green:0.060 blue:0.058 alpha:0.92];
+  panel.backgroundColor = isRootContainer ? UIColor.clearColor : [self fensalirRowColor];
   panel.layer.borderWidth = 1.0;
-  panel.layer.borderColor = (isRootContainer ? [UIColor colorWithRed:0.22 green:0.88 blue:0.82 alpha:0.12] : [UIColor colorWithRed:0.22 green:0.88 blue:0.82 alpha:0.22]).CGColor;
-  panel.layer.cornerRadius = 5.0;
+  panel.layer.borderColor = (isRootContainer ? [UIColor colorWithRed:0.280 green:0.340 blue:0.360 alpha:0.18] : [self fensalirOutlineColor]).CGColor;
+  panel.layer.cornerRadius = 6.0;
 
   UIStackView *stack = [[UIStackView alloc] initWithFrame:CGRectZero];
   stack.translatesAutoresizingMaskIntoConstraints = NO;
@@ -1023,10 +1078,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
 
   NSString *title = [self surfaceTitleForElement:element props:props fallback:kind];
   if (title.length > 0 && ![title isEqualToString:kind]) {
-    [stack addArrangedSubview:[self surfaceLabelWithText:title
-                                                    size:depth == 0 ? 15.0 : 12.0
-                                                  weight:depth == 0 ? UIFontWeightBold : UIFontWeightSemibold
-                                                   color:[UIColor colorWithRed:0.54 green:0.86 blue:0.84 alpha:1.0]]];
+    [stack addArrangedSubview:[self surfaceHeaderLabelWithText:title size:depth == 0 ? 15.0 : 12.0]];
   }
 
   NSUInteger childCount = 0;
@@ -1065,7 +1117,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
   [panel addSubview:stack];
 
   NSString *title = [self surfaceTitleForElement:element props:props fallback:@"rail"];
-  [stack addArrangedSubview:[self surfaceLabelWithText:title size:depth == 0 ? 14.0 : 11.0 weight:UIFontWeightSemibold color:[UIColor colorWithRed:0.54 green:0.86 blue:0.84 alpha:1.0]]];
+  [stack addArrangedSubview:[self surfaceHeaderLabelWithText:title size:depth == 0 ? 14.0 : 11.0]];
 
   UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectZero];
   scroll.translatesAutoresizingMaskIntoConstraints = NO;
@@ -1168,9 +1220,63 @@ static NSData *EVEMediaObservation(NSString *observationId,
   label.text = text ?: @"";
   label.numberOfLines = 0;
   label.textColor = color;
-  label.font = [UIFont monospacedSystemFontOfSize:size weight:weight];
+  label.font = [self fensalirBodyFontWithSize:size weight:weight];
   label.lineBreakMode = NSLineBreakByWordWrapping;
   return label;
+}
+
+- (UILabel *)surfaceHeaderLabelWithText:(NSString *)text size:(CGFloat)size {
+  UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
+  label.text = text ?: @"";
+  label.numberOfLines = 0;
+  label.textColor = [self fensalirAccentColor];
+  label.font = [self fensalirHeaderFontWithSize:size];
+  label.lineBreakMode = NSLineBreakByTruncatingTail;
+  return label;
+}
+
+- (UIFont *)fensalirHeaderFontWithSize:(CGFloat)size {
+  UIFont *font = [UIFont fontWithName:@"Montserrat-Thin" size:size];
+  if (font) {
+    return font;
+  }
+  UIFontDescriptor *descriptor = [UIFontDescriptor fontDescriptorWithName:@"Montserrat" size:size];
+  descriptor = [descriptor fontDescriptorByAddingAttributes:@{
+    UIFontDescriptorTraitsAttribute: @{ UIFontWeightTrait: @(UIFontWeightThin) }
+  }];
+  font = [UIFont fontWithDescriptor:descriptor size:size];
+  return font ?: [UIFont systemFontOfSize:size weight:UIFontWeightThin];
+}
+
+- (UIFont *)fensalirBodyFontWithSize:(CGFloat)size weight:(UIFontWeight)weight {
+  UIFont *font = [UIFont fontWithName:@"UbuntuSans-Light" size:size] ?: [UIFont fontWithName:@"Ubuntu Sans Light" size:size];
+  if (!font) {
+    UIFontDescriptor *descriptor = [UIFontDescriptor fontDescriptorWithName:@"Ubuntu Sans" size:size];
+    descriptor = [descriptor fontDescriptorByAddingAttributes:@{
+      UIFontDescriptorTraitsAttribute: @{ UIFontWeightTrait: @(weight) }
+    }];
+    font = [UIFont fontWithDescriptor:descriptor size:size];
+  }
+  return font ?: [UIFont systemFontOfSize:size weight:UIFontWeightLight];
+}
+
+- (void)registerFensalirFontsIfNeeded {
+  NSArray<NSString *> *fontNames = @[
+    @"Montserrat[wght]",
+    @"UbuntuSans[wdth,wght]",
+    @"UbuntuSansMono",
+  ];
+  for (NSString *name in fontNames) {
+    NSURL *url = [NSBundle.mainBundle URLForResource:name withExtension:@"ttf" subdirectory:@"Fonts"];
+    if (!url) {
+      continue;
+    }
+    CFErrorRef error = NULL;
+    CTFontManagerRegisterFontsForURL((__bridge CFURLRef)url, kCTFontManagerScopeProcess, &error);
+    if (error) {
+      CFRelease(error);
+    }
+  }
 }
 
 - (void)renderVoidBotDashboardWithNodes:(NSArray *)nodes title:(NSString *)title version:(id)version {
