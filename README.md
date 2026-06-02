@@ -18,6 +18,12 @@ providers still own accepted truth. Eve makes distributed state visible,
 touchable, and answerable without stealing authority from the system that owns
 the consequence.
 
+In the GameCult service architecture, Eve is the shared interactive language:
+services publish meaningful GUI/TUI surfaces once as Eve DSL or
+`gamecult.eve.surface.v1`, and each runtime lowers that surface locally.
+Durable service state belongs in CultCache `.cc`; local Verse visibility belongs
+in CultMesh; discovery belongs in Odin.
+
 The browser implementation is the ground-truth renderer and behavior reference.
 Native clients on iOS, Android, and other surfaces should match the browser's
 CultMesh document semantics as closely as possible, using platform-native UI

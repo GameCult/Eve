@@ -19,6 +19,54 @@ That is the Eve MultiVerse: not one universe owned by a web app, but many
 rule-bearing Verses whose surfaces can cross renderer bodies while preserving
 ownership.
 
+## What Is The Eve MultiVerse?
+
+The Eve MultiVerse is GameCult's interactive service fabric.
+
+A Verse is a local rule-bearing mesh: a set of services, devices, documents,
+schemas, authorities, and people that can see and act on shared state. The
+MultiVerse is what happens when those Verses can discover each other, translate
+their document shapes, and render each other's interfaces without forcing every
+service into one central app.
+
+In practical terms:
+
+```text
+service-owned documents
+-> CultCache .cc durable state
+-> CultMesh Verse visibility
+-> Eve GUI/TUI DSL or gamecult.eve.surface.v1
+-> browser, native Eve, compact TUI, Fensalir, overlays, future clients
+-> command intent back to the provider
+-> accepted, denied, predicted, reconciled, or stale truth made visible
+```
+
+Eve is the shared interactive language. It is not the state owner. A Mimir
+sensor stream, a VoidBot swarm cockpit, a Huginn `.cc` inspection surface, an
+Odin Verse map, and a future Fensalir production panel should all be readable
+through the same surface semantics even when they render in different bodies.
+
+That is why meaningful GameCult dashboards should become Eve GUI/TUI DSL. The
+service speaks once; each runtime lowers the surface locally.
+
+## Service Contract
+
+Every GameCult service with durable state should move toward this contract:
+
+- store durable service memory as typed CultCache documents in `.cc` files or a
+  CultCache-compatible backing store with a `.cc` witness/export path;
+- publish the documents or projections through CultMesh so local Verse peers can
+  subscribe;
+- expose meaningful operator interfaces as Eve DSL or retained
+  `gamecult.eve.surface.v1` trees;
+- route writes as command intent back to the provider, where they can be
+  accepted, denied, forwarded, or reconciled;
+- make authority, freshness, denial, prediction, and stale observations visible
+  when they matter.
+
+The matching ops doctrine lives in
+`E:\Projects\gamecult-ops\docs\verse-service-architecture.md`.
+
 ## Current Substrate Truth
 
 CultMesh already has the lower bones:
