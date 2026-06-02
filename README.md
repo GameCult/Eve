@@ -304,6 +304,12 @@ Launch `EveCanvas` from SpringBoard, or over SSH:
 uiopen --bundleid org.gamecult.evecanvas
 ```
 
+Capture the running native renderer over SSH:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\capture-eve-screenshot.ps1
+```
+
 If OpenGL ES context creation fails on-device, the app stays alive with the
 UIKit overlay instead of aborting launch. The render surface can then be fixed
 without losing the basic app deployment path.

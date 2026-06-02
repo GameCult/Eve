@@ -321,6 +321,69 @@ static NSData *EVEMediaObservation(NSString *observationId,
 
   [self.glView renderAtTime:link.timestamp];
   [self updateOverlay];
+  [self serviceScreenshotRequestIfNeeded];
+}
+
+- (void)serviceScreenshotRequestIfNeeded {
+  NSString *directory = @"/var/mobile/Library/EveCanvas";
+  NSString *requestPath = [directory stringByAppendingPathComponent:@"capture-request"];
+  NSFileManager *fileManager = NSFileManager.defaultManager;
+  if (![fileManager fileExistsAtPath:requestPath]) {
+    return;
+  }
+
+  [fileManager createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:nil];
+  [fileManager removeItemAtPath:requestPath error:nil];
+
+  CGSize size = self.view.bounds.size;
+  if (size.width <= 0.0 || size.height <= 0.0) {
+    [@"invalid-view-size" writeToFile:[directory stringByAppendingPathComponent:@"capture-status.txt"]
+                           atomically:YES
+                             encoding:NSUTF8StringEncoding
+                                error:nil];
+    return;
+  }
+
+  UIGraphicsBeginImageContextWithOptions(size, YES, UIScreen.mainScreen.scale);
+  BOOL rendered = [self.view drawViewHierarchyInRect:self.view.bounds afterScreenUpdates:YES];
+  if (!rendered) {
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    if (context) {
+      [self.view.layer renderInContext:context];
+      rendered = YES;
+    }
+  }
+  UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+  if (!rendered || !image) {
+    [@"render-failed" writeToFile:[directory stringByAppendingPathComponent:@"capture-status.txt"]
+                       atomically:YES
+                         encoding:NSUTF8StringEncoding
+                            error:nil];
+    return;
+  }
+
+  NSData *png = UIImagePNGRepresentation(image);
+  if (!png) {
+    [@"png-encoding-failed" writeToFile:[directory stringByAppendingPathComponent:@"capture-status.txt"]
+                             atomically:YES
+                               encoding:NSUTF8StringEncoding
+                                  error:nil];
+    return;
+  }
+
+  NSString *latestPath = [directory stringByAppendingPathComponent:@"latest-screenshot.png"];
+  if ([png writeToFile:latestPath atomically:YES]) {
+    [@"ok" writeToFile:[directory stringByAppendingPathComponent:@"capture-status.txt"]
+            atomically:YES
+              encoding:NSUTF8StringEncoding
+                 error:nil];
+  } else {
+    [@"write-failed" writeToFile:[directory stringByAppendingPathComponent:@"capture-status.txt"]
+                      atomically:YES
+                        encoding:NSUTF8StringEncoding
+                           error:nil];
+  }
 }
 
 - (void)updateOverlay {
