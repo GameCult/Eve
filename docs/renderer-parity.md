@@ -9,7 +9,7 @@ comparison oracle.
 | Renderer | Status | Proof | Gap |
 | --- | --- | --- | --- |
 | Browser | First reference runner | `web/` renders live VoidBot and Fensalir fixture surfaces | Needs visual regression fixtures and command round-trip tests |
-| iOS / EveCanvas | Native proof | Renders Mimir provider trees and a custom VoidBot cockpit with avatar images | Uses provider-specific UIKit rendering for VoidBot |
+| iOS / EveCanvas | Native proof | Renders Odin's fullscreen interface wall from `surface.root`, generic provider trees, and a custom VoidBot cockpit with avatar images | Needs visual regression fixtures for the native Odin wall |
 | Android / Periwinkle | Device-edge proof | APK builds and shows broker/sensor status | Install blocked until device allows ADB sideload; dashboard rendering is not implemented |
 | Fensalir Direct2D | Documented landing zone | Existing `AquariumUiDocument` and `DirectWriteOverlay` path | Needs adapter from Eve surface document to `AquariumUiDocument` |
 | Flutter | Candidate shared native path | Not installed locally | Needs toolchain and client scaffold |

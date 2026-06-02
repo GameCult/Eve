@@ -9,6 +9,8 @@
 #import "EVEH264StreamDecoder.h"
 #import "EVESensorUplinkClient.h"
 
+#include <math.h>
+
 @import AVFoundation;
 
 static int64_t EVEHostTimeNowNs(void) {
@@ -69,7 +71,7 @@ static void EVEAppendString(NSMutableData *data, NSString *value) {
     EVEAppendByte(data, (uint8_t)length);
   } else {
     EVEAppendByte(data, 0xda);
-    EVEAppendUInt16(data, (uint16_t)MIN(length, 65535));
+    EVEAppendUInt16(data, (uint16_t)MIN(length, (NSUInteger)65535));
   }
   [data appendData:bytes];
 }
@@ -774,6 +776,11 @@ static NSData *EVEMediaObservation(NSString *observationId,
     [view removeFromSuperview];
   }
 
+  NSString *providerId = [state[@"providerId"] isKindOfClass:NSString.class] ? state[@"providerId"] : @"";
+  if ([providerId isEqualToString:@"odin.allseer"] && [self renderOdinInterfaceWallForState:state]) {
+    return;
+  }
+
   UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:self.surfaceDashboardView.bounds];
   scroll.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   scroll.alwaysBounceVertical = YES;
@@ -807,13 +814,115 @@ static NSData *EVEMediaObservation(NSString *observationId,
   ]];
 }
 
+- (BOOL)renderOdinInterfaceWallForState:(NSDictionary *)state {
+  [self.surfaceDashboardView layoutIfNeeded];
+  CGRect bounds = self.surfaceDashboardView.bounds;
+  if (bounds.size.width < 20.0 || bounds.size.height < 20.0) {
+    bounds = UIEdgeInsetsInsetRect(self.dashboardView.bounds, UIEdgeInsetsMake(6, 6, 6, 6));
+  }
+
+  NSDictionary *surface = [state[@"surface"] isKindOfClass:NSDictionary.class] ? state[@"surface"] : nil;
+  NSDictionary *root = [surface[@"root"] isKindOfClass:NSDictionary.class] ? surface[@"root"] : nil;
+  NSArray *children = [root[@"children"] isKindOfClass:NSArray.class] ? root[@"children"] : @[];
+  NSMutableArray<NSDictionary *> *interfaces = [NSMutableArray array];
+  for (NSDictionary *child in children) {
+    if (![child isKindOfClass:NSDictionary.class]) {
+      continue;
+    }
+    NSString *kind = [child[@"kind"] isKindOfClass:NSString.class] ? child[@"kind"] : @"";
+    NSDictionary *props = [child[@"props"] isKindOfClass:NSDictionary.class] ? child[@"props"] : @{};
+    NSDictionary *layout = [props[@"layout"] isKindOfClass:NSDictionary.class] ? props[@"layout"] : @{};
+    NSNumber *visible = [layout[@"visible"] isKindOfClass:NSNumber.class] ? layout[@"visible"] : @YES;
+    if ([kind isEqualToString:@"interface"] && visible.boolValue) {
+      [interfaces addObject:child];
+    }
+  }
+
+  if (interfaces.count == 0) {
+    return NO;
+  }
+
+  UIView *wall = [[UIView alloc] initWithFrame:bounds];
+  wall.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  wall.backgroundColor = [UIColor colorWithRed:0.003 green:0.014 blue:0.016 alpha:1.0];
+  [self.surfaceDashboardView addSubview:wall];
+
+  NSUInteger count = interfaces.count;
+  NSUInteger columns = count <= 1 ? 1 : (count <= 4 ? 2 : (NSUInteger)ceil(sqrt((double)count)));
+  NSUInteger rows = (count + columns - 1) / columns;
+  CGFloat gap = 8.0;
+  CGFloat tileWidth = floor((bounds.size.width - gap * (CGFloat)(columns + 1)) / (CGFloat)columns);
+  CGFloat tileHeight = floor((bounds.size.height - gap * (CGFloat)(rows + 1)) / (CGFloat)rows);
+
+  for (NSUInteger index = 0; index < count; index++) {
+    NSUInteger row = index / columns;
+    NSUInteger column = index % columns;
+    CGRect frame = CGRectMake(gap + (CGFloat)column * (tileWidth + gap),
+                              gap + (CGFloat)row * (tileHeight + gap),
+                              tileWidth,
+                              tileHeight);
+    [wall addSubview:[self odinInterfaceTile:interfaces[index] frame:frame]];
+  }
+
+  return YES;
+}
+
+- (UIView *)odinInterfaceTile:(NSDictionary *)interface frame:(CGRect)frame {
+  NSDictionary *props = [interface[@"props"] isKindOfClass:NSDictionary.class] ? interface[@"props"] : @{};
+  UIView *tile = [[UIView alloc] initWithFrame:frame];
+  tile.backgroundColor = [UIColor colorWithRed:0.014 green:0.042 blue:0.044 alpha:0.98];
+  tile.layer.borderWidth = 1.0;
+  tile.layer.borderColor = [UIColor colorWithRed:0.24 green:0.90 blue:0.84 alpha:0.34].CGColor;
+  tile.layer.cornerRadius = 5.0;
+  tile.clipsToBounds = YES;
+
+  NSString *title = [props[@"title"] isKindOfClass:NSString.class] ? props[@"title"] : ([interface[@"id"] isKindOfClass:NSString.class] ? interface[@"id"] : @"interface");
+  NSString *providerId = [props[@"providerId"] isKindOfClass:NSString.class] ? props[@"providerId"] : @"provider";
+  UILabel *heading = [self surfaceLabelWithText:[NSString stringWithFormat:@"%@  %@", title, providerId]
+                                           size:11.0
+                                         weight:UIFontWeightBold
+                                          color:[UIColor colorWithRed:0.72 green:0.96 blue:0.92 alpha:1.0]];
+  heading.frame = CGRectMake(8.0, 6.0, frame.size.width - 16.0, 20.0);
+  heading.numberOfLines = 1;
+  [tile addSubview:heading];
+
+  UIScrollView *scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(6.0, 30.0, frame.size.width - 12.0, frame.size.height - 36.0)];
+  scroll.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  scroll.alwaysBounceVertical = YES;
+  scroll.showsVerticalScrollIndicator = NO;
+  [tile addSubview:scroll];
+
+  UIStackView *stack = [[UIStackView alloc] initWithFrame:CGRectZero];
+  stack.translatesAutoresizingMaskIntoConstraints = NO;
+  stack.axis = UILayoutConstraintAxisVertical;
+  stack.spacing = 6.0;
+  stack.alignment = UIStackViewAlignmentFill;
+  [scroll addSubview:stack];
+
+  NSArray *children = [interface[@"children"] isKindOfClass:NSArray.class] ? interface[@"children"] : @[];
+  for (NSDictionary *child in children) {
+    if ([child isKindOfClass:NSDictionary.class]) {
+      [stack addArrangedSubview:[self renderSurfaceElement:child depth:0]];
+    }
+  }
+
+  [NSLayoutConstraint activateConstraints:@[
+    [stack.leadingAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.leadingAnchor],
+    [stack.trailingAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.trailingAnchor],
+    [stack.topAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.topAnchor],
+    [stack.bottomAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.bottomAnchor],
+    [stack.widthAnchor constraintEqualToAnchor:scroll.frameLayoutGuide.widthAnchor],
+  ]];
+  return tile;
+}
+
 - (UIView *)renderSurfaceElement:(NSDictionary *)element depth:(NSUInteger)depth {
   NSString *kind = [element[@"kind"] isKindOfClass:NSString.class] ? element[@"kind"] : @"element";
   NSDictionary *props = [element[@"props"] isKindOfClass:NSDictionary.class] ? element[@"props"] : @{};
   NSArray *children = [element[@"children"] isKindOfClass:NSArray.class] ? element[@"children"] : @[];
 
   if ([kind isEqualToString:@"text"] || [kind isEqualToString:@"metric"]) {
-    NSString *text = [props[@"text"] isKindOfClass:NSString.class] ? props[@"text"] : ([props[@"label"] isKindOfClass:NSString.class] ? props[@"label"] : kind);
+    NSString *text = [self surfaceTextForElement:element props:props fallback:kind];
     return [self surfaceLabelWithText:text
                                  size:depth < 2 ? 12.0 : 10.5
                                weight:UIFontWeightMedium
@@ -828,12 +937,17 @@ static NSData *EVEMediaObservation(NSString *observationId,
 
   UIStackView *stack = [[UIStackView alloc] initWithFrame:CGRectZero];
   stack.translatesAutoresizingMaskIntoConstraints = NO;
-  stack.axis = UILayoutConstraintAxisVertical;
+  NSDictionary *layout = [element[@"layout"] isKindOfClass:NSDictionary.class] ? element[@"layout"] : ([props[@"layout"] isKindOfClass:NSDictionary.class] ? props[@"layout"] : @{});
+  NSString *direction = [layout[@"direction"] isKindOfClass:NSString.class] ? layout[@"direction"] : @"";
+  stack.axis = [kind isEqualToString:@"row"] || [direction isEqualToString:@"horizontal"] ? UILayoutConstraintAxisHorizontal : UILayoutConstraintAxisVertical;
   stack.spacing = 6.0;
   stack.alignment = UIStackViewAlignmentFill;
+  if (stack.axis == UILayoutConstraintAxisHorizontal) {
+    stack.distribution = UIStackViewDistributionFillEqually;
+  }
   [panel addSubview:stack];
 
-  NSString *title = [props[@"title"] isKindOfClass:NSString.class] ? props[@"title"] : kind;
+  NSString *title = [self surfaceTitleForElement:element props:props fallback:kind];
   [stack addArrangedSubview:[self surfaceLabelWithText:title
                                                   size:depth == 0 ? 15.0 : 12.0
                                                 weight:depth == 0 ? UIFontWeightBold : UIFontWeightSemibold
@@ -859,6 +973,37 @@ static NSData *EVEMediaObservation(NSString *observationId,
     [stack.bottomAnchor constraintEqualToAnchor:panel.bottomAnchor constant:-10.0],
   ]];
   return panel;
+}
+
+- (NSString *)surfaceTextForElement:(NSDictionary *)element props:(NSDictionary *)props fallback:(NSString *)fallback {
+  NSString *text = [props[@"text"] isKindOfClass:NSString.class] ? props[@"text"] : nil;
+  if (!text) {
+    text = [element[@"text"] isKindOfClass:NSString.class] ? element[@"text"] : nil;
+  }
+  if (!text) {
+    text = [props[@"label"] isKindOfClass:NSString.class] ? props[@"label"] : nil;
+  }
+  if (!text && [element[@"metric"] isKindOfClass:NSDictionary.class]) {
+    NSDictionary *metric = element[@"metric"];
+    NSString *label = [metric[@"label"] isKindOfClass:NSString.class] ? metric[@"label"] : @"metric";
+    NSNumber *value = [metric[@"value"] isKindOfClass:NSNumber.class] ? metric[@"value"] : nil;
+    text = value ? [NSString stringWithFormat:@"%@: %.3f", label, value.doubleValue] : label;
+  }
+  return text ?: fallback ?: @"";
+}
+
+- (NSString *)surfaceTitleForElement:(NSDictionary *)element props:(NSDictionary *)props fallback:(NSString *)fallback {
+  NSString *title = [props[@"title"] isKindOfClass:NSString.class] ? props[@"title"] : nil;
+  if (!title) {
+    title = [element[@"text"] isKindOfClass:NSString.class] ? element[@"text"] : nil;
+  }
+  if (!title) {
+    title = [props[@"label"] isKindOfClass:NSString.class] ? props[@"label"] : nil;
+  }
+  if (!title) {
+    title = [element[@"id"] isKindOfClass:NSString.class] ? element[@"id"] : nil;
+  }
+  return title ?: fallback ?: @"surface";
 }
 
 - (UILabel *)surfaceLabelWithText:(NSString *)text size:(CGFloat)size weight:(UIFontWeight)weight color:(UIColor *)color {
