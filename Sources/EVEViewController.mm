@@ -10,6 +10,7 @@
 #import "EVESensorUplinkClient.h"
 
 #include <math.h>
+#include <float.h>
 
 @import AVFoundation;
 @import CoreText;
@@ -170,6 +171,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
 @property(nonatomic, copy) NSString *selectedNodeId;
 @property(nonatomic, assign) CGFloat activeGestureStartScale;
 @property(nonatomic, assign) CGFloat activeGestureStartRotation;
+@property(nonatomic, assign) CGFloat activeSurfaceFontScale;
 
 @end
 
@@ -240,6 +242,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
   self.dialogueLine = @"awaiting Mimir";
   self.dashboardStatus = @"dashboard idle";
   self.dashboardProviderId = @"";
+  self.activeSurfaceFontScale = 1.0;
   self.nodeViews = [NSMutableDictionary dictionary];
   self.dashboardNodes = [NSMutableDictionary dictionary];
   self.avatarCache = [NSMutableDictionary dictionary];
@@ -911,28 +914,126 @@ static NSData *EVEMediaObservation(NSString *observationId,
   wall.backgroundColor = [self fensalirBackdropColor];
   [self.surfaceDashboardView addSubview:wall];
 
-  NSUInteger count = interfaces.count;
-  NSUInteger columns = count <= 1 ? 1 : (count <= 6 ? 2 : (NSUInteger)ceil(sqrt((double)count)));
-  NSUInteger rows = (count + columns - 1) / columns;
   CGFloat gap = 8.0;
-  CGFloat tileWidth = floor((bounds.size.width - gap * (CGFloat)(columns + 1)) / (CGFloat)columns);
-  CGFloat tileHeight = floor((bounds.size.height - gap * (CGFloat)(rows + 1)) / (CGFloat)rows);
-
-  for (NSUInteger index = 0; index < count; index++) {
-    NSUInteger row = index / columns;
-    NSUInteger column = index % columns;
-    BOOL spansLastRow = columns == 2 && count % 2 == 1 && index == count - 1;
-    CGRect frame = CGRectMake(gap + (CGFloat)column * (tileWidth + gap),
-                              gap + (CGFloat)row * (tileHeight + gap),
-                              spansLastRow ? (bounds.size.width - gap * 2.0) : tileWidth,
-                              tileHeight);
-    [wall addSubview:[self odinInterfaceTile:interfaces[index] frame:frame]];
+  CGRect packBounds = CGRectInset(bounds, gap, gap);
+  NSArray<NSDictionary *> *placements = [self odinPackedPlacementsForInterfaces:interfaces bounds:packBounds gap:gap];
+  for (NSDictionary *placement in placements) {
+    NSDictionary *interface = [placement[@"interface"] isKindOfClass:NSDictionary.class] ? placement[@"interface"] : nil;
+    NSValue *frameValue = [placement[@"frame"] isKindOfClass:NSValue.class] ? placement[@"frame"] : nil;
+    NSNumber *weight = [placement[@"weight"] isKindOfClass:NSNumber.class] ? placement[@"weight"] : @1.0;
+    if (!interface || !frameValue) {
+      continue;
+    }
+    [wall addSubview:[self odinInterfaceTile:interface frame:frameValue.CGRectValue weight:weight.doubleValue]];
   }
 
   return YES;
 }
 
-- (UIView *)odinInterfaceTile:(NSDictionary *)interface frame:(CGRect)frame {
+- (NSArray<NSDictionary *> *)odinPackedPlacementsForInterfaces:(NSArray<NSDictionary *> *)interfaces bounds:(CGRect)bounds gap:(CGFloat)gap {
+  NSMutableArray<NSDictionary *> *items = [NSMutableArray arrayWithCapacity:interfaces.count];
+  for (NSDictionary *interface in interfaces) {
+    double weight = [self surfaceWeightForElement:interface];
+    [items addObject:@{@"interface": interface, @"weight": @(MAX(0.65, weight))}];
+  }
+  [items sortUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
+    double lw = [left[@"weight"] doubleValue];
+    double rw = [right[@"weight"] doubleValue];
+    if (lw > rw) {
+      return NSOrderedAscending;
+    }
+    if (lw < rw) {
+      return NSOrderedDescending;
+    }
+    return NSOrderedSame;
+  }];
+
+  NSMutableArray<NSDictionary *> *placements = [NSMutableArray array];
+  [self packOdinItems:items bounds:bounds gap:gap into:placements];
+  return placements;
+}
+
+- (void)packOdinItems:(NSArray<NSDictionary *> *)items bounds:(CGRect)bounds gap:(CGFloat)gap into:(NSMutableArray<NSDictionary *> *)placements {
+  if (items.count == 0 || bounds.size.width <= 1.0 || bounds.size.height <= 1.0) {
+    return;
+  }
+  if (items.count == 1) {
+    NSMutableDictionary *placement = [items[0] mutableCopy];
+    placement[@"frame"] = [NSValue valueWithCGRect:CGRectIntegral(bounds)];
+    [placements addObject:placement];
+    return;
+  }
+
+  double total = [self totalWeightForItems:items];
+  double half = total * 0.5;
+  double running = 0.0;
+  NSUInteger split = 1;
+  double bestDistance = DBL_MAX;
+  for (NSUInteger index = 0; index < items.count - 1; index++) {
+    running += [items[index][@"weight"] doubleValue];
+    double distance = fabs(running - half);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      split = index + 1;
+    }
+  }
+
+  NSArray *first = [items subarrayWithRange:NSMakeRange(0, split)];
+  NSArray *second = [items subarrayWithRange:NSMakeRange(split, items.count - split)];
+  double firstWeight = [self totalWeightForItems:first];
+  double ratio = total > 0.0 ? firstWeight / total : 0.5;
+
+  BOOL splitVertical = bounds.size.width >= bounds.size.height;
+  if (splitVertical) {
+    CGFloat firstWidth = floor((bounds.size.width - gap) * (CGFloat)ratio);
+    firstWidth = MAX(96.0, MIN(bounds.size.width - gap - 96.0, firstWidth));
+    CGRect left = CGRectMake(bounds.origin.x, bounds.origin.y, firstWidth, bounds.size.height);
+    CGRect right = CGRectMake(CGRectGetMaxX(left) + gap, bounds.origin.y, bounds.size.width - firstWidth - gap, bounds.size.height);
+    [self packOdinItems:first bounds:left gap:gap into:placements];
+    [self packOdinItems:second bounds:right gap:gap into:placements];
+  } else {
+    CGFloat firstHeight = floor((bounds.size.height - gap) * (CGFloat)ratio);
+    firstHeight = MAX(72.0, MIN(bounds.size.height - gap - 72.0, firstHeight));
+    CGRect top = CGRectMake(bounds.origin.x, bounds.origin.y, bounds.size.width, firstHeight);
+    CGRect bottom = CGRectMake(bounds.origin.x, CGRectGetMaxY(top) + gap, bounds.size.width, bounds.size.height - firstHeight - gap);
+    [self packOdinItems:first bounds:top gap:gap into:placements];
+    [self packOdinItems:second bounds:bottom gap:gap into:placements];
+  }
+}
+
+- (double)totalWeightForItems:(NSArray<NSDictionary *> *)items {
+  double total = 0.0;
+  for (NSDictionary *item in items) {
+    total += [item[@"weight"] doubleValue];
+  }
+  return MAX(0.001, total);
+}
+
+- (double)surfaceWeightForElement:(NSDictionary *)element {
+  NSString *kind = [element[@"kind"] isKindOfClass:NSString.class] ? element[@"kind"] : @"";
+  NSDictionary *props = [element[@"props"] isKindOfClass:NSDictionary.class] ? element[@"props"] : @{};
+  NSArray *children = [element[@"children"] isKindOfClass:NSArray.class] ? element[@"children"] : @[];
+  NSString *text = [self surfaceTextForElement:element props:props fallback:@""];
+  double weight = [kind isEqualToString:@"interface"] ? 0.9 : 0.35;
+  if ([kind isEqualToString:@"text"] || [kind isEqualToString:@"metric"]) {
+    weight += MAX(0.22, (double)text.length / 95.0);
+  } else if ([kind isEqualToString:@"rail"]) {
+    weight += 0.55 + MIN(3.0, (double)children.count * 0.18);
+  } else if ([kind isEqualToString:@"card"] || [kind isEqualToString:@"pane"]) {
+    weight += 0.85;
+  } else if ([kind isEqualToString:@"dashboard"] || [kind isEqualToString:@"cockpit"]) {
+    weight += 0.65;
+  }
+
+  for (NSDictionary *child in children) {
+    if ([child isKindOfClass:NSDictionary.class]) {
+      weight += [self surfaceWeightForElement:child];
+    }
+  }
+  return MAX(0.25, weight);
+}
+
+- (UIView *)odinInterfaceTile:(NSDictionary *)interface frame:(CGRect)frame weight:(double)weight {
   NSDictionary *props = [interface[@"props"] isKindOfClass:NSDictionary.class] ? interface[@"props"] : @{};
   UIView *tile = [[UIView alloc] initWithFrame:frame];
   tile.backgroundColor = [self fensalirPanelColor];
@@ -983,11 +1084,15 @@ static NSData *EVEMediaObservation(NSString *observationId,
   [scroll addSubview:stack];
 
   NSArray *children = [interface[@"children"] isKindOfClass:NSArray.class] ? interface[@"children"] : @[];
+  CGFloat previousScale = self.activeSurfaceFontScale;
+  CGFloat density = frame.size.width * frame.size.height / MAX(1.0, (CGFloat)weight);
+  self.activeSurfaceFontScale = MAX(0.50, MIN(0.86, sqrt(density / 18500.0)));
   for (NSDictionary *child in children) {
     if ([child isKindOfClass:NSDictionary.class]) {
       [stack addArrangedSubview:[self renderSurfaceElement:child depth:0]];
     }
   }
+  self.activeSurfaceFontScale = previousScale;
 
   [NSLayoutConstraint activateConstraints:@[
     [stack.leadingAnchor constraintEqualToAnchor:scroll.contentLayoutGuide.leadingAnchor],
@@ -1220,7 +1325,8 @@ static NSData *EVEMediaObservation(NSString *observationId,
   label.text = text ?: @"";
   label.numberOfLines = 0;
   label.textColor = color;
-  label.font = [self fensalirBodyFontWithSize:size weight:weight];
+  CGFloat scaledSize = MAX(5.5, floor(size * MAX(0.48, self.activeSurfaceFontScale) * 2.0) / 2.0);
+  label.font = [self fensalirBodyFontWithSize:scaledSize weight:weight];
   label.lineBreakMode = NSLineBreakByWordWrapping;
   return label;
 }
@@ -1230,7 +1336,8 @@ static NSData *EVEMediaObservation(NSString *observationId,
   label.text = text ?: @"";
   label.numberOfLines = 0;
   label.textColor = [self fensalirAccentColor];
-  label.font = [self fensalirHeaderFontWithSize:size];
+  CGFloat scaledSize = MAX(6.0, floor(size * MAX(0.64, self.activeSurfaceFontScale) * 2.0) / 2.0);
+  label.font = [self fensalirHeaderFontWithSize:scaledSize];
   label.lineBreakMode = NSLineBreakByTruncatingTail;
   return label;
 }
@@ -1249,6 +1356,13 @@ static NSData *EVEMediaObservation(NSString *observationId,
 }
 
 - (UIFont *)fensalirBodyFontWithSize:(CGFloat)size weight:(UIFontWeight)weight {
+  if (size <= 8.5) {
+    UIFont *tiny = [UIFont fontWithName:@"UbuntuSansMono-Regular" size:size] ?: [UIFont fontWithName:@"Ubuntu Sans Mono" size:size];
+    if (tiny) {
+      return tiny;
+    }
+    return [UIFont monospacedSystemFontOfSize:size weight:UIFontWeightRegular];
+  }
   UIFont *font = [UIFont fontWithName:@"UbuntuSans-Light" size:size] ?: [UIFont fontWithName:@"Ubuntu Sans Light" size:size];
   if (!font) {
     UIFontDescriptor *descriptor = [UIFontDescriptor fontDescriptorWithName:@"Ubuntu Sans" size:size];
