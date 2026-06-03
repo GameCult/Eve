@@ -28,6 +28,10 @@ Required top-level fields:
 - `surface.styles`: synchronized style tokens and optional style controls.
 - `commands`: command templates the provider accepts.
 
+Providers that want Odin and other Eve clients to discover them should also
+publish `gamecult.eve.provider_advertisement.v1`; see
+[provider-advertisement-contract.md](./provider-advertisement-contract.md).
+
 Compatibility fields:
 
 - `nodes`: old graph/dashboard projection for legacy clients.

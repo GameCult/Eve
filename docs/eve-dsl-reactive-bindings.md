@@ -52,6 +52,13 @@ This keeps the DSL honest. The visual language can name a field; the provider
 and CultMesh decide whether that field is readable, writable, predicted,
 accepted, denied, stale, or missing.
 
+Discovery of those backing documents should come from a provider advertisement
+when available. See
+[provider-advertisement-contract.md](./provider-advertisement-contract.md) for
+the service-level map that tells Odin and Eve which schemas, witnesses,
+surfaces, commands, nested Verses, and style capabilities a daemon deliberately
+publishes.
+
 ## Reactive Surface Model
 
 The ergonomic layer has three reactive shapes:
