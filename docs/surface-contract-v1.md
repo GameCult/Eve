@@ -204,7 +204,9 @@ Providers may add command names, but they must advertise them in `commands`.
 
 `surface.styles.tokens` is provider-owned appearance state. Renderers project
 tokens into CSS variables, UIKit colors/fonts, Android styles, DirectWrite
-brushes, or platform equivalents.
+brushes, overlay material parameters, TUI attributes, or platform equivalents.
+For migrated products, the first source of truth may be an existing CSS system,
+but the canonical portable form is the Eve token set, not the stylesheet.
 
 Style controls are ordinary controls whose command is usually `style.patch`.
 They synchronize appearance by sending token edits back to the provider. The
@@ -225,6 +227,19 @@ Minimum common tokens:
 - `fontTitle`
 - `pixelArt`
 - `motion`
+
+Product surfaces may add scoped token groups such as:
+
+- `streamPixels.characterPreview`
+- `streamPixels.inventoryGrid`
+- `streamPixels.overlayHud`
+- `repixelizer.comparisonCanvas`
+- `repixelizer.cleanupTool`
+
+These are still Eve style state. A browser lowering may emit CSS variables and
+classes; the Kotlin Android runtime may emit native styles and view properties;
+Fensalir may emit DirectWrite brushes and renderer flags. The provider owns the
+style document and accepts or rejects edits through `style.patch`.
 
 ## Sai VN Requirements
 

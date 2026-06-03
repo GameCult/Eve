@@ -17,7 +17,9 @@ The promise is deliberately a little magical at the user boundary:
 
 That is the Eve MultiVerse: not one universe owned by a web app, but many
 rule-bearing Verses whose surfaces can cross renderer bodies while preserving
-ownership.
+ownership. Product presentation flows through Eve. A browser site, Android app,
+native panel, stream overlay, or compact TUI is a lowering target for the same
+surface contract, not a separate product UI authority.
 
 ## What Is The Eve MultiVerse?
 
@@ -46,8 +48,34 @@ sensor stream, a VoidBot swarm cockpit, a Huginn `.cc` inspection surface, an
 Odin Verse map, and a future Fensalir production panel should all be readable
 through the same surface semantics even when they render in different bodies.
 
-That is why meaningful GameCult dashboards should become Eve GUI/TUI DSL. The
-service speaks once; each runtime lowers the surface locally.
+That is why meaningful GameCult interfaces should become Eve GUI/TUI DSL. The
+service speaks once; each runtime lowers the surface locally. A dashboard is
+only one shape of the contract; full product flows such as StreamPixels
+character creation, streamer setup, and overlay room control should be Eve
+surfaces too.
+
+## Nested Verses
+
+Some products are not one flat app. StreamPixels is the clean example:
+
+- each viewer has a personal Verse for identity, character creation, loadout,
+  owned items, linked accounts, and profile consequences;
+- each streamer has a creator Verse for rules, connector bindings, overlay
+  settings, subathon state, invites, and local moderation authority;
+- each live overlay has an on-stream Verse for auth-free rendering, presence,
+  queue pressure, active scenes, and style synchronized with the creator space;
+- operators can cross those Verses through explicit authority, not by owning a
+  hidden admin website.
+
+Repixelizer has a smaller shape: user/session Verse, job Verse, artifact Verse,
+and hosted-operator Verse. The same rule applies. The old website becomes a
+browser lowering of the Eve surface. The Android Kotlin runtime should be able
+to lower the same flow for upload, parameter selection, preview, cleanup, and
+artifact export without Repixelizer inventing a second mobile app brain.
+
+Verse nesting is not navigation chrome. It is authority topology: which person,
+service, artifact, overlay, job, or room owns which state, which commands are
+available, and what can be carried across the boundary.
 
 ## Service Contract
 
@@ -59,6 +87,8 @@ Every GameCult service with durable state should move toward this contract:
   subscribe;
 - expose meaningful operator interfaces as Eve DSL or retained
   `gamecult.eve.surface.v1` trees;
+- express meaningful user-facing service flows as Eve surfaces as well; websites
+  and mobile apps lower those flows rather than becoming canonical UI owners;
 - route writes as command intent back to the provider, where they can be
   accepted, denied, forwarded, or reconciled;
 - make authority, freshness, denial, prediction, and stale observations visible
@@ -116,6 +146,22 @@ for writes.
   and command intent.
 - Renderers own native projection mechanics only. They do not invent provider
   truth.
+
+## Style Portability
+
+Eve must be flexible enough to preserve product identity. Migrating an existing
+website does not mean bleaching it into generic gray panels with a cult sticker
+on top. Existing CSS should be translated into Eve style tokens, layout tokens,
+asset references, motion preferences, and component variants that can lower to
+CSS variables, UIKit, Android styles, DirectWrite brushes, overlay shaders, and
+TUI approximations.
+
+If a style cannot lower exactly, the surface should name the lossiness. A
+Kotlin Android StreamPixels character creator may not render every web hover
+state, but it should carry the same character-creation hierarchy, color system,
+PixelHeroes previews, command routes, and authority markers. The aesthetic is
+portable because the surface describes it; it is not trapped in a CSS file like
+a small decorative hostage.
 
 Local callbacks are not portable state. DOM handlers, UIKit actions, Android
 listeners, Direct2D hit tests, and game-engine events are actuators for the
