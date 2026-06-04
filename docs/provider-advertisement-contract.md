@@ -27,7 +27,11 @@ The advertisement is not a health page. It is a map of authority.
   "schema": "gamecult.eve.provider_advertisement.v1",
   "providerId": "streampixels",
   "serviceId": "streampixels.service",
-  "verseId": "gamecult.local",
+  "verseId": "streampixels.local",
+  "rootVerse": "asgard",
+  "canonicalService": "asgard.streampixels",
+  "locatedService": "asgard.yggdrasil.streampixels",
+  "cultMeshAddress": "asgard.yggdrasil.streampixels/eve/tui",
   "title": "StreamPixels",
   "kind": "service.product",
   "updatedAt": "2026-06-03T00:00:00Z",
@@ -40,6 +44,7 @@ The advertisement is not a health page. It is a map of authority.
   "witnesses": [],
   "surfaces": [],
   "commands": [],
+  "routes": [],
   "nestedVerses": [],
   "styleCapabilities": [],
   "contacts": []
@@ -50,7 +55,15 @@ Required top-level meanings:
 
 - `providerId`: stable id used by Eve and Odin.
 - `serviceId`: stable daemon/service id when different from the provider id.
-- `verseId`: Verse where this advertisement is authoritative.
+- `verseId`: legacy or local Verse label where this advertisement is
+  authoritative.
+- `rootVerse`: root rendezvous Verse. For the local swarm this is `asgard`.
+- `canonicalService`: service identity without machine placement, for example
+  `asgard.streampixels`.
+- `locatedService`: current machine-qualified service identity, for example
+  `asgard.yggdrasil.streampixels`.
+- `cultMeshAddress`: primary semantic CultMesh address. This is service
+  identity, not a socket URL.
 - `kind`: provider family, for example `service.product`, `service.operator`,
   `surface.renderer`, `inspection.huginn`, or `content.runtime`.
 - `freshness`: whether this advertisement is fresh, stale, unreachable, or
@@ -60,6 +73,8 @@ Required top-level meanings:
   witness durable state.
 - `surfaces`: Eve surface documents or endpoints the provider publishes.
 - `commands`: command boundaries the provider accepts.
+- `routes`: transport, store, or compatibility routes used to reach the
+  semantic address. WebSocket and HTTP routes live here when they still exist.
 - `nestedVerses`: child Verse boundaries carried by this provider.
 - `styleCapabilities`: style token groups and lowering capability/lossiness
   notes.
@@ -74,7 +89,7 @@ Each schema entry names provider-owned state:
   "owner": "streampixels",
   "authority": "accepted",
   "storage": "postgres-with-cc-witness",
-  "cultMeshKey": "cultmesh://streampixels/viewers/{profileId}/character",
+  "cultMeshAddress": "asgard.yggdrasil.streampixels/viewers/{profileId}/character",
   "portable": true
 }
 ```
@@ -122,7 +137,8 @@ Surface entries point at canonical presentation:
   "surfaceId": "streampixels.creator.console",
   "schema": "gamecult.eve.surface.v1",
   "transport": "cultmesh-document",
-  "key": "cultmesh://streampixels/creators/{creatorId}/surface",
+  "address": "asgard.yggdrasil.streampixels/creators/{creatorId}/eve/gui",
+  "tuiAddress": "asgard.yggdrasil.streampixels/creators/{creatorId}/eve/tui",
   "audience": "creator",
   "mode": "interactive",
   "styleProfile": "streampixels.product",
@@ -143,6 +159,20 @@ Compatibility endpoints can be listed, but they are lowerings:
   "url": "https://streampixels.gamecult.org/admin",
   "canonical": false,
   "canonicalSurfaceId": "streampixels.creator.console"
+}
+```
+
+Transport routes are separate from service identity:
+
+```json
+{
+  "kind": "cultnet",
+  "address": "cultnet://10.77.0.4:3075",
+  "carries": [
+    "asgard.yggdrasil.streampixels/eve/tui",
+    "asgard.yggdrasil.streampixels/eve/gui"
+  ],
+  "note": "CultNet reliable UDP route for this located service."
 }
 ```
 
