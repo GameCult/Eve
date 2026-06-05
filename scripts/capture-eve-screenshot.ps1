@@ -1,12 +1,17 @@
 param(
   [string] $Target = "eve",
-  [string] $OutputDirectory = "artifacts\screenshots"
+  [string] $OutputDirectory = "artifacts\screenshots",
+  [string] $BundleId = "org.gamecult.evecanvas"
 )
 
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$outputRoot = Join-Path $projectRoot $OutputDirectory
+$outputRoot = if ([System.IO.Path]::IsPathRooted($OutputDirectory)) {
+  $OutputDirectory
+} else {
+  Join-Path $projectRoot $OutputDirectory
+}
 New-Item -ItemType Directory -Force -Path $outputRoot | Out-Null
 
 $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
@@ -15,6 +20,8 @@ $remoteDir = "/var/mobile/Library/EveCanvas"
 $remotePath = "$remoteDir/latest-screenshot.png"
 $requestPath = "$remoteDir/capture-request"
 
+ssh $Target "uiopen --bundleid '$BundleId' >/dev/null 2>&1 || true"
+Start-Sleep -Seconds 1
 ssh $Target "mkdir -p '$remoteDir' && chown mobile:mobile '$remoteDir' && rm -f '$remotePath' '$requestPath' && touch '$requestPath' && chown mobile:mobile '$requestPath' 2>/dev/null || true"
 
 $deadline = (Get-Date).AddSeconds(10)

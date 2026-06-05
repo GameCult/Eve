@@ -107,7 +107,10 @@ async function bootProviders() {
     option.textContent = provider.title || provider.providerId;
     return option;
   }));
-  const firstProduct = providers.find(provider => provider.providerId === "repixelizer") || providers[0];
+  const requestedProviderId = new URLSearchParams(location.search).get("provider");
+  const firstProduct = providers.find(provider => provider.providerId === requestedProviderId)
+    || providers.find(provider => provider.providerId === "repixelizer")
+    || providers[0];
   providerSelect.value = firstProduct.providerId;
   await openProvider(firstProduct);
 }
@@ -725,10 +728,10 @@ function renderVoidBot(state) {
   }
 
   const left = el("section", "pane");
-  left.append(el("h2", "", "Controls / Selected Face"));
+  left.append(el("h2", "", "Controls / Selected Persona"));
   left.append(el("div", "detail", `${summary?.label || "VoidBot Swarm"}\n${summary?.detail || ""}`));
   left.append(metricStack());
-  left.append(el("div", "detail", agent?.detail || "No selected Face detail."));
+  left.append(el("div", "detail", agent?.detail || "No selected Persona detail."));
 
   const middle = el("section", "pane");
   middle.append(el("h2", "", "State Graph"));

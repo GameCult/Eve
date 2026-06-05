@@ -247,3 +247,8 @@ The web reference remains the fastest behavior/debug oracle. Flutter should
 become the preferred graphical parity oracle if it proves the CultUI Inspector
 and Repixelizer fixtures can stay recognizable across its target platforms with
 less duplicate renderer work.
+
+The first shared harness is documented in
+[parity-testing-harness.md](./parity-testing-harness.md). It currently checks
+semantic fixture parity and records runtime capture gaps; screenshot adapters
+plug into that manifest as each runtime becomes capture-capable.

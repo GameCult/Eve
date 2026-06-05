@@ -2,6 +2,7 @@
 packages/
 obj/
 artifacts/
+tools/deps/
 *.deb
 *.ipa
 *.dSYM/
