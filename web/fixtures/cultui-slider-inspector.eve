@@ -1,0 +1,28 @@
+# CultUI partition and element-anatomy fixture.
+# The slider face is specified here; the browser only lowers it.
+
+surface eve.cultui.inspector "CultUI Inspector"
+version 1
+
+var tester.fov 38
+var tester.throttleDecay 5
+var tester.flowSpeed 2
+
+skin inspector.orangeSlider for slider
+	box height 18 overflow visible
+	part track anchor center size 100% 6 radius 2 fill color.panelInset
+	part fill anchor left center size value% 6 radius 2 fill color.accent
+	part thumb anchor value center size 12 12 bleed 3 radius 999 fill color.accent shadow glow color.accent 0.45 radius 7
+	hitArea size 100% 22
+
+partition inspector split y gap 6 padding 10
+	pane field-tester title "Aetheric Field Tester" padding 10
+		partition field-list split y gap 6
+			fieldRow "FOV"
+				slider bind tester.fov min 0 max 120 step 1 skin inspector.orangeSlider
+
+			fieldRow "Throttle Decay"
+				slider bind tester.throttleDecay min 0 max 20 step 0.5 skin inspector.orangeSlider
+
+			fieldRow "Flow Speed"
+				slider bind tester.flowSpeed min 0 max 10 step 0.25 skin inspector.orangeSlider

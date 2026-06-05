@@ -10,6 +10,7 @@ const providerMeta = document.querySelector("#provider-meta");
 let socket;
 let providers = [];
 let currentProvider;
+let currentSurfaceStyles = {};
 
 const defaultStyleTokens = {
   "--bg": "#020909",
@@ -81,6 +82,13 @@ const localProviders = [
     kind: "surface.fixture",
     freshness: { state: "fixture" },
     surfaces: [{ transport: "local-eve-dsl", surfaceId: "eve.reactive.dsl", url: "./fixtures/reactive-composition.eve" }],
+  },
+  {
+    providerId: "eve.cultui.inspector",
+    title: "CultUI Inspector",
+    kind: "surface.fixture",
+    freshness: { state: "fixture" },
+    surfaces: [{ transport: "local-eve-dsl", surfaceId: "eve.cultui.inspector", url: "./fixtures/cultui-slider-inspector.eve" }],
   },
 ];
 
@@ -182,6 +190,7 @@ function closeSocket() {
 
 function renderSurface(state, source) {
   window.__eveCurrentMesh = state.mesh;
+  currentSurfaceStyles = state.surface?.styles || {};
   surfaceId.textContent = state.providerId || "surface unknown";
   surfaceVersion.textContent = `v${state.version ?? "?"}`;
   statusEl.textContent = `${state.title || "surface"} (${source})`;
@@ -253,6 +262,14 @@ function renderCultComponent(node) {
     if (props.columns) grid.style.gridTemplateColumns = props.columns;
     for (const child of children) grid.append(renderCultComponent(child));
     return grid;
+  }
+
+  if (kind === "partition") {
+    const partition = el("section", `cultui-partition split-${props.split || "none"}`);
+    applyBoxProps(partition, props);
+    if (props.role) partition.dataset.role = props.role;
+    for (const child of children) partition.append(renderCultComponent(child));
+    return partition;
   }
 
   if (kind === "image.background") {
@@ -347,7 +364,7 @@ function renderCultComponent(node) {
     return image;
   }
 
-  if (kind === "text.dialogue" || kind === "text" || kind === "text.title") {
+  if (kind === "text.dialogue" || kind === "text" || kind === "text.title" || kind === "label") {
     const text = el("div", textClassName(kind, props), props.text || node.text || "");
     bindText(text, props);
     return text;
@@ -371,6 +388,10 @@ function renderCultComponent(node) {
         : `command ${props.action?.command || "invoke"} ${JSON.stringify(props.action?.payload || {})}`;
     });
     return button;
+  }
+
+  if (kind === "control.slider") {
+    return renderCultSlider(props, children);
   }
 
   if (kind === "inspector.kv") {
@@ -459,12 +480,155 @@ function renderCultList(props) {
   return panel;
 }
 
+function renderCultSlider(props, children) {
+  const anatomy = resolveSliderAnatomy(props, children);
+  const box = anatomy.find(part => part.kind === "control.box")?.props || {};
+  const parts = anatomy.filter(part => part.kind === "control.part");
+  const hitArea = anatomy.find(part => part.kind === "control.hitArea")?.props || {};
+  const min = Number(props.min ?? 0);
+  const max = Number(props.max ?? 1);
+  const step = Number(props.step ?? 0.01);
+  const slider = el("div", "cultui-slider");
+  slider.dataset.skin = props.skin || "default";
+  applyControlBoxProps(slider, box);
+
+  const visual = el("div", "cultui-slider-visual");
+  const input = el("input", "cultui-slider-input");
+  input.type = "range";
+  input.min = String(min);
+  input.max = String(max);
+  input.step = String(step);
+  input.setAttribute("aria-label", props.bind || "slider");
+
+  for (const part of parts) {
+    const partEl = el("span", `cultui-slider-part ${part.props?.name || "part"}`);
+    applySliderPartProps(partEl, part.props || {});
+    visual.append(partEl);
+  }
+
+  if (!parts.some(part => part.props?.name === "track")) visual.append(el("span", "cultui-slider-part track"));
+  if (!parts.some(part => part.props?.name === "fill")) visual.append(el("span", "cultui-slider-part fill"));
+  if (!parts.some(part => part.props?.name === "thumb")) visual.append(el("span", "cultui-slider-part thumb"));
+
+  applyHitAreaProps(input, hitArea);
+  slider.append(visual, input);
+
+  const setVisualValue = (value) => {
+    const number = Number(value ?? min);
+    const bounded = Math.max(min, Math.min(max, Number.isFinite(number) ? number : min));
+    const percent = max === min ? 0 : ((bounded - min) / (max - min)) * 100;
+    input.value = String(bounded);
+    slider.style.setProperty("--cultui-slider-value", `${percent}%`);
+    slider.dataset.value = String(bounded);
+  };
+
+  if (props.bind) {
+    currentMesh()?.var(props.bind).subscribe(setVisualValue);
+    input.addEventListener("input", () => currentMesh()?.var(props.bind).set(Number(input.value)));
+  } else {
+    setVisualValue(props.value ?? min);
+  }
+
+  return slider;
+}
+
+function resolveSliderAnatomy(props, children) {
+  const skin = props.skin ? currentSurfaceStyles.controlSkins?.[props.skin] : undefined;
+  const skinChildren = skin?.children || [];
+  const anatomy = [...skinChildren, ...children];
+  if (anatomy.length) return anatomy;
+  return [
+    { kind: "control.box", props: { height: 18, overflow: "visible" } },
+    { kind: "control.part", props: { name: "track", anchor: "center", size: ["100%", 6], radius: 2, fill: "color.panelInset" } },
+    { kind: "control.part", props: { name: "fill", anchor: ["left", "center"], size: ["value%", 6], radius: 2, fill: "color.accent" } },
+    { kind: "control.part", props: { name: "thumb", anchor: ["value", "center"], size: [12, 12], bleed: 3, radius: 999, fill: "color.accent" } },
+    { kind: "control.hitArea", props: { size: ["100%", 18] } },
+  ];
+}
+
+function applyControlBoxProps(element, props) {
+  if (props.height !== undefined) element.style.minHeight = cssSize(props.height);
+  if (props.width !== undefined) element.style.width = cssSize(props.width);
+  if (props.overflow) element.style.overflow = props.overflow;
+}
+
+function applySliderPartProps(element, props) {
+  const [width, height] = Array.isArray(props.size) ? props.size : [props.size, undefined];
+  if (width !== undefined && width !== "value%") element.style.width = cssSize(width);
+  if (height !== undefined) element.style.height = cssSize(height);
+  if (props.radius !== undefined) element.style.borderRadius = cssSize(props.radius);
+  if (props.fill !== undefined) element.style.background = tokenColor(props.fill);
+  if (props.bleed !== undefined) element.style.setProperty("--part-bleed", cssSize(props.bleed));
+  if (props.shadow) element.style.boxShadow = sliderShadow(props.shadow);
+  const anchor = Array.isArray(props.anchor) ? props.anchor : [props.anchor];
+  if (anchor.includes("value")) element.dataset.anchorValue = "true";
+}
+
+function applyHitAreaProps(element, props) {
+  const [width, height] = Array.isArray(props.size) ? props.size : [props.size, undefined];
+  if (width !== undefined) element.style.width = cssSize(width);
+  if (height !== undefined) element.style.height = cssSize(height);
+}
+
+function applyBoxProps(element, props) {
+  if (props.gap !== undefined) element.style.gap = cssSize(props.gap);
+  if (props.padding !== undefined) element.style.padding = cssSize(props.padding);
+  if (props.size !== undefined) element.style.flex = flexSize(props.size);
+  if (props.min !== undefined) element.style.minWidth = cssSize(props.min);
+  if (props.max !== undefined) element.style.maxWidth = cssSize(props.max);
+  if (props.align !== undefined) element.style.alignItems = alignValue(props.align);
+  if (props.clip === "true" || props.clip === true) element.style.overflow = "hidden";
+  if (props.scroll === "y") element.style.overflowY = "auto";
+  if (props.scroll === "x") element.style.overflowX = "auto";
+}
+
+function flexSize(value) {
+  if (typeof value === "string" && value.endsWith("fr")) {
+    return `${Number(value.slice(0, -2)) || 1} 1 0`;
+  }
+  if (value === "auto" || value === "content") return "0 0 auto";
+  return `0 0 ${cssSize(value)}`;
+}
+
+function cssSize(value) {
+  if (Array.isArray(value)) return value.map(cssSize).join(" ");
+  if (typeof value === "number") return `${value}px`;
+  if (typeof value === "string" && /^-?\d+(\.\d+)?$/.test(value)) return `${value}px`;
+  return String(value ?? "");
+}
+
+function alignValue(value) {
+  if (value === "center") return "center";
+  if (value === "end") return "flex-end";
+  return String(value);
+}
+
+function tokenColor(value) {
+  const map = {
+    "color.accent": "var(--accent)",
+    "color.panelInset": "rgba(0, 0, 0, 0.34)",
+    "color.panel": "var(--panel)",
+    "color.text": "var(--text)",
+  };
+  return map[value] || value;
+}
+
+function sliderShadow(value) {
+  const parts = Array.isArray(value) ? value : [value];
+  if (parts[0] !== "glow") return parts.join(" ");
+  const color = tokenColor(parts[1] || "color.accent");
+  const alpha = Number(parts[2] ?? 0.35);
+  const radius = cssSize(parts[4] ?? parts[3] ?? 6);
+  return `0 0 ${radius} color-mix(in srgb, ${color} ${Math.round(alpha * 100)}%, transparent)`;
+}
+
 function currentMesh() {
   return window.__eveCurrentMesh;
 }
 
 function textClassName(kind, props) {
   if (kind === "text.title" || props.role === "title") return "cultui-title";
+  if (kind === "label") return "cultui-label";
   if (props.role === "mono") return "detail mono";
   return "detail";
 }
