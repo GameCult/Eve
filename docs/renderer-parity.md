@@ -4,24 +4,35 @@ Parity is currently uneven by design. The shared surface contract is forming,
 but the browser reference is the first renderer that can be used as a practical
 comparison oracle.
 
+See [runtime-app-parity-roadmap.md](./runtime-app-parity-roadmap.md) for the
+generic Eve app plan across web, Fensalir Direct2D, iOS/UIKit, and
+Android/Kotlin. Repixelizer is the first style-parity target.
+
 ## Current State
 
 | Renderer | Status | Proof | Gap |
 | --- | --- | --- | --- |
-| Browser | First reference runner | `web/` renders live VoidBot and Fensalir fixture surfaces | Needs visual regression fixtures and command round-trip tests |
-| iOS / EveCanvas | Native proof | Renders Odin's fullscreen interface wall from `surface.root`, generic provider trees, and a custom VoidBot cockpit with avatar images | Needs visual regression fixtures for the native Odin wall |
-| Android / Periwinkle | Device-edge proof | APK builds and shows broker/sensor status | Install blocked until device allows ADB sideload; dashboard rendering is not implemented |
-| Fensalir Direct2D | Documented landing zone | Existing `AquariumUiDocument` and `DirectWriteOverlay` path | Needs adapter from Eve surface document to `AquariumUiDocument` |
+| Web reference | First generic app target | `web/` renders live VoidBot and fixture surfaces | Needs provider picker, Repixelizer fixture, visual regression fixtures, and command round-trip tests |
+| iOS / UIKit | Native proof | Renders Odin's fullscreen interface wall from `surface.root`, generic provider trees, and a custom VoidBot cockpit with avatar images | Needs provider picker, Repixelizer style token lowering, and visual parity fixtures |
+| Android / Kotlin | Device-edge proof | APK builds and shows broker/sensor status | Needs provider picker, full surface tree rendering, style token lowering, asset image lowering, and command controls |
+| Fensalir Direct2D | Documented landing zone | Existing `AquariumUiDocument` and `DirectWriteOverlay` path | Needs adapter from Eve surface document to `AquariumUiDocument` and DirectWrite/Direct2D token lowering |
 | Flutter | Candidate shared native path | Not installed locally | Needs toolchain and client scaffold |
 
 ## Spawned Surfaces
 
-The browser reference runner spawns two surfaces:
+The browser reference runner currently exposes hardcoded fixture/live tabs:
 
 - `VoidBot Live`: connects to Mimir's `/eve/deck` broker and opens
   `voidbot.swarm`.
 - `Fensalir Direct2D`: loads `web/fixtures/fensalir-client-surface.json`, a
   recorded surface describing the Direct2D client lowering path.
+- `Sai VN Surface`: loads `web/fixtures/sai-vn-surface.json`.
+- `Huginn .cc`: compiles `web/fixtures/huginn-cc-surface.eve`.
+- `Reactive DSL`: compiles `web/fixtures/reactive-composition.eve`.
+
+Those tabs are temporary probes. The runtime app target is a provider picker
+fed by `gamecult.eve.provider_advertisement.v1`, with fixtures represented as
+local advertisements.
 
 Start it with:
 
