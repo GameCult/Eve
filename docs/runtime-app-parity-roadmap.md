@@ -3,6 +3,7 @@
 Eve should exist as one generic app per supported runtime:
 
 - Web reference
+- Flutter shared graphical client
 - Fensalir Direct2D / DirectWrite
 - iOS / UIKit
 - Android / Kotlin
@@ -13,11 +14,23 @@ sends commands through the advertised command boundary. The app is the renderer
 and local input edge. It is not the provider and not a product-specific
 dashboard.
 
+Flutter is now the preferred shared graphical client candidate. It does not
+promise byte-identical pixels across every platform, especially around text
+rasterization, antialiasing, GPU backends, and device scale. It does promise a
+much smaller parity problem than rebuilding the same CultUI anatomy in DOM,
+UIKit, Android Views, and Direct2D by hand. The bet is that CultUI owns the UI
+tree, style tokens, and control anatomy, while Flutter lowers that contract once
+for Android, iOS, desktop, and possibly web.
+
 Repixelizer is the first parity target. Its current browser GUI already carries
 the product feel: pixel fonts, dark shell, blue panels, warm pixel accents,
 scanlines, image comparison, upload flow, solver progress, and cleanup tools.
-The Eve app family should make that surface recognizable across web, Direct2D,
-iOS, and Android before expanding into broader product coverage.
+The Eve app family should make that surface recognizable across web, Flutter,
+Direct2D, iOS, and Android before expanding into broader product coverage.
+Recognizable means the fonts are present, spacing/partitioning is coherent,
+colors and panels translate, control anatomy survives, and Repixelizer still
+feels like Repixelizer. It does not mean screenshot bytes match across all text
+engines.
 
 ## Authority Map
 
@@ -43,7 +56,7 @@ Inputs:
 
 Outputs:
 
-- Native rendered UI in each target runtime
+- Rendered UI in each target runtime
 - Provider command documents or advertised command route calls
 - Runtime capability/fidelity diagnostics
 - Optional visual parity snapshots for comparison against the web reference
@@ -53,8 +66,8 @@ Derived State:
 - Selected provider is local Eve app state unless the provider advertises a
   shared selection document.
 - Runtime style objects are derived from `surface.styles.tokens`.
-- Browser CSS variables, UIKit colors/fonts, Android styles, and DirectWrite
-  brushes are lowerings, not portable authority.
+- Browser CSS variables, Flutter theme/drawing objects, UIKit colors/fonts,
+  Android styles, and DirectWrite brushes are lowerings, not portable authority.
 - Visual parity reports are diagnostics, not product truth.
 
 Forbidden Writers:
@@ -113,7 +126,7 @@ Role:
 
 - Canonical behavior oracle.
 - Fastest fixture runner.
-- Visual parity screenshot source.
+- Reference/debug lowering for CultUI authoring, providers, and command flow.
 
 First cuts:
 
@@ -123,6 +136,31 @@ First cuts:
 - Map the full Repixelizer style token set to CSS variables.
 - Add screenshot capture for the Repixelizer first viewport and main app
   workflow states.
+
+### Flutter Shared Graphical Client
+
+Role:
+
+- Preferred cross-platform graphical renderer experiment.
+- Candidate shared body for Android, iOS, desktop, and possibly web.
+- Primary place to prove CultUI partitions, standard controls, control anatomy,
+  and Repixelizer style tokens can be lowered once instead of repeatedly
+  reimplemented per native toolkit.
+
+First cuts:
+
+- Scaffold a generic Eve Flutter app with the same provider picker as web.
+- Load the same local provider advertisements and local fixture surfaces during
+  development.
+- Lower `surface.root` recursively into Flutter widgets/custom painters.
+- Lower CultUI partitions, `fieldRow`, labels, cards, buttons, metrics, and
+  slider anatomy from `control.box`, `control.part`, and `control.hitArea`.
+- Map Repixelizer tokens to Flutter fonts, colors, borders, shadows, image
+  sampling, and panel treatments.
+- Package or load Repixelizer fonts and verify they render on every Flutter
+  target.
+- Emit commands through the same `gamecult.eve.command.v1` shape as web.
+- Capture parity screenshots for the CultUI Inspector and Repixelizer fixtures.
 
 ### Fensalir Direct2D
 
@@ -144,7 +182,8 @@ First cuts:
 
 Role:
 
-- Native multitouch Eve app and sensor edge.
+- Native multitouch Eve app and sensor edge when direct UIKit ownership earns
+  its keep beyond Flutter.
 
 First cuts:
 
@@ -158,7 +197,8 @@ First cuts:
 
 Role:
 
-- Native Kotlin Eve app and Periwinkle device edge.
+- Native Kotlin Eve app and Periwinkle device edge when direct Android
+  ownership earns its keep beyond Flutter.
 
 First cuts:
 
@@ -175,9 +215,12 @@ Repixelizer parity starts with recognizability, not total editor feature
 completion. Each runtime should first prove:
 
 - provider picker can open Repixelizer;
-- title/body fonts preserve the pixel-art profile;
+- title/body fonts are present and preserve the pixel-art profile well enough
+  to be recognizable;
 - background, panel, text, muted text, accent, border, and shadow tokens lower
   visibly;
+- partition structure, padding, gaps, and standard control anatomy lower without
+  runtime-specific reinvention;
 - shell frame, card hierarchy, metrics, and primary action controls match the
   surface structure;
 - image assets render with pixelated sampling;
@@ -200,5 +243,7 @@ Minimum parity verification should cover:
 - screenshot or frame capture for the first viewport where the runtime supports
   it.
 
-The web reference remains the visual oracle until a better cross-runtime
-snapshot harness exists.
+The web reference remains the fastest behavior/debug oracle. Flutter should
+become the preferred graphical parity oracle if it proves the CultUI Inspector
+and Repixelizer fixtures can stay recognizable across its target platforms with
+less duplicate renderer work.
