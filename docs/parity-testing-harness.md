@@ -39,6 +39,13 @@ viewport matrix:
 - `tablet`: 768 x 1024
 - `desktop`: 1280 x 720
 
+Device runtimes also capture native physical panel cases when the platform
+adapter can control orientation without overriding size. Android currently
+emits:
+
+- `native-portrait`: Periwinkle at physical portrait resolution
+- `native-landscape`: Periwinkle at physical landscape resolution
+
 The semantic runner writes:
 
 - `artifacts/parity/latest.md`
@@ -82,8 +89,8 @@ The harness tracks every target runtime:
   `/var/mobile/Library/EveCanvas/capture-request` service. Current iOS capture
   is fixed-device until a simulator or device-resize adapter exists.
 - Android / Kotlin: screenshot target through `adb install`, activity launch,
-  `adb shell wm size`, and `adb exec-out screencap`; the script restores the
-  device size after each viewport.
+  optional `adb shell wm size`, orientation control, and `adb exec-out
+  screencap`; the script restores device size and rotation after each viewport.
 - Windows / Flutter: screenshot target through the Flutter parity golden smoke,
   with phone, tablet, and desktop goldens.
 - Linux / Flutter: requires a Linux runner. A Windows host must fail this

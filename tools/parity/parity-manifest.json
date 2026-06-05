@@ -23,6 +23,16 @@
       "deviceScale": 1
     }
   ],
+  "androidNativeCases": [
+    {
+      "id": "native-portrait",
+      "orientation": "portrait"
+    },
+    {
+      "id": "native-landscape",
+      "orientation": "landscape"
+    }
+  ],
   "fixtures": [
     {
       "id": "cultui-inspector",

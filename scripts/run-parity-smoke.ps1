@@ -12,6 +12,7 @@ $runRoot = Join-Path $projectRoot (Join-Path $OutputDirectory $stamp)
 New-Item -ItemType Directory -Force $runRoot | Out-Null
 $manifest = Get-Content (Join-Path $projectRoot "tools\parity\parity-manifest.json") | ConvertFrom-Json
 $responsiveCases = @($manifest.responsiveCases)
+$androidNativeCases = @($manifest.androidNativeCases)
 
 $results = [ordered]@{
   schema = "gamecult.eve.parity_smoke.v1"
@@ -83,6 +84,14 @@ try {
         -OutputPath (Join-Path $runRoot "android-periwinkle-$($case.id).png") `
         -Width $case.width `
         -Height $case.height `
+        -Orientation $case.orientation
+    }
+  }
+
+  foreach ($case in $androidNativeCases) {
+    Invoke-Capture "android-$($case.id)" {
+      powershell -ExecutionPolicy Bypass -File .\scripts\capture-android-screenshot.ps1 `
+        -OutputPath (Join-Path $runRoot "android-periwinkle-$($case.id).png") `
         -Orientation $case.orientation
     }
   }

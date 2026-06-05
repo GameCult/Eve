@@ -29,20 +29,25 @@ if (-not (Test-Path $absoluteApk)) {
 
 $overrideSize = $Width -gt 0 -and $Height -gt 0
 $overrideRotation = $Orientation -ne "natural"
-$previousAccelerometerRotation = $null
-$previousUserRotation = $null
+$previousWindowUserRotation = $null
+$previousIgnoreOrientationRequest = $null
 try {
   if ($overrideRotation) {
-    $previousAccelerometerRotation = (adb shell settings get system accelerometer_rotation).Trim()
-    $previousUserRotation = (adb shell settings get system user_rotation).Trim()
+    $previousWindowUserRotation = (adb shell cmd window user-rotation).Trim()
+    $previousIgnoreOrientationRequest = (adb shell cmd window get-ignore-orientation-request).Trim()
     $rotation = if ($Orientation -eq "landscape") { "1" } else { "0" }
-    adb shell settings put system accelerometer_rotation 0 | Out-Host
-    adb shell settings put system user_rotation $rotation | Out-Host
+    adb shell cmd window set-ignore-orientation-request true | Out-Host
+    adb shell cmd window user-rotation lock $rotation | Out-Host
+  }
+
+  if ($overrideSize -or $overrideRotation) {
+    adb shell am force-stop $PackageName | Out-Host
   }
 
   if ($overrideSize) {
-    adb shell am force-stop $PackageName | Out-Host
-    adb shell wm size "${Width}x${Height}" | Out-Host
+    $wmWidth = if ($Orientation -eq "landscape") { $Height } else { $Width }
+    $wmHeight = if ($Orientation -eq "landscape") { $Width } else { $Height }
+    adb shell wm size "${wmWidth}x${wmHeight}" | Out-Host
     if ($LASTEXITCODE -ne 0) {
       throw "adb wm size failed with exit code $LASTEXITCODE"
     }
@@ -72,11 +77,15 @@ try {
     adb shell wm size reset | Out-Host
   }
   if ($overrideRotation) {
-    if ($previousAccelerometerRotation -and $previousAccelerometerRotation -ne "null") {
-      adb shell settings put system accelerometer_rotation $previousAccelerometerRotation | Out-Host
+    if ($previousWindowUserRotation -match "^free") {
+      adb shell cmd window user-rotation free | Out-Host
+    } elseif ($previousWindowUserRotation -match "^lock\s+(\d+)") {
+      adb shell cmd window user-rotation lock $Matches[1] | Out-Host
     }
-    if ($previousUserRotation -and $previousUserRotation -ne "null") {
-      adb shell settings put system user_rotation $previousUserRotation | Out-Host
+    if ($previousIgnoreOrientationRequest -match "true") {
+      adb shell cmd window set-ignore-orientation-request true | Out-Host
+    } elseif ($previousIgnoreOrientationRequest -match "false") {
+      adb shell cmd window set-ignore-orientation-request false | Out-Host
     }
   }
 }
