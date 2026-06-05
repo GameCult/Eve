@@ -6,6 +6,8 @@ param(
   [int] $LaunchDelaySeconds = 3,
   [int] $Width = 0,
   [int] $Height = 0,
+  [ValidateSet("portrait", "landscape", "natural")]
+  [string] $Orientation = "natural",
   [switch] $ForceInstall
 )
 
@@ -26,7 +28,18 @@ if (-not (Test-Path $absoluteApk)) {
 }
 
 $overrideSize = $Width -gt 0 -and $Height -gt 0
+$overrideRotation = $Orientation -ne "natural"
+$previousAccelerometerRotation = $null
+$previousUserRotation = $null
 try {
+  if ($overrideRotation) {
+    $previousAccelerometerRotation = (adb shell settings get system accelerometer_rotation).Trim()
+    $previousUserRotation = (adb shell settings get system user_rotation).Trim()
+    $rotation = if ($Orientation -eq "landscape") { "1" } else { "0" }
+    adb shell settings put system accelerometer_rotation 0 | Out-Host
+    adb shell settings put system user_rotation $rotation | Out-Host
+  }
+
   if ($overrideSize) {
     adb shell am force-stop $PackageName | Out-Host
     adb shell wm size "${Width}x${Height}" | Out-Host
@@ -57,6 +70,14 @@ try {
 } finally {
   if ($overrideSize) {
     adb shell wm size reset | Out-Host
+  }
+  if ($overrideRotation) {
+    if ($previousAccelerometerRotation -and $previousAccelerometerRotation -ne "null") {
+      adb shell settings put system accelerometer_rotation $previousAccelerometerRotation | Out-Host
+    }
+    if ($previousUserRotation -and $previousUserRotation -ne "null") {
+      adb shell settings put system user_rotation $previousUserRotation | Out-Host
+    }
   }
 }
 

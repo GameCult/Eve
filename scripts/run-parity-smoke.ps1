@@ -82,7 +82,8 @@ try {
       powershell -ExecutionPolicy Bypass -File .\scripts\capture-android-screenshot.ps1 `
         -OutputPath (Join-Path $runRoot "android-periwinkle-$($case.id).png") `
         -Width $case.width `
-        -Height $case.height
+        -Height $case.height `
+        -Orientation $case.orientation
     }
   }
 
