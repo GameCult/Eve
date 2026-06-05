@@ -139,10 +139,13 @@ Do not turn this into a universal scripting language. If a feature needs
 authority, persistence, or side effects, it belongs behind a provider command or
 CultMesh action, not inside the visual DSL.
 
-The composition surface should preserve CultUI's old ergonomic instinct:
-vertical layout is the base case, with horizontal and grid sugar lowering into
-the same retained tree. Styling is a first-class typed system, not a bag of CSS
-selectors. See [cultui-style-system.md](./cultui-style-system.md).
+The composition surface should preserve CultUI's old reusable-element
+ergonomics without preserving the old Unity construction accident.
+Partitioning is the base case: users can define relative or absolute partitions,
+nest partitions inside partitions, and use helpers such as `fieldRow` only when
+they lower to the same explicit retained tree. Styling is a first-class typed
+system, not a bag of CSS selectors. See
+[cultui-style-system.md](./cultui-style-system.md).
 
 ## Public Context
 

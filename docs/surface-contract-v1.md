@@ -48,9 +48,11 @@ lists, graphs, charts, formulas, and composites into `surface.root`, while
 CultMesh still owns live state identity and providers still own accepted
 commands.
 
-The composition model inherits the useful part of the old Unity CultUI: start
-from a vertical base layout, then use horizontal and grid sugar to complete the
-tree without making every screen feel like manual box bookkeeping. See
+The composition model learns from the old Unity CultUI without preserving its
+construction accident. The useful part was resolver-backed standard elements
+and ergonomic helpers for common UI structures, not vertical-first layout.
+CultUI is now partition-first: surfaces divide named regions into relative or
+absolute partitions, and common helpers lower into that explicit tree. See
 [cultui-style-system.md](./cultui-style-system.md) for the composition and
 styling design target.
 
@@ -82,13 +84,14 @@ Every component has:
 
 Kinds are semantic, not HTML tags. Renderers lower them to native controls:
 
-- `surface`, `stack`, `grid`, `dock`, `panel`, `card`
+- `surface`, `partition`, `stack`, `grid`, `dock`, `panel`, `card`
 - `text`, `text.dialogue`, `avatar`
 - `image.background`, `image.sprite`, `media.stream`
 - `embed.norn`, `embed.tex`, `layer.embedded-surfaces`
 - `graph`, `tree`, `inspector.kv`
 - `rail.actions`, `control.button`, `control.toggle`, `control.slider`,
-  `control.segmented`, `control.color`, `control.select`
+  `control.stepper`, `control.segmented`, `control.color`, `control.select`,
+  `control.input`
 - domain kinds such as `vn.stage` when the provider needs richer semantics.
 
 If a renderer does not know a specialized kind, it should fall back through the

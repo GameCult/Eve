@@ -2,23 +2,27 @@
 
 CultUI is Eve's UI DSL.
 
-The old CultUI was a Unity code-first composition library. Its best idea was
-ergonomic binary composition: start with a vertical base layout, then use
-horizontal and grid sugar to finish the tree without making every screen feel
-like manual box bookkeeping.
+The old CultUI was a Unity code-first composition library. Its useful idea was
+not vertical-first layout. That was an artifact of how the first Unity panel was
+constructed. The useful idea was ergonomic composition through resolver-backed
+standard pieces: `HorizontalGroup`, `Label`, `SliderField`, `InputField`,
+`BoolField`, `ProgressField`, `ButtonField`, and inspector helpers that assemble
+common rows without every caller hand-authoring the parts.
 
-The new CultUI keeps that ergonomic shape, but moves the authority into Eve's
-portable retained surface model. A provider publishes a CultUI tree and style
-state. Eve runtimes lower that tree into browser, Direct2D, UIKit, Android, TUI,
-or future clients. The renderer is not the designer. The stylesheet is not the
-truth.
+The new CultUI keeps that reusable composition instinct, but moves the
+authority into Eve's portable retained surface model. A provider publishes a
+CultUI tree and style state. Eve runtimes lower that tree into browser,
+Direct2D, UIKit, Android, TUI, or future clients. The renderer is not the
+designer. The stylesheet is not the truth.
 
 ## Objectives
 
 - Make composition readable enough to write by hand and structured enough to
   generate from typed providers.
-- Preserve the builder ergonomics of vertical-first composition with horizontal
-  and grid sugar.
+- Make layout a tree of explicit partitions: relative or absolute, nested as
+  deeply as the surface needs, with optional padding.
+- Preserve builder ergonomics by offering standard elements and composition
+  helpers for common structures such as inspector rows.
 - Treat styling as typed provider-owned state, not as hidden renderer CSS.
 - Make cross-runtime lowering boring: tokens, rules, variants, states, and
   capability gaps are explicit.
@@ -42,16 +46,21 @@ lowerings. They are not portable state owners.
 
 ## Composition Model
 
-CultUI's default composition axis is vertical. The common tree should read like
-the shape a person sees:
+CultUI composition is partition-first. A partition owns a rectangular region
+and divides that region among children. The division may be relative or
+absolute. Partitions can contain partitions. Padding is optional. Axis is a
+property of a partition, not a global worldview.
 
 ```cultui
 surface repixelizer.operator
-  pane "Repixelizer hosted demo"
-    text "Force fake pixel art back onto a real grid."
-    h
-      card "Open demo"
-      card "Upload image"
+  partition main split x gap 12
+    pane hero size 1fr padding 12
+      text body "Force fake pixel art back onto a real grid."
+    end
+
+    partition tools size 2fr split y gap 8
+      card open-demo
+      card upload-image
     end
   end
 end
@@ -60,18 +69,124 @@ end
 The structural primitives should stay small:
 
 - `surface`: root of a provider-owned UI surface.
-- `v` / implicit stack: vertical flow.
-- `h`: horizontal flow.
-- `grid`: repeated or dashboard-like layout.
+- `partition`: named region with optional `split`, `size`, `padding`, `gap`,
+  `align`, and `clip` properties.
+- `split x`: horizontal partitioning.
+- `split y`: vertical partitioning.
+- `grid`: repeated or dashboard-like partitioning.
 - `dock`: rails and fixed regions.
 - `pane`: section with stable role and optional title.
 - `card`: repeated or framed unit.
 - `text`, `metric`, `image`, `control.*`, `inspector.*`, `embed.*`: content
   and interaction leaves.
 
-Builder sugar should lower into the same tree every runtime receives. A
-horizontal helper is not a different layout authority; it is a more humane way
-to write a tree.
+Builder sugar should lower into the same partition tree every runtime receives.
+Helpers such as `row`, `column`, `toolbar`, `fieldRow`, and `dashboardGrid` are
+not separate layout authorities; they are humane ways to write partitions.
+
+## Partitions
+
+A partition describes how a parent region is divided:
+
+```json
+{
+  "kind": "partition",
+  "id": "inspector.fields",
+  "props": {
+    "split": "y",
+    "gap": 6,
+    "padding": 8
+  },
+  "children": []
+}
+```
+
+Useful partition properties:
+
+- `split`: `x`, `y`, `grid`, `overlay`, or `none`.
+- `size`: `auto`, `content`, fixed pixels, percentages, viewport units, or
+  relative fractions such as `1fr`, `2fr`.
+- `min`, `max`: constraints for responsive lowering.
+- `padding`: scalar or per-edge inset.
+- `gap`: space between partition children.
+- `align`: cross/main alignment.
+- `clip`: whether overflowing content is clipped, scrollable, or visible.
+- `scroll`: `none`, `x`, `y`, or `both`.
+
+The inspector slider row becomes ordinary nested partitions:
+
+```cultui
+partition inspector split y gap 6
+  partition exposure-row split x gap 8 padding 4
+    partition exposure-label size 12rem
+      label "Exposure"
+    end
+    partition exposure-field size 1fr
+      slider bind camera.exposure min 0 max 1 step 0.01
+    end
+  end
+end
+```
+
+The same structure can be authored through sugar:
+
+```cultui
+fieldRow "Exposure"
+  slider bind camera.exposure min 0 max 1 step 0.01
+end
+```
+
+The sugar is acceptable only because it lowers to the explicit partition tree.
+
+## Standard Elements
+
+CultUI should provide a small standard element set so every document does not
+reinvent the same wheel with new names.
+
+Text and display:
+
+- `label`: short non-editable text, usually naming a field.
+- `text`: body text.
+- `title`: heading text.
+- `value`: read-only formatted bound value.
+- `metric`: numeric value with optional bar/gauge lowering.
+- `progress`: read-only ranged value.
+
+Input and command:
+
+- `button`: command invocation.
+- `toggle`: boolean field.
+- `input.text`: text field.
+- `input.number`: numeric field.
+- `slider`: ranged numeric field.
+- `stepper`: increment/decrement numeric field.
+- `select`: enum/single-choice field.
+- `multiSelect`: flags or multi-choice field.
+- `color`: color picker or color well.
+
+Containers and repeated structures:
+
+- `partition`: explicit region division.
+- `pane`: titled region.
+- `card`: framed item.
+- `foldout`: expandable partition.
+- `list`: repeated items.
+- `tree`: hierarchical state.
+- `inspector.row`: label/control row sugar.
+- `toolbar`: command row/rail sugar.
+
+Media and embedded surfaces:
+
+- `image`: still image with sampling rules.
+- `canvas`: provider-owned drawable/work area.
+- `graph` / `embed.norn`: graph surface.
+- `embed.tex`: TeX/math surface.
+- `media.stream`: live media.
+
+These elements are semantic. A runtime may lower `slider` to an HTML input,
+UIKit `UISlider`, Android `SeekBar`, Direct2D custom control, or TUI command
+row. The portable document remains one standard element, not five renderer
+dialects.
 
 ## Style Model
 
