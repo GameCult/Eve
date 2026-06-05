@@ -128,8 +128,8 @@
       "kind": "requires-linux-runner",
       "expectedPaths": ["flutter/eve_parity/linux", "scripts/capture-flutter-parity.ps1"],
       "capture": {
-        "status": "blocked-on-runner",
-        "note": "Linux screenshot capture must run on a Linux host; Windows must fail this target rather than fake it."
+        "status": "ssh-golden",
+        "note": "Runs the Flutter parity golden smoke on Nightwing over SSH and pulls back phone, tablet, and desktop PNGs."
       }
     },
     {

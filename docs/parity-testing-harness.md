@@ -32,6 +32,13 @@ Hard screenshot smoke:
 powershell -ExecutionPolicy Bypass -File .\scripts\run-parity-smoke.ps1
 ```
 
+Nightwing owns the Linux Flutter capture body. If its user-local Flutter SDK is
+missing, install it first:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\install-nightwing-flutter-sdk.ps1
+```
+
 The smoke expands every resizable renderer across the manifest's responsive
 viewport matrix:
 
@@ -93,8 +100,9 @@ The harness tracks every target runtime:
   screencap`; the script restores device size and rotation after each viewport.
 - Windows / Flutter: screenshot target through the Flutter parity golden smoke,
   with phone, tablet, and desktop goldens.
-- Linux / Flutter: requires a Linux runner. A Windows host must fail this
-  target instead of pretending to be Linux.
+- Linux / Flutter: screenshot target through Nightwing over SSH. The smoke
+  stages `flutter/eve_parity`, runs Flutter goldens on Nightwing, and pulls back
+  phone, tablet, and desktop PNGs.
 - Fensalir Direct2D: specialized native target, adapter/capture still missing.
 
 Pending runtimes are allowed. Silent fake parity is not.
@@ -105,6 +113,7 @@ Pending runtimes are allowed. Silent fake parity is not.
    compiled `gamecult.eve.surface.v1` fixture.
 2. Wire iOS and Android capture to select a manifest fixture before capture,
    instead of only launching the current app body.
-3. Add a Linux runner or WSL/Linux desktop capture body for Flutter.
+3. Replace Flutter golden screenshots with native window captures once the
+   Flutter app body can emit a desktop frame without test harness help.
 4. Add Direct2D frame capture once the Eve-to-`AquariumUiDocument` adapter
    exists.

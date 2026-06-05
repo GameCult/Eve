@@ -1,7 +1,8 @@
 param(
   [string] $ProviderId = "eve.cultui.inspector",
   [string] $OutputDirectory = "artifacts\parity-smoke",
-  [string] $IosSshTarget = "eve"
+  [string] $IosSshTarget = "eve",
+  [string] $LinuxSshTarget = "nightwing"
 )
 
 $ErrorActionPreference = "Stop"
@@ -107,8 +108,8 @@ try {
 
   foreach ($case in $responsiveCases) {
     Invoke-Capture "linux-$($case.id)" {
-      powershell -ExecutionPolicy Bypass -File .\scripts\capture-flutter-parity.ps1 `
-        -Target linux `
+      powershell -ExecutionPolicy Bypass -File .\scripts\capture-linux-flutter-parity.ps1 `
+        -SshTarget $LinuxSshTarget `
         -ViewportId $case.id `
         -OutputPath (Join-Path $runRoot "linux-flutter-cultui-inspector-$($case.id).png")
     }
