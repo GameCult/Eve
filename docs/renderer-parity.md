@@ -12,7 +12,7 @@ Android/Kotlin. Repixelizer is the first style-parity target.
 
 | Renderer | Status | Proof | Gap |
 | --- | --- | --- | --- |
-| Web reference | First generic app target | `web/` renders live VoidBot and fixture surfaces | Needs provider picker, Repixelizer fixture, visual regression fixtures, and command round-trip tests |
+| Web reference | First generic app target | `web/` renders live VoidBot and fixture surfaces through the provider picker | Needs visual regression fixtures and command round-trip tests |
 | iOS / UIKit | Native proof | Renders Odin's fullscreen interface wall from `surface.root`, generic provider trees, and a custom VoidBot cockpit with avatar images | Needs provider picker, Repixelizer style token lowering, and visual parity fixtures |
 | Android / Kotlin | Device-edge proof | APK builds and shows broker/sensor status | Needs provider picker, full surface tree rendering, style token lowering, asset image lowering, and command controls |
 | Fensalir Direct2D | Documented landing zone | Existing `AquariumUiDocument` and `DirectWriteOverlay` path | Needs adapter from Eve surface document to `AquariumUiDocument` and DirectWrite/Direct2D token lowering |
@@ -20,19 +20,22 @@ Android/Kotlin. Repixelizer is the first style-parity target.
 
 ## Spawned Surfaces
 
-The browser reference runner currently exposes hardcoded fixture/live tabs:
+The browser reference runner now exposes local advertisements through the
+provider picker:
 
 - `VoidBot Live`: connects to Mimir's `/eve/deck` broker and opens
   `voidbot.swarm`.
+- `Repixelizer`: loads `web/fixtures/repixelizer.provider-advertisement.json`
+  and `web/fixtures/repixelizer.eve-surface.json`.
 - `Fensalir Direct2D`: loads `web/fixtures/fensalir-client-surface.json`, a
   recorded surface describing the Direct2D client lowering path.
 - `Sai VN Surface`: loads `web/fixtures/sai-vn-surface.json`.
 - `Huginn .cc`: compiles `web/fixtures/huginn-cc-surface.eve`.
 - `Reactive DSL`: compiles `web/fixtures/reactive-composition.eve`.
 
-Those tabs are temporary probes. The runtime app target is a provider picker
-fed by `gamecult.eve.provider_advertisement.v1`, with fixtures represented as
-local advertisements.
+The remaining temporary part is the local provider list itself. The runtime app
+target is the same picker fed by live `gamecult.eve.provider_advertisement.v1`
+documents through CultMesh/Odin.
 
 Start it with:
 

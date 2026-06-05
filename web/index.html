@@ -19,13 +19,11 @@
     </div>
   </header>
 
-  <nav class="tabs">
-    <button id="voidbot-tab" class="active" type="button">VoidBot Live</button>
-    <button id="fensalir-tab" type="button">Fensalir Direct2D</button>
-    <button id="sai-tab" type="button">Sai VN Surface</button>
-    <button id="huginn-tab" type="button">Huginn .cc</button>
-    <button id="dsl-tab" type="button">Reactive DSL</button>
-  </nav>
+  <section class="provider-bar" aria-label="Provider target">
+    <label for="provider-select">Target</label>
+    <select id="provider-select"></select>
+    <div id="provider-meta" class="provider-meta">loading providers</div>
+  </section>
 
   <main id="app" class="surface"></main>
 

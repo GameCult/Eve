@@ -4,57 +4,147 @@ const statusEl = document.querySelector("#status");
 const app = document.querySelector("#app");
 const surfaceId = document.querySelector("#surface-id");
 const surfaceVersion = document.querySelector("#surface-version");
-const voidBotTab = document.querySelector("#voidbot-tab");
-const fensalirTab = document.querySelector("#fensalir-tab");
-const saiTab = document.querySelector("#sai-tab");
-const huginnTab = document.querySelector("#huginn-tab");
-const dslTab = document.querySelector("#dsl-tab");
+const providerSelect = document.querySelector("#provider-select");
+const providerMeta = document.querySelector("#provider-meta");
 
 let socket;
+let providers = [];
+let currentProvider;
 
-voidBotTab.addEventListener("click", () => {
-  setActiveTab(voidBotTab);
-  openVoidBot();
+const defaultStyleTokens = {
+  "--bg": "#020909",
+  "--bg-top": "#020909",
+  "--bg-mid": "#020909",
+  "--bg-bottom": "#020909",
+  "--shell-top": "#010707",
+  "--shell-bottom": "#010707",
+  "--panel": "#071918",
+  "--panel-2": "#0a2423",
+  "--line": "rgba(103, 240, 228, 0.28)",
+  "--line-deep": "rgba(103, 240, 228, 0.18)",
+  "--text": "#e7f1f1",
+  "--text-bright": "#e7f1f1",
+  "--quiet": "#8ba5a3",
+  "--accent": "#ffb84f",
+  "--accent-strong": "#ffb84f",
+  "--corner-accent": "#ffb84f",
+  "--cyan": "#8efcff",
+  "--shadow": "rgba(0, 0, 0, 0.35)",
+  "--pixel-grid": "rgba(142, 252, 255, 0.04)",
+  "--border-width": "1px",
+  "--border-bottom-width": "1px",
+  "--corner-accent-size": "0",
+  "--font-body": "Inter, Segoe UI, system-ui, sans-serif",
+  "--font-title": "Cascadia Mono, Consolas, monospace",
+  "--font-mono": "Cascadia Mono, Consolas, monospace",
+};
+
+const localProviders = [
+  {
+    providerId: "voidbot.swarm",
+    title: "VoidBot Live",
+    kind: "service.operator",
+    freshness: { state: "live" },
+    surfaces: [{ transport: "mimir-eve-deck", surfaceId: "voidbot.swarm" }],
+  },
+  {
+    providerId: "repixelizer",
+    title: "Repixelizer",
+    kind: "service.product",
+    advertisement: "./fixtures/repixelizer.provider-advertisement.json",
+    surfaces: [{ transport: "local-json", surfaceId: "repixelizer.operator.surface", url: "./fixtures/repixelizer.eve-surface.json" }],
+  },
+  {
+    providerId: "fensalir.direct2d",
+    title: "Fensalir Direct2D",
+    kind: "surface.renderer",
+    freshness: { state: "fixture" },
+    surfaces: [{ transport: "local-json", surfaceId: "fensalir.direct2d.fixture", url: "./fixtures/fensalir-client-surface.json" }],
+  },
+  {
+    providerId: "sai.visual_novel",
+    title: "Sai VN Surface",
+    kind: "content.runtime",
+    freshness: { state: "fixture" },
+    surfaces: [{ transport: "local-json", surfaceId: "sai.visual_novel.surface", url: "./fixtures/sai-vn-surface.json" }],
+  },
+  {
+    providerId: "cultcache.huginn.inspector",
+    title: "Huginn .cc",
+    kind: "inspection.huginn",
+    freshness: { state: "fixture" },
+    surfaces: [{ transport: "local-eve-dsl", surfaceId: "cultcache.huginn.inspector", url: "./fixtures/huginn-cc-surface.eve" }],
+  },
+  {
+    providerId: "eve.reactive.dsl",
+    title: "Reactive DSL",
+    kind: "surface.fixture",
+    freshness: { state: "fixture" },
+    surfaces: [{ transport: "local-eve-dsl", surfaceId: "eve.reactive.dsl", url: "./fixtures/reactive-composition.eve" }],
+  },
+];
+
+providerSelect.addEventListener("change", () => {
+  const provider = providers.find(candidate => candidate.providerId === providerSelect.value);
+  if (provider) void openProvider(provider);
 });
 
-fensalirTab.addEventListener("click", async () => {
-  setActiveTab(fensalirTab);
-  closeSocket();
-  const response = await fetch("./fixtures/fensalir-client-surface.json");
-  renderSurface(await response.json(), "fixture");
-});
+void bootProviders();
 
-saiTab.addEventListener("click", async () => {
-  setActiveTab(saiTab);
-  closeSocket();
-  const response = await fetch("./fixtures/sai-vn-surface.json");
-  renderSurface(await response.json(), "fixture");
-});
-
-huginnTab.addEventListener("click", async () => {
-  setActiveTab(huginnTab);
-  closeSocket();
-  const response = await fetch("./fixtures/huginn-cc-surface.eve");
-  renderSurface(compileEveDsl(await response.text()), "dsl");
-});
-
-dslTab.addEventListener("click", async () => {
-  setActiveTab(dslTab);
-  closeSocket();
-  const response = await fetch("./fixtures/reactive-composition.eve");
-  renderSurface(compileEveDsl(await response.text()), "dsl");
-});
-
-openVoidBot();
-
-function setActiveTab(tab) {
-  for (const button of [voidBotTab, fensalirTab, saiTab, huginnTab, dslTab]) {
-    button.classList.toggle("active", button === tab);
-  }
+async function bootProviders() {
+  providers = await Promise.all(localProviders.map(loadProviderAdvertisement));
+  providerSelect.replaceChildren(...providers.map(provider => {
+    const option = document.createElement("option");
+    option.value = provider.providerId;
+    option.textContent = provider.title || provider.providerId;
+    return option;
+  }));
+  const firstProduct = providers.find(provider => provider.providerId === "repixelizer") || providers[0];
+  providerSelect.value = firstProduct.providerId;
+  await openProvider(firstProduct);
 }
 
-function openVoidBot() {
+async function loadProviderAdvertisement(provider) {
+  if (!provider.advertisement) return provider;
+  const response = await fetch(provider.advertisement);
+  const advertisement = await response.json();
+  return {
+    ...advertisement,
+    ...provider,
+    surfaces: provider.surfaces || advertisement.surfaces || [],
+    localAdvertisement: advertisement,
+  };
+}
+
+async function openProvider(provider) {
   closeSocket();
+  currentProvider = provider;
+  providerMeta.textContent = `${provider.kind || "provider"} | ${provider.providerId} | ${provider.freshness?.state || "unknown"}`;
+  surfaceId.textContent = provider.providerId;
+  surfaceVersion.textContent = "opening";
+  const surface = provider.surfaces?.[0];
+  if (!surface) {
+    statusEl.textContent = `${provider.title || provider.providerId} has no advertised surface`;
+    app.replaceChildren(emptyState("No advertised surface"));
+    return;
+  }
+
+  if (surface.transport === "mimir-eve-deck") {
+    openVoidBot(provider);
+    return;
+  }
+
+  if (surface.transport === "local-eve-dsl") {
+    const response = await fetch(surface.url);
+    renderSurface(compileEveDsl(await response.text()), "local dsl");
+    return;
+  }
+
+  const response = await fetch(surface.url);
+  renderSurface(await response.json(), "local fixture");
+}
+
+function openVoidBot(provider) {
   const scheme = location.protocol === "https:" ? "wss:" : "ws:";
   const host = location.hostname || "127.0.0.1";
   const url = `${scheme}//${host}:8795/eve/deck`;
@@ -64,7 +154,7 @@ function openVoidBot() {
   socket.addEventListener("open", () => {
     if (socket !== activeSocket) return;
     statusEl.textContent = "connected to Mimir Eve broker";
-    activeSocket.send(JSON.stringify({ type: "open-provider", providerId: "voidbot.swarm" }));
+    activeSocket.send(JSON.stringify({ type: "open-provider", providerId: provider.providerId }));
   });
   socket.addEventListener("message", event => {
     if (socket !== activeSocket) return;
@@ -96,6 +186,7 @@ function renderSurface(state, source) {
   surfaceVersion.textContent = `v${state.version ?? "?"}`;
   statusEl.textContent = `${state.title || "surface"} (${source})`;
   applySurfaceStyles(state.surface?.styles);
+  document.body.dataset.provider = state.providerId || currentProvider?.providerId || "";
   if (state.surface?.root) {
     app.replaceChildren(renderCultComponent(state.surface.root));
   } else if (state.providerId === "voidbot.swarm") {
@@ -108,20 +199,41 @@ function renderSurface(state, source) {
 function applySurfaceStyles(styles) {
   const tokens = styles?.tokens || {};
   const root = document.documentElement.style;
+  for (const [variable, value] of Object.entries(defaultStyleTokens)) {
+    root.setProperty(variable, value);
+  }
   const map = {
     colorBackground: "--bg",
+    colorBackgroundTop: "--bg-top",
+    colorBackgroundMid: "--bg-mid",
+    colorBackgroundBottom: "--bg-bottom",
+    colorShellSurfaceTop: "--shell-top",
+    colorShellSurfaceBottom: "--shell-bottom",
     colorPanel: "--panel",
     colorPanelAlt: "--panel-2",
+    colorPanelBorder: "--line",
+    colorPanelBorderDeep: "--line-deep",
     colorText: "--text",
+    colorTextBright: "--text-bright",
     colorMuted: "--quiet",
     colorAccent: "--accent",
+    colorAccentStrong: "--accent-strong",
+    colorCornerAccent: "--corner-accent",
     colorLink: "--cyan",
+    colorShadow: "--shadow",
+    colorPixelGrid: "--pixel-grid",
   };
   for (const [token, variable] of Object.entries(map)) {
     if (tokens[token]) root.setProperty(variable, tokens[token]);
   }
   if (tokens.fontBody) root.setProperty("--font-body", tokens.fontBody);
   if (tokens.fontTitle) root.setProperty("--font-title", tokens.fontTitle);
+  if (tokens.fontMono) root.setProperty("--font-mono", tokens.fontMono);
+  if (tokens.borderWidthPx) root.setProperty("--border-width", `${tokens.borderWidthPx}px`);
+  if (tokens.borderBottomWidthPx) root.setProperty("--border-bottom-width", `${tokens.borderBottomWidthPx}px`);
+  if (tokens.cornerAccentPx) root.setProperty("--corner-accent-size", `${tokens.cornerAccentPx}px`);
+  document.body.dataset.pixelArt = tokens.pixelArt || tokens.imageRendering === "pixelated" ? "true" : "false";
+  document.body.dataset.scanlines = tokens.scanlineOverlay ? "true" : "false";
 }
 
 function renderCultComponent(node) {
@@ -187,10 +299,34 @@ function renderCultComponent(node) {
     return card;
   }
 
+  if (kind === "surface") {
+    const surface = el("section", "cultui-surface-root");
+    for (const child of children) surface.append(renderCultComponent(child));
+    return surface;
+  }
+
+  if (kind === "pane" || kind === "panel") {
+    const pane = el("section", "pane cultui-pane");
+    if (props.title || node.text) pane.append(el("h2", "", props.title || node.text));
+    for (const child of children) pane.append(renderCultComponent(child));
+    return pane;
+  }
+
   if (kind === "card") {
     const card = el("article", "card cultui-card");
-    if (props.title) card.append(el("div", "card-title", props.title));
+    if (props.title || node.text) card.append(el("div", "card-title", props.title || node.text));
     for (const child of children) card.append(renderCultComponent(child));
+    if (props.commandId || node.commandId) {
+      card.dataset.commandId = props.commandId || node.commandId;
+      card.tabIndex = 0;
+      card.addEventListener("click", () => publishCommandIntent(card.dataset.commandId, props));
+      card.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          publishCommandIntent(card.dataset.commandId, props);
+        }
+      });
+    }
     return card;
   }
 
@@ -212,7 +348,7 @@ function renderCultComponent(node) {
   }
 
   if (kind === "text.dialogue" || kind === "text" || kind === "text.title") {
-    const text = el("div", kind === "text.title" ? "cultui-title" : "detail", props.text || "");
+    const text = el("div", textClassName(kind, props), props.text || node.text || "");
     bindText(text, props);
     return text;
   }
@@ -325,6 +461,36 @@ function renderCultList(props) {
 
 function currentMesh() {
   return window.__eveCurrentMesh;
+}
+
+function textClassName(kind, props) {
+  if (kind === "text.title" || props.role === "title") return "cultui-title";
+  if (props.role === "mono") return "detail mono";
+  return "detail";
+}
+
+function emptyState(message) {
+  const pane = el("section", "pane");
+  pane.append(el("h2", "", "No Surface"));
+  pane.append(el("div", "detail", message));
+  return pane;
+}
+
+function publishCommandIntent(commandId, props = {}) {
+  const command = {
+    type: "surface-command",
+    schema: "gamecult.eve.command.v1",
+    providerId: currentProvider?.providerId || surfaceId.textContent,
+    surfaceId: currentProvider?.surfaces?.[0]?.surfaceId || surfaceId.textContent,
+    command: commandId || "invoke",
+    payload: {
+      transport: props.transport || null,
+    },
+    issuedAt: new Date().toISOString(),
+    clientId: "browser.reference",
+  };
+  statusEl.textContent = `command ${command.command}`;
+  console.info("Eve command intent", command);
 }
 
 function renderCultGraph(props) {

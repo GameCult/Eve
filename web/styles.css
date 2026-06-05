@@ -1,14 +1,29 @@
 :root {
   color-scheme: dark;
   --bg: #020909;
+  --bg-top: var(--bg);
+  --bg-mid: var(--bg);
+  --bg-bottom: var(--bg);
+  --shell-top: #010707;
+  --shell-bottom: #010707;
   --panel: #071918;
   --panel-2: #0a2423;
   --line: rgba(103, 240, 228, 0.28);
+  --line-deep: rgba(103, 240, 228, 0.18);
   --line-hot: rgba(142, 252, 255, 0.72);
   --text: #e7f1f1;
+  --text-bright: var(--text);
   --quiet: #8ba5a3;
   --accent: #ffb84f;
+  --accent-strong: var(--accent);
+  --corner-accent: var(--accent);
   --cyan: #8efcff;
+  --shadow: rgba(0, 0, 0, 0.35);
+  --pixel-grid: rgba(142, 252, 255, 0.04);
+  --border-width: 1px;
+  --border-bottom-width: var(--border-width);
+  --corner-accent-size: 0;
+  --font-mono: "Cascadia Mono", Consolas, monospace;
 }
 
 * {
@@ -18,7 +33,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--bg);
+  background: linear-gradient(180deg, var(--bg-top), var(--bg-mid), var(--bg-bottom));
   color: var(--text);
   font-family: var(--font-body, Inter), "Segoe UI", system-ui, sans-serif;
 }
@@ -30,7 +45,7 @@ body {
   align-items: center;
   padding: 10px 16px;
   border-bottom: 1px solid var(--line);
-  background: #010707;
+  background: linear-gradient(180deg, var(--shell-top), var(--shell-bottom));
 }
 
 h1 {
@@ -58,25 +73,37 @@ p {
   gap: 2px;
 }
 
-.tabs {
+.provider-bar {
   display: flex;
+  align-items: center;
   gap: 8px;
-  padding: 10px 16px 0;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line-deep);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
 }
 
-.tabs button {
-  border: 1px solid var(--line);
-  border-radius: 6px 6px 0 0;
-  background: var(--panel);
+.provider-bar label {
   color: var(--quiet);
-  padding: 8px 12px;
-  font: 600 13px "Cascadia Mono", Consolas, monospace;
+  font: 700 11px var(--font-mono);
+  text-transform: uppercase;
 }
 
-.tabs button.active {
-  color: var(--cyan);
-  border-color: var(--line-hot);
-  background: var(--panel-2);
+.provider-bar select {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  padding: 8px 12px;
+  font: 700 13px var(--font-mono);
+  min-width: min(28rem, 52vw);
+}
+
+.provider-meta {
+  color: var(--quiet);
+  font: 600 11px var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .surface {
@@ -105,6 +132,7 @@ p {
   border-radius: 6px;
   background: rgba(7, 25, 24, 0.92);
   padding: 12px;
+  box-shadow: 0 12px 26px var(--shadow);
 }
 
 .pane h2 {
@@ -120,6 +148,12 @@ p {
   border-radius: 6px;
   background: rgba(10, 36, 35, 0.96);
   padding: 10px;
+  box-shadow: 0 8px 20px var(--shadow);
+}
+
+.cultui-card[data-command-id] {
+  cursor: pointer;
+  border-bottom-width: var(--border-bottom-width);
 }
 
 .ctb .card {
@@ -140,17 +174,17 @@ p {
 .card-title {
   white-space: pre-line;
   margin-top: 4px;
-  font: 700 11px "Cascadia Mono", Consolas, monospace;
+  font: 700 11px var(--font-mono);
 }
 
 .health {
   color: var(--accent);
-  font: 700 10px "Cascadia Mono", Consolas, monospace;
+  font: 700 10px var(--font-mono);
 }
 
 .detail {
   white-space: pre-wrap;
-  font: 600 12px "Cascadia Mono", Consolas, monospace;
+  font: 600 12px var(--font-mono);
   line-height: 1.45;
 }
 
@@ -169,7 +203,7 @@ p {
   display: flex;
   justify-content: space-between;
   color: var(--quiet);
-  font: 700 10px "Cascadia Mono", Consolas, monospace;
+  font: 700 10px var(--font-mono);
 }
 
 .bar {
@@ -192,8 +226,8 @@ p {
   border: 1px solid var(--line);
   border-radius: 6px;
   background:
-    linear-gradient(rgba(142, 252, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(142, 252, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(var(--pixel-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pixel-grid) 1px, transparent 1px),
     rgba(3, 15, 17, 0.94);
   background-size: 44px 44px;
 }
@@ -242,10 +276,47 @@ p {
   align-content: start;
 }
 
+.cultui-surface-root {
+  min-height: calc(100vh - 150px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  align-content: start;
+}
+
+.cultui-pane {
+  border-width: var(--border-width);
+  border-bottom-width: var(--border-bottom-width);
+}
+
+body[data-provider="repixelizer"] .surface {
+  position: relative;
+}
+
+body[data-provider="repixelizer"] .surface::after {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 4px);
+  opacity: 0.28;
+  mix-blend-mode: screen;
+}
+
+body[data-pixel-art="true"] img,
+body[data-pixel-art="true"] .cultui-background {
+  image-rendering: pixelated;
+}
+
 .cultui-title {
   color: var(--accent);
   font: 700 16px "Cascadia Mono", Consolas, monospace;
   line-height: 1.35;
+}
+
+.mono {
+  color: var(--accent);
+  font-family: var(--font-mono);
 }
 
 .cultui-reactive-metric {
