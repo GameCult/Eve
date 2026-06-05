@@ -22,11 +22,11 @@ current evidence surface for semantic parity and runtime capture gaps.
 
 | Renderer | Status | Proof | Gap |
 | --- | --- | --- | --- |
-| Web reference | Active reference/debug renderer | `web/` renders live VoidBot and fixture surfaces through the provider picker; compiles indentation CultUI; lowers partitions, field rows, and slider anatomy; Chrome headless capture emits PNGs | Needs command round-trip tests |
-| Windows / Flutter | Active shared graphical smoke target | `flutter/eve_parity` renders the CultUI Inspector surface and emits a golden PNG through `capture-flutter-parity.ps1` | Needs lowerer fed by compiled `gamecult.eve.surface.v1` instead of hardcoded inspector widget |
+| Web reference | Active reference/debug renderer | `web/` renders live VoidBot and fixture surfaces through the provider picker; compiles indentation CultUI; lowers partitions, field rows, and slider anatomy; Chrome headless capture emits phone/tablet/desktop PNGs | Needs command round-trip tests |
+| Windows / Flutter | Active shared graphical smoke target | `flutter/eve_parity` renders the CultUI Inspector surface and emits phone/tablet/desktop golden PNGs through `capture-flutter-parity.ps1` | Needs lowerer fed by compiled `gamecult.eve.surface.v1` instead of hardcoded inspector widget |
 | Linux / Flutter | Runner-blocked shared graphical target | Flutter Linux platform scaffold exists | Needs a Linux host/runner to emit a real Linux PNG |
 | iOS / UIKit | Native proof | Renders Odin's fullscreen interface wall from `surface.root`, generic provider trees, and a custom VoidBot cockpit with avatar images; SSH capture emits PNGs | Needs provider picker, Repixelizer style token lowering, and a decision on what UIKit still owns if Flutter covers the shared graphical path |
-| Android / Kotlin | Device-edge proof | APK builds, Periwinkle attaches through adb, and smoke capture emits PNGs | Needs provider picker, full surface tree rendering, style token lowering, asset image lowering, command controls, and a decision on what Kotlin still owns if Flutter covers the shared graphical path |
+| Android / Kotlin | Device-edge proof | APK builds, Periwinkle attaches through adb, and smoke capture emits phone/tablet/desktop PNGs via `adb shell wm size` | Needs provider picker, full surface tree rendering, style token lowering, asset image lowering, command controls, and a decision on what Kotlin still owns if Flutter covers the shared graphical path |
 | Fensalir Direct2D | Specialized native/game-runtime landing zone | Existing `AquariumUiDocument` and `DirectWriteOverlay` path | Needs adapter from Eve surface document to `AquariumUiDocument`, DirectWrite/Direct2D token lowering, and a clear reason to stay separate from Flutter for desktop UI |
 
 ## Spawned Surfaces

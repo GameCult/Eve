@@ -10,6 +10,8 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $runRoot = Join-Path $projectRoot (Join-Path $OutputDirectory $stamp)
 New-Item -ItemType Directory -Force $runRoot | Out-Null
+$manifest = Get-Content (Join-Path $projectRoot "tools\parity\parity-manifest.json") | ConvertFrom-Json
+$responsiveCases = @($manifest.responsiveCases)
 
 $results = [ordered]@{
   schema = "gamecult.eve.parity_smoke.v1"
@@ -59,10 +61,14 @@ try {
     throw "Semantic parity harness failed with exit code $LASTEXITCODE"
   }
 
-  Invoke-Capture "web" {
-    powershell -ExecutionPolicy Bypass -File .\scripts\capture-web-reference.ps1 `
-      -ProviderId $ProviderId `
-      -OutputPath (Join-Path $runRoot "web-$ProviderId.png")
+  foreach ($case in $responsiveCases) {
+    Invoke-Capture "web-$($case.id)" {
+      powershell -ExecutionPolicy Bypass -File .\scripts\capture-web-reference.ps1 `
+        -ProviderId $ProviderId `
+        -OutputPath (Join-Path $runRoot "web-$ProviderId-$($case.id).png") `
+        -Width $case.width `
+        -Height $case.height
+    }
   }
 
   Invoke-Capture "ios" {
@@ -71,21 +77,31 @@ try {
       -OutputDirectory $runRoot
   }
 
-  Invoke-Capture "android" {
-    powershell -ExecutionPolicy Bypass -File .\scripts\capture-android-screenshot.ps1 `
-      -OutputPath (Join-Path $runRoot "android-periwinkle.png")
+  foreach ($case in $responsiveCases) {
+    Invoke-Capture "android-$($case.id)" {
+      powershell -ExecutionPolicy Bypass -File .\scripts\capture-android-screenshot.ps1 `
+        -OutputPath (Join-Path $runRoot "android-periwinkle-$($case.id).png") `
+        -Width $case.width `
+        -Height $case.height
+    }
   }
 
-  Invoke-Capture "windows" {
-    powershell -ExecutionPolicy Bypass -File .\scripts\capture-flutter-parity.ps1 `
-      -Target windows `
-      -OutputPath (Join-Path $runRoot "windows-flutter-cultui-inspector.png")
+  foreach ($case in $responsiveCases) {
+    Invoke-Capture "windows-$($case.id)" {
+      powershell -ExecutionPolicy Bypass -File .\scripts\capture-flutter-parity.ps1 `
+        -Target windows `
+        -ViewportId $case.id `
+        -OutputPath (Join-Path $runRoot "windows-flutter-cultui-inspector-$($case.id).png")
+    }
   }
 
-  Invoke-Capture "linux" {
-    powershell -ExecutionPolicy Bypass -File .\scripts\capture-flutter-parity.ps1 `
-      -Target linux `
-      -OutputPath (Join-Path $runRoot "linux-flutter-cultui-inspector.png")
+  foreach ($case in $responsiveCases) {
+    Invoke-Capture "linux-$($case.id)" {
+      powershell -ExecutionPolicy Bypass -File .\scripts\capture-flutter-parity.ps1 `
+        -Target linux `
+        -ViewportId $case.id `
+        -OutputPath (Join-Path $runRoot "linux-flutter-cultui-inspector-$($case.id).png")
+    }
   }
 
   $jsonPath = Join-Path $runRoot "parity-smoke.json"

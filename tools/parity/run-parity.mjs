@@ -26,6 +26,7 @@ const report = {
   schema: "gamecult.eve.parity_report.v1",
   generatedAt: new Date().toISOString(),
   manifest: path.relative(repoRoot, manifestPath).replaceAll("\\", "/"),
+  responsiveCases: manifest.responsiveCases || [],
   summary: summarize(fixtureResults, runtimeResults),
   fixtures: fixtureResults,
   runtimes: runtimeResults,
@@ -201,11 +202,23 @@ function renderMarkdown(report) {
     `- Fixtures: ${report.summary.passedFixtures}/${report.summary.totalFixtures} passed`,
     `- Runtimes: ${report.summary.activeRuntimes}/${report.summary.totalRuntimes} active`,
     "",
+    "## Responsive Cases",
+    "",
+    "| Case | Size |",
+    "| --- | --- |",
+  ];
+
+  for (const viewport of report.responsiveCases || []) {
+    lines.push(`| ${viewport.id} | ${viewport.width} x ${viewport.height} |`);
+  }
+
+  lines.push(
+    "",
     "## Fixtures",
     "",
     "| Fixture | Status | Provider | Components | Failed Checks |",
     "| --- | --- | --- | ---: | --- |",
-  ];
+  );
 
   for (const fixture of report.fixtures) {
     const failed = fixture.checks.filter(check => !check.pass).map(check => check.id).join(", ") || "";

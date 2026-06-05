@@ -1,6 +1,8 @@
 param(
   [ValidateSet("windows", "linux")]
   [string] $Target = "windows",
+  [ValidateSet("phone", "tablet", "desktop")]
+  [string] $ViewportId = "desktop",
   [string] $OutputPath = "artifacts\parity\flutter-windows-cultui-inspector.png"
 )
 
@@ -30,7 +32,7 @@ try {
   Pop-Location
 }
 
-$golden = Join-Path $flutterRoot "test\goldens\cultui-inspector.png"
+$golden = Join-Path $flutterRoot "test\goldens\cultui-inspector-$ViewportId.png"
 if (-not (Test-Path $golden) -or (Get-Item $golden).Length -le 0) {
   throw "Flutter golden did not produce a PNG: $golden"
 }

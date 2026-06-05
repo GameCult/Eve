@@ -85,7 +85,7 @@ class InspectorSliderRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 34,
+      constraints: const BoxConstraints(minHeight: 34),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -99,24 +99,35 @@ class InspectorSliderRow extends StatelessWidget {
           BoxShadow(color: Color(0x66000000), blurRadius: 8, offset: Offset(0, 2)),
         ],
       ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 190,
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: Color(0xFFFFB84F),
-                fontFamily: 'monospace',
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final labelText = Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFFFFB84F),
+              fontFamily: 'monospace',
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
             ),
-          ),
-          Expanded(
-            child: CultUiSlider(value: value),
-          ),
-        ],
+          );
+          if (constraints.maxWidth < 520) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                labelText,
+                const SizedBox(height: 4),
+                CultUiSlider(value: value),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              SizedBox(width: 190, child: labelText),
+              Expanded(child: CultUiSlider(value: value)),
+            ],
+          );
+        },
       ),
     );
   }

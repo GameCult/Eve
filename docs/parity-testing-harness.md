@@ -32,6 +32,13 @@ Hard screenshot smoke:
 powershell -ExecutionPolicy Bypass -File .\scripts\run-parity-smoke.ps1
 ```
 
+The smoke expands every resizable renderer across the manifest's responsive
+viewport matrix:
+
+- `phone`: 390 x 844
+- `tablet`: 768 x 1024
+- `desktop`: 1280 x 720
+
 The semantic runner writes:
 
 - `artifacts/parity/latest.md`
@@ -57,6 +64,7 @@ The first pass is semantic and fixture-driven:
 - check required style tokens;
 - check required bindings;
 - check retained slider skins and control parts.
+- record the responsive viewport matrix used by screenshot smoke.
 
 This already catches the most embarrassing class of parity lie: a runtime or
 fixture claiming to render CultUI while the retained tree no longer contains
@@ -67,12 +75,17 @@ lower.
 
 The harness tracks every target runtime:
 
-- Web reference: active semantic and screenshot target through Chrome headless.
+- Web reference: active semantic and screenshot target through Chrome headless
+  using the provider query parameter.
+- Web responsive layout: Chrome headless emits phone, tablet, and desktop PNGs.
 - iOS / UIKit: screenshot target through SSH and EveCanvas'
-  `/var/mobile/Library/EveCanvas/capture-request` service.
+  `/var/mobile/Library/EveCanvas/capture-request` service. Current iOS capture
+  is fixed-device until a simulator or device-resize adapter exists.
 - Android / Kotlin: screenshot target through `adb install`, activity launch,
-  and `adb exec-out screencap`.
-- Windows / Flutter: screenshot target through the Flutter parity golden smoke.
+  `adb shell wm size`, and `adb exec-out screencap`; the script restores the
+  device size after each viewport.
+- Windows / Flutter: screenshot target through the Flutter parity golden smoke,
+  with phone, tablet, and desktop goldens.
 - Linux / Flutter: requires a Linux runner. A Windows host must fail this
   target instead of pretending to be Linux.
 - Fensalir Direct2D: specialized native target, adapter/capture still missing.

@@ -392,6 +392,17 @@ p {
   transform: translate(-50%, -50%);
 }
 
+@media (max-width: 520px) {
+  .cultui-partition[data-role="inspector.row"] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cultui-partition[data-role="inspector.label"] {
+    flex: 0 0 auto !important;
+  }
+}
+
 body[data-provider="repixelizer"] .surface {
   position: relative;
 }

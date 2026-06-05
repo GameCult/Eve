@@ -1,5 +1,25 @@
 {
   "schema": "gamecult.eve.parity_manifest.v1",
+  "responsiveCases": [
+    {
+      "id": "phone",
+      "width": 390,
+      "height": 844,
+      "deviceScale": 1
+    },
+    {
+      "id": "tablet",
+      "width": 768,
+      "height": 1024,
+      "deviceScale": 1
+    },
+    {
+      "id": "desktop",
+      "width": 1280,
+      "height": 720,
+      "deviceScale": 1
+    }
+  ],
   "fixtures": [
     {
       "id": "cultui-inspector",
@@ -75,8 +95,8 @@
       "kind": "active",
       "semanticHarness": true,
       "capture": {
-        "status": "manual-or-plugin",
-        "note": "Browser screenshots are currently verified through the in-app browser; a standalone Playwright/CDP runner should plug in here once the repo owns that dependency."
+        "status": "chrome-headless",
+        "note": "Chrome headless captures phone, tablet, and desktop PNGs through the provider query parameter."
       }
     },
     {

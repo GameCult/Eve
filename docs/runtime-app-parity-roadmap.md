@@ -236,6 +236,8 @@ pan/zoom, eyedropper, pencil, and upload parity.
 Minimum parity verification should cover:
 
 - static fixture render for each runtime;
+- responsive fixture render for phone, tablet, and desktop viewports where the
+  runtime can be resized;
 - provider picker selection and re-selection;
 - style token snapshot against the Repixelizer token set;
 - command emission shape for primary controls;
