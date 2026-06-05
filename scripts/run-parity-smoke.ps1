@@ -74,9 +74,19 @@ try {
   }
 
   Invoke-Capture "ios" {
+    $iosFixture = Join-Path $runRoot "ios-current-surface.json"
+    node .\tools\parity\export-fixture.mjs $ProviderId $iosFixture | Out-Host
     powershell -ExecutionPolicy Bypass -File .\scripts\capture-eve-screenshot.ps1 `
       -Target $IosSshTarget `
-      -OutputDirectory $runRoot
+      -OutputDirectory $runRoot `
+      -FixturePath $iosFixture
+  }
+
+  New-Item -ItemType Directory -Force .\android\app\src\main\assets | Out-Null
+  node .\tools\parity\export-fixture.mjs $ProviderId .\android\app\src\main\assets\current-surface.json | Out-Host
+  powershell -ExecutionPolicy Bypass -File .\scripts\build-android.ps1 | Out-Host
+  if ($LASTEXITCODE -ne 0) {
+    throw "Android fixture APK build failed with exit code $LASTEXITCODE"
   }
 
   foreach ($case in $responsiveCases) {
@@ -85,7 +95,9 @@ try {
         -OutputPath (Join-Path $runRoot "android-periwinkle-$($case.id).png") `
         -Width $case.width `
         -Height $case.height `
-        -Orientation $case.orientation
+        -Orientation $case.orientation `
+        -UseFixture `
+        -ForceInstall
     }
   }
 
@@ -93,7 +105,8 @@ try {
     Invoke-Capture "android-$($case.id)" {
       powershell -ExecutionPolicy Bypass -File .\scripts\capture-android-screenshot.ps1 `
         -OutputPath (Join-Path $runRoot "android-periwinkle-$($case.id).png") `
-        -Orientation $case.orientation
+        -Orientation $case.orientation `
+        -UseFixture
     }
   }
 
@@ -101,8 +114,9 @@ try {
     Invoke-Capture "windows-$($case.id)" {
       powershell -ExecutionPolicy Bypass -File .\scripts\capture-flutter-parity.ps1 `
         -Target windows `
+        -FixtureId $ProviderId `
         -ViewportId $case.id `
-        -OutputPath (Join-Path $runRoot "windows-flutter-cultui-inspector-$($case.id).png")
+        -OutputPath (Join-Path $runRoot "windows-flutter-$ProviderId-$($case.id).png")
     }
   }
 
@@ -110,8 +124,9 @@ try {
     Invoke-Capture "linux-$($case.id)" {
       powershell -ExecutionPolicy Bypass -File .\scripts\capture-linux-flutter-parity.ps1 `
         -SshTarget $LinuxSshTarget `
+        -FixtureId $ProviderId `
         -ViewportId $case.id `
-        -OutputPath (Join-Path $runRoot "linux-flutter-cultui-inspector-$($case.id).png")
+        -OutputPath (Join-Path $runRoot "linux-flutter-$ProviderId-$($case.id).png")
     }
   }
 

@@ -131,6 +131,9 @@ export function createCultMeshStore() {
         },
       };
     },
+    snapshot() {
+      return Object.fromEntries([...records.entries()].map(([path, record]) => [path, record.value]));
+    },
     derive(target, operator, sourcePath) {
       const source = this.var(sourcePath);
       const targetVar = this.var(target);

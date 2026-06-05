@@ -3,6 +3,9 @@ packages/
 obj/
 artifacts/
 tools/deps/
+android/app/src/main/assets/current-surface.json
+flutter/eve_parity/assets/current-surface.json
+flutter/eve_parity/assets/fonts/
 *.deb
 *.ipa
 *.dSYM/

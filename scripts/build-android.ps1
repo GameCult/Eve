@@ -94,6 +94,9 @@ if ($kotlinSources.Count -gt 0) {
 }
 Invoke-Checked $jar @("cf", $classesJar, "-C", $classes, ".")
 Invoke-Checked $d8 @("--lib", $androidJar, "--output", $dex, $classesJar, $cultMeshJar, $kotlinStdlib)
+if (Test-Path (Join-Path $androidRoot "src\main\assets")) {
+  Invoke-Checked $jar @("uf", $unsigned, "-C", (Join-Path $androidRoot "src\main"), "assets")
+}
 Invoke-Checked $jar @("uf", $unsigned, "-C", $dex, "classes.dex")
 Invoke-Checked $zipalign @("-f", "4", $unsigned, $aligned)
 

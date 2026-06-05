@@ -109,11 +109,13 @@ Pending runtimes are allowed. Silent fake parity is not.
 
 ## Next Cuts
 
-1. Move the Flutter parity renderer from hardcoded inspector anatomy to the
-   compiled `gamecult.eve.surface.v1` fixture.
-2. Wire iOS and Android capture to select a manifest fixture before capture,
-   instead of only launching the current app body.
-3. Replace Flutter golden screenshots with native window captures once the
+1. Add screenshot comparison metrics that score structure, color tokens,
+   bounding boxes, and text presence without pretending byte-identical pixels
+   are the goal.
+2. Normalize text scale and font loading across web, Flutter, Android, and iOS.
+3. Give iOS a real `vn.stage` scene compositor instead of compact stacked
+   fixture lowering.
+4. Replace Flutter golden screenshots with native window captures once the
    Flutter app body can emit a desktop frame without test harness help.
-4. Add Direct2D frame capture once the Eve-to-`AquariumUiDocument` adapter
+5. Add Direct2D frame capture once the Eve-to-`AquariumUiDocument` adapter
    exists.

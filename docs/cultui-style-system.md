@@ -375,6 +375,33 @@ Runtime lowerers must report capability gaps. If Android cannot yet render
 Repixelizer's pixel-art image preview or cleanup canvas, the surface should say
 that plainly instead of faking a control that cannot carry the command.
 
+### Parity Unit Boundary
+
+CultUI layout values are portable design units. A runtime may map them through
+device scale for normal application rendering, but parity capture must make
+that mapping explicit. The screenshot harness treats responsive web sizes,
+Flutter test surface sizes, Android `wm size` captures, and native panel
+captures as different verification layers.
+
+Renderer defaults are forbidden writers for portable geometry. A runtime can
+choose the local primitive that draws a slider, graph, card, dialogue panel, or
+button, but the portable surface owns:
+
+- component kind;
+- child order;
+- partition split, size, padding, gap, and alignment;
+- style tokens and variants;
+- element anatomy such as slider track/fill/thumb/bleed;
+- embedded surface identity such as `embed.norn` or `embed.tex`;
+- command identity and payload shape.
+
+The current parity harness exposes this boundary with five fixtures:
+CultUI Inspector, Repixelizer, Sai VN, Reactive DSL, and Huginn `.cc`. The
+current screenshot body emits web, Windows Flutter, Linux Flutter on Nightwing,
+iOS/UIKit, and Android/Kotlin captures. Fensalir Direct2D remains a named
+pending target until the Eve-to-`AquariumUiDocument` adapter and Direct2D frame
+capture exist.
+
 ## Style Patches
 
 Style controls emit `style.patch`. The provider accepts, rejects, or reconciles

@@ -1,7 +1,8 @@
 param(
   [string] $Target = "eve",
   [string] $OutputDirectory = "artifacts\screenshots",
-  [string] $BundleId = "org.gamecult.evecanvas"
+  [string] $BundleId = "org.gamecult.evecanvas",
+  [string] $FixturePath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -19,10 +20,17 @@ $localPath = Join-Path $outputRoot "eve-$stamp.png"
 $remoteDir = "/var/mobile/Library/EveCanvas"
 $remotePath = "$remoteDir/latest-screenshot.png"
 $requestPath = "$remoteDir/capture-request"
+$remoteFixturePath = "$remoteDir/current-surface.json"
 
 ssh $Target "uiopen --bundleid '$BundleId' >/dev/null 2>&1 || true"
 Start-Sleep -Seconds 1
-ssh $Target "mkdir -p '$remoteDir' && chown mobile:mobile '$remoteDir' && rm -f '$remotePath' '$requestPath' && touch '$requestPath' && chown mobile:mobile '$requestPath' 2>/dev/null || true"
+ssh $Target "mkdir -p '$remoteDir' && chown mobile:mobile '$remoteDir' && rm -f '$remotePath' '$requestPath' && chown mobile:mobile '$remoteDir' 2>/dev/null || true"
+if ($FixturePath) {
+  scp $FixturePath "${Target}:$remoteFixturePath" | Out-Host
+} else {
+  ssh $Target "rm -f '$remoteFixturePath'"
+}
+ssh $Target "touch '$requestPath' && chown mobile:mobile '$requestPath' 2>/dev/null || true"
 
 $deadline = (Get-Date).AddSeconds(10)
 do {

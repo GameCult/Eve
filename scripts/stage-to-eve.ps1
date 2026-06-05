@@ -15,6 +15,13 @@ if (Test-Path $archive) {
 tar `
   --exclude=.git `
   --exclude=.theos `
+  --exclude=android `
+  --exclude=artifacts `
+  --exclude=docs `
+  --exclude=flutter `
+  --exclude=tools `
+  --exclude=web `
+  --exclude=.voidbot `
   --exclude=packages `
   -cf $archive `
   -C $projectRoot .

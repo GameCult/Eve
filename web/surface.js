@@ -64,6 +64,7 @@ const localProviders = [
   },
   {
     providerId: "sai.visual_novel",
+    aliases: ["gamecult.home.vn", "sai-vn"],
     title: "Sai VN Surface",
     kind: "content.runtime",
     freshness: { state: "fixture" },
@@ -108,7 +109,7 @@ async function bootProviders() {
     return option;
   }));
   const requestedProviderId = new URLSearchParams(location.search).get("provider");
-  const firstProduct = providers.find(provider => provider.providerId === requestedProviderId)
+  const firstProduct = providers.find(provider => provider.providerId === requestedProviderId || provider.aliases?.includes(requestedProviderId))
     || providers.find(provider => provider.providerId === "repixelizer")
     || providers[0];
   providerSelect.value = firstProduct.providerId;

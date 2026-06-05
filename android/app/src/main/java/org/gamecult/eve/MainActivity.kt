@@ -2,9 +2,13 @@ package org.gamecult.eve
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ImageFormat
+import android.graphics.Paint
+import android.graphics.RectF
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -26,6 +30,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.ScrollView
@@ -45,6 +50,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import java.util.concurrent.Executors
+import org.json.JSONObject
 
 class MainActivity : Activity(), SensorEventListener {
     private val mesh = CultMeshNode()
@@ -79,12 +85,239 @@ class MainActivity : Activity(), SensorEventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (intent.getBooleanExtra("org.gamecult.eve.PARITY_FIXTURE", false)) {
+            setContentView(buildParityFixtureUi())
+            return
+        }
         sensorManager = getSystemService(SENSOR_SERVICE) as? SensorManager
         setContentView(buildUi())
         startSensors()
         connectDashboard()
         connectSensorUplink()
         requestMediaPermissionsAndStart()
+    }
+
+    private fun buildParityFixtureUi(): ScrollView {
+        val raw = assets.open("current-surface.json").bufferedReader().use { it.readText() }
+        val state = JSONObject(raw)
+        val values = state.optJSONObject("values") ?: JSONObject()
+        val surface = state.getJSONObject("surface")
+        val styles = surface.optJSONObject("styles") ?: JSONObject()
+        val tokens = styles.optJSONObject("tokens") ?: JSONObject()
+        val rootNode = surface.getJSONObject("root")
+        val scroll = ScrollView(this).apply {
+            isFillViewport = true
+            setBackgroundColor(tokenColor(tokens, "colorBackground", Color.rgb(2, 9, 9)))
+        }
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(16), dp(16), dp(16))
+        }
+        scroll.addView(root, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        root.addView(renderCultUiNode(rootNode, values, tokens))
+        return scroll
+    }
+
+    private fun renderCultUiNode(node: JSONObject, values: JSONObject, tokens: JSONObject): View {
+        val kind = node.optString("kind", "panel")
+        val props = node.optJSONObject("props") ?: JSONObject()
+        val children = node.optJSONArray("children")
+        return when (kind) {
+            "vn.stage" -> FrameLayout(this).apply {
+                setBackgroundColor(tokenColor(tokens, "colorBackground", Color.rgb(5, 8, 13)))
+                val visibleAxis = minOf(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels)
+                val height = visibleAxis - 48
+                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height.coerceAtLeast(520))
+                val dialogue = findChild(children, "panel.dialogue")
+                val actions = findChild(children, "rail.actions")
+                forEachChild(children) { child ->
+                    val childKind = child.optString("kind", "")
+                    if (childKind == "panel.dialogue" || childKind == "rail.actions") return@forEachChild
+                    val view = renderCultUiNode(child, values, tokens)
+                    val params = stageParams(child)
+                    addView(view, params)
+                }
+                if (dialogue != null) {
+                    val params = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
+                    params.setMargins(24, 24, 24, if (actions == null) 24 else 92)
+                    addView(renderCultUiNode(dialogue, values, tokens), params)
+                }
+                if (actions != null) {
+                    val params = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM)
+                    params.setMargins(24, 0, 24, 24)
+                    addView(renderCultUiNode(actions, values, tokens), params)
+                }
+            }
+            "image.background" -> StageBackgroundView(this, props.optString("label", "Scene"), tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt())).apply {
+                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            }
+            "embed.norn" -> NornGraphView(this, props.optJSONObject("graph") ?: JSONObject(), tokens).apply {
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(Color.argb(210, 5, 18, 17))
+                    setStroke(dp(1), tokenColor(tokens, "colorPanelBorder", Color.argb(110, 103, 240, 228)))
+                    cornerRadius = dp(6).toFloat()
+                }
+            }
+            "embed.tex" -> LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(10), dp(10), dp(10), dp(10))
+                background = panelBackground(tokens, 6)
+                val labelText = props.optString("label", "")
+                if (labelText.isNotBlank()) addView(label(labelText.uppercase(Locale.US), 11f, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()), true))
+                addView(label(props.optString("source", ""), 17f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), false))
+            }
+            "panel.dialogue" -> LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(18), dp(18), dp(18), dp(18))
+                background = panelBackground(tokens, 8)
+                addView(label(props.optString("speaker", ""), 15f, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()), true))
+                addView(label(props.optString("text", ""), 20f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), false))
+            }
+            "rail.actions" -> LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                forEachChild(children) { child ->
+                    addView(renderCultUiNode(child, values, tokens), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                }
+            }
+            "layer.embedded-surfaces", "layer.cards" -> FrameLayout(this).apply {
+                forEachChild(children) { child ->
+                    addView(renderCultUiNode(child, values, tokens), stageParams(child))
+                }
+            }
+            "control.button" -> label(props.optString("label", ""), 14f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), true).apply {
+                gravity = Gravity.CENTER
+                setPadding(dp(14), dp(12), dp(14), dp(12))
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(Color.argb(44, 255, 138, 42))
+                    setStroke(dp(1), tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()))
+                    cornerRadius = dp(6).toFloat()
+                }
+            }
+            "surface" -> LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                forEachChild(children) { addView(renderCultUiNode(it, values, tokens)) }
+            }
+            "partition" -> LinearLayout(this).apply {
+                if (props.optString("role", "") == "inspector.row") {
+                    orientation = LinearLayout.HORIZONTAL
+                    setPadding(dp(8), dp(4), dp(8), dp(4))
+                    background = android.graphics.drawable.GradientDrawable(
+                        android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                        intArrayOf(Color.rgb(32, 31, 43), Color.rgb(19, 20, 29))).apply {
+                        setStroke(dp(1), Color.argb(16, 255, 255, 255))
+                        cornerRadius = dp(4).toFloat()
+                    }
+                    val labelNode = children?.optJSONObject(0)
+                    val fieldNode = children?.optJSONObject(1)
+                    if (labelNode != null) {
+                        addView(renderCultUiNode(labelNode, values, tokens), LinearLayout.LayoutParams(dp(190), ViewGroup.LayoutParams.WRAP_CONTENT))
+                    }
+                    if (fieldNode != null) {
+                        addView(renderCultUiNode(fieldNode, values, tokens), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+                    }
+                    return@apply
+                }
+                orientation = if (props.optString("split", "y") == "x") LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
+                setPadding(dp(props.optInt("padding", 0)), dp(props.optInt("padding", 0)), dp(props.optInt("padding", 0)), dp(props.optInt("padding", 0)))
+                forEachChild(children) { child ->
+                    val view = renderCultUiNode(child, values, tokens)
+                    val params = LinearLayout.LayoutParams(
+                        if (orientation == LinearLayout.HORIZONTAL) 0 else ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        if (orientation == LinearLayout.HORIZONTAL) 1f else 0f)
+                    val gap = dp(props.optInt("gap", 0))
+                    params.setMargins(0, 0, if (orientation == LinearLayout.HORIZONTAL) gap else 0, if (orientation == LinearLayout.VERTICAL) gap else 0)
+                    addView(view, params)
+                }
+            }
+            "pane", "panel" -> LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(props.optInt("padding", 12)), dp(props.optInt("padding", 12)), dp(props.optInt("padding", 12)), dp(props.optInt("padding", 12)))
+                setBackgroundColor(tokenColor(tokens, "colorPanel", Color.rgb(7, 25, 24)))
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(tokenColor(tokens, "colorPanel", Color.rgb(7, 25, 24)))
+                    setStroke(dp(1), Color.argb(110, 103, 240, 228))
+                    cornerRadius = dp(6).toFloat()
+                }
+                val title = props.optString("title", "")
+                if (title.isNotBlank()) addView(label(title.uppercase(Locale.US), 12f, tokenColor(tokens, "colorMuted", 0xff8ba5a3.toInt()), true))
+                forEachChild(children) { addView(renderCultUiNode(it, values, tokens)) }
+            }
+            "card", "card.external" -> LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(10), dp(10), dp(10), dp(10))
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(tokenColor(tokens, "colorPanelAlt", Color.rgb(19, 20, 29)))
+                    setStroke(dp(1), Color.argb(24, 255, 255, 255))
+                    cornerRadius = dp(4).toFloat()
+                }
+                val title = props.optString("title", "")
+                if (title.isNotBlank()) addView(label(title, 14f, tokenColor(tokens, "colorText", 0xffe7f1f1.toInt()), true))
+                forEachChild(children) { addView(renderCultUiNode(it, values, tokens)) }
+            }
+            "label", "text", "text.title", "text.dialogue" -> {
+                val bind = props.optString("bind", "")
+                val text = if (bind.isNotBlank()) values.opt(bind)?.toString() ?: "" else props.optString("text", "")
+                label(if (kind == "label") text.uppercase(Locale.US) else text, if (kind == "text.title") 18f else 13f, if (kind == "label") tokenColor(tokens, "colorAccent", 0xffffb84f.toInt()) else tokenColor(tokens, "colorText", 0xffe7f1f1.toInt()), kind == "label")
+            }
+            "control.slider" -> CultSliderView(this, sliderValue(props, values), tokenColor(tokens, "colorAccent", 0xffffb84f.toInt())).apply {
+                layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(24))
+            }
+            else -> LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                forEachChild(children) { addView(renderCultUiNode(it, values, tokens)) }
+            }
+        }
+    }
+
+    private fun stageParams(node: JSONObject): FrameLayout.LayoutParams {
+        val kind = node.optString("kind", "")
+        val props = node.optJSONObject("props") ?: JSONObject()
+        val placement = props.optJSONObject("placement")
+        val anchor = placement?.optString("anchor", "") ?: ""
+        return when {
+            kind == "image.background" -> FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            kind == "embed.norn" || anchor == "whiteboard" -> FrameLayout.LayoutParams(520, 310).apply { setMargins(54, 46, 0, 0) }
+            kind == "embed.tex" || anchor == "whiteboard-equation" -> FrameLayout.LayoutParams(500, 94).apply { setMargins(96, 350, 0, 0) }
+            kind.startsWith("layer.") -> FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            else -> FrameLayout.LayoutParams(300, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP or Gravity.RIGHT).apply { setMargins(0, 52, 32, 0) }
+        }
+    }
+
+    private fun findChild(children: org.json.JSONArray?, kind: String): JSONObject? {
+        if (children == null) return null
+        for (index in 0 until children.length()) {
+            val child = children.getJSONObject(index)
+            if (child.optString("kind", "") == kind) return child
+        }
+        return null
+    }
+
+    private fun panelBackground(tokens: JSONObject, radius: Int): android.graphics.drawable.GradientDrawable {
+        return android.graphics.drawable.GradientDrawable().apply {
+            setColor(tokenColor(tokens, "colorPanel", Color.rgb(7, 25, 24)))
+            setStroke(dp(1), Color.argb(110, 103, 240, 228))
+            cornerRadius = dp(radius).toFloat()
+        }
+    }
+
+    private fun forEachChild(children: org.json.JSONArray?, block: (JSONObject) -> Unit) {
+        if (children == null) return
+        for (index in 0 until children.length()) block(children.getJSONObject(index))
+    }
+
+    private fun sliderValue(props: JSONObject, values: JSONObject): Double {
+        val min = props.optDouble("min", 0.0)
+        val max = props.optDouble("max", 1.0)
+        val bind = props.optString("bind", "")
+        val value = if (bind.isNotBlank()) values.optDouble(bind, min) else props.optDouble("value", min)
+        return if (max == min) 0.0 else ((value - min) / (max - min)).coerceIn(0.0, 1.0)
+    }
+
+    private fun tokenColor(tokens: JSONObject, name: String, fallback: Int): Int {
+        val value = tokens.optString(name, "")
+        if (!value.startsWith("#") || value.length != 7) return fallback
+        return Color.rgb(value.substring(1, 3).toInt(16), value.substring(3, 5).toInt(16), value.substring(5, 7).toInt(16))
     }
 
     override fun onDestroy() {
@@ -621,4 +854,131 @@ class MainActivity : Activity(), SensorEventListener {
         SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }.format(Date())
+}
+
+private class CultSliderView(
+    context: Context,
+    private val value: Double,
+    private val accent: Int,
+) : View(context) {
+    private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.argb(87, 0, 0, 0) }
+    private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = accent }
+    private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(115, Color.red(accent), Color.green(accent), Color.blue(accent))
+        maskFilter = android.graphics.BlurMaskFilter(7f, android.graphics.BlurMaskFilter.Blur.NORMAL)
+    }
+    private val thumbPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = accent }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val desiredHeight = (24f * resources.displayMetrics.density + 0.5f).toInt()
+        val width = MeasureSpec.getSize(widthMeasureSpec)
+        val height = resolveSize(desiredHeight, heightMeasureSpec)
+        setMeasuredDimension(width, height)
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        val centerY = height / 2f
+        val left = paddingLeft.toFloat()
+        val right = (width - paddingRight).toFloat()
+        val track = RectF(left, centerY - 3f, right, centerY + 3f)
+        val fillRight = left + ((right - left) * value).toFloat()
+        val fill = RectF(left, centerY - 3f, fillRight, centerY + 3f)
+        canvas.drawRoundRect(track, 2f, 2f, trackPaint)
+        canvas.drawRoundRect(fill, 2f, 2f, fillPaint)
+        canvas.drawCircle(fillRight, centerY, 10f, glowPaint)
+        canvas.drawCircle(fillRight, centerY, 6f, thumbPaint)
+    }
+}
+
+private class StageBackgroundView(
+    context: Context,
+    private val sceneLabel: String,
+    private val accent: Int
+) : View(context) {
+    private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(5, 8, 13) }
+    private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(28, Color.red(accent), Color.green(accent), Color.blue(accent))
+        strokeWidth = 1f
+    }
+    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.rgb(183, 199, 217)
+        textSize = 14f * resources.displayMetrics.scaledDensity
+        typeface = android.graphics.Typeface.DEFAULT_BOLD
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
+        val step = 32f * resources.displayMetrics.density
+        var x = 0f
+        while (x < width) {
+            canvas.drawLine(x, 0f, x, height.toFloat(), gridPaint)
+            x += step
+        }
+        var y = 0f
+        while (y < height) {
+            canvas.drawLine(0f, y, width.toFloat(), y, gridPaint)
+            y += step
+        }
+        canvas.drawText(sceneLabel, 28f * resources.displayMetrics.density, 36f * resources.displayMetrics.density, textPaint)
+    }
+}
+
+private class NornGraphView(
+    context: Context,
+    private val graph: JSONObject,
+    private val tokens: JSONObject
+) : View(context) {
+    private val density = resources.displayMetrics.density
+    private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = colorToken("colorText", Color.rgb(246, 241, 226))
+        textSize = 13f * resources.displayMetrics.scaledDensity
+        textAlign = Paint.Align.CENTER
+        typeface = android.graphics.Typeface.DEFAULT_BOLD
+    }
+    private val edgePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(120, 183, 199, 217)
+        strokeWidth = 2f * density
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        val nodes = graph.optJSONArray("nodes") ?: return
+        val edges = graph.optJSONArray("edges")
+        val points = mutableMapOf<String, android.graphics.PointF>()
+        for (index in 0 until nodes.length()) {
+            val node = nodes.getJSONObject(index)
+            val id = node.optString("id", "")
+            points[id] = android.graphics.PointF((node.optDouble("x", 0.5) * width).toFloat(), (node.optDouble("y", 0.5) * height).toFloat())
+        }
+        if (edges != null) {
+            for (index in 0 until edges.length()) {
+                val edge = edges.getJSONObject(index)
+                val source = points[edge.optString("source", "")]
+                val target = points[edge.optString("target", "")]
+                if (source != null && target != null) canvas.drawLine(source.x, source.y, target.x, target.y, edgePaint)
+            }
+        }
+        val nodePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = 2f * density
+        }
+        for (index in 0 until nodes.length()) {
+            val node = nodes.getJSONObject(index)
+            val point = points[node.optString("id", "")] ?: continue
+            val current = node.optBoolean("current", false)
+            nodePaint.color = if (current) colorToken("colorAccent", Color.rgb(255, 138, 42)) else Color.rgb(20, 20, 29)
+            strokePaint.color = if (current) colorToken("colorAccent", Color.rgb(255, 138, 42)) else Color.argb(140, 103, 240, 228)
+            val radius = (if (current) 24f else 20f) * density
+            canvas.drawCircle(point.x, point.y, radius, nodePaint)
+            canvas.drawCircle(point.x, point.y, radius, strokePaint)
+            canvas.drawText(node.optString("label", node.optString("id", "")), point.x, point.y + radius + 20f * density, textPaint)
+        }
+    }
+
+    private fun colorToken(name: String, fallback: Int): Int {
+        val value = tokens.optString(name, "")
+        if (!value.startsWith("#") || value.length != 7) return fallback
+        return Color.rgb(value.substring(1, 3).toInt(16), value.substring(3, 5).toInt(16), value.substring(5, 7).toInt(16))
+    }
 }

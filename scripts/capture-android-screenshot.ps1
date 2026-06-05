@@ -8,6 +8,7 @@ param(
   [int] $Height = 0,
   [ValidateSet("portrait", "landscape", "natural")]
   [string] $Orientation = "natural",
+  [switch] $UseFixture,
   [switch] $ForceInstall
 )
 
@@ -61,7 +62,11 @@ try {
     }
   }
 
-  adb shell am start -n "$PackageName/$ActivityName" | Out-Host
+  $launchArgs = @("shell", "am", "start", "-n", "$PackageName/$ActivityName")
+  if ($UseFixture) {
+    $launchArgs += @("--ez", "org.gamecult.eve.PARITY_FIXTURE", "true")
+  }
+  adb @launchArgs | Out-Host
   if ($LASTEXITCODE -ne 0) {
     throw "adb launch failed with exit code $LASTEXITCODE"
   }

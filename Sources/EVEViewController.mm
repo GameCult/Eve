@@ -169,6 +169,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
 @property(nonatomic, copy) NSString *dashboardStatus;
 @property(nonatomic, copy) NSString *dashboardProviderId;
 @property(nonatomic, copy) NSString *selectedNodeId;
+@property(nonatomic, strong) NSDictionary *paritySurfaceValues;
 @property(nonatomic, assign) CGFloat activeGestureStartScale;
 @property(nonatomic, assign) CGFloat activeGestureStartRotation;
 @property(nonatomic, assign) CGFloat activeSurfaceFontScale;
@@ -340,6 +341,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
 
   [fileManager createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:nil];
   [fileManager removeItemAtPath:requestPath error:nil];
+  [self renderParityFixtureIfPresentInDirectory:directory];
 
   CGSize size = self.view.bounds.size;
   if (size.width <= 0.0 || size.height <= 0.0) {
@@ -390,6 +392,31 @@ static NSData *EVEMediaObservation(NSString *observationId,
                         encoding:NSUTF8StringEncoding
                            error:nil];
   }
+}
+
+- (void)renderParityFixtureIfPresentInDirectory:(NSString *)directory {
+  NSString *fixturePath = [directory stringByAppendingPathComponent:@"current-surface.json"];
+  NSData *data = [NSData dataWithContentsOfFile:fixturePath];
+  if (!data) {
+    return;
+  }
+
+  NSError *error = nil;
+  NSDictionary *fixture = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+  if (![fixture isKindOfClass:NSDictionary.class]) {
+    return;
+  }
+
+  self.paritySurfaceValues = [fixture[@"values"] isKindOfClass:NSDictionary.class] ? fixture[@"values"] : @{};
+  self.voidBotDashboardView.hidden = YES;
+  self.sceneCanvasView.hidden = YES;
+  self.hierarchyStackView.hidden = YES;
+  self.toolbarStackView.hidden = YES;
+  self.dashboardStatusLabel.hidden = YES;
+  self.surfaceDashboardView.hidden = NO;
+  [self renderFullscreenSurfaceState:fixture title:fixture[@"title"] version:fixture[@"version"]];
+  [self.view setNeedsLayout];
+  [self.view layoutIfNeeded];
 }
 
 - (void)updateOverlay {
@@ -1145,15 +1172,88 @@ static NSData *EVEMediaObservation(NSString *observationId,
   NSDictionary *props = [element[@"props"] isKindOfClass:NSDictionary.class] ? element[@"props"] : @{};
   NSArray *children = [element[@"children"] isKindOfClass:NSArray.class] ? element[@"children"] : @[];
 
-  if ([kind isEqualToString:@"text"] || [kind isEqualToString:@"metric"]) {
+  if ([kind isEqualToString:@"label"] || [kind isEqualToString:@"text"] || [kind isEqualToString:@"text.title"] || [kind isEqualToString:@"text.dialogue"] || [kind isEqualToString:@"metric"]) {
     NSString *text = [self surfaceTextForElement:element props:props fallback:kind];
+    if ([kind isEqualToString:@"label"]) {
+      text = text.uppercaseString;
+    }
     return [self surfaceLabelWithText:text
-                                 size:depth < 2 ? 12.0 : 10.5
+                                 size:[kind isEqualToString:@"text.title"] ? 18.0 : (depth < 2 ? 12.0 : 10.5)
                                weight:UIFontWeightMedium
-                                color:[self fensalirPrimaryTextColor]];
+                                color:[kind isEqualToString:@"label"] ? [self fensalirAccentSoftColor] : [self fensalirPrimaryTextColor]];
   }
 
-  if ([kind isEqualToString:@"rail"]) {
+  if ([kind isEqualToString:@"control.slider"]) {
+    NSString *bind = [props[@"bind"] isKindOfClass:NSString.class] ? props[@"bind"] : @"";
+    NSNumber *value = [self.paritySurfaceValues[bind] isKindOfClass:NSNumber.class] ? self.paritySurfaceValues[bind] : props[@"value"];
+    CGFloat min = [props[@"min"] respondsToSelector:@selector(doubleValue)] ? [props[@"min"] doubleValue] : 0.0;
+    CGFloat max = [props[@"max"] respondsToSelector:@selector(doubleValue)] ? [props[@"max"] doubleValue] : 1.0;
+    CGFloat raw = [value respondsToSelector:@selector(doubleValue)] ? value.doubleValue : min;
+    CGFloat percent = max == min ? 0.0 : MIN(MAX((raw - min) / (max - min), 0.0), 1.0);
+    UIProgressView *slider = [[UIProgressView alloc] initWithProgressViewStyle:UIProgressViewStyleDefault];
+    slider.progress = percent;
+    slider.progressTintColor = [self fensalirAccentSoftColor];
+    slider.trackTintColor = [UIColor colorWithWhite:0.0 alpha:0.36];
+    [slider.heightAnchor constraintEqualToConstant:18.0].active = YES;
+    return slider;
+  }
+
+  if ([kind isEqualToString:@"control.button"]) {
+    NSString *text = [self surfaceTextForElement:element props:props fallback:@"button"];
+    UILabel *button = [self surfaceLabelWithText:text size:11.0 weight:UIFontWeightSemibold color:[self fensalirPrimaryTextColor]];
+    button.textAlignment = NSTextAlignmentCenter;
+    button.layer.borderWidth = 1.0;
+    button.layer.borderColor = [self fensalirAccentSoftColor].CGColor;
+    button.layer.cornerRadius = 5.0;
+    button.backgroundColor = [UIColor colorWithRed:0.34 green:0.15 blue:0.04 alpha:0.32];
+    return button;
+  }
+
+  if ([kind isEqualToString:@"panel.dialogue"]) {
+    UIView *panel = [[UIView alloc] initWithFrame:CGRectZero];
+    panel.backgroundColor = [UIColor colorWithRed:0.014 green:0.050 blue:0.052 alpha:0.94];
+    panel.layer.borderWidth = 1.0;
+    panel.layer.borderColor = [self fensalirOutlineColor].CGColor;
+    panel.layer.cornerRadius = 7.0;
+    UIStackView *stack = [[UIStackView alloc] initWithFrame:CGRectZero];
+    stack.translatesAutoresizingMaskIntoConstraints = NO;
+    stack.axis = UILayoutConstraintAxisVertical;
+    stack.spacing = 5.0;
+    [panel addSubview:stack];
+    [stack addArrangedSubview:[self surfaceHeaderLabelWithText:[props[@"speaker"] isKindOfClass:NSString.class] ? props[@"speaker"] : @"Speaker" size:13.0]];
+    [stack addArrangedSubview:[self surfaceLabelWithText:[props[@"text"] isKindOfClass:NSString.class] ? props[@"text"] : @"" size:14.0 weight:UIFontWeightRegular color:[self fensalirPrimaryTextColor]]];
+    [NSLayoutConstraint activateConstraints:@[
+      [stack.leadingAnchor constraintEqualToAnchor:panel.leadingAnchor constant:10.0],
+      [stack.trailingAnchor constraintEqualToAnchor:panel.trailingAnchor constant:-10.0],
+      [stack.topAnchor constraintEqualToAnchor:panel.topAnchor constant:10.0],
+      [stack.bottomAnchor constraintEqualToAnchor:panel.bottomAnchor constant:-10.0],
+    ]];
+    return panel;
+  }
+
+  if ([kind isEqualToString:@"embed.tex"]) {
+    NSString *label = [props[@"label"] isKindOfClass:NSString.class] ? props[@"label"] : @"TeX";
+    NSString *source = [props[@"source"] isKindOfClass:NSString.class] ? props[@"source"] : @"";
+    return [self surfaceLabelWithText:[NSString stringWithFormat:@"%@\n%@", label.uppercaseString, source] size:11.0 weight:UIFontWeightMedium color:[self fensalirPrimaryTextColor]];
+  }
+
+  if ([kind isEqualToString:@"embed.norn"]) {
+    NSDictionary *graph = [props[@"graph"] isKindOfClass:NSDictionary.class] ? props[@"graph"] : @{};
+    NSArray *nodes = [graph[@"nodes"] isKindOfClass:NSArray.class] ? graph[@"nodes"] : @[];
+    NSMutableArray *labels = [NSMutableArray array];
+    for (NSDictionary *node in nodes) {
+      if (![node isKindOfClass:NSDictionary.class]) continue;
+      NSString *label = [node[@"label"] isKindOfClass:NSString.class] ? node[@"label"] : node[@"id"];
+      if (label.length > 0) [labels addObject:label];
+    }
+    return [self surfaceLabelWithText:[NSString stringWithFormat:@"%@\n%@", [props[@"label"] isKindOfClass:NSString.class] ? props[@"label"] : @"Norn", [labels componentsJoinedByString:@"  ->  "]] size:11.0 weight:UIFontWeightMedium color:[self fensalirPrimaryTextColor]];
+  }
+
+  if ([kind isEqualToString:@"image.background"]) {
+    return [self surfaceLabelWithText:[props[@"label"] isKindOfClass:NSString.class] ? props[@"label"] : @"Scene" size:11.0 weight:UIFontWeightSemibold color:[UIColor colorWithWhite:0.72 alpha:1.0]];
+  }
+
+  if ([kind isEqualToString:@"rail"] || [kind isEqualToString:@"rail.actions"]) {
     return [self renderSurfaceRail:element props:props children:children depth:depth];
   }
 
@@ -1172,7 +1272,8 @@ static NSData *EVEMediaObservation(NSString *observationId,
   stack.translatesAutoresizingMaskIntoConstraints = NO;
   NSDictionary *layout = [element[@"layout"] isKindOfClass:NSDictionary.class] ? element[@"layout"] : ([props[@"layout"] isKindOfClass:NSDictionary.class] ? props[@"layout"] : @{});
   NSString *direction = [layout[@"direction"] isKindOfClass:NSString.class] ? layout[@"direction"] : @"";
-  BOOL wantsHorizontal = ![kind isEqualToString:@"row"] && [direction isEqualToString:@"horizontal"];
+  NSString *split = [props[@"split"] isKindOfClass:NSString.class] ? props[@"split"] : @"";
+  BOOL wantsHorizontal = ![kind isEqualToString:@"row"] && ([direction isEqualToString:@"horizontal"] || [split isEqualToString:@"x"]);
   stack.axis = wantsHorizontal ? UILayoutConstraintAxisHorizontal : UILayoutConstraintAxisVertical;
   stack.spacing = 6.0;
   stack.alignment = UIStackViewAlignmentFill;
@@ -1289,6 +1390,13 @@ static NSData *EVEMediaObservation(NSString *observationId,
 
 - (NSString *)surfaceTextForElement:(NSDictionary *)element props:(NSDictionary *)props fallback:(NSString *)fallback {
   NSString *text = [props[@"text"] isKindOfClass:NSString.class] ? props[@"text"] : nil;
+  NSString *bind = [props[@"bind"] isKindOfClass:NSString.class] ? props[@"bind"] : nil;
+  if (bind.length > 0) {
+    id value = self.paritySurfaceValues[bind];
+    if (value) {
+      text = [value description];
+    }
+  }
   if (!text) {
     text = [element[@"text"] isKindOfClass:NSString.class] ? element[@"text"] : nil;
   }
@@ -1313,7 +1421,7 @@ static NSData *EVEMediaObservation(NSString *observationId,
     title = [props[@"label"] isKindOfClass:NSString.class] ? props[@"label"] : nil;
   }
   NSString *kind = [element[@"kind"] isKindOfClass:NSString.class] ? element[@"kind"] : @"";
-  BOOL structural = [kind isEqualToString:@"row"] || [kind isEqualToString:@"dashboard"] || [kind isEqualToString:@"cockpit"];
+  BOOL structural = [kind isEqualToString:@"row"] || [kind isEqualToString:@"dashboard"] || [kind isEqualToString:@"cockpit"] || [kind isEqualToString:@"surface"] || [kind isEqualToString:@"vn.stage"] || [kind hasPrefix:@"layer."];
   if (!title && !structural) {
     title = [element[@"id"] isKindOfClass:NSString.class] ? element[@"id"] : nil;
   }

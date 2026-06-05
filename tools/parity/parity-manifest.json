@@ -75,6 +75,36 @@
       }
     },
     {
+      "id": "sai-vn",
+      "title": "Sai VN",
+      "surface": {
+        "transport": "local-json",
+        "path": "web/fixtures/sai-vn-surface.json"
+      },
+      "expect": {
+        "providerId": "gamecult.home.vn",
+        "componentKinds": [
+          "vn.stage",
+          "image.background",
+          "embed.norn",
+          "embed.tex",
+          "panel.dialogue",
+          "rail.actions",
+          "control.button"
+        ],
+        "styleTokens": [
+          "colorBackground",
+          "colorPanel",
+          "colorPanelAlt",
+          "colorText",
+          "colorAccent",
+          "fontBody",
+          "fontTitle",
+          "pixelArt"
+        ]
+      }
+    },
+    {
       "id": "reactive-dsl",
       "title": "Reactive DSL",
       "surface": {
@@ -125,7 +155,7 @@
     {
       "id": "linux-flutter",
       "title": "Linux / Flutter",
-      "kind": "requires-linux-runner",
+      "kind": "active",
       "expectedPaths": ["flutter/eve_parity/linux", "scripts/capture-flutter-parity.ps1"],
       "capture": {
         "status": "ssh-golden",
@@ -135,7 +165,7 @@
     {
       "id": "ios-uikit",
       "title": "iOS / UIKit",
-      "kind": "native-proof",
+      "kind": "active",
       "expectedPaths": ["Sources/EVEViewController.mm", "scripts/capture-eve-screenshot.ps1"],
       "capture": {
         "status": "ssh-png",
@@ -145,7 +175,7 @@
     {
       "id": "android-kotlin",
       "title": "Android / Kotlin",
-      "kind": "device-proof",
+      "kind": "active",
       "expectedPaths": ["android/app/src/main/java/org/gamecult/eve/MainActivity.kt", "scripts/build-android.ps1"],
       "capture": {
         "status": "adb-png",
@@ -155,7 +185,7 @@
     {
       "id": "direct2d",
       "title": "Fensalir Direct2D",
-      "kind": "specialized-native",
+      "kind": "pending",
       "expectedPaths": ["web/fixtures/fensalir-client-surface.json"],
       "capture": {
         "status": "missing",
