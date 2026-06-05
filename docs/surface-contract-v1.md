@@ -1,9 +1,9 @@
 # Eve Surface Contract v1
 
 `gamecult.eve.surface.v1` is the shared CultMesh UI document for Eve surfaces.
-It is the contract that CultUI should consume. Renderers may be web, UIKit,
-Android native views, Flutter, Windows Direct2D/DirectWrite, or another local
-client, but the semantic surface is the same retained tree.
+It is the retained tree that CultUI emits and Eve runtimes lower. Renderers may
+be web, UIKit, Android native views, Flutter, Windows Direct2D/DirectWrite, or
+another local client, but the semantic surface is the same retained tree.
 
 ## Authority
 
@@ -42,11 +42,17 @@ These fields are display projections. New renderers should prefer
 
 ## Eve DSL
 
-The Eve DSL is a source language for authoring `gamecult.eve.surface.v1`
-documents. It is not a second runtime authority. A DSL compiler may lower cards,
-text, metrics, lists, graphs, charts, formulas, and composites into
-`surface.root`, while CultMesh still owns live state identity and providers still
-own accepted commands.
+CultUI is Eve's DSL for authoring `gamecult.eve.surface.v1` documents. It is
+not a second runtime authority. A DSL compiler may lower cards, text, metrics,
+lists, graphs, charts, formulas, and composites into `surface.root`, while
+CultMesh still owns live state identity and providers still own accepted
+commands.
+
+The composition model inherits the useful part of the old Unity CultUI: start
+from a vertical base layout, then use horizontal and grid sugar to complete the
+tree without making every screen feel like manual box bookkeeping. See
+[cultui-style-system.md](./cultui-style-system.md) for the composition and
+styling design target.
 
 Browser reference support starts in `web/eve-dsl.js` and the fixture
 `web/fixtures/reactive-composition.eve`. The first binding primitives are:
@@ -211,6 +217,11 @@ tokens into CSS variables, UIKit colors/fonts, Android styles, DirectWrite
 brushes, overlay material parameters, TUI attributes, or platform equivalents.
 For migrated products, the first source of truth may be an existing CSS system,
 but the canonical portable form is the Eve token set, not the stylesheet.
+
+CultUI style is intentionally not CSS with different punctuation. Style should
+be typed provider-owned state made of tokens, roles, variants, and states.
+Runtime stylesheets, brushes, platform view styles, and TUI attributes are
+lowerings, not authorities.
 
 Style controls are ordinary controls whose command is usually `style.patch`.
 They synchronize appearance by sending token edits back to the provider. The

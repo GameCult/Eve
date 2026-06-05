@@ -1,8 +1,8 @@
-# Eve DSL And Reactive CultMesh Bindings
+# CultUI DSL And Reactive CultMesh Bindings
 
-Eve surfaces need a small declarative language for visual composition. The DSL
-is not a command language for agents and not an application state owner. It is a
-portable way to describe a surface that Eve can lower into the shared
+Eve surfaces need a small declarative language for visual composition. That DSL
+is CultUI. It is not a command language for agents and not an application state
+owner. It is a portable way to describe a surface that Eve can lower into the shared
 `gamecult.eve.surface.v1` retained tree.
 
 ## Authority
@@ -95,7 +95,7 @@ rerender calls.
 
 ## DSL Contract
 
-The DSL should stay declarative:
+CultUI should stay declarative:
 
 - describe components, bindings, and actions;
 - avoid hidden imperative renderer behavior;
@@ -138,6 +138,11 @@ Next primitives should map onto the existing surface contract:
 Do not turn this into a universal scripting language. If a feature needs
 authority, persistence, or side effects, it belongs behind a provider command or
 CultMesh action, not inside the visual DSL.
+
+The composition surface should preserve CultUI's old ergonomic instinct:
+vertical layout is the base case, with horizontal and grid sugar lowering into
+the same retained tree. Styling is a first-class typed system, not a bag of CSS
+selectors. See [cultui-style-system.md](./cultui-style-system.md).
 
 ## Public Context
 
