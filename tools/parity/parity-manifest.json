@@ -63,7 +63,20 @@
       },
       "expect": {
         "providerId": "repixelizer",
-        "componentKinds": ["surface", "pane", "card", "text"],
+        "componentKinds": [
+          "surface",
+          "pane",
+          "card",
+          "text",
+          "image.preview",
+          "canvas.preview",
+          "canvas.editor",
+          "input.file",
+          "dropzone",
+          "input.number",
+          "control.button",
+          "status.stage"
+        ],
         "styleTokens": [
           "colorBackgroundTop",
           "colorPanel",

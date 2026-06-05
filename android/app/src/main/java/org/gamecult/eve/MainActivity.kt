@@ -193,6 +193,45 @@ class MainActivity : Activity(), SensorEventListener {
                     cornerRadius = dp(6).toFloat()
                 }
             }
+            "image.preview" -> previewBox(props.optString("label", "Image"), tokens, square = true)
+            "canvas.preview" -> previewBox(props.optString("label", "Canvas"), tokens, square = false)
+            "canvas.editor" -> previewBox(props.optString("label", "Editable canvas"), tokens, square = false, tall = true)
+            "status.stage" -> LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(12), dp(12), dp(12), dp(12))
+                background = panelBackground(tokens, 4)
+                addView(label(props.optString("label", "Status"), 12f, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()), true))
+                addView(label(props.optString("stage", ""), 15f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), true))
+                addView(label(props.optString("detail", ""), 12f, tokenColor(tokens, "colorMuted", 0xffd3bb7f.toInt()), false))
+            }
+            "input.file", "dropzone" -> label(props.optString("label", "Choose File"), 14f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), true).apply {
+                gravity = Gravity.CENTER
+                setPadding(dp(14), dp(12), dp(14), dp(12))
+                background = panelBackground(tokens, 6)
+            }
+            "input.number", "input.select", "control.range" -> LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(label(props.optString("label", ""), 11f, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()), true))
+                addView(label(props.optString("value", ""), 13f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), false).apply {
+                    setPadding(dp(8), dp(6), dp(8), dp(6))
+                    background = panelBackground(tokens, 2)
+                })
+            }
+            "control.toggle" -> label("${props.optString("label", "Toggle")}: ${if (props.optBoolean("value", false)) "on" else "off"}", 12f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), false).apply {
+                setPadding(dp(8), dp(6), dp(8), dp(6))
+                background = panelBackground(tokens, 2)
+            }
+            "color.swatch" -> View(this).apply {
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(tokenColor(JSONObject().put("value", props.optString("value", "#ffffffff")), "value", Color.WHITE))
+                    setStroke(dp(2), tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()))
+                }
+                layoutParams = ViewGroup.LayoutParams(dp(38), dp(38))
+            }
+            "metric" -> LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(label("${props.optString("label", "Metric")}: ${props.opt("value") ?: ""}", 13f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), true))
+            }
             "surface" -> LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 forEachChild(children) { addView(renderCultUiNode(it, values, tokens)) }
@@ -298,6 +337,17 @@ class MainActivity : Activity(), SensorEventListener {
             setColor(tokenColor(tokens, "colorPanel", Color.rgb(7, 25, 24)))
             setStroke(dp(1), Color.argb(110, 103, 240, 228))
             cornerRadius = dp(radius).toFloat()
+        }
+    }
+
+    private fun previewBox(labelText: String, tokens: JSONObject, square: Boolean, tall: Boolean = false): View {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(label(labelText, 12f, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()), true))
+            addView(StageBackgroundView(this@MainActivity, "waiting for pixels", tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt())), LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                if (square) dp(180) else if (tall) dp(280) else dp(160)
+            ))
         }
     }
 

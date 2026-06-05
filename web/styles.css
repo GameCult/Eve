@@ -284,6 +284,14 @@ p {
   align-content: start;
 }
 
+.cultui-surface-root[data-direction="vertical"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cultui-surface-root[data-direction="horizontal"] {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
 .cultui-pane {
   border-width: var(--border-width);
   border-bottom-width: var(--border-bottom-width);
@@ -591,6 +599,83 @@ body[data-pixel-art="true"] .cultui-background {
 .cultui-button:focus-visible {
   border-color: var(--line-hot);
   color: var(--accent);
+}
+
+.cultui-image-preview {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.cultui-image-frame,
+.cultui-canvas-grid {
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+  border: 2px solid var(--panel-border);
+  background:
+    repeating-linear-gradient(45deg, rgba(247, 239, 216, 0.06) 0 8px, rgba(0, 0, 0, 0.18) 8px 16px),
+    linear-gradient(180deg, #07172c, #0a2039);
+  overflow: hidden;
+}
+
+.cultui-image-frame {
+  aspect-ratio: 1 / 1;
+}
+
+.cultui-image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cultui-image-preview figcaption,
+.cultui-canvas-grid {
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.cultui-canvas-placeholder {
+  display: grid;
+  gap: 8px;
+}
+
+.cultui-canvas-placeholder.editor .cultui-canvas-grid {
+  min-height: 280px;
+  background:
+    linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25% 75%, rgba(255,255,255,0.08) 75%),
+    linear-gradient(45deg, rgba(255,255,255,0.08) 25%, transparent 25% 75%, rgba(255,255,255,0.08) 75%),
+    #142033;
+  background-position: 0 0, 8px 8px;
+  background-size: 16px 16px;
+}
+
+.cultui-status-stage {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid var(--panel-border);
+  background: rgba(6, 22, 39, 0.92);
+}
+
+.cultui-field {
+  display: grid;
+  gap: 4px;
+}
+
+.cultui-field-value {
+  display: block;
+  border: 2px solid var(--panel-border);
+  background: rgba(1, 4, 11, 0.58);
+  padding: 6px 8px;
+}
+
+.cultui-swatch {
+  width: 36px;
+  min-height: 36px;
+  border: 2px solid var(--accent);
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,0.45);
 }
 
 @media (max-width: 900px) {

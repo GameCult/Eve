@@ -14,11 +14,13 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $sourceRoot = Join-Path $projectRoot "flutter\eve_parity"
 $assetPath = Join-Path $sourceRoot "assets\current-surface.json"
 $fontDir = Join-Path $sourceRoot "assets\fonts"
+$repixelizerAssetDir = Join-Path $sourceRoot "assets\repixelizer"
 $absoluteOutput = if ([System.IO.Path]::IsPathRooted($OutputPath)) { $OutputPath } else { Join-Path $projectRoot $OutputPath }
 $archivePath = Join-Path ([System.IO.Path]::GetTempPath()) "eve-parity-linux-$([guid]::NewGuid()).tar"
 New-Item -ItemType Directory -Force (Split-Path -Parent $absoluteOutput) | Out-Null
 New-Item -ItemType Directory -Force (Split-Path -Parent $assetPath) | Out-Null
 New-Item -ItemType Directory -Force $fontDir | Out-Null
+New-Item -ItemType Directory -Force $repixelizerAssetDir | Out-Null
 
 if (-not (Test-Path $sourceRoot)) {
   throw "Flutter parity source not found: $sourceRoot"
@@ -30,6 +32,8 @@ if ($LASTEXITCODE -ne 0) {
 }
 Copy-Item -LiteralPath (Join-Path $projectRoot "tools\deps\flutter\bin\cache\artifacts\material_fonts\roboto-regular.ttf") -Destination (Join-Path $fontDir "Roboto-Regular.ttf") -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot "tools\deps\flutter\bin\cache\artifacts\material_fonts\roboto-bold.ttf") -Destination (Join-Path $fontDir "Roboto-Bold.ttf") -Force
+curl.exe -L "https://repixelizer.gamecult.org/app/landing-assets/character-input.png" -o (Join-Path $repixelizerAssetDir "character-input.png") | Out-Host
+curl.exe -L "https://repixelizer.gamecult.org/app/landing-assets/character-repixelized.png" -o (Join-Path $repixelizerAssetDir "character-repixelized.png") | Out-Host
 
 try {
   Push-Location $sourceRoot

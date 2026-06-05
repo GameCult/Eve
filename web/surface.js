@@ -252,6 +252,7 @@ function applySurfaceStyles(styles) {
 function renderCultComponent(node) {
   const kind = node.kind || "panel";
   const props = node.props || {};
+  const layout = node.layout || {};
   const children = node.children || [];
   let rendered;
 
@@ -322,6 +323,7 @@ function renderCultComponent(node) {
 
   if (kind === "surface") {
     const surface = el("section", "cultui-surface-root");
+    if (layout.direction) surface.dataset.direction = layout.direction;
     for (const child of children) surface.append(renderCultComponent(child));
     return surface;
   }
@@ -376,6 +378,69 @@ function renderCultComponent(node) {
 
   if (kind === "metric") {
     return renderCultMetric(props);
+  }
+
+  if (kind === "image.preview") {
+    const figure = el("figure", "cultui-image-preview");
+    const frame = el("div", "cultui-image-frame");
+    if (props.src) {
+      const image = el("img");
+      image.src = props.src;
+      image.alt = props.label || "";
+      image.style.imageRendering = props.imageRendering || "auto";
+      if (props.zoom) {
+        image.style.transform = `scale(${props.zoom})`;
+        image.style.transformOrigin = props.crop || "50% 50%";
+      }
+      frame.append(image);
+    } else {
+      frame.append(el("span", "", props.label || "image"));
+    }
+    figure.append(frame);
+    if (props.label) figure.append(el("figcaption", "", props.label));
+    return figure;
+  }
+
+  if (kind === "canvas.preview" || kind === "canvas.editor") {
+    const panel = el("div", `cultui-canvas-placeholder ${kind === "canvas.editor" ? "editor" : "preview"}`);
+    panel.append(el("div", "viz-label", props.label || "Canvas"));
+    panel.append(el("div", "cultui-canvas-grid", props.state === "empty" ? "waiting for pixels" : props.state || ""));
+    return panel;
+  }
+
+  if (kind === "status.stage") {
+    const panel = el("section", "cultui-status-stage");
+    panel.append(el("span", "status-badge", props.label || "Status"));
+    panel.append(el("p", "status-stage", props.stage || ""));
+    panel.append(el("p", "status-text", props.detail || ""));
+    return panel;
+  }
+
+  if (kind === "input.file" || kind === "dropzone") {
+    const control = el("button", kind === "dropzone" ? "dropzone cultui-dropzone" : "cultui-button button-secondary", props.label || "Choose File");
+    control.type = "button";
+    return control;
+  }
+
+  if (kind === "input.number" || kind === "input.select" || kind === "control.range") {
+    const field = el("label", "field cultui-field");
+    field.append(el("span", "field-label", props.label || ""));
+    field.append(el("span", "field-control cultui-field-value", props.value === undefined ? "" : String(props.value)));
+    return field;
+  }
+
+  if (kind === "control.toggle") {
+    const toggle = el("label", "toggle-row cultui-toggle");
+    toggle.append(el("span", "field-control", props.value ? "on" : "off"));
+    toggle.append(el("span", "toggle-copy", props.label || "Toggle"));
+    return toggle;
+  }
+
+  if (kind === "color.swatch") {
+    const swatch = el("div", "paint-swatch cultui-swatch");
+    swatch.style.background = props.value || props.color || "currentColor";
+    swatch.title = props.label || "Color";
+    return swatch;
   }
 
   if (kind === "list") {

@@ -46,7 +46,7 @@ class _EveParityAppState extends State<EveParityApp> {
                       )
                     : state == null
                         ? const SizedBox.shrink()
-                        : EveSurfaceView(state: state),
+                        : SingleChildScrollView(child: EveSurfaceView(state: state)),
               ),
             ),
           );
@@ -220,6 +220,24 @@ class EveNodeView extends StatelessWidget {
         return EveSlider(state: state, node: node);
       case 'control.button':
         return _button();
+      case 'image.preview':
+        return _imagePreview();
+      case 'canvas.preview':
+      case 'canvas.editor':
+        return _canvasPlaceholder(editor: node.kind == 'canvas.editor');
+      case 'status.stage':
+        return _statusStage();
+      case 'input.file':
+      case 'dropzone':
+        return _button();
+      case 'input.number':
+      case 'input.select':
+      case 'control.range':
+        return _field();
+      case 'control.toggle':
+        return _toggle();
+      case 'color.swatch':
+        return _swatch();
       case 'vn.stage':
         return _vnStage();
       case 'image.background':
@@ -449,12 +467,159 @@ class EveNodeView extends StatelessWidget {
     );
   }
 
+  Widget _imagePreview() {
+    final label = node.props['label']?.toString() ?? 'Image';
+    final assetPath = _previewAssetPath(node.props['src']);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AspectRatio(
+          aspectRatio: 1,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: state.tokens.panelInset,
+              border: Border.all(color: state.tokens.border, width: 2),
+            ),
+            child: Stack(
+              children: [
+                Positioned.fill(child: CustomPaint(painter: EveGridPainter(color: state.tokens.accent.withValues(alpha: 0.10)))),
+                if (assetPath != null)
+                  Positioned.fill(
+                    child: Image.asset(assetPath, fit: BoxFit.cover, filterQuality: FilterQuality.none),
+                  )
+                else
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: state.tokens.muted, fontFamily: 'EveParity', fontSize: 12),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(label, style: TextStyle(color: state.tokens.muted, fontFamily: 'EveParity', fontSize: 12)),
+      ],
+    );
+  }
+
+  Widget _canvasPlaceholder({required bool editor}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          node.props['label']?.toString() ?? 'Canvas',
+          style: TextStyle(color: state.tokens.accent, fontFamily: 'EveParity', fontSize: 12, fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: editor ? 280 : 170,
+          width: double.infinity,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: editor ? const Color(0xFF142033) : state.tokens.panelInset,
+              border: Border.all(color: state.tokens.border, width: 2),
+            ),
+            child: Stack(
+              children: [
+                Positioned.fill(child: CustomPaint(painter: EveGridPainter(color: state.tokens.accent.withValues(alpha: editor ? 0.18 : 0.08)))),
+                Center(
+                  child: Text(
+                    node.props['state']?.toString() ?? '',
+                    style: TextStyle(color: state.tokens.muted, fontFamily: 'EveParity', fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _statusStage() {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: state.tokens.panelAlt,
+        border: Border.all(color: state.tokens.border, width: 2),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(node.props['label']?.toString() ?? 'Status', style: TextStyle(color: state.tokens.accent, fontFamily: 'EveParity', fontSize: 12, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 6),
+            Text(node.props['stage']?.toString() ?? '', style: TextStyle(color: state.tokens.text, fontFamily: 'EveParity', fontSize: 15, fontWeight: FontWeight.w700)),
+            const SizedBox(height: 4),
+            Text(node.props['detail']?.toString() ?? '', style: TextStyle(color: state.tokens.muted, fontFamily: 'EveParity', fontSize: 12)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _field() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(node.props['label']?.toString() ?? '', style: TextStyle(color: state.tokens.accent, fontFamily: 'EveParity', fontSize: 11, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 4),
+        DecoratedBox(
+          decoration: BoxDecoration(color: state.tokens.panelInset, border: Border.all(color: state.tokens.border)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            child: Text(node.props['value']?.toString() ?? '', style: TextStyle(color: state.tokens.text, fontFamily: 'EveParity', fontSize: 13)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _toggle() {
+    return DecoratedBox(
+      decoration: BoxDecoration(color: state.tokens.panelInset, border: Border.all(color: state.tokens.border)),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Text(
+          '${node.props['label'] ?? 'Toggle'}: ${node.props['value'] == true ? 'on' : 'off'}',
+          style: TextStyle(color: state.tokens.text, fontFamily: 'EveParity', fontSize: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _swatch() {
+    return Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(
+        color: _parseColor(node.props['value']) ?? state.tokens.text,
+        border: Border.all(color: state.tokens.accent, width: 2),
+      ),
+    );
+  }
+
   Widget _surface() {
     final padding = _number(node.layout['padding'] ?? node.props['padding'], 0);
+    final direction = node.layout['direction']?.toString();
     return Padding(
       padding: EdgeInsets.all(padding),
       child: LayoutBuilder(
         builder: (context, constraints) {
+          if (direction == 'vertical') {
+            return _children(axis: Axis.vertical, maxWidth: 1280);
+          }
+          if (direction == 'horizontal') {
+            return _children(axis: Axis.horizontal, maxWidth: 1280);
+          }
           if (constraints.maxWidth >= 900 && node.children.length > 1) {
             return _children(axis: Axis.horizontal, maxWidth: 1280);
           }
@@ -625,6 +790,21 @@ class EveNodeView extends StatelessWidget {
   }
 
   Map<String, dynamic> _map(Object? value) => value is Map<String, dynamic> ? value : const {};
+
+  Color? _parseColor(Object? value) {
+    if (value is! String || !value.startsWith('#')) return null;
+    final body = value.substring(1);
+    if (body.length == 8) return Color(int.parse(body, radix: 16));
+    if (body.length == 6) return Color(int.parse('ff$body', radix: 16));
+    return null;
+  }
+
+  String? _previewAssetPath(Object? source) {
+    final src = source?.toString() ?? '';
+    if (src.endsWith('/character-input.png')) return 'assets/repixelizer/character-input.png';
+    if (src.endsWith('/character-repixelized.png')) return 'assets/repixelizer/character-repixelized.png';
+    return null;
+  }
 }
 
 class EveGridPainter extends CustomPainter {

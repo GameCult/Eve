@@ -14,10 +14,12 @@ $flutterRoot = Join-Path $projectRoot "flutter\eve_parity"
 $flutter = Join-Path $projectRoot "tools\deps\flutter\bin\flutter.bat"
 $assetPath = Join-Path $flutterRoot "assets\current-surface.json"
 $fontDir = Join-Path $flutterRoot "assets\fonts"
+$repixelizerAssetDir = Join-Path $flutterRoot "assets\repixelizer"
 $absoluteOutput = if ([System.IO.Path]::IsPathRooted($OutputPath)) { $OutputPath } else { Join-Path $projectRoot $OutputPath }
 New-Item -ItemType Directory -Force (Split-Path -Parent $absoluteOutput) | Out-Null
 New-Item -ItemType Directory -Force (Split-Path -Parent $assetPath) | Out-Null
 New-Item -ItemType Directory -Force $fontDir | Out-Null
+New-Item -ItemType Directory -Force $repixelizerAssetDir | Out-Null
 
 if (-not (Test-Path $flutter)) {
   throw "Flutter is not installed at $flutter"
@@ -29,6 +31,8 @@ if ($Target -eq "linux" -and $env:OS -like "Windows*") {
 
 Copy-Item -LiteralPath (Join-Path $projectRoot "tools\deps\flutter\bin\cache\artifacts\material_fonts\roboto-regular.ttf") -Destination (Join-Path $fontDir "Roboto-Regular.ttf") -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot "tools\deps\flutter\bin\cache\artifacts\material_fonts\roboto-bold.ttf") -Destination (Join-Path $fontDir "Roboto-Bold.ttf") -Force
+curl.exe -L "https://repixelizer.gamecult.org/app/landing-assets/character-input.png" -o (Join-Path $repixelizerAssetDir "character-input.png") | Out-Host
+curl.exe -L "https://repixelizer.gamecult.org/app/landing-assets/character-repixelized.png" -o (Join-Path $repixelizerAssetDir "character-repixelized.png") | Out-Host
 
 node .\tools\parity\export-fixture.mjs $FixtureId $assetPath | Out-Host
 if ($LASTEXITCODE -ne 0) {

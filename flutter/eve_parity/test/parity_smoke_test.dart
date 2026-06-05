@@ -21,6 +21,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pumpAndSettle();
       await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+      });
+      await tester.pumpAndSettle();
       expect(find.byType(EveSurfaceView), findsOneWidget);
       if (fixtureId == 'cultui-inspector') {
         expect(find.text('AETHERIC FIELD TESTER'), findsOneWidget);

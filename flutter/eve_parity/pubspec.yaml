@@ -53,6 +53,8 @@ flutter:
 
   assets:
     - assets/current-surface.json
+    - assets/repixelizer/character-input.png
+    - assets/repixelizer/character-repixelized.png
 
   fonts:
     - family: EveParity
