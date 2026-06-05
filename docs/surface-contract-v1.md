@@ -52,9 +52,10 @@ The composition model learns from the old Unity CultUI without preserving its
 construction accident. The useful part was resolver-backed standard elements
 and ergonomic helpers for common UI structures, not vertical-first layout.
 CultUI is now partition-first: surfaces divide named regions into relative or
-absolute partitions, and common helpers lower into that explicit tree. See
-[cultui-style-system.md](./cultui-style-system.md) for the composition and
-styling design target.
+absolute partitions, and common helpers lower into that explicit tree. The
+authoring syntax is indentation-based; compiled surface documents remain the
+renderer-facing contract. See [cultui-style-system.md](./cultui-style-system.md)
+for the composition and styling design target.
 
 Browser reference support starts in `web/eve-dsl.js` and the fixture
 `web/fixtures/reactive-composition.eve`. The first binding primitives are:
@@ -82,7 +83,10 @@ Every component has:
 }
 ```
 
-Kinds are semantic, not HTML tags. Renderers lower them to native controls:
+Kinds are semantic, not HTML tags. Renderers lower them to native controls, but
+standard controls may also carry CultUI anatomy for presentation parts such as
+slider tracks, fills, thumbs, hit areas, and visual bleed. Native projection is
+an implementation route, not permission to invent a different control face:
 
 - `surface`, `partition`, `stack`, `grid`, `dock`, `panel`, `card`
 - `text`, `text.dialogue`, `avatar`

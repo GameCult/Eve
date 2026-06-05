@@ -84,7 +84,6 @@ derive swarm.eventCount count swarm.events
 card pulse "Reactive Pulse"
 metric "Event Count" bind swarm.eventCount
 button "Append Event" append swarm.events "operator touched the stream at {{now}}"
-end
 ```
 
 This is deliberately small. The current compiler lowers DSL cards, text,
@@ -143,8 +142,11 @@ The composition surface should preserve CultUI's old reusable-element
 ergonomics without preserving the old Unity construction accident.
 Partitioning is the base case: users can define relative or absolute partitions,
 nest partitions inside partitions, and use helpers such as `fieldRow` only when
-they lower to the same explicit retained tree. Styling is a first-class typed
-system, not a bag of CSS selectors. See
+they lower to the same explicit retained tree. CultUI authoring uses
+indentation for flow instead of `end` markers. Standard element presentation is
+also specifiable through element anatomy, so a runtime lowers slider tracks,
+thumbs, hit areas, and bleed instead of silently substituting its own taste.
+Styling is a first-class typed system, not a bag of CSS selectors. See
 [cultui-style-system.md](./cultui-style-system.md).
 
 ## Public Context

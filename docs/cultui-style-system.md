@@ -23,6 +23,8 @@ designer. The stylesheet is not the truth.
   deeply as the surface needs, with optional padding.
 - Preserve builder ergonomics by offering standard elements and composition
   helpers for common structures such as inspector rows.
+- Use indentation as the authoring grammar so the written document has the same
+  shape as the UI tree.
 - Treat styling as typed provider-owned state, not as hidden renderer CSS.
 - Make cross-runtime lowering boring: tokens, rules, variants, states, and
   capability gaps are explicit.
@@ -44,6 +46,34 @@ designer. The stylesheet is not the truth.
 CSS, UIKit, Android XML, Direct2D brushes, and TUI attributes are generated
 lowerings. They are not portable state owners.
 
+## Authoring Syntax
+
+CultUI is indentation-authored. Blocks are owned by indentation, not `end`
+markers. Tabs and spaces may both be accepted by parsers, but a file must be
+internally consistent. The formatter emits tabs by default because CultUI is
+tree-shaped and depth should be visible.
+
+Inline properties are preferred while they remain readable:
+
+```cultui
+part thumb size 12 12 bleed 3 radius 999 fill color.accent
+```
+
+Dense properties can become an indented property block without changing the
+retained tree:
+
+```cultui
+part thumb
+	size 12 12
+	bleed 3
+	radius 999
+	fill color.accent
+```
+
+The authoring syntax is not the portable state format. The compiler lowers the
+indented document into `gamecult.eve.surface.v1` retained components and style
+state.
+
 ## Composition Model
 
 CultUI composition is partition-first. A partition owns a rectangular region
@@ -53,17 +83,13 @@ property of a partition, not a global worldview.
 
 ```cultui
 surface repixelizer.operator
-  partition main split x gap 12
-    pane hero size 1fr padding 12
-      text body "Force fake pixel art back onto a real grid."
-    end
+	partition main split x gap 12
+		pane hero size 1fr padding 12
+			text body "Force fake pixel art back onto a real grid."
 
-    partition tools size 2fr split y gap 8
-      card open-demo
-      card upload-image
-    end
-  end
-end
+		partition tools size 2fr split y gap 8
+			card open-demo
+			card upload-image
 ```
 
 The structural primitives should stay small:
@@ -117,23 +143,19 @@ The inspector slider row becomes ordinary nested partitions:
 
 ```cultui
 partition inspector split y gap 6
-  partition exposure-row split x gap 8 padding 4
-    partition exposure-label size 12rem
-      label "Exposure"
-    end
-    partition exposure-field size 1fr
-      slider bind camera.exposure min 0 max 1 step 0.01
-    end
-  end
-end
+	partition exposure-row split x gap 8 padding 4
+		partition exposure-label size 12rem
+			label "Exposure"
+
+		partition exposure-field size 1fr
+			slider bind camera.exposure min 0 max 1 step 0.01
 ```
 
 The same structure can be authored through sugar:
 
 ```cultui
 fieldRow "Exposure"
-  slider bind camera.exposure min 0 max 1 step 0.01
-end
+	slider bind camera.exposure min 0 max 1 step 0.01
 ```
 
 The sugar is acceptable only because it lowers to the explicit partition tree.
@@ -187,6 +209,68 @@ These elements are semantic. A runtime may lower `slider` to an HTML input,
 UIKit `UISlider`, Android `SeekBar`, Direct2D custom control, or TUI command
 row. The portable document remains one standard element, not five renderer
 dialects.
+
+## Element Anatomy
+
+Standard elements are not runtime-owned presentation black boxes. A renderer may
+choose efficient native machinery, but it must honor the CultUI element anatomy:
+parts, local sizing, hit areas, state hooks, and allowed visual overflow.
+
+Partitions own structural layout space. Element anatomy owns visual parts inside
+that space. A slider's field partition allocates the logical control box; the
+slider anatomy describes the track, fill, thumb, hit area, and any bleed beyond
+the strict track bounds.
+
+```cultui
+slider bind tester.fov min 0 max 120 step 1
+	box
+		height 18
+		overflow visible
+
+	part track
+		anchor center
+		size 100% 6
+		radius 2
+		fill color.panelInset
+
+	part fill
+		anchor left center
+		size value% 6
+		radius 2
+		fill color.accent
+
+	part thumb
+		anchor value center
+		size 12 12
+		bleed 3
+		radius 999
+		fill color.accent
+		shadow glow color.accent 0.35 radius 6
+
+	hitArea
+		size 100% 18
+```
+
+The thumb may extend past the track because `part thumb` has `bleed 3` and the
+control box permits `overflow visible`. That is not a partition violation. It
+is local control presentation.
+
+Reusable skins can package that anatomy:
+
+```cultui
+skin inspector.orangeSlider for slider
+	box height 18 overflow visible
+	part track anchor center size 100% 6 radius 2 fill color.panelInset
+	part fill anchor left center size value% 6 radius 2 fill color.accent
+	part thumb anchor value center size 12 12 bleed 3 radius 999 fill color.accent
+
+fieldRow "FOV"
+	slider bind tester.fov min 0 max 120 step 1 skin inspector.orangeSlider
+```
+
+The runtime lowers `slider` anatomy into DOM, Direct2D, UIKit, Android, or TUI.
+It does not invent the slider's visual identity unless the document deliberately
+uses the default skin.
 
 ## Style Model
 
