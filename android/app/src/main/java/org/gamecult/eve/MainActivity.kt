@@ -34,9 +34,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.util.TypedValue
 import android.widget.FrameLayout
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.ScrollView
+import android.widget.Spinner
 import android.widget.TextView
 import org.gamecult.cultmesh.CultMeshNode
 import org.gamecult.cultmesh.CultNetFrame
@@ -85,7 +88,10 @@ class MainActivity : Activity(), SensorEventListener {
     private lateinit var sensorText: TextView
     private lateinit var touchText: TextView
     private lateinit var mediaText: TextView
+    private lateinit var providerPicker: Spinner
+    private lateinit var providerOptionsList: LinearLayout
     private lateinit var surfaceList: LinearLayout
+    private var providerPickerNodes: List<EveDashboardNodeSnapshot> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -427,9 +433,30 @@ class MainActivity : Activity(), SensorEventListener {
         sensorText = card("CultMesh sensors\nconnecting $sensorUri")
         touchText = card("touch surface\nwaiting for operator input")
         mediaText = card("media sensors\nwaiting for camera/mic permissions")
+        providerPicker = Spinner(this).apply {
+            setPadding(dp(8), dp(6), dp(8), dp(6))
+            background = android.graphics.drawable.GradientDrawable().apply {
+                setColor(Color.rgb(7, 25, 24))
+                setStroke(dp(1), 0xff345f5f.toInt())
+                cornerRadius = dp(4).toFloat()
+            }
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) = Unit
+
+                override fun onNothingSelected(parent: AdapterView<*>?) = Unit
+            }
+        }
+        providerOptionsList = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
         surfaceList = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         root.addView(brokerText)
         root.addView(selectedText)
+        root.addView(label("Daemon", 11f, 0xff8efcff.toInt(), true).apply {
+            setPadding(0, dp(14), 0, dp(4))
+        })
+        root.addView(providerPicker)
+        root.addView(providerOptionsList)
         root.addView(surfaceList)
         root.addView(sensorText)
         root.addView(mediaText)
@@ -500,6 +527,7 @@ class MainActivity : Activity(), SensorEventListener {
         val surface = state.surface
         brokerText.text = "CultMesh broker\nprovider=${state.providerId}\nversion=${state.version} nodes=${state.nodes.size} surface=${surface?.schema ?: "none"}\nupdated=${state.updatedAt}"
         selectedText.text = "selection\n${state.title}\nselected=${state.selectedNodeId}\nlut=${state.lutPreset}"
+        renderProviderPicker(state)
         surfaceList.removeAllViews()
         if (surface != null) {
             surfaceList.addView(label(surface.title.ifBlank { surface.id }, 16f, 0xff8efcff.toInt(), true).apply {
@@ -518,6 +546,49 @@ class MainActivity : Activity(), SensorEventListener {
                     sendCommand("toggle-visibility", node)
                     true
                 }
+            })
+        }
+    }
+
+    private fun renderProviderPicker(state: EveDashboardStateDocument) {
+        val nodes = state.nodes
+            .filter { it.command == "open-provider" && !it.providerId.isNullOrBlank() }
+            .distinctBy { it.providerId }
+        if (nodes.isNotEmpty()) providerPickerNodes = nodes
+        val labels = providerPickerNodes.map { "${it.label}  /  ${it.providerId}" }
+        if (labels.isEmpty()) {
+            providerPicker.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("Waiting for daemon providers")).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
+            providerPicker.isEnabled = false
+            return
+        }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, labels).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        providerPicker.adapter = adapter
+        val selectedIndex = providerPickerNodes.indexOfFirst {
+            it.providerId == state.providerId || it.id == state.selectedNodeId
+        }.coerceAtLeast(0)
+        providerPicker.setSelection(selectedIndex, false)
+        providerPicker.isEnabled = true
+        renderProviderOptions(state)
+    }
+
+    private fun renderProviderOptions(state: EveDashboardStateDocument) {
+        providerOptionsList.removeAllViews()
+        providerPickerNodes.forEach { node ->
+            val active = node.providerId == state.providerId || node.id == state.selectedNodeId
+            providerOptionsList.addView(label("${if (active) "> " else "  "}${node.label}\n${node.providerId}", 13f, if (active) 0xff8efcff.toInt() else 0xffe6f1f1.toInt(), active).apply {
+                setPadding(dp(12), dp(8), dp(12), dp(8))
+                background = android.graphics.drawable.GradientDrawable().apply {
+                    setColor(if (active) Color.rgb(22, 58, 55) else Color.rgb(7, 25, 24))
+                    setStroke(dp(1), 0xff345f5f.toInt())
+                    cornerRadius = dp(4).toFloat()
+                }
+                setOnClickListener { sendCommand("open-provider", node) }
+            }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+                setMargins(0, dp(6), 0, 0)
             })
         }
     }
