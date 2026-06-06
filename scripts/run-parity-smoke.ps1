@@ -56,6 +56,25 @@ function Invoke-Capture {
   }
 }
 
+function Resolve-ContactSheetPython {
+  $candidates = @()
+  if ($env:EVE_PARITY_PYTHON) {
+    $candidates += $env:EVE_PARITY_PYTHON
+  }
+  $candidates += @("python", "python3")
+
+  foreach ($candidate in $candidates) {
+    try {
+      & $candidate -c "import PIL" *> $null
+      if ($LASTEXITCODE -eq 0) {
+        return $candidate
+      }
+    } catch {
+    }
+  }
+  return $null
+}
+
 Push-Location $projectRoot
 try {
   powershell -ExecutionPolicy Bypass -File .\scripts\run-parity-harness.ps1 -OutputDirectory (Join-Path $runRoot "semantic") | Out-Host
@@ -147,6 +166,13 @@ try {
     $lines += "| $($target.id) | $($target.status) | $($target.screenshot) | $($target.error) |"
   }
   $lines -join "`n" | Set-Content -LiteralPath $mdPath -Encoding UTF8
+
+  $contactSheetPython = Resolve-ContactSheetPython
+  if ($contactSheetPython) {
+    & $contactSheetPython .\tools\parity\render-contact-sheet.py $jsonPath | Out-Host
+  } else {
+    Write-Host "Parity contact sheet skipped: set EVE_PARITY_PYTHON to a Python with Pillow."
+  }
 
   Write-Host "Parity smoke report: $mdPath"
   $failed = @($results.targets | Where-Object { $_.status -ne "pass" })
