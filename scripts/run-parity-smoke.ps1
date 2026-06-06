@@ -103,6 +103,11 @@ try {
 
   New-Item -ItemType Directory -Force .\android\app\src\main\assets | Out-Null
   node .\tools\parity\export-fixture.mjs $ProviderId .\android\app\src\main\assets\current-surface.json | Out-Host
+  if ($ProviderId -eq "repixelizer") {
+    New-Item -ItemType Directory -Force .\android\app\src\main\assets\repixelizer | Out-Null
+    curl.exe -L "https://repixelizer.gamecult.org/app/landing-assets/character-input.png" -o .\android\app\src\main\assets\repixelizer\character-input.png | Out-Host
+    curl.exe -L "https://repixelizer.gamecult.org/app/landing-assets/character-repixelized.png" -o .\android\app\src\main\assets\repixelizer\character-repixelized.png | Out-Host
+  }
   powershell -ExecutionPolicy Bypass -File .\scripts\build-android.ps1 | Out-Host
   if ($LASTEXITCODE -ne 0) {
     throw "Android fixture APK build failed with exit code $LASTEXITCODE"

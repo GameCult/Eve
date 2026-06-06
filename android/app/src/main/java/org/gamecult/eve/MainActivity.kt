@@ -6,8 +6,10 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.RectF
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -30,6 +32,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.util.TypedValue
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -75,6 +78,7 @@ class MainActivity : Activity(), SensorEventListener {
     private var cameraDevice: CameraDevice? = null
     private var cameraSession: CameraCaptureSession? = null
     private var imageReader: ImageReader? = null
+    private var parityFixtureMode = false
 
     private lateinit var brokerText: TextView
     private lateinit var selectedText: TextView
@@ -86,6 +90,7 @@ class MainActivity : Activity(), SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (intent.getBooleanExtra("org.gamecult.eve.PARITY_FIXTURE", false)) {
+            parityFixtureMode = true
             setContentView(buildParityFixtureUi())
             return
         }
@@ -193,7 +198,7 @@ class MainActivity : Activity(), SensorEventListener {
                     cornerRadius = dp(6).toFloat()
                 }
             }
-            "image.preview" -> previewBox(props.optString("label", "Image"), tokens, square = true)
+            "image.preview" -> imagePreview(props, tokens)
             "canvas.preview" -> previewBox(props.optString("label", "Canvas"), tokens, square = false)
             "canvas.editor" -> previewBox(props.optString("label", "Editable canvas"), tokens, square = false, tall = true)
             "status.stage" -> LinearLayout(this).apply {
@@ -279,7 +284,7 @@ class MainActivity : Activity(), SensorEventListener {
                     cornerRadius = dp(6).toFloat()
                 }
                 val title = props.optString("title", "")
-                if (title.isNotBlank()) addView(label(title.uppercase(Locale.US), 12f, tokenColor(tokens, "colorMuted", 0xff8ba5a3.toInt()), true))
+                if (title.isNotBlank()) addView(label(title, 12f, tokenColor(tokens, "colorMuted", 0xff8ba5a3.toInt()), true))
                 forEachChild(children) { addView(renderCultUiNode(it, values, tokens)) }
             }
             "card", "card.external" -> LinearLayout(this).apply {
@@ -338,6 +343,27 @@ class MainActivity : Activity(), SensorEventListener {
             setStroke(dp(1), Color.argb(110, 103, 240, 228))
             cornerRadius = dp(radius).toFloat()
         }
+    }
+
+    private fun imagePreview(props: JSONObject, tokens: JSONObject): View {
+        val labelText = props.optString("label", "Image")
+        val assetPath = previewAssetPath(props.optString("src", ""))
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(label(labelText, 12f, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()), true))
+            val imageView = if (assetPath != null) {
+                AssetPreviewView(this@MainActivity, assetPath, props.optDouble("zoom", 1.0), tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()))
+            } else {
+                StageBackgroundView(this@MainActivity, labelText, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()))
+            }
+            addView(imageView, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(180)))
+        }
+    }
+
+    private fun previewAssetPath(source: String): String? = when {
+        source.endsWith("/character-input.png") -> "repixelizer/character-input.png"
+        source.endsWith("/character-repixelized.png") -> "repixelizer/character-repixelized.png"
+        else -> null
     }
 
     private fun previewBox(labelText: String, tokens: JSONObject, square: Boolean, tall: Boolean = false): View {
@@ -415,7 +441,7 @@ class MainActivity : Activity(), SensorEventListener {
     private fun label(text: String, sp: Float, color: Int, title: Boolean): TextView =
         TextView(this).apply {
             this.text = text
-            textSize = sp
+            setTextSize(if (parityFixtureMode) TypedValue.COMPLEX_UNIT_PX else TypedValue.COMPLEX_UNIT_SP, sp)
             setTextColor(color)
             gravity = Gravity.START
             includeFontPadding = true
@@ -890,7 +916,8 @@ class MainActivity : Activity(), SensorEventListener {
 
     private fun postBroker(text: String) = main.post { brokerText.text = text }
     private fun postSensor(text: String) = main.post { sensorText.text = text }
-    private fun dp(value: Int): Int = (value * resources.displayMetrics.density + 0.5f).toInt()
+    private fun dp(value: Int): Int =
+        if (parityFixtureMode) value else (value * resources.displayMetrics.density + 0.5f).toInt()
 
     private fun actionName(action: Int): String = when (action) {
         MotionEvent.ACTION_DOWN -> "down"
@@ -971,6 +998,46 @@ private class StageBackgroundView(
             y += step
         }
         canvas.drawText(sceneLabel, 28f * resources.displayMetrics.density, 36f * resources.displayMetrics.density, textPaint)
+    }
+}
+
+private class AssetPreviewView(
+    context: Context,
+    assetPath: String,
+    private val zoom: Double,
+    accent: Int
+) : View(context) {
+    private val bitmap = context.assets.open(assetPath).use { BitmapFactory.decodeStream(it) }
+    private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(5, 8, 13) }
+    private val gridPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(28, Color.red(accent), Color.green(accent), Color.blue(accent))
+        strokeWidth = 1f
+    }
+    private val destination = Rect()
+    private val source = Rect()
+
+    override fun onDraw(canvas: Canvas) {
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
+        val step = 32f
+        var x = 0f
+        while (x < width) {
+            canvas.drawLine(x, 0f, x, height.toFloat(), gridPaint)
+            x += step
+        }
+        var y = 0f
+        while (y < height) {
+            canvas.drawLine(0f, y, width.toFloat(), y, gridPaint)
+            y += step
+        }
+
+        val scale = if (zoom > 1.0) zoom.toFloat() else maxOf(width / bitmap.width.toFloat(), height / bitmap.height.toFloat())
+        val sourceWidth = (width / scale).toInt().coerceIn(1, bitmap.width)
+        val sourceHeight = (height / scale).toInt().coerceIn(1, bitmap.height)
+        val left = ((bitmap.width - sourceWidth) / 2).coerceAtLeast(0)
+        val top = ((bitmap.height - sourceHeight) / 2).coerceAtLeast(0)
+        source.set(left, top, left + sourceWidth, top + sourceHeight)
+        destination.set(0, 0, width, height)
+        canvas.drawBitmap(bitmap, source, destination, null)
     }
 }
 
