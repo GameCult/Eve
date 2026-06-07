@@ -6,7 +6,8 @@ Eve should exist as one generic app per supported runtime:
 - Flutter shared graphical client
 - Fensalir Direct2D / DirectWrite
 - iOS / UIKit
-- Android / Kotlin
+- Android / Flutter
+- Android / Kotlin device edge
 
 Each app presents the same provider picker, subscribes to the selected
 provider-owned Eve surface, lowers the same `gamecult.eve.surface.v1` tree, and
@@ -193,12 +194,31 @@ First cuts:
 - Package or load Repixelizer pixel fonts.
 - Add visual parity fixtures for Repixelizer shell and progress states.
 
-### Android / Kotlin
+### Android / Flutter
+
+Role:
+
+- Primary Android GUI CultUI parity body through the shared Flutter renderer.
+- Periwinkle screenshot target for responsive and physical-panel evidence.
+
+First cuts:
+
+- Build and install the Flutter parity APK during the smoke.
+- Capture phone, tablet, desktop, native portrait, and native landscape shots
+  from Periwinkle.
+- Add the same provider picker used by the web reference.
+- Subscribe to selected provider-owned `gamecult.eve.surface.v1` documents
+  instead of the compact dashboard compatibility surface.
+- Emit commands through the same advertised command boundary as web.
+
+### Android / Kotlin Device Edge
 
 Role:
 
 - Native Kotlin Eve app and Periwinkle device edge when direct Android
-  ownership earns its keep beyond Flutter.
+  ownership earns its keep beyond Flutter. This body may publish sensors,
+  observe CultMesh dashboard compatibility traffic, and test Android-specific
+  integrations. It is not the GUI parity oracle.
 
 First cuts:
 

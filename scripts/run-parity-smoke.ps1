@@ -13,7 +13,7 @@ $runRoot = Join-Path $projectRoot (Join-Path $OutputDirectory $stamp)
 New-Item -ItemType Directory -Force $runRoot | Out-Null
 $manifest = Get-Content (Join-Path $projectRoot "tools\parity\parity-manifest.json") | ConvertFrom-Json
 $responsiveCases = @($manifest.responsiveCases)
-$androidNativeCases = @($manifest.androidNativeCases)
+$androidDeviceCases = @($manifest.androidDeviceCases)
 
 $results = [ordered]@{
   schema = "gamecult.eve.parity_smoke.v1"
@@ -101,36 +101,35 @@ try {
       -FixturePath $iosFixture
   }
 
-  New-Item -ItemType Directory -Force .\android\app\src\main\assets | Out-Null
-  node .\tools\parity\export-fixture.mjs $ProviderId .\android\app\src\main\assets\current-surface.json | Out-Host
-  if ($ProviderId -eq "repixelizer") {
-    New-Item -ItemType Directory -Force .\android\app\src\main\assets\repixelizer | Out-Null
-    curl.exe -L "https://repixelizer.gamecult.org/app/landing-assets/character-input.png" -o .\android\app\src\main\assets\repixelizer\character-input.png | Out-Host
-    curl.exe -L "https://repixelizer.gamecult.org/app/landing-assets/character-repixelized.png" -o .\android\app\src\main\assets\repixelizer\character-repixelized.png | Out-Host
-  }
-  powershell -ExecutionPolicy Bypass -File .\scripts\build-android.ps1 | Out-Host
-  if ($LASTEXITCODE -ne 0) {
-    throw "Android fixture APK build failed with exit code $LASTEXITCODE"
-  }
-
+  $androidFlutterBuilt = $false
   foreach ($case in $responsiveCases) {
-    Invoke-Capture "android-$($case.id)" {
-      powershell -ExecutionPolicy Bypass -File .\scripts\capture-android-screenshot.ps1 `
-        -OutputPath (Join-Path $runRoot "android-periwinkle-$($case.id).png") `
-        -Width $case.width `
-        -Height $case.height `
-        -Orientation $case.orientation `
-        -UseFixture `
-        -ForceInstall
+    Invoke-Capture "android-flutter-$($case.id)" {
+      $args = @(
+        "-ExecutionPolicy", "Bypass",
+        "-File", ".\scripts\capture-android-flutter-parity.ps1",
+        "-FixtureId", $ProviderId,
+        "-OutputPath", (Join-Path $runRoot "android-flutter-periwinkle-$($case.id).png"),
+        "-Width", $case.width,
+        "-Height", $case.height,
+        "-Orientation", $case.orientation
+      )
+      if ($androidFlutterBuilt) {
+        $args += "-SkipBuild"
+      } else {
+        $args += "-ForceInstall"
+      }
+      powershell @args
+      $androidFlutterBuilt = $true
     }
   }
 
-  foreach ($case in $androidNativeCases) {
-    Invoke-Capture "android-$($case.id)" {
-      powershell -ExecutionPolicy Bypass -File .\scripts\capture-android-screenshot.ps1 `
-        -OutputPath (Join-Path $runRoot "android-periwinkle-$($case.id).png") `
+  foreach ($case in $androidDeviceCases) {
+    Invoke-Capture "android-flutter-$($case.id)" {
+      powershell -ExecutionPolicy Bypass -File .\scripts\capture-android-flutter-parity.ps1 `
+        -FixtureId $ProviderId `
+        -OutputPath (Join-Path $runRoot "android-flutter-periwinkle-$($case.id).png") `
         -Orientation $case.orientation `
-        -UseFixture
+        -SkipBuild
     }
   }
 

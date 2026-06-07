@@ -23,7 +23,7 @@
       "deviceScale": 1
     }
   ],
-  "androidNativeCases": [
+  "androidDeviceCases": [
     {
       "id": "native-portrait",
       "orientation": "portrait"
@@ -186,13 +186,23 @@
       }
     },
     {
-      "id": "android-kotlin",
-      "title": "Android / Kotlin",
+      "id": "android-flutter",
+      "title": "Android / Flutter",
       "kind": "active",
-      "expectedPaths": ["android/app/src/main/java/org/gamecult/eve/MainActivity.kt", "scripts/build-android.ps1"],
+      "expectedPaths": ["flutter/eve_parity/lib/main.dart", "scripts/capture-android-flutter-parity.ps1"],
       "capture": {
         "status": "adb-png",
-        "note": "adb capture installs the current APK, launches MainActivity, and pulls a screencap from Periwinkle."
+        "note": "Builds the shared Flutter parity APK, installs it on Periwinkle, and pulls responsive plus physical-panel screencaps through adb."
+      }
+    },
+    {
+      "id": "android-kotlin",
+      "title": "Android / Kotlin device edge",
+      "kind": "compatibility",
+      "expectedPaths": ["android/app/src/main/java/org/gamecult/eve/MainActivity.kt", "scripts/build-android.ps1"],
+      "capture": {
+        "status": "manual",
+        "note": "Native Kotlin remains a CultMesh sensor/dashboard compatibility body; it is not the GUI CultUI parity target."
       }
     },
     {

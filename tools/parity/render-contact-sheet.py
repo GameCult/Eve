@@ -26,7 +26,7 @@ RUNTIME_ORDER = [
     "Web reference",
     "Windows / Flutter",
     "Linux / Flutter",
-    "Android / Kotlin",
+    "Android / Flutter",
     "iOS / UIKit",
 ]
 
@@ -91,12 +91,12 @@ def classify_target(target: dict) -> TargetShot:
     elif target_id.startswith("linux-"):
         runtime = "Linux / Flutter"
         column = target_id.removeprefix("linux-")
-    elif target_id.startswith("android-native-"):
-        runtime = "Android / Kotlin"
-        column = f"native {target_id.removeprefix('android-native-')}"
-    elif target_id.startswith("android-"):
-        runtime = "Android / Kotlin"
-        column = target_id.removeprefix("android-")
+    elif target_id.startswith("android-flutter-native-"):
+        runtime = "Android / Flutter"
+        column = f"native {target_id.removeprefix('android-flutter-native-')}"
+    elif target_id.startswith("android-flutter-"):
+        runtime = "Android / Flutter"
+        column = target_id.removeprefix("android-flutter-")
     elif target_id == "ios" or target_id.startswith("ios-"):
         runtime = "iOS / UIKit"
         column = "device"

@@ -47,8 +47,8 @@ viewport matrix:
 - `desktop`: 1280 x 720
 
 Device runtimes also capture native physical panel cases when the platform
-adapter can control orientation without overriding size. Android currently
-emits:
+adapter can control orientation without overriding size. Android Flutter
+currently emits:
 
 - `native-portrait`: Periwinkle at physical portrait resolution
 - `native-landscape`: Periwinkle at physical landscape resolution
@@ -95,14 +95,17 @@ The harness tracks every target runtime:
 - iOS / UIKit: screenshot target through SSH and EveCanvas'
   `/var/mobile/Library/EveCanvas/capture-request` service. Current iOS capture
   is fixed-device until a simulator or device-resize adapter exists.
-- Android / Kotlin: screenshot target through `adb install`, activity launch,
-  optional `adb shell wm size`, orientation control, and `adb exec-out
-  screencap`; the script restores device size and rotation after each viewport.
 - Windows / Flutter: screenshot target through the Flutter parity golden smoke,
   with phone, tablet, and desktop goldens.
 - Linux / Flutter: screenshot target through Nightwing over SSH. The smoke
   stages `flutter/eve_parity`, runs Flutter goldens on Nightwing, and pulls back
   phone, tablet, and desktop PNGs.
+- Android / Flutter: screenshot target through the same Flutter renderer,
+  packaged as a debug APK, installed on Periwinkle through `adb`, and captured
+  with optional `adb shell wm size`, orientation control, and `adb exec-out
+  screencap`; the script restores device size and rotation after each viewport.
+- Android / Kotlin device edge: compatibility body for CultMesh dashboard and
+  sensor experiments. It is not the GUI parity target.
 - Fensalir Direct2D: specialized native target, adapter/capture still missing.
 
 Pending runtimes are allowed. Silent fake parity is not.
@@ -112,7 +115,8 @@ Pending runtimes are allowed. Silent fake parity is not.
 1. Add screenshot comparison metrics that score structure, color tokens,
    bounding boxes, and text presence without pretending byte-identical pixels
    are the goal.
-2. Normalize text scale and font loading across web, Flutter, Android, and iOS.
+2. Normalize text scale and font loading across web, Flutter Android, Flutter
+   desktop, and iOS.
 3. Give iOS a real `vn.stage` scene compositor instead of compact stacked
    fixture lowering.
 4. Replace Flutter golden screenshots with native window captures once the
