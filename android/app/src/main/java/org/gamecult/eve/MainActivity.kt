@@ -51,6 +51,8 @@ import org.gamecult.cultmesh.eve.EveDashboardUiElement
 import org.gamecult.cultmesh.eve.EveMediaObservationDocument
 import org.gamecult.cultmesh.eve.EveSensorObservationDocument
 import java.net.URI
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -423,11 +425,11 @@ class MainActivity : Activity(), SensorEventListener {
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(18), dp(18), dp(18), dp(18))
+            setPadding(dp(12), dp(10), dp(12), dp(10))
         }
         scroll.addView(root, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-        root.addView(label("EVE / PERIWINKLE", 26f, 0xff8efcff.toInt(), true))
-        root.addView(label("CultMesh dashboard and sensor edge", 14f, 0xffb7c7c7.toInt(), false))
+        root.addView(label("Eve / Periwinkle", 18f, 0xff8efcff.toInt(), true))
+        root.addView(label("CultMesh dashboard and sensor edge", 11f, 0xffb7c7c7.toInt(), false))
         brokerText = card("CultMesh broker\nconnecting $dashboardUri")
         selectedText = card("selection\nwaiting for dashboard state")
         sensorText = card("CultMesh sensors\nconnecting $sensorUri")
@@ -450,18 +452,26 @@ class MainActivity : Activity(), SensorEventListener {
             orientation = LinearLayout.VERTICAL
         }
         surfaceList = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        root.addView(brokerText)
-        root.addView(selectedText)
-        root.addView(label("Daemon", 11f, 0xff8efcff.toInt(), true).apply {
-            setPadding(0, dp(14), 0, dp(4))
+        root.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            addView(brokerText, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+                setMargins(0, dp(8), dp(6), 0)
+            })
+            addView(selectedText, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+                setMargins(dp(6), dp(8), 0, 0)
+            })
         })
-        root.addView(providerPicker)
+        root.addView(label("Daemon", 11f, 0xff8efcff.toInt(), true).apply {
+            setPadding(0, dp(8), 0, dp(4))
+        })
+        root.addView(providerPicker, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(38)))
         root.addView(providerOptionsList)
         root.addView(surfaceList)
         root.addView(sensorText)
         root.addView(mediaText)
         root.addView(touchText)
         root.addView(card("contract\nPeriwinkle consumes mimir.eve_dashboard_state.v1, sends mimir.eve_dashboard_command.v1, and publishes mimir.eve_sensor_observation.v1 plus mimir.eve_media_observation.v1. Mimir accepts meaning; Android renders and observes."))
+        refreshProviderCatalog()
         return scroll
     }
 
@@ -476,12 +486,13 @@ class MainActivity : Activity(), SensorEventListener {
         }
 
     private fun card(text: String): TextView =
-        label(text, 14f, 0xffe6f1f1.toInt(), false).apply {
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                setMargins(0, dp(14), 0, 0)
+        label(text, 11f, 0xffe6f1f1.toInt(), false).apply {
+            setPadding(dp(10), dp(8), dp(10), dp(8))
+            background = android.graphics.drawable.GradientDrawable().apply {
+                setColor(Color.rgb(7, 25, 24))
+                setStroke(dp(1), 0xff23484b.toInt())
+                cornerRadius = dp(4).toFloat()
             }
-            setPadding(dp(14), dp(12), dp(14), dp(12))
-            setBackgroundColor(Color.rgb(7, 25, 24))
         }
 
     private fun connectDashboard() {
@@ -525,8 +536,8 @@ class MainActivity : Activity(), SensorEventListener {
     private fun renderState(state: EveDashboardStateDocument) {
         latestState = state
         val surface = state.surface
-        brokerText.text = "CultMesh broker\nprovider=${state.providerId}\nversion=${state.version} nodes=${state.nodes.size} surface=${surface?.schema ?: "none"}\nupdated=${state.updatedAt}"
-        selectedText.text = "selection\n${state.title}\nselected=${state.selectedNodeId}\nlut=${state.lutPreset}"
+        brokerText.text = "Broker\nprovider ${state.providerId}\nv${state.version}  nodes ${state.nodes.size}  surface ${surface?.schema ?: "none"}"
+        selectedText.text = "Selection\n${state.title}\n${state.selectedNodeId}\nlut ${state.lutPreset}"
         renderProviderPicker(state)
         surfaceList.removeAllViews()
         if (surface != null) {
@@ -577,19 +588,61 @@ class MainActivity : Activity(), SensorEventListener {
 
     private fun renderProviderOptions(state: EveDashboardStateDocument) {
         providerOptionsList.removeAllViews()
+        providerOptionsList.orientation = LinearLayout.HORIZONTAL
         providerPickerNodes.forEach { node ->
             val active = node.providerId == state.providerId || node.id == state.selectedNodeId
-            providerOptionsList.addView(label("${if (active) "> " else "  "}${node.label}\n${node.providerId}", 13f, if (active) 0xff8efcff.toInt() else 0xffe6f1f1.toInt(), active).apply {
-                setPadding(dp(12), dp(8), dp(12), dp(8))
+            providerOptionsList.addView(label("${if (active) "> " else ""}${node.label}\n${node.providerId}", 10f, if (active) 0xff8efcff.toInt() else 0xffe6f1f1.toInt(), active).apply {
+                setPadding(dp(8), dp(6), dp(8), dp(6))
                 background = android.graphics.drawable.GradientDrawable().apply {
                     setColor(if (active) Color.rgb(22, 58, 55) else Color.rgb(7, 25, 24))
                     setStroke(dp(1), 0xff345f5f.toInt())
                     cornerRadius = dp(4).toFloat()
                 }
                 setOnClickListener { sendCommand("open-provider", node) }
-            }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                setMargins(0, dp(6), 0, 0)
+            }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+                setMargins(0, dp(6), dp(6), 0)
             })
+        }
+    }
+
+    private fun refreshProviderCatalog() {
+        workers.execute {
+            runCatching {
+                val url = URL("http://${dashboardUri.host}:${dashboardUri.port}/eve/deck/providers")
+                val connection = (url.openConnection() as HttpURLConnection).apply {
+                    connectTimeout = 1500
+                    readTimeout = 1500
+                }
+                val raw = connection.inputStream.bufferedReader().use { it.readText() }
+                val providers = JSONObject(raw).optJSONArray("providers") ?: return@runCatching
+                val nodes = mutableListOf<EveDashboardNodeSnapshot>()
+                for (index in 0 until providers.length()) {
+                    val provider = providers.getJSONObject(index)
+                    val providerId = provider.optString("id", "")
+                    if (providerId.isBlank()) continue
+                    nodes += EveDashboardNodeSnapshot(
+                        id = "provider-${providerId.replace('.', '-')}",
+                        label = provider.optString("title", providerId),
+                        kind = "dashboard-provider",
+                        visible = true,
+                        x = 0.0,
+                        y = 0.0,
+                        z = 0.0,
+                        rotation = 0.0,
+                        scale = 1.0,
+                        width = 0.0,
+                        height = 0.0,
+                        health = "ok",
+                        providerId = providerId,
+                        command = "open-provider",
+                        endpoint = provider.optString("endpoint", "").ifBlank { null },
+                    )
+                }
+                main.post {
+                    if (nodes.isNotEmpty()) providerPickerNodes = nodes
+                    latestState?.let { renderProviderPicker(it) }
+                }
+            }
         }
     }
 
