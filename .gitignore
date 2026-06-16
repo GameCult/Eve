@@ -1,5 +1,10 @@
 .theos/
-packages/
+packages/*
+!packages/.gitkeep
+!packages/org.gamecult.eve.surface/
+!packages/org.gamecult.eve.surface/**
+!packages/org.gamecult.eve.unity-uitoolkit/
+!packages/org.gamecult.eve.unity-uitoolkit/**
 obj/
 artifacts/
 tools/deps/
