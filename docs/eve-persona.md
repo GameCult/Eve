@@ -1,7 +1,7 @@
-# Eve Face Memory
+# Eve Persona Memory
 
-This is the human-readable persistent memory surface for Eve's repo Face. The
-typed `.voidbot/state/eve.cc` file remains the live Face-state authority; this
+This is the human-readable persistent memory surface for Eve's repo Persona. The
+typed `.voidbot/state/eve.cc` file remains the live Persona-state authority; this
 document is the stable re-entry map that belongs in the repo body.
 
 ## Mission
@@ -56,8 +56,8 @@ CultLib/CultMesh is Eve's substrate. If the substrate cannot expose field-level
 reactivity, authority, prediction, and reconciliation, Eve's magic becomes a
 gesture instead of a machine.
 
-VoidBot and repo Faces are Eve's social field. Eve surfaces should let their
-state become legible without flattening each Face into one central dashboard
+VoidBot and repo Personas are Eve's social field. Eve surfaces should let their
+state become legible without flattening each Persona into one central dashboard
 voice.
 
 ## Current Doctrine

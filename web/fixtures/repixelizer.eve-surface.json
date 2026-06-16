@@ -35,7 +35,7 @@
         "node-bound command taps"
       ],
       "losesUntilRendererParity": [
-        "Press Start 2P and VT323 font selection",
+        "GUI display/body font selection plus TUI Latin/kana raster font scale selection",
         "Repixelizer shell frame, scanlines, pixel grid, corner accents, and chunky border widths",
         "landing/app image assets; current Android lowerer prints asset refs when images are not explicitly implemented",
         "upload picker, comparison canvas, pan/zoom inspection, eyedropper, and paint controls",
@@ -43,7 +43,7 @@
       ],
       "minimumParityCuts": [
         "map surface.styles.tokens before toneColor/textColorFor/textSizeFor",
-        "add packaged pixel fonts or font download cache",
+        "add packaged GUI fonts plus TUI raster atlas cache",
         "render image assetUri/assetRef as ImageView with pixelated sampling",
         "lower command controls to Android upload/document picker and job route calls"
       ],
@@ -1200,14 +1200,14 @@
     "styles": {
       "assets": {
         "appUrl": "https://repixelizer.gamecult.org/app/",
-        "fontCss": "https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap",
+        "fontCss": "https://fonts.googleapis.com/css2?family=M+PLUS+1:wght@300;400;500;700&family=Montserrat:wght@100;300;400;500;700&family=Ubuntu+Sans:wght@300;400;500;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap",
         "landingInput": "https://repixelizer.gamecult.org/app/landing-assets/character-input.png",
         "landingOutput": "https://repixelizer.gamecult.org/app/landing-assets/character-repixelized.png"
       },
       "loweringHints": {
-        "android-native": "Load packaged or downloadable Press Start 2P and VT323 fonts, map style tokens before hard-coded tones, and render asset images instead of asset labels.",
+        "android-native": "Load packaged or downloadable Montserrat, Zen Kaku Gothic New, M PLUS 1, and Ubuntu Sans fonts, map style tokens before hard-coded tones, and render asset images instead of asset labels.",
         "css": "Use the tokens as CSS custom properties and retain scanline/pixel-grid overlays.",
-        "tui": "Preserve title/body font distinction as role metadata; canvas editing lowers to artifact refs and command intents only."
+        "tui": "Use fixed-cell raster atlases for tuiPixelDisplay/body/small; each advertised size must support Latin, hiragana, and katakana in the same cell grid."
       },
       "profile": "repixelizer.retro.pixel",
       "tokens": {
@@ -1233,17 +1233,21 @@
         "colorTextBright": "#f7efd8",
         "cornerAccentPx": 12,
         "dashedInnerFrame": true,
-        "fontBody": "\"VT323\", \"Courier New\", monospace",
-        "fontMono": "\"VT323\", \"Courier New\", monospace",
-        "fontTitle": "\"Press Start 2P\", \"VT323\", monospace",
+        "fontBody": "\"M PLUS 1\", \"Ubuntu Sans\", Ubuntu, sans-serif",
+        "fontDisplay": "\"Montserrat\", \"Zen Kaku Gothic New\", \"M PLUS 1\", sans-serif",
+        "fontMono": "\"Ubuntu Sans Mono\", \"M PLUS 1 Code\", \"Cascadia Mono\", monospace",
+        "fontTitle": "\"Montserrat\", \"Zen Kaku Gothic New\", \"M PLUS 1\", sans-serif",
         "imageRendering": "pixelated",
-        "scanlineOverlay": true
+        "scanlineOverlay": true,
+        "tuiPixelBody": "fixed-cell-raster-latin-kana-12",
+        "tuiPixelDisplay": "fixed-cell-raster-latin-kana-16",
+        "tuiPixelSmall": "fixed-cell-raster-latin-kana-10"
       }
     },
     "title": "Repixelizer"
   },
   "title": "Repixelizer",
   "type": "surface-state",
-  "updatedAt": "2026-06-05T00:00:00Z",
+  "updatedAt": "2026-06-04T00:00:00Z",
   "version": 1
 }

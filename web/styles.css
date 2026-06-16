@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=M+PLUS+1:wght@100;300;400;500;700&family=Montserrat:wght@100;300;400;500;700&family=Ubuntu+Sans:wght@300;400;500;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap");
+
 :root {
   color-scheme: dark;
   --bg: #020909;
@@ -23,7 +25,9 @@
   --border-width: 1px;
   --border-bottom-width: var(--border-width);
   --corner-accent-size: 0;
-  --font-mono: "Cascadia Mono", Consolas, monospace;
+  --font-body: "M PLUS 1", "Ubuntu Sans", Ubuntu, "Noto Sans JP", system-ui, sans-serif;
+  --font-title: "Montserrat", "Zen Kaku Gothic New", "M PLUS 1", "Ubuntu Sans", system-ui, sans-serif;
+  --font-mono: "Ubuntu Sans Mono", "M PLUS 1 Code", "Cascadia Mono", Consolas, monospace;
 }
 
 * {
@@ -35,7 +39,7 @@ body {
   min-height: 100vh;
   background: linear-gradient(180deg, var(--bg-top), var(--bg-mid), var(--bg-bottom));
   color: var(--text);
-  font-family: var(--font-body, Inter), "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-body);
 }
 
 .topbar {
@@ -432,7 +436,7 @@ body[data-pixel-art="true"] .cultui-background {
 
 .cultui-title {
   color: var(--accent);
-  font: 700 16px "Cascadia Mono", Consolas, monospace;
+  font: 100 18px var(--font-title);
   line-height: 1.35;
 }
 

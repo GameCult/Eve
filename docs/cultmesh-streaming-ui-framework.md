@@ -136,7 +136,7 @@ The current iOS app consumes Mimir's `/eve/deck` WebSocket broker. That broker i
 already shaped like the future API: provider manifests, retained dashboard
 state, provider switching, commands, and typed node metadata. The VoidBot
 provider proves that Eve can render an app-specific native cockpit from a
-structured mesh snapshot: CTB rail, avatar images, selected Face/status pane,
+structured mesh snapshot: CTB rail, avatar images, selected Persona/status pane,
 state tree, and detail panel.
 
 The Android proof under `android/` builds directly against the installed Android

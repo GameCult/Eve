@@ -293,8 +293,9 @@ The portable style document should look like data:
     "colorBackgroundTop": "#01040b",
     "colorPanel": "#0a2239",
     "colorText": "#efe5c9",
-    "fontTitle": "Press Start 2P",
-    "fontBody": "VT323",
+    "fontDisplay": "\"Montserrat\", \"Zen Kaku Gothic New\", \"M PLUS 1\", sans-serif",
+    "fontTitle": "\"Montserrat\", \"Zen Kaku Gothic New\", \"M PLUS 1\", sans-serif",
+    "fontBody": "\"M PLUS 1\", \"Ubuntu Sans\", Ubuntu, sans-serif",
     "borderWidthPx": 4,
     "pixelArt": true,
     "scanlineOverlay": true
@@ -314,6 +315,17 @@ The portable style document should look like data:
 Rules should target component roles, variants, and state, not arbitrary global
 text selectors. If a style cannot explain which component role or variant it
 serves, it probably belongs in a runtime lowerer or nowhere.
+
+Typography roles carry script-coverage obligations. GUI body text should use
+`M PLUS 1` and `Ubuntu Sans`/Ubuntu for the clean contemporary reading voice.
+GUI display text may use Montserrat for Latin, but Japanese display needs a
+matching contemporary fallback such as `Zen Kaku Gothic New` before falling
+back to a body face.
+
+Pixel text is a TUI raster-font concern, not a GUI webfont substitution. A TUI
+lowerer that claims Japanese pixel typography must expose fixed-cell raster
+atlases for display, body, and small scales, with Latin and hiragana supported
+and katakana supported inside each advertised cell size.
 
 ## What CultUI Takes From CSS
 
@@ -374,6 +386,9 @@ Each runtime needs one style lowerer:
 Runtime lowerers must report capability gaps. If Android cannot yet render
 Repixelizer's pixel-art image preview or cleanup canvas, the surface should say
 that plainly instead of faking a control that cannot carry the command.
+If a lowering target cannot load the declared Japanese-capable display fonts or
+TUI raster atlases, it must report that typography capability gap rather than
+silently rendering hiragana with tofu or an unrelated default face.
 
 ### Parity Unit Boundary
 

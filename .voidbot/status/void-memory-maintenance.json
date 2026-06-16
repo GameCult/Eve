@@ -1,0 +1,7 @@
+{
+  "status": "starting",
+  "startedAt": "2026-06-14T19:46:52.908Z",
+  "stateFile": "E:\\Projects\\Eve\\.voidbot\\state\\eve.cc",
+  "launcher": "repo_face_heartbeat",
+  "reason": "repo_face_stale_short_term_memory"
+}

@@ -11,6 +11,7 @@ let socket;
 let providers = [];
 let currentProvider;
 let currentSurfaceStyles = {};
+let activeFontStylesheet;
 
 const defaultStyleTokens = {
   "--bg": "#020909",
@@ -35,9 +36,9 @@ const defaultStyleTokens = {
   "--border-width": "1px",
   "--border-bottom-width": "1px",
   "--corner-accent-size": "0",
-  "--font-body": "Inter, Segoe UI, system-ui, sans-serif",
-  "--font-title": "Cascadia Mono, Consolas, monospace",
-  "--font-mono": "Cascadia Mono, Consolas, monospace",
+  "--font-body": "\"M PLUS 1\", \"Ubuntu Sans\", Ubuntu, \"Noto Sans JP\", system-ui, sans-serif",
+  "--font-title": "\"Montserrat\", \"Zen Kaku Gothic New\", \"M PLUS 1\", \"Ubuntu Sans\", system-ui, sans-serif",
+  "--font-mono": "\"Ubuntu Sans Mono\", \"M PLUS 1 Code\", \"Cascadia Mono\", Consolas, monospace",
 };
 
 const localProviders = [
@@ -212,6 +213,7 @@ function renderSurface(state, source) {
 function applySurfaceStyles(styles) {
   const tokens = styles?.tokens || {};
   const root = document.documentElement.style;
+  loadFontStylesheet(styles?.assets?.fontCss);
   for (const [variable, value] of Object.entries(defaultStyleTokens)) {
     root.setProperty(variable, value);
   }
@@ -239,14 +241,40 @@ function applySurfaceStyles(styles) {
   for (const [token, variable] of Object.entries(map)) {
     if (tokens[token]) root.setProperty(variable, tokens[token]);
   }
-  if (tokens.fontBody) root.setProperty("--font-body", tokens.fontBody);
-  if (tokens.fontTitle) root.setProperty("--font-title", tokens.fontTitle);
-  if (tokens.fontMono) root.setProperty("--font-mono", tokens.fontMono);
+  if (tokens.fontBody) root.setProperty("--font-body", withJapaneseGuiFallback(tokens.fontBody));
+  if (tokens.fontDisplay) root.setProperty("--font-title", withJapaneseGuiFallback(tokens.fontDisplay));
+  if (tokens.fontTitle) root.setProperty("--font-title", withJapaneseGuiFallback(tokens.fontTitle));
+  if (tokens.fontMono) root.setProperty("--font-mono", withJapaneseGuiFallback(tokens.fontMono));
   if (tokens.borderWidthPx) root.setProperty("--border-width", `${tokens.borderWidthPx}px`);
   if (tokens.borderBottomWidthPx) root.setProperty("--border-bottom-width", `${tokens.borderBottomWidthPx}px`);
   if (tokens.cornerAccentPx) root.setProperty("--corner-accent-size", `${tokens.cornerAccentPx}px`);
   document.body.dataset.pixelArt = tokens.pixelArt || tokens.imageRendering === "pixelated" ? "true" : "false";
   document.body.dataset.scanlines = tokens.scanlineOverlay ? "true" : "false";
+}
+
+function loadFontStylesheet(href) {
+  const normalized = typeof href === "string" ? href.trim() : "";
+  if (activeFontStylesheet?.dataset.href === normalized) return;
+  activeFontStylesheet?.remove();
+  activeFontStylesheet = undefined;
+  if (!normalized) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = normalized;
+  link.dataset.href = normalized;
+  document.head.append(link);
+  activeFontStylesheet = link;
+}
+
+function withJapaneseGuiFallback(stack) {
+  if (typeof stack !== "string" || stack.includes("Zen Kaku Gothic New") || stack.includes("M PLUS 1")) return stack;
+  if (stack.includes("Montserrat")) {
+    return `${stack}, "Zen Kaku Gothic New", "M PLUS 1", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif`;
+  }
+  if (stack.includes("Ubuntu")) {
+    return `${stack}, "M PLUS 1", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif`;
+  }
+  return `${stack}, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif`;
 }
 
 function renderCultComponent(node) {

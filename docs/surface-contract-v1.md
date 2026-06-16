@@ -247,8 +247,28 @@ Minimum common tokens:
 - `radiusPanel`
 - `fontBody`
 - `fontTitle`
+- `fontDisplay`
 - `pixelArt`
 - `motion`
+
+Typography tokens describe roles, not one runtime's installed fonts. `fontBody`
+should favor `M PLUS 1` and `Ubuntu Sans`/Ubuntu for GUI lowerers. `fontDisplay`
+and `fontTitle` may use Montserrat for Latin text, but must include a
+Japanese-capable contemporary display fallback such as `Zen Kaku Gothic New`;
+Ubuntu remains the body voice, not the flashy title answer.
+
+TUI pixel typography is a separate lowering capability, not a GUI webfont
+fallback. A TUI lowerer that claims Japanese pixel support must expose fixed
+raster-cell fonts for each advertised scale, with Latin, hiragana, and katakana
+in the same cell grid. The expected capability roles are:
+
+- `tuiPixelDisplay`: large raster display labels, roughly 16px or larger.
+- `tuiPixelBody`: readable dense raster text, roughly 12px.
+- `tuiPixelSmall`: the smallest readable kana lane, roughly 10px.
+
+If a TUI target lacks a Unicode raster atlas for one of those scales, it should
+publish a capability gap instead of silently falling back to tofu, proportional
+Japanese text, or a Latin-only console font.
 
 Product surfaces may add scoped token groups such as:
 

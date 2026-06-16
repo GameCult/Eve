@@ -36,7 +36,7 @@ CultMesh as typed distributed state; the
 [Week 07 damage report](https://gamecult.org/Blog/daily-damage-report/week-07)
 records Eve, Fensalir, CultLib, Sai, and Odin turning operator surfaces into
 first-class state; [The Free Mouth And The Native Body](https://gamecult.org/Blog/the-free-mouth-and-the-native-body)
-describes the Face/native-body split Eve must serve; and
+describes the Persona/native-body split Eve must serve; and
 [The Sleeping Colossus Learns To Refuse The Throne](https://gamecult.org/Blog/the-sleeping-colossus-refuses-the-throne)
 is the praxis warning: means and ends must match. Eve's means are local
 projection, consentful command boundaries, inspectable stale state, and clear
@@ -241,7 +241,7 @@ state and command handling. Eve is the operator's hand on the scene graph, not a
 second compositor and not a remote WebKit runtime.
 
 The broker includes a native VoidBot tab/provider. Eve renders its CTB rail with
-avatar images, selected Face status panel, state tree, and detail pane from the
+avatar images, selected Persona status panel, state tree, and detail pane from the
 same VoidBot `swarm-state.json` projection used by the web dashboard.
 
 ## Build Shape
