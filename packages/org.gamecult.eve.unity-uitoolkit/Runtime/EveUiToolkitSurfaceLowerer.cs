@@ -42,6 +42,29 @@ namespace GameCult.Eve.UnityUIToolkit
             foreach (var child in component.Children)
                 element.Add(LowerComponent(child, document, commandSink));
 
+            foreach (var slot in component.EmbeddedDocuments)
+            {
+                var nested = LowerEmbeddedDocument(slot, commandSink);
+                if (nested != null)
+                    element.Add(nested);
+            }
+
+            return element;
+        }
+
+        private VisualElement? LowerEmbeddedDocument(
+            EveEmbeddedDocumentSlot slot,
+            Action<EveSurfaceCommandRequest>? commandSink)
+        {
+            var document = _options.EmbeddedDocumentResolver?.Invoke(slot);
+            if (document == null)
+                return null;
+
+            var element = LowerComponent(document.Surface.Root, document, commandSink);
+            element.name = SafeName(string.IsNullOrWhiteSpace(slot.SlotId) ? document.Surface.Id : slot.SlotId);
+            element.AddToClassList("eve-embedded-document");
+            element.AddToClassList($"eve-embedded-kind-{SafeClass(slot.PresentationKind)}");
+            ApplyStyleTokens(element, document.Surface.Styles);
             return element;
         }
 
@@ -129,7 +152,7 @@ namespace GameCult.Eve.UnityUIToolkit
                         {
                             ["value"] = evt.newValue ?? ""
                         };
-                        EmitCommand(document, component, command, payload, commandSink);
+                        EmitCommand(document, component, command, GameCult.Mesh.CultMesh.OperationPayload(payload), commandSink);
                     });
                     return field;
                 }
@@ -155,7 +178,7 @@ namespace GameCult.Eve.UnityUIToolkit
                 document,
                 component,
                 command,
-                new Dictionary<string, string>(component.Props, StringComparer.Ordinal),
+                GameCult.Mesh.CultMesh.OperationPayload(component.Props),
                 commandSink);
         }
 
@@ -163,7 +186,7 @@ namespace GameCult.Eve.UnityUIToolkit
             EveSurfaceDocument document,
             EveSurfaceComponent component,
             string command,
-            IReadOnlyDictionary<string, string> payload,
+            GameCult.Mesh.CultMeshOperationPayload payload,
             Action<EveSurfaceCommandRequest>? commandSink)
         {
             if (commandSink == null || string.IsNullOrWhiteSpace(command))
@@ -172,10 +195,23 @@ namespace GameCult.Eve.UnityUIToolkit
             commandSink(new EveSurfaceCommandRequest(
                 document.ProviderId,
                 document.Surface.Id,
-                command,
+                ResolveOperation(document, command),
                 payload,
                 DateTimeOffset.UtcNow,
                 "unity-uitoolkit"));
+        }
+
+        private static GameCult.Mesh.CultMeshOperationInvocationDescriptor ResolveOperation(
+            EveSurfaceDocument document,
+            string command)
+        {
+            foreach (var template in document.Commands)
+            {
+                if (string.Equals(template.Command, command, StringComparison.Ordinal))
+                    return GameCult.Mesh.CultMesh.OperationInvocation(template.Operation);
+            }
+
+            return GameCult.Mesh.CultMesh.OperationInvocation(command);
         }
 
         private static Label TitleLabel(string text)

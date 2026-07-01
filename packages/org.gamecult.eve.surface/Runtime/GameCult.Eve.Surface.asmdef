@@ -1,12 +1,18 @@
 {
     "name": "GameCult.Eve.Surface",
     "rootNamespace": "GameCult.Eve.Surface",
-    "references": [],
+    "references": [
+        "GameCult.Mesh"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "GameCult.Caching.dll",
+        "GameCult.Mesh.dll",
+        "MessagePack.Annotations.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
