@@ -1,0 +1,69 @@
+{
+  "type": "surface-state",
+  "schema": "gamecult.eve.surface.v1",
+  "providerId": "gamecult.eve.embedded-demo",
+  "providerKind": "surface.fixture",
+  "title": "Embedded Surface Slots",
+  "version": 1,
+  "updatedAtUtc": "2026-06-29T00:00:00Z",
+  "surface": {
+    "id": "gamecult.eve.embedded-demo",
+    "root": {
+      "id": "gamecult.eve.embedded-demo.root",
+      "kind": "surface",
+      "props": {},
+      "children": [
+        {
+          "id": "gamecult.eve.embedded-demo.summary",
+          "kind": "card",
+          "props": {
+            "title": "Parent Surface"
+          },
+          "children": [
+            {
+              "id": "gamecult.eve.embedded-demo.summary.text",
+              "kind": "text",
+              "props": {
+                "value": "The parent owns layout while the child remains a separately synced CultMesh document."
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "gamecult.eve.embedded-demo.child-slot",
+          "kind": "surface.slot",
+          "props": {
+            "slotId": "inventory.dropdown",
+            "documentId": "cultmesh://demo/inventory/dropdown",
+            "schemaId": "gamecult.eve.surface.v1",
+            "presentationKind": "inventory.dropdown"
+          },
+          "children": [],
+          "embeddedDocuments": [
+            {
+              "slotId": "inventory.dropdown",
+              "documentId": "cultmesh://demo/inventory/dropdown",
+              "schemaId": "gamecult.eve.surface.v1",
+              "presentationKind": "inventory.dropdown",
+              "routeHint": {
+                "kind": "Automatic",
+                "description": "fixture"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "styles": {
+      "tokens": {
+        "colorBackground": "#071014",
+        "colorPanel": "#111B22",
+        "colorText": "#E9F5F7",
+        "colorMuted": "#8CA9AE",
+        "colorAccent": "#6EE7D8"
+      }
+    }
+  },
+  "commands": []
+}
