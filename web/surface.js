@@ -15,6 +15,7 @@ const providerMeta = document.querySelector("#provider-meta");
 let providers = [];
 let currentProvider;
 let liveHermodr = false;
+let openProviderGeneration = 0;
 
 const localProviders = [
   {
@@ -143,6 +144,7 @@ async function loadProviderAdvertisement(provider) {
 }
 
 async function openProvider(provider) {
+  const generation = ++openProviderGeneration;
   currentProvider = provider;
   providerMeta.textContent = `${provider.kind || "provider"} | ${provider.providerId} | ${provider.freshness?.state || "unknown"}`;
   surfaceId.textContent = provider.providerId;
@@ -155,19 +157,56 @@ async function openProvider(provider) {
   }
 
   if (surface.transport === "hermodr-surface") {
-    const response = await fetch(surface.url, { cache: "no-store" });
-    renderSurface(await response.json(), "hermodr cultmesh");
+    try {
+      const state = await fetchHermodrSurface(surface.url);
+      if (generation !== openProviderGeneration) return;
+      renderSurface(state, "hermodr cultmesh");
+    } catch (error) {
+      if (generation !== openProviderGeneration) return;
+      statusEl.textContent = `${provider.title || provider.providerId} failed to load`;
+      surfaceVersion.textContent = "error";
+      app.replaceChildren(emptyState(error instanceof Error ? error.message : String(error)));
+    }
     return;
   }
 
   if (surface.transport === "local-eve-dsl") {
     const response = await fetch(surface.url);
-    renderSurface(compileEveDsl(await response.text()), "local dsl");
+    const state = compileEveDsl(await response.text());
+    if (generation !== openProviderGeneration) return;
+    renderSurface(state, "local dsl");
     return;
   }
 
   const response = await fetch(surface.url);
-  renderSurface(await response.json(), "local fixture");
+  const state = await response.json();
+  if (generation !== openProviderGeneration) return;
+  renderSurface(state, "local fixture");
+}
+
+async function fetchHermodrSurface(url) {
+  let lastError;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    try {
+      const response = await fetch(url, { cache: "no-store" });
+      const state = await response.json().catch(() => ({}));
+      if (!response.ok || state?.ok === false) {
+        throw new Error(state?.error || `Hermodr surface request failed with HTTP ${response.status}`);
+      }
+      if (!state?.surface?.root) {
+        throw new Error("Hermodr returned a surface document without a root.");
+      }
+      return state;
+    } catch (error) {
+      lastError = error;
+      await delay(250 * (attempt + 1));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function renderSurface(state, source) {
