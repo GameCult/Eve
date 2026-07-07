@@ -1,0 +1,134 @@
+# Eve World-State Lowering
+
+Date: 2026-07-07
+
+Eve does not only lower interface widgets. Eve lowers authored surfaces that may
+include UI, live state pointers, commands, assets, 2D fields, 3D fields,
+entity/object rows, and native view descriptors. A provider may publish a
+surface for a compact dashboard, a browser canvas, a native mobile view, a
+desktop tool, a 2D tactical map, a 3D action-game scene, or a future room-scale
+projection. Those are different lowering targets for one semantic contract.
+
+## Authority
+
+Provider owns:
+
+- committed domain state;
+- rules and accepted command effects;
+- state pointers and document identities;
+- authored surface semantics;
+- assets and asset manifests;
+- render-field documents and view descriptors when they describe provider
+  state.
+
+Eve owns:
+
+- the portable surface contract;
+- layout and interaction semantics;
+- state-binding and operation-invocation semantics;
+- modal/dropdown placement semantics;
+- generic asset-reference lowering hooks;
+- 2D and 3D scalar/vector/color field visualization primitives;
+- native-view descriptor semantics;
+- renderer parity expectations across runtimes.
+
+Runtime lowerers own:
+
+- native projection;
+- input hardware capture;
+- frame timing;
+- local caches and native buffers;
+- quality/performance choices that do not change provider meaning.
+
+CultMesh owns:
+
+- typed state delivery;
+- subscriptions and replay;
+- provenance;
+- asset transport;
+- operation routing.
+
+No renderer gains provider authority because it can draw a provider surface.
+
+## World Surfaces
+
+A world surface is an Eve surface whose retained tree describes a view into
+provider world state. It may contain normal UI controls, but it also carries
+instructions for reconstructing a spatial presentation.
+
+World surfaces should be able to describe:
+
+- state pointers to daemon/provider-owned typed documents;
+- high-performance SoA or native-view descriptors;
+- object/entity render rows with transforms, labels, selection metadata, and
+  operation affordances;
+- 2D scalar fields, such as height, influence, heat, pressure, or gravity;
+- 2D vector/color fields, such as tint, fog, flow, current, or velocity;
+- 3D scalar fields, such as density, temperature, or occupancy;
+- 3D vector fields, such as flow, force, wind, or steering;
+- field visualizers, such as isolines, shaded height, probes, volume slices,
+  particles, streamlines, glyphs, or contour bands;
+- render splat buffers and accumulation rules;
+- asset refs for sprites, icons, meshes, materials, shaders, generated textures,
+  and media;
+- presentation-quality hints and level-of-detail policy.
+
+The renderer chooses the best native projection it can support. It must not
+invent provider semantics to compensate for missing contract information.
+
+## Quality Tiers
+
+A low-end or debugging renderer may lower a world surface into labels, simple
+icons, flat shaded fields, and command lists.
+
+A browser renderer may lower the same surface into Canvas, WebGL, DOM overlays,
+or a mixed scene.
+
+A Unity, Godot, Direct2D, Vulkan, Metal, or future native renderer may lower the
+same surface into engine-native meshes, materials, particles, UI panels, input
+affordances, and camera-relative overlays.
+
+Those are quality tiers over one Eve surface. They are not separate provider
+contracts and they are not permission for a runtime to carry private domain
+logic.
+
+## Aetheria Conformance Example
+
+Aetheria is the current pressure case for this contract.
+
+The Aetheria daemon should publish the game state, rules, generated level,
+assets, operations, scalar/vector fields, object rows, and Eve surfaces needed
+to render both Starbridge RTS and ARPG views. Hermodr should reconstruct the RTS
+surface as an unspecialized browser/Eve lowerer. Electron should render the same
+surface as the player-facing Starbridge shell. Unity should become an ARPG
+lowerer over the same kind of daemon-authored surface, and Godot should become
+the equivalent non-Unity ARPG conformance target.
+
+Aetheria-specific examples:
+
+- gravity is a 2D scalar field; isolines are one visualization, not the field;
+- nebula tint is a 2D vector/color field accumulated from provider-authored
+  splat rules;
+- volumetric flow is a 3D vector field;
+- planets, ships, stations, projectiles, labels, and command affordances are
+  object/entity render rows with provider-advertised assets;
+- icons, sprites, materials, meshes, and generated textures resolve through
+  CultMesh CDN refs.
+
+If a renderer must know the phrase "Aetheria gravity" to draw the field, Eve is
+missing a generic scalar-field primitive or the provider surface is
+underspecified. If a renderer must know "Aetheria planet" to draw a body, the
+object row or asset contract is underspecified.
+
+## Non-Goals
+
+Eve does not own provider gameplay rules.
+
+Eve does not require every renderer to reach the same visual sophistication.
+
+Eve does not collapse every engine into one rendering backend.
+
+Eve does not turn native runtime caches into provider truth.
+
+Eve does define enough shared semantics that provider-authored world surfaces can
+be reconstructed across runtimes without provider-specific renderer brains.
