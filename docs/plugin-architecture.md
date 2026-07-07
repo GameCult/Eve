@@ -35,8 +35,9 @@ Plugins own:
 - domain component kinds;
 - domain command semantics;
 - domain state projection rules;
+- executable capability runtime behavior exposed through the plugin ABI;
 - plugin-local fixtures and conformance cases;
-- compatibility adapters for existing libraries or products.
+- compatibility adapters that live behind the plugin ABI.
 
 Renderer clients own:
 
@@ -87,7 +88,9 @@ is "nothing joins Eve core unless it protects a core invariant."
 
 ## Plugin Model
 
-An Eve plugin extends the representation vocabulary. It does not become a
+An Eve plugin is an executable capability package. It extends the
+representation vocabulary and supplies the functionality needed to evaluate,
+project, transform, validate, or lower that vocabulary. It does not become a
 provider and does not accept commands on behalf of an app.
 
 Plugin responsibilities:
@@ -96,14 +99,103 @@ Plugin responsibilities:
 - declare command names or operation descriptors it introduces;
 - declare state document schemas it can project or consume;
 - provide renderer-agnostic semantics for those kinds;
+- expose executable functionality through the standard plugin ABI;
 - provide fallback behavior when a renderer lacks support;
 - provide fixtures for the parity harness;
 - optionally provide reference lowerers for web or another runtime.
 
 Plugins may be distributed as separate repos, package artifacts, or in-repo
-packages during incubation. The ownership rule is semantic, not packaging
-ceremony: the plugin owns the representation shape, while providers own live
-state and renderer clients own projection.
+packages during incubation. Packaging does not change the call boundary:
+providers and renderers invoke plugin functionality through the Eve plugin ABI,
+not by importing plugin internals directly. A plugin implementation may use a
+same-language library internally, but that is an implementation detail behind
+the executable plugin boundary.
+
+The ownership rule is semantic, not packaging ceremony: the plugin owns the
+capability and representation shape, while providers own live state and
+renderer clients own projection.
+
+## Executable Plugin ABI
+
+Direct embedding is not a supported integration mode. It is too easy for a
+provider or renderer to bypass the contract because the plugin happens to be in
+the same language today. The standard shape is an executable plugin runtime with
+a typed request/response ABI.
+
+Allowed implementation forms:
+
+- process sidecar;
+- WASM module hosted by an Eve runtime;
+- native dynamic library behind the same ABI when performance demands it;
+- in-process package only when wrapped by the same plugin host interface.
+
+Forbidden integration:
+
+- provider imports plugin internals and calls ad hoc functions;
+- renderer imports plugin internals and invents local command effects;
+- same-language shortcuts that skip the request/response contract;
+- plugin sidecar mutating provider state directly.
+
+The ABI should support at least these operations:
+
+- `describe`: return manifest, schemas, component kinds, commands, fixtures,
+  capabilities, and runtime version.
+- `validate`: validate plugin-specific state, manifest, command payload, or
+  surface subtree.
+- `project`: turn provider-owned plugin state into an Eve surface subtree or
+  document patch.
+- `apply`: apply a plugin command to plugin-local state and return proposed next
+  plugin state plus effect summary.
+- `lower`: optional renderer-side helper for runtimes that delegate lowering to
+  plugin code.
+- `measure`: optional layout/measurement operation for TeX, graph, and scene
+  placement plugins.
+
+All operations are pure or bounded from the provider's perspective. A plugin
+runtime can return a proposed next state, diagnostics, measurements, or rendered
+assets. It cannot decide whether a provider command is allowed, cannot persist
+app truth, and cannot write receipts except for its own runtime diagnostics.
+
+Example ABI request:
+
+```json
+{
+  "schema": "gamecult.eve.plugin_invocation.v1",
+  "pluginId": "sai.vn",
+  "operation": "apply",
+  "requestId": "cmd-123",
+  "input": {
+    "stateSchema": "sai.vn.story_session.v1",
+    "state": {},
+    "commandSchema": "sai.vn.story_command.v1",
+    "command": {
+      "command": "story.choose",
+      "payload": { "index": 0 }
+    }
+  }
+}
+```
+
+Example ABI response:
+
+```json
+{
+  "schema": "gamecult.eve.plugin_result.v1",
+  "pluginId": "sai.vn",
+  "operation": "apply",
+  "requestId": "cmd-123",
+  "status": "ok",
+  "output": {
+    "nextState": {},
+    "effectSummary": "advanced story choice 0",
+    "diagnostics": []
+  }
+}
+```
+
+If a provider and plugin are written in the same language, the provider may run
+the plugin host in-process for performance. It still talks to the same ABI
+object model. No special trusted back door.
 
 ### Example Plugin Manifest
 
@@ -290,6 +382,7 @@ Sai plugin responsibilities:
 - define `vn.stage` semantics;
 - define story state projection shape;
 - define `story.continue`, `story.choose`, and `story.jump` semantics;
+- expose Ink/story operations through the executable plugin ABI;
 - define visual manifest schema as Eve-facing representation input;
 - provide slots for embedded surfaces inside VN scenes without owning the
   embedded surface semantics;
@@ -374,9 +467,9 @@ An app that wants VN functionality composes four layers.
    state, save/load integration, eligibility, command acceptance, and receipts.
 
 2. Sai plugin owns VN representation.
-   The provider uses Sai's plugin schema to express story state as `vn.stage`,
-   choices, speaker, line, scene, sprites, manifest-backed assets, and story
-   commands.
+   The provider invokes Sai through the plugin ABI to validate story state,
+   apply story commands, and project the accepted state as `vn.stage`, choices,
+   speaker, line, scene, sprites, manifest-backed assets, and story commands.
 
 3. Eve owns surface/control contract.
    Eve validates that the surface and command descriptors conform to
@@ -437,13 +530,15 @@ renderer click
   -> Eve command envelope
   -> Aetheria provider command route
   -> Aetheria accepts/denies story command
+  -> Aetheria invokes Sai plugin ABI for proposed story transition
   -> provider writes receipt
   -> provider republishes surface state
   -> renderer updates from provider state
 ```
 
 No runtime gets to decide the story consequence just because it rendered the
-button.
+button. Sai proposes the story transition through its ABI; Aetheria accepts,
+persists, receipts, and republishes it.
 
 ## Renderer Client Repos
 
@@ -475,6 +570,8 @@ For Sai VN:
 - embedded surface slot fixture with optional Norn/TeX plugin dependencies;
 - degraded renderer fixture for clients without scene placement;
 - receipt round-trip fixture driven by a fake provider.
+- ABI fixture proving `validate`, `apply`, and `project` produce the expected
+  plugin results without direct imports.
 
 The parity manifest should be extended so runtimes declare plugin support:
 
