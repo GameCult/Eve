@@ -153,10 +153,25 @@ state and renderer clients own projection.
       "image.background",
       "control.button"
     ],
-    "optional": [
-      "embed.norn",
-      "embed.tex",
+    "optionalCapabilities": [
       "scene.placement.keystone"
+    ],
+    "optionalPlugins": [
+      {
+        "pluginId": "norn.graph",
+        "capabilities": [
+          "embed.norn",
+          "graph.node.activate"
+        ]
+      },
+      {
+        "pluginId": "tex.math",
+        "capabilities": [
+          "embed.tex",
+          "tex.inline",
+          "tex.block"
+        ]
+      }
     ]
   }
 }
@@ -276,8 +291,10 @@ Sai plugin responsibilities:
 - define story state projection shape;
 - define `story.continue`, `story.choose`, and `story.jump` semantics;
 - define visual manifest schema as Eve-facing representation input;
-- define optional embedded scene affordances such as Norn/TeX placement when
-  they are used inside VN scenes;
+- provide slots for embedded surfaces inside VN scenes without owning the
+  embedded surface semantics;
+- declare optional plugin dependencies such as Norn graph and TeX math when a
+  scene embeds those documents;
 - provide fixtures for Eve parity;
 - provide a web/static-site reference implementation.
 
@@ -289,6 +306,63 @@ Sai does not own:
 - save/load authority;
 - Unity/Electron/Godot renderer bodies;
 - CultMesh provider routing.
+- Norn graph/map semantics;
+- TeX/math/typesetting semantics.
+
+## Norn And TeX As First-Class Plugins
+
+Norn and TeX are not Sai subfeatures. Sai can place them inside a visual-novel
+scene, but ownership stays with their plugins.
+
+Norn plugin responsibilities:
+
+- define `embed.norn` semantics;
+- define graph/node/edge document expectations;
+- define layout intent and solver/runtime requirements;
+- define graph interaction commands such as node activation, focus, selection,
+  pan, zoom, and jump;
+- define fallback and capability-gap behavior when a renderer cannot run Norn;
+- provide graph/map fixtures for Eve parity.
+
+TeX plugin responsibilities:
+
+- define `embed.tex` semantics;
+- define accepted source dialects such as TeX, LaTeX, or stricter future
+  subsets;
+- define macro handling, display mode, baseline, scale, and layout expectations;
+- define renderer requirements and cached-render policy;
+- define fallback and capability-gap behavior when a renderer cannot typeset;
+- provide inline, block, and scene-placed math fixtures for Eve parity.
+
+Sai may declare optional dependencies:
+
+```json
+{
+  "pluginId": "sai.vn",
+  "optionalPlugins": [
+    {
+      "pluginId": "norn.graph",
+      "capabilities": [
+        "embed.norn",
+        "graph.node.activate"
+      ]
+    },
+    {
+      "pluginId": "tex.math",
+      "capabilities": [
+        "embed.tex",
+        "tex.inline",
+        "tex.block"
+      ]
+    }
+  ]
+}
+```
+
+That means a VN scene can put a graph on a whiteboard or an equation in a
+briefing without Sai becoming a graph engine or a TeX engine. Sai owns the
+stage. Norn owns the graph. TeX owns the math. Eve owns the plugin ABI and
+renderer conformance. The app provider owns live state and receipts.
 
 ## Building An App With Eve And Sai
 
@@ -337,7 +411,7 @@ the VN representation:
 - scene/background/sprites;
 - visual manifest references;
 - story commands;
-- optional embedded surfaces.
+- embedded surface slots.
 
 Aetheria owns the runtime-specific meaning:
 
@@ -398,7 +472,7 @@ For Sai VN:
 - choice command fixture;
 - continue command fixture;
 - visual manifest asset fixture;
-- embedded Norn/TeX optional fixture;
+- embedded surface slot fixture with optional Norn/TeX plugin dependencies;
 - degraded renderer fixture for clients without scene placement;
 - receipt round-trip fixture driven by a fake provider.
 
