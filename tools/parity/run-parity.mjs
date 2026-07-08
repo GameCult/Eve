@@ -289,6 +289,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   const commandTransportSmokeErrors = await validateRuntimeCommandTransportSmoke(runtime);
   const missingIncubationFields = requiredIncubationFields(runtime).filter(field => !runtime[field]);
   const pluginCapabilityGaps = collectPluginCapabilityGaps(runtime, fixtureResults);
+  const unsupportedPluginNotes = collectUnsupportedPluginNotes(runtime, fixtureResults);
   let status = runtime.kind === "active" ? "active" : "pending";
   if (missingPaths.length) status = "missing-body";
   if (runtime.kind === "active" && missingSourceSymbols.length) status = "missing-source-symbol";
@@ -322,6 +323,8 @@ async function evaluateRuntime(runtime, fixtureResults) {
     missingRequiredFixtures,
     supportedFeatures,
     supportedPlugins,
+    unsupportedPlugins: runtime.unsupportedPlugins || [],
+    unsupportedPluginNotes,
     missingRequiredFeatures,
     commandTransportSmoke: runtime.commandTransportSmoke || null,
     commandTransportSmokeErrors,
@@ -742,6 +745,7 @@ function matchesSchemaType(value, type) {
 
 function collectPluginCapabilityGaps(runtime, fixtureResults) {
   const supported = new Map((runtime.supportedPlugins || []).map(plugin => [plugin.pluginId, new Set(plugin.capabilities || [])]));
+  const unsupported = new Map((runtime.unsupportedPlugins || []).map(plugin => [plugin.pluginId, plugin.reason || "unsupported"]));
   const fixtureById = new Map((manifest.fixtures || []).map(fixture => [fixture.id, fixture]));
   const gaps = [];
   const fixtureIds = [...new Set([...(runtime.requiredFixtures || []), ...(runtime.pluginFixtures || [])])];
@@ -750,6 +754,7 @@ function collectPluginCapabilityGaps(runtime, fixtureResults) {
     if (!fixtureResult || fixtureResult.status !== "pass") continue;
     const fixture = fixtureById.get(fixtureId);
     for (const requirement of fixture?.requiredPlugins || []) {
+      if (unsupported.has(requirement.pluginId)) continue;
       const capabilities = supported.get(requirement.pluginId);
       if (!capabilities) {
         gaps.push(`${fixtureId}:${requirement.pluginId}`);
@@ -761,6 +766,23 @@ function collectPluginCapabilityGaps(runtime, fixtureResults) {
     }
   }
   return gaps;
+}
+
+function collectUnsupportedPluginNotes(runtime, fixtureResults) {
+  const unsupported = new Map((runtime.unsupportedPlugins || []).map(plugin => [plugin.pluginId, plugin.reason || "unsupported"]));
+  const fixtureById = new Map((manifest.fixtures || []).map(fixture => [fixture.id, fixture]));
+  const notes = [];
+  const fixtureIds = [...new Set([...(runtime.requiredFixtures || []), ...(runtime.pluginFixtures || [])])];
+  for (const fixtureId of fixtureIds) {
+    const fixtureResult = fixtureResults.find(fixture => fixture.id === fixtureId);
+    if (!fixtureResult || fixtureResult.status !== "pass") continue;
+    const fixture = fixtureById.get(fixtureId);
+    for (const requirement of fixture?.requiredPlugins || []) {
+      const reason = unsupported.get(requirement.pluginId);
+      if (reason) notes.push(`${fixtureId}:${requirement.pluginId}:${reason}`);
+    }
+  }
+  return notes;
 }
 
 async function validateRuntimeCommandTransportSmoke(runtime) {
@@ -822,7 +844,12 @@ function evaluateSplitTargets(splitTargets, runtimeResults) {
       }
 
       const supportedPlugins = new Map(runtime.supportedPlugins.map(plugin => [plugin.pluginId, new Set(plugin.capabilities || [])]));
+      const unsupportedPlugins = new Map((runtime.unsupportedPlugins || []).map(plugin => [plugin.pluginId, plugin.reason || "unsupported"]));
       for (const requirement of requiredPlugins) {
+        if (unsupportedPlugins.has(requirement.pluginId)) {
+          blockers.push(`runtime:${runtimeId}:unsupported-plugin:${requirement.pluginId}:${unsupportedPlugins.get(requirement.pluginId)}`);
+          continue;
+        }
         const capabilities = supportedPlugins.get(requirement.pluginId);
         if (!capabilities) {
           blockers.push(`runtime:${runtimeId}:plugin:${requirement.pluginId}`);
@@ -1077,7 +1104,7 @@ function renderMarkdown(report) {
     lines.push(`| ${provider.title || provider.providerId} | ${provider.status} | ${provider.ownerRepo} | ${provider.scenarioId || ""} | ${provider.scenarioReceiptStates.join(", ")} | ${provider.surfaceIds.join(", ")} | ${provider.commandIds.join(", ")} | ${provider.witnessKinds.join(", ")} | ${missing} |`);
   }
 
-  lines.push("", "## Runtimes", "", "| Runtime | Status | Owner | Capture | Command Smoke | Required Fixtures | Plugin Fixtures | Features | Plugin Gaps | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+  lines.push("", "## Runtimes", "", "| Runtime | Status | Owner | Capture | Command Smoke | Required Fixtures | Plugin Fixtures | Features | Plugin Gaps | Unsupported Plugins | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
   for (const runtime of report.runtimes) {
     const missing = [
       ...runtime.missingPaths,
@@ -1089,7 +1116,7 @@ function renderMarkdown(report) {
       ...runtime.commandTransportSmokeErrors.map(id => `command-smoke:${id}`),
       ...runtime.missingIncubationFields.map(id => `metadata:${id}`),
     ].join(", ");
-    lines.push(`| ${runtime.title} | ${runtime.status} | ${runtime.ownerRepo} | ${runtime.capture?.status || "unknown"} | ${runtime.commandTransportSmoke?.schema || ""} | ${runtime.requiredFixtures.join(", ")} | ${runtime.pluginFixtures.join(", ")} | ${runtime.supportedFeatures.join(", ")} | ${runtime.pluginCapabilityGaps.join(", ")} | ${missing} |`);
+    lines.push(`| ${runtime.title} | ${runtime.status} | ${runtime.ownerRepo} | ${runtime.capture?.status || "unknown"} | ${runtime.commandTransportSmoke?.schema || ""} | ${runtime.requiredFixtures.join(", ")} | ${runtime.pluginFixtures.join(", ")} | ${runtime.supportedFeatures.join(", ")} | ${runtime.pluginCapabilityGaps.join(", ")} | ${runtime.unsupportedPluginNotes.join(", ")} | ${missing} |`);
   }
 
   lines.push("", "## Split Readiness", "", "| Target | Status | Owner | Runtimes | Blockers |", "| --- | --- | --- | --- | --- |");

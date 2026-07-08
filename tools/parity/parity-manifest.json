@@ -681,6 +681,20 @@
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["embeddedDocuments"],
+      "unsupportedPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "reason": "Unity UI Toolkit currently lowers Sai VN component kinds as generic Eve containers; no Sai plugin host exists in this runtime."
+        },
+        {
+          "pluginId": "norn.graph",
+          "reason": "Unity UI Toolkit currently preserves embed.norn as generic Eve structure; no Norn graph plugin host or layout adapter exists in this runtime."
+        },
+        {
+          "pluginId": "tex.math",
+          "reason": "Unity UI Toolkit currently preserves embed.tex as generic Eve structure; no TeX render plugin host exists in this runtime."
+        }
+      ],
       "expectedPaths": ["packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs"],
       "expectedSourceSymbols": [
         {

@@ -274,14 +274,14 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Resolve or explicitly demote the Unity plugin-host capability gap so
-   `EveUnity` can explain whether Sai/Norn support is real runtime behavior or
-   still incubating proof work.
-2. Prepare an `EveConformance` export layout so core, plugin, runtime, and
+1. Prepare an `EveConformance` export layout so core, plugin, runtime, and
    provider packs can be consumed without Eve's local source layout.
 
 Recently cut:
 
+- Unity's plugin-host capability gap is now explicitly demoted. The UI Toolkit
+  runtime owns generic projection and command requests, while Sai, Norn, and
+  TeX semantics remain unsupported until a real Unity plugin host exists.
 - Flutter and Unity now have runtime command-transport smoke evidence in the
   parity report. Flutter emits `gamecult.eve.command.v1` intents from lowered
   controls, and Unity command requests now carry the same command schema.
