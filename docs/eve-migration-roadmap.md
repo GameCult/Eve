@@ -182,7 +182,9 @@ Work:
   `plugins/incubating/norn-graph.plugin.json`, and
   `plugins/incubating/tex-math.plugin.json` as temporary manifests.
 - Define `gamecult.eve.plugin.v1` and
-  `gamecult.eve.plugin_advertisement.v1` as explicit schemas.
+  `gamecult.eve.plugin_advertisement.v1` as explicit schemas. First-cut JSON
+  schemas live under `schemas/` and the parity harness validates incubating
+  plugin manifests and advertisements against them.
 - Add plugin ABI fixtures for `describe`, `validate`, `project`, `apply`,
   `lower`, and `measure` where relevant.
 - Move `sai.vn` to Sai when VN/Ink story state, visual manifest, story commands,
@@ -271,15 +273,14 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add JSON schemas for plugin manifest and plugin advertisement.
-2. Add provider advertisement checks to the parity harness.
-3. Add command descriptor checks to fixtures and runtime source-symbol
+1. Add provider advertisement checks to the parity harness.
+2. Add command descriptor checks to fixtures and runtime source-symbol
    expectations.
-4. Add authority/staleness witness fixture to browser reference.
-5. Add conformance-pack metadata files beside fixtures.
-6. Add a Direct2D adapter spike or explicitly demote Direct2D until Fensalir owns
+3. Add authority/staleness witness fixture to browser reference.
+4. Add conformance-pack metadata files beside fixtures.
+5. Add a Direct2D adapter spike or explicitly demote Direct2D until Fensalir owns
    the body.
-7. Add split-readiness reports for EveFlutter and EveUnity.
+6. Add split-readiness reports for EveFlutter and EveUnity.
 
 ## Stop Conditions
 

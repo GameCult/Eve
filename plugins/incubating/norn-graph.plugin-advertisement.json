@@ -1,0 +1,22 @@
+{
+  "schema": "gamecult.eve.plugin_advertisement.v1",
+  "pluginId": "norn.graph",
+  "ownerService": "norn",
+  "version": "0.1.0-incubating",
+  "manifestAddress": "file://plugins/incubating/norn-graph.plugin.json",
+  "schemas": [
+    "norn.graph.document.v1",
+    "norn.graph.layout_request.v1",
+    "norn.graph.layout_result.v1"
+  ],
+  "componentKinds": [
+    "embed.norn"
+  ],
+  "commands": [
+    "graph.node.activate",
+    "graph.focus"
+  ],
+  "fixtures": [
+    "sai-vn"
+  ]
+}

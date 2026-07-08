@@ -1,0 +1,19 @@
+{
+  "schema": "gamecult.eve.plugin_advertisement.v1",
+  "pluginId": "tex.math",
+  "ownerService": "eveplugins",
+  "version": "0.1.0-incubating",
+  "manifestAddress": "file://plugins/incubating/tex-math.plugin.json",
+  "schemas": [
+    "tex.math.source.v1",
+    "tex.math.render_request.v1",
+    "tex.math.render_result.v1"
+  ],
+  "componentKinds": [
+    "embed.tex"
+  ],
+  "commands": [],
+  "fixtures": [
+    "sai-vn"
+  ]
+}

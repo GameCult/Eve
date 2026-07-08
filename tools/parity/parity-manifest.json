@@ -5,6 +5,10 @@
     "incubationPolicy": "Eve may host runtimes, plugins, and conformance packs only while their contract is still forming.",
     "graduationDocument": "docs/repo-strategy.md"
   },
+  "schemas": {
+    "gamecult.eve.plugin.v1": "schemas/gamecult.eve.plugin.v1.schema.json",
+    "gamecult.eve.plugin_advertisement.v1": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json"
+  },
   "conformancePacks": [
     {
       "id": "core",
@@ -223,7 +227,14 @@
       "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"],
       "optionalPlugins": ["norn.graph", "tex.math"],
       "requiredFixtures": ["sai-vn"],
-      "expectedPaths": ["plugins/incubating/sai-vn.plugin.json"]
+      "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
+      "manifestPath": "plugins/incubating/sai-vn.plugin.json",
+      "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
+      "advertisementPath": "plugins/incubating/sai-vn.plugin-advertisement.json",
+      "expectedPaths": [
+        "plugins/incubating/sai-vn.plugin.json",
+        "plugins/incubating/sai-vn.plugin-advertisement.json"
+      ]
     },
     {
       "pluginId": "norn.graph",
@@ -235,7 +246,14 @@
       "graduationTrigger": "Split when embed.norn graph layout, interaction, fallback, and conformance fixtures are stable.",
       "capabilities": ["embed.norn", "graph.node.activate"],
       "requiredFixtures": ["sai-vn"],
-      "expectedPaths": ["plugins/incubating/norn-graph.plugin.json"]
+      "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
+      "manifestPath": "plugins/incubating/norn-graph.plugin.json",
+      "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
+      "advertisementPath": "plugins/incubating/norn-graph.plugin-advertisement.json",
+      "expectedPaths": [
+        "plugins/incubating/norn-graph.plugin.json",
+        "plugins/incubating/norn-graph.plugin-advertisement.json"
+      ]
     },
     {
       "pluginId": "tex.math",
@@ -247,7 +265,14 @@
       "graduationTrigger": "Split when TeX source, macro, baseline, cached render, and fallback fixtures are stable.",
       "capabilities": ["embed.tex", "tex.inline", "tex.block"],
       "requiredFixtures": ["sai-vn"],
-      "expectedPaths": ["plugins/incubating/tex-math.plugin.json"]
+      "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
+      "manifestPath": "plugins/incubating/tex-math.plugin.json",
+      "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
+      "advertisementPath": "plugins/incubating/tex-math.plugin-advertisement.json",
+      "expectedPaths": [
+        "plugins/incubating/tex-math.plugin.json",
+        "plugins/incubating/tex-math.plugin-advertisement.json"
+      ]
     }
   ],
   "runtimes": [

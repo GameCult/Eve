@@ -1,0 +1,25 @@
+{
+  "schema": "gamecult.eve.plugin_advertisement.v1",
+  "pluginId": "sai.vn",
+  "ownerService": "sai",
+  "version": "0.1.0-incubating",
+  "manifestAddress": "file://plugins/incubating/sai-vn.plugin.json",
+  "schemas": [
+    "sai.vn.story_session.v1",
+    "sai.vn.visual_manifest.v1"
+  ],
+  "componentKinds": [
+    "vn.stage",
+    "panel.dialogue",
+    "text.dialogue",
+    "rail.actions"
+  ],
+  "commands": [
+    "story.continue",
+    "story.choose",
+    "story.jump"
+  ],
+  "fixtures": [
+    "sai-vn"
+  ]
+}

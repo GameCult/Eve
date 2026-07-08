@@ -230,15 +230,27 @@ async function evaluatePlugin(plugin, fixtureResults) {
   const requiredFixtures = plugin.requiredFixtures || [];
   const missingRequiredFixtures = requiredFixtures.filter(id => !fixtureResults.some(fixture => fixture.id === id && fixture.status === "pass"));
   const missingIncubationFields = requiredIncubationFields(plugin).filter(field => !plugin[field]);
+  const schemaErrors = await validateJsonDocument(plugin.schemaPath, plugin.manifestPath, {
+    schema: "gamecult.eve.plugin.v1",
+    pluginId: plugin.pluginId,
+  });
+  const advertisementErrors = await validateJsonDocument(plugin.advertisementSchemaPath, plugin.advertisementPath, {
+    schema: "gamecult.eve.plugin_advertisement.v1",
+    pluginId: plugin.pluginId,
+  });
   const status = missingPaths.length
     ? "missing-body"
     : missingRequiredFixtures.length
       ? "missing-required-fixture"
       : missingIncubationFields.length
         ? "missing-incubation-metadata"
-        : plugin.kind === "incubating"
-          ? "incubating"
-          : "external-owner-planned";
+        : schemaErrors.length
+          ? "invalid-plugin-manifest"
+          : advertisementErrors.length
+            ? "invalid-plugin-advertisement"
+            : plugin.kind === "incubating"
+              ? "incubating"
+              : "external-owner-planned";
 
   return {
     pluginId: plugin.pluginId,
@@ -252,11 +264,100 @@ async function evaluatePlugin(plugin, fixtureResults) {
     optionalPlugins: plugin.optionalPlugins || [],
     requiredFixtures,
     missingRequiredFixtures,
+    schemaPath: plugin.schemaPath || "",
+    manifestPath: plugin.manifestPath || "",
+    advertisementSchemaPath: plugin.advertisementSchemaPath || "",
+    advertisementPath: plugin.advertisementPath || "",
+    schemaErrors,
+    advertisementErrors,
     expectedPaths,
     missingPaths,
     missingIncubationFields,
     status,
   };
+}
+
+async function validateJsonDocument(schemaPath, documentPath, expected = {}) {
+  const errors = [];
+  if (!schemaPath) errors.push("schemaPath:missing");
+  if (!documentPath) errors.push("documentPath:missing");
+  if (!schemaPath || !documentPath) return errors;
+
+  const absoluteSchemaPath = path.join(repoRoot, schemaPath);
+  const absoluteDocumentPath = path.join(repoRoot, documentPath);
+  if (!existsSync(absoluteSchemaPath)) errors.push(`${schemaPath}:missing`);
+  if (!existsSync(absoluteDocumentPath)) errors.push(`${documentPath}:missing`);
+  if (errors.length) return errors;
+
+  try {
+    const schema = JSON.parse(await readFile(absoluteSchemaPath, "utf8"));
+    const document = JSON.parse(await readFile(absoluteDocumentPath, "utf8"));
+    errors.push(...validateSchemaSubset(schema, document));
+    for (const [key, value] of Object.entries(expected)) {
+      if (document[key] !== value) errors.push(`${documentPath}:${key}:expected ${value} got ${document[key]}`);
+    }
+  } catch (error) {
+    errors.push(`${documentPath}:invalid-json:${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  return errors;
+}
+
+function validateSchemaSubset(schema, value, pointer = "$") {
+  const errors = [];
+  if (!schema || typeof schema !== "object") return errors;
+
+  if (schema.const !== undefined && value !== schema.const) {
+    errors.push(`${pointer}:const:${schema.const}`);
+  }
+
+  if (schema.type && !matchesSchemaType(value, schema.type)) {
+    errors.push(`${pointer}:type:${schema.type}`);
+    return errors;
+  }
+
+  if (schema.minLength !== undefined && typeof value === "string" && value.length < schema.minLength) {
+    errors.push(`${pointer}:minLength:${schema.minLength}`);
+  }
+
+  if (schema.required && value && typeof value === "object" && !Array.isArray(value)) {
+    for (const key of schema.required) {
+      if (value[key] === undefined) errors.push(`${pointer}.${key}:required`);
+    }
+  }
+
+  if (schema.properties && value && typeof value === "object" && !Array.isArray(value)) {
+    for (const [key, childSchema] of Object.entries(schema.properties)) {
+      if (value[key] !== undefined) {
+        errors.push(...validateSchemaSubset(childSchema, value[key], `${pointer}.${key}`));
+      }
+    }
+  }
+
+  if (schema.items && Array.isArray(value)) {
+    value.forEach((item, index) => {
+      errors.push(...validateSchemaSubset(schema.items, item, `${pointer}[${index}]`));
+    });
+  }
+
+  return errors;
+}
+
+function matchesSchemaType(value, type) {
+  switch (type) {
+    case "array":
+      return Array.isArray(value);
+    case "object":
+      return value !== null && typeof value === "object" && !Array.isArray(value);
+    case "string":
+      return typeof value === "string";
+    case "number":
+      return typeof value === "number";
+    case "boolean":
+      return typeof value === "boolean";
+    default:
+      return true;
+  }
 }
 
 function collectPluginCapabilityGaps(runtime, fixtureResults) {
@@ -389,6 +490,8 @@ function renderMarkdown(report) {
       ...plugin.missingPaths,
       ...plugin.missingRequiredFixtures.map(id => `fixture:${id}`),
       ...plugin.missingIncubationFields.map(id => `metadata:${id}`),
+      ...plugin.schemaErrors.map(id => `schema:${id}`),
+      ...plugin.advertisementErrors.map(id => `advertisement:${id}`),
     ].join(", ");
     lines.push(`| ${plugin.title || plugin.pluginId} | ${plugin.status} | ${plugin.ownerRepo} | ${plugin.capabilities.join(", ")} | ${missing} |`);
   }

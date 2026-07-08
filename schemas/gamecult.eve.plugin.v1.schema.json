@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.plugin.v1",
+  "title": "Eve Plugin Manifest",
+  "type": "object",
+  "required": [
+    "schema",
+    "pluginId",
+    "title",
+    "owner",
+    "incubation",
+    "componentKinds",
+    "commands",
+    "stateSchemas",
+    "fixtures",
+    "capabilities"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.plugin.v1"
+    },
+    "pluginId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "incubation": {
+      "type": "object",
+      "required": [
+        "ownerRepo",
+        "currentHostRepo",
+        "splitTarget",
+        "graduationTrigger"
+      ],
+      "properties": {
+        "ownerRepo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "currentHostRepo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "splitTarget": {
+          "type": "string",
+          "minLength": 1
+        },
+        "graduationTrigger": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "componentKinds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "command",
+          "schema",
+          "effect"
+        ],
+        "properties": {
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "effect": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "stateSchemas": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "fixtures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "fixtureId",
+          "schema",
+          "path"
+        ],
+        "properties": {
+          "fixtureId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "required": [
+        "requires"
+      ],
+      "properties": {
+        "requires": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "optionalCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "optionalPlugins": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "pluginId",
+              "capabilities"
+            ],
+            "properties": {
+              "pluginId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "capabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
