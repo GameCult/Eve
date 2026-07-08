@@ -156,6 +156,8 @@ payloads as `mimir.eve_media_observation.v1`.
 See `docs/cultmesh-streaming-ui-framework.md` for the target architecture.
 See `docs/repo-strategy.md` for the kernel/plugin/runtime/provider ownership
 boundary and graduation rules.
+See `docs/eve-migration-roadmap.md` for the staged migration from in-repo
+incubation to kernel, plugin, runtime, conformance, and provider-owned repos.
 See `docs/renderer-parity.md` for current browser/iOS/Android/Fensalir/Flutter
 renderer parity.
 See `docs/surface-contract-v1.md` for the shared CultUI/CultMesh surface and
