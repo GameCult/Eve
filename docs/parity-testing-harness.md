@@ -71,6 +71,18 @@ After generating the parity report, `run-parity-harness.ps1` copies
 proves the conformance export can be consumed through its own index and pack
 files without reading `tools/parity/parity-manifest.json`.
 
+Provider-owned consumer smoke:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-aetheria-conformance-consumer-smoke.ps1
+```
+
+That script runs the same export consumer from `E:\Projects\Aetheria` and
+asserts the provider pack, `aetheria-world` fixture, `aetheria` provider entry,
+and `aetheria-world-command-replay` scenario. Generated copies remain under
+Eve's `artifacts/aetheria-conformance-consumer-smoke` so the provider worktree
+does not become dirty merely by proving the boundary.
+
 The smoke runner writes:
 
 - `artifacts/parity-smoke/<timestamp>/parity-smoke.md`

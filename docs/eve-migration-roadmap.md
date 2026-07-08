@@ -276,12 +276,14 @@ Exit criteria:
 
 1. Add a real Unity plugin-host proof for either Sai or Norn, or keep
    `EveUnity` blocked on explicit unsupported-plugin declarations.
-2. Use the exported conformance packs from one non-Eve repo or runtime smoke so
-   the consumer path proves a real split candidate, not only a copied-layout
-   local check.
 
 Recently cut:
 
+- Aetheria now consumes the exported conformance pack from its own working
+  directory through `scripts/run-aetheria-conformance-consumer-smoke.ps1`. The
+  smoke asserts the provider pack, `aetheria-world` fixture, `aetheria`
+  provider entry, and `aetheria-world-command-replay` scenario without reading
+  Eve's parity manifest or dirtying the Aetheria worktree.
 - The parity harness now runs a conformance consumer smoke against a copied
   `artifacts/conformance/latest` layout, proving the export can be consumed
   through `index.json` and `packs/*.json` without reading Eve's parity manifest.

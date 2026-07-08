@@ -3,9 +3,20 @@ import { existsSync } from "node:fs";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-const exportDirectory = process.argv[2] ? path.resolve(process.argv[2]) : "";
+const { exportDirectory, expectations } = parseArguments(process.argv.slice(2));
 if (!exportDirectory) {
-  console.error("Usage: node tools/conformance/consume-export.mjs <export-directory>");
+  console.error([
+    "Usage: node tools/conformance/consume-export.mjs <export-directory> [expectations]",
+    "",
+    "Expectations:",
+    "  --expect-pack <id>",
+    "  --expect-fixture <id>",
+    "  --expect-plugin <id>",
+    "  --expect-provider <id>",
+    "  --expect-runtime <id>",
+    "  --expect-scenario <id>",
+    "  --expect-split-target <id>",
+  ].join("\n"));
   process.exit(2);
 }
 
@@ -16,7 +27,7 @@ if (!existsSync(indexPath)) {
   errors.push(`index.json:missing:${indexPath}`);
 } else {
   const index = JSON.parse(await readFile(indexPath, "utf8"));
-  validateIndex(index, exportDirectory, errors);
+  validateIndex(index, exportDirectory, expectations, errors);
 }
 
 for (const error of errors) console.error(`Conformance consumer error: ${error}`);
@@ -24,15 +35,19 @@ if (errors.length) process.exit(1);
 
 console.log(`Conformance consumer smoke passed: ${exportDirectory}`);
 
-function validateIndex(index, directory, errors) {
+function validateIndex(index, directory, expectations, errors) {
   if (index.schema !== "gamecult.eve.conformance_export.v1") {
     errors.push(`schema:expected gamecult.eve.conformance_export.v1 got ${index.schema || ""}`);
   }
 
   const packs = Array.isArray(index.packs) ? index.packs : [];
   const packIds = new Set(packs.map(pack => pack.id));
+  const fixtureIds = new Set();
   for (const requiredPack of ["core", "plugin", "provider", "runtime"]) {
     if (!packIds.has(requiredPack)) errors.push(`pack:${requiredPack}:missing`);
+  }
+  for (const expectedPack of expectations.packs) {
+    if (!packIds.has(expectedPack)) errors.push(`pack:${expectedPack}:missing`);
   }
 
   for (const pack of packs) {
@@ -51,6 +66,7 @@ function validateIndex(index, directory, errors) {
     }
 
     for (const fixture of packDocument.fixtures || []) {
+      if (fixture.fixtureId) fixtureIds.add(fixture.fixtureId);
       if (!fixture.fixtureId) errors.push(`pack-file:${pack.id}:fixture:fixtureId:missing`);
       if (!fixture.status) errors.push(`pack-file:${pack.id}:fixture:${fixture.fixtureId || "unknown"}:status:missing`);
       if (!fixture.surface?.path) errors.push(`pack-file:${pack.id}:fixture:${fixture.fixtureId || "unknown"}:surface.path:missing`);
@@ -58,20 +74,84 @@ function validateIndex(index, directory, errors) {
     }
   }
 
-  if (!Array.isArray(index.plugins) || !index.plugins.some(plugin => plugin.pluginId === "sai.vn" && plugin.abiFixturePath)) {
+  const plugins = Array.isArray(index.plugins) ? index.plugins : [];
+  const providers = Array.isArray(index.providers) ? index.providers : [];
+  const runtimes = Array.isArray(index.runtimes) ? index.runtimes : [];
+  const splitTargets = Array.isArray(index.splitTargets) ? index.splitTargets : [];
+
+  for (const expectedFixture of expectations.fixtures) {
+    if (!fixtureIds.has(expectedFixture)) errors.push(`fixture:${expectedFixture}:missing`);
+  }
+  for (const expectedPlugin of expectations.plugins) {
+    if (!plugins.some(plugin => plugin.pluginId === expectedPlugin)) errors.push(`plugins:${expectedPlugin}:missing`);
+  }
+  for (const expectedProvider of expectations.providers) {
+    if (!providers.some(provider => provider.providerId === expectedProvider)) errors.push(`providers:${expectedProvider}:missing`);
+  }
+  for (const expectedRuntime of expectations.runtimes) {
+    if (!runtimes.some(runtime => runtime.runtimeId === expectedRuntime)) errors.push(`runtimes:${expectedRuntime}:missing`);
+  }
+  for (const expectedScenario of expectations.scenarios) {
+    if (!providers.some(provider => provider.scenarioId === expectedScenario)) errors.push(`providers:scenario:${expectedScenario}:missing`);
+  }
+  for (const expectedSplitTarget of expectations.splitTargets) {
+    if (!splitTargets.some(target => target.id === expectedSplitTarget)) errors.push(`splitTargets:${expectedSplitTarget}:missing`);
+  }
+
+  if (!plugins.some(plugin => plugin.pluginId === "sai.vn" && plugin.abiFixturePath)) {
     errors.push("plugins:sai.vn:abiFixturePath:missing");
   }
-  if (!Array.isArray(index.providers) || !index.providers.some(provider => provider.providerId === "aetheria" && provider.scenarioPath)) {
+  if (!providers.some(provider => provider.providerId === "aetheria" && provider.scenarioPath)) {
     errors.push("providers:aetheria:scenarioPath:missing");
   }
-  if (!Array.isArray(index.runtimes) || !index.runtimes.some(runtime => runtime.runtimeId === "unity-uitoolkit" && runtime.commandTransportSchema === "gamecult.eve.command.v1")) {
+  if (!runtimes.some(runtime => runtime.runtimeId === "unity-uitoolkit" && runtime.commandTransportSchema === "gamecult.eve.command.v1")) {
     errors.push("runtimes:unity-uitoolkit:commandTransportSchema:missing");
   }
-  if (!Array.isArray(index.splitTargets) || !index.splitTargets.some(target => target.id === "EveUnity")) {
+  if (!splitTargets.some(target => target.id === "EveUnity")) {
     errors.push("splitTargets:EveUnity:missing");
   }
 }
 
 function readFileSyncUtf8(filePath) {
   return readFileSync(filePath, "utf8");
+}
+
+function parseArguments(args) {
+  const exportPath = args[0] ? path.resolve(args[0]) : "";
+  const expectations = {
+    packs: [],
+    fixtures: [],
+    plugins: [],
+    providers: [],
+    runtimes: [],
+    scenarios: [],
+    splitTargets: [],
+  };
+  const optionTargets = new Map([
+    ["--expect-pack", expectations.packs],
+    ["--expect-fixture", expectations.fixtures],
+    ["--expect-plugin", expectations.plugins],
+    ["--expect-provider", expectations.providers],
+    ["--expect-runtime", expectations.runtimes],
+    ["--expect-scenario", expectations.scenarios],
+    ["--expect-split-target", expectations.splitTargets],
+  ]);
+
+  for (let index = 1; index < args.length; index += 1) {
+    const option = args[index];
+    const target = optionTargets.get(option);
+    if (!target) {
+      console.error(`Unknown option: ${option}`);
+      process.exit(2);
+    }
+    const value = args[index + 1];
+    if (!value || value.startsWith("--")) {
+      console.error(`Missing value for option: ${option}`);
+      process.exit(2);
+    }
+    target.push(value);
+    index += 1;
+  }
+
+  return { exportDirectory: exportPath, expectations };
 }
