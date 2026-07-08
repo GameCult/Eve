@@ -274,14 +274,17 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add authority/staleness witness fixture to browser reference.
-2. Add conformance-pack metadata files beside fixtures.
-3. Add a Direct2D adapter spike or explicitly demote Direct2D until Fensalir owns
+1. Add conformance-pack metadata files beside fixtures.
+2. Add a Direct2D adapter spike or explicitly demote Direct2D until Fensalir owns
    the body.
-4. Add split-readiness reports for EveFlutter and EveUnity.
+3. Add split-readiness reports for EveFlutter and EveUnity.
 
 Recently cut:
 
+- The browser reference now has an authority/staleness witness fixture. The
+  parity report verifies visible `fresh`, `accepted`, `stale`, `missing`,
+  `pending`, `denied`, `predicted`, and `reconciled` states, with provider and
+  renderer ownership kept separate.
 - Command descriptor validation now runs for strict fixtures. Sai proves
   `story.*`/`style.patch`; Aetheria proves the daemon command boundary; the web
   lowerer resolves authored `action.command` through the shared Eve command

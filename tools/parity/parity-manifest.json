@@ -193,6 +193,35 @@
       }
     },
     {
+      "id": "authority-staleness",
+      "title": "Authority And Staleness Witness",
+      "pack": "core",
+      "ownerRepo": "Eve",
+      "surface": {
+        "transport": "local-json",
+        "path": "web/fixtures/authority-staleness-witness.json"
+      },
+      "expect": {
+        "providerId": "gamecult.eve.authority-witness",
+        "componentKinds": ["surface", "card", "text", "metric", "partition"],
+        "styleTokens": ["colorBackground", "colorPanel", "colorText", "colorMuted", "colorAccent", "colorWarning", "colorDanger"],
+        "bindings": [
+          "authority.temperature.accepted",
+          "authority.sensor.echo",
+          "authority.missing.field",
+          "authority.orbit.predicted",
+          "authority.orbit.accepted"
+        ],
+        "commandDescriptors": ["authority.fixture.patch"],
+        "commandDescriptorSchema": "gamecult.eve.command.v1",
+        "commandReferencesDeclared": true,
+        "authorityStates": ["accepted", "denied", "fresh", "missing", "pending", "predicted", "reconciled", "stale"],
+        "authorityOwners": ["provider", "renderer"],
+        "witnessRefs": 8,
+        "receiptRefs": 2
+      }
+    },
+    {
       "id": "reactive-dsl",
       "title": "Reactive DSL",
       "pack": "core",

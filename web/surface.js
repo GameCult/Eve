@@ -62,6 +62,13 @@ const localProviders = [
     surfaces: [{ transport: "local-eve-dsl", surfaceId: "eve.reactive.dsl", url: "./fixtures/reactive-composition.eve" }],
   },
   {
+    providerId: "gamecult.eve.authority-witness",
+    title: "Authority Witness",
+    kind: "surface.fixture",
+    freshness: { state: "fixture" },
+    surfaces: [{ transport: "local-json", surfaceId: "gamecult.eve.authority-witness", url: "./fixtures/authority-staleness-witness.json" }],
+  },
+  {
     providerId: "eve.cultui.inspector",
     title: "CultUI Inspector",
     kind: "surface.fixture",

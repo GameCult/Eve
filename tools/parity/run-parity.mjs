@@ -70,6 +70,11 @@ async function evaluateFixture(fixture) {
   const commandIds = commandDescriptors.map(command => command.command).sort();
   const commandReferences = readCommandReferences(nodes);
   const commandDescriptorErrors = await validateCommandDescriptors(fixture, commandDescriptors);
+  const authorityWitnesses = readAuthorityWitnesses(nodes);
+  const authorityStates = [...new Set(authorityWitnesses.map(witness => witness.state))].filter(Boolean).sort();
+  const authorityOwners = [...new Set(authorityWitnesses.map(witness => witness.owner))].filter(Boolean).sort();
+  const receiptRefs = [...new Set(authorityWitnesses.map(witness => witness.receiptRef))].filter(Boolean).sort();
+  const witnessRefs = [...new Set(authorityWitnesses.map(witness => witness.witnessRef))].filter(Boolean).sort();
   const checks = [];
 
   addCheck(checks, "providerId", state.providerId === fixture.expect.providerId, {
@@ -149,6 +154,34 @@ async function evaluateFixture(fixture) {
     }
   }
 
+  for (const state of fixture.expect.authorityStates || []) {
+    addCheck(checks, `authorityState:${state}`, authorityStates.includes(state), {
+      expected: "present",
+      actual: authorityStates,
+    });
+  }
+
+  for (const owner of fixture.expect.authorityOwners || []) {
+    addCheck(checks, `authorityOwner:${owner}`, authorityOwners.includes(owner), {
+      expected: "present",
+      actual: authorityOwners,
+    });
+  }
+
+  if (fixture.expect.receiptRefs) {
+    addCheck(checks, "receiptRefs", receiptRefs.length >= fixture.expect.receiptRefs, {
+      expected: fixture.expect.receiptRefs,
+      actual: receiptRefs.length,
+    });
+  }
+
+  if (fixture.expect.witnessRefs) {
+    addCheck(checks, "witnessRefs", witnessRefs.length >= fixture.expect.witnessRefs, {
+      expected: fixture.expect.witnessRefs,
+      actual: witnessRefs.length,
+    });
+  }
+
   const knownPacks = new Set((manifest.conformancePacks || []).map(pack => pack.id));
   if (fixture.pack) {
     addCheck(checks, "conformancePack", knownPacks.has(fixture.pack), {
@@ -181,6 +214,11 @@ async function evaluateFixture(fixture) {
     commands: commandIds,
     commandReferences,
     commandDescriptorErrors,
+    authorityStates,
+    authorityOwners,
+    receiptRefs,
+    witnessRefs,
+    authorityWitnesses,
     checks,
   };
 }
@@ -552,6 +590,26 @@ function readCommandReferences(nodes) {
   }).sort((a, b) => `${a.nodeId}:${a.command}`.localeCompare(`${b.nodeId}:${b.command}`));
 }
 
+function readAuthorityWitnesses(nodes) {
+  return nodes.flatMap(node => {
+    const props = node.props || {};
+    const freshness = objectProps(props.freshness);
+    const state = firstNonEmptyString(props.authorityState, props.truthState, props.commandState, freshness.state);
+    const owner = firstNonEmptyString(props.authorityOwner, props.owner, props.authority);
+    const witnessRef = firstNonEmptyString(props.witnessRef, props.sourceId);
+    const receiptRef = firstNonEmptyString(props.receiptRef, props.receiptId);
+    if (!state && !owner && !witnessRef && !receiptRef) return [];
+    return [{
+      nodeId: node.id || "",
+      kind: node.kind || "",
+      state,
+      owner,
+      witnessRef,
+      receiptRef,
+    }];
+  }).sort((a, b) => `${a.nodeId}:${a.state}`.localeCompare(`${b.nodeId}:${b.state}`));
+}
+
 function firstNonEmptyString(...values) {
   for (const value of values) {
     if (typeof value === "string" && value.trim()) return value;
@@ -649,6 +707,11 @@ function renderMarkdown(report) {
   for (const fixture of report.fixtures) {
     const refs = fixture.commandReferences.map(reference => `${reference.nodeId}:${reference.command}`).join(", ");
     lines.push(`| ${fixture.title} | ${fixture.commands.join(", ")} | ${refs} | ${fixture.commandDescriptorErrors.join(", ")} |`);
+  }
+
+  lines.push("", "## Authority Witnesses", "", "| Fixture | States | Owners | Witness Refs | Receipt Refs |", "| --- | --- | --- | ---: | ---: |");
+  for (const fixture of report.fixtures) {
+    lines.push(`| ${fixture.title} | ${fixture.authorityStates.join(", ")} | ${fixture.authorityOwners.join(", ")} | ${fixture.witnessRefs.length} | ${fixture.receiptRefs.length} |`);
   }
 
   lines.push("", "## Plugins", "", "| Plugin | Status | Owner | Capabilities | Missing |", "| --- | --- | --- | --- | --- |");

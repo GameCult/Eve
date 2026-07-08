@@ -1,0 +1,198 @@
+{
+  "type": "surface-state",
+  "schema": "gamecult.eve.surface.v1",
+  "providerId": "gamecult.eve.authority-witness",
+  "providerKind": "surface.fixture",
+  "title": "Authority And Staleness Witness",
+  "version": 1,
+  "updatedAtUtc": "2026-07-08T00:00:00Z",
+  "surface": {
+    "id": "gamecult.eve.authority-witness",
+    "root": {
+      "id": "authority.root",
+      "kind": "surface",
+      "props": {
+        "authorityModel": "provider-truth-with-local-prediction"
+      },
+      "children": [
+        {
+          "id": "authority.summary",
+          "kind": "card",
+          "props": {
+            "title": "Truth Boundary",
+            "authorityOwner": "provider",
+            "authorityState": "fresh",
+            "freshness": {
+              "state": "fresh",
+              "lastSeenAtUtc": "2026-07-08T00:00:00Z"
+            },
+            "witnessRef": "cultmesh://eve/fixtures/authority/fresh"
+          },
+          "children": [
+            {
+              "id": "authority.summary.text",
+              "kind": "text",
+              "props": {
+                "text": "Provider state is the accepted truth. Eve may preview local pressure, but preview is not authority."
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "authority.grid",
+          "kind": "partition",
+          "props": {
+            "direction": "vertical"
+          },
+          "children": [
+            {
+              "id": "authority.field.fresh",
+              "kind": "metric",
+              "props": {
+                "label": "Accepted Temperature",
+                "value": "298 K",
+                "bind": "authority.temperature.accepted",
+                "authorityOwner": "provider",
+                "authorityState": "accepted",
+                "freshness": {
+                  "state": "fresh",
+                  "lastSeenAtUtc": "2026-07-08T00:00:00Z"
+                },
+                "witnessRef": "cultmesh://eve/fixtures/authority/temperature"
+              },
+              "children": []
+            },
+            {
+              "id": "authority.field.stale",
+              "kind": "metric",
+              "props": {
+                "label": "Sensor Echo",
+                "value": "14.2 m/s",
+                "bind": "authority.sensor.echo",
+                "authorityOwner": "provider",
+                "authorityState": "stale",
+                "freshness": {
+                  "state": "stale",
+                  "lastSeenAtUtc": "2026-07-08T00:00:00Z",
+                  "maxAgeMs": 5000
+                },
+                "witnessRef": "cultmesh://eve/fixtures/authority/sensor"
+              },
+              "children": []
+            },
+            {
+              "id": "authority.field.missing",
+              "kind": "metric",
+              "props": {
+                "label": "Missing Provider Field",
+                "value": "unresolved",
+                "bind": "authority.missing.field",
+                "authorityOwner": "provider",
+                "authorityState": "missing",
+                "freshness": {
+                  "state": "missing"
+                },
+                "witnessRef": "cultmesh://eve/fixtures/authority/missing"
+              },
+              "children": []
+            },
+            {
+              "id": "authority.command.pending",
+              "kind": "card",
+              "props": {
+                "title": "Local Command Pressure",
+                "authorityOwner": "renderer",
+                "authorityState": "pending",
+                "commandId": "authority.fixture.patch",
+                "commandBoundary": "provider-receipt-required",
+                "witnessRef": "cultmesh://eve/fixtures/authority/pending"
+              },
+              "children": [
+                {
+                  "id": "authority.command.pending.text",
+                  "kind": "text",
+                  "props": {
+                    "text": "The renderer can show the pending intent. It cannot mark the provider value accepted."
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "authority.command.denied",
+              "kind": "card",
+              "props": {
+                "title": "Denied Intent",
+                "authorityOwner": "provider",
+                "authorityState": "denied",
+                "receiptRef": "cultmesh://eve/fixtures/authority/receipts/denied",
+                "witnessRef": "cultmesh://eve/fixtures/authority/denied"
+              },
+              "children": [
+                {
+                  "id": "authority.command.denied.text",
+                  "kind": "text",
+                  "props": {
+                    "text": "Denied commands remain visible so local preview cannot erase provider refusal."
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "authority.prediction",
+              "kind": "metric",
+              "props": {
+                "label": "Predicted Orbit",
+                "value": "0.74 AU",
+                "bind": "authority.orbit.predicted",
+                "authorityOwner": "renderer",
+                "authorityState": "predicted",
+                "reconcilesWith": "authority.orbit.accepted",
+                "witnessRef": "cultmesh://eve/fixtures/authority/predicted"
+              },
+              "children": []
+            },
+            {
+              "id": "authority.reconciled",
+              "kind": "metric",
+              "props": {
+                "label": "Reconciled Orbit",
+                "value": "0.72 AU",
+                "bind": "authority.orbit.accepted",
+                "authorityOwner": "provider",
+                "authorityState": "reconciled",
+                "reconciledFrom": "authority.orbit.predicted",
+                "receiptRef": "cultmesh://eve/fixtures/authority/receipts/reconciled",
+                "witnessRef": "cultmesh://eve/fixtures/authority/reconciled"
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "styles": {
+      "tokens": {
+        "colorBackground": "#0B1114",
+        "colorPanel": "#162022",
+        "colorText": "#F2F7F1",
+        "colorMuted": "#9AA8A2",
+        "colorAccent": "#78D6A3",
+        "colorWarning": "#D6B24A",
+        "colorDanger": "#C95D63"
+      }
+    }
+  },
+  "commands": [
+    {
+      "schema": "gamecult.eve.command.v1",
+      "command": "authority.fixture.patch",
+      "label": "Patch witness value",
+      "transport": "fixture-receipt",
+      "authority": "provider",
+      "result": "accepted-denied-or-reconciled"
+    }
+  ]
+}
