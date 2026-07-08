@@ -59,6 +59,17 @@ The semantic runner writes:
 - `artifacts/parity/latest.json`
 - `artifacts/parity/<timestamp>/parity-report.md`
 - `artifacts/parity/<timestamp>/parity-report.json`
+- `artifacts/conformance/latest/index.md`
+- `artifacts/conformance/latest/index.json`
+- `artifacts/conformance/latest/packs/*.json`
+- `artifacts/conformance/<timestamp>/...`
+
+After generating the parity report, `run-parity-harness.ps1` copies
+`artifacts/conformance/latest` into
+`artifacts/conformance-consumer-smoke/export` and runs
+`tools/conformance/consume-export.mjs` against that copied layout. That smoke
+proves the conformance export can be consumed through its own index and pack
+files without reading `tools/parity/parity-manifest.json`.
 
 The smoke runner writes:
 

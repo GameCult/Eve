@@ -276,11 +276,15 @@ Exit criteria:
 
 1. Add a real Unity plugin-host proof for either Sai or Norn, or keep
    `EveUnity` blocked on explicit unsupported-plugin declarations.
-2. Move one conformance-pack consumer outside Eve's source layout and run it
-   against `artifacts/conformance/latest`.
+2. Use the exported conformance packs from one non-Eve repo or runtime smoke so
+   the consumer path proves a real split candidate, not only a copied-layout
+   local check.
 
 Recently cut:
 
+- The parity harness now runs a conformance consumer smoke against a copied
+  `artifacts/conformance/latest` layout, proving the export can be consumed
+  through `index.json` and `packs/*.json` without reading Eve's parity manifest.
 - The parity harness now emits an `EveConformance`-shaped export under
   `artifacts/conformance/latest`, with a top-level index and per-pack JSON
   files for core, plugin, provider, and runtime consumers.
