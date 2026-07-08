@@ -274,11 +274,17 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Move EveUnity toward split readiness with runtime-owned UPM release,
-   Unity test, and capture lifecycle evidence.
+1. Move EveUnity toward split readiness with runtime-owned UPM release and
+   Unity capture/test lifecycle evidence.
 
 Recently cut:
 
+- Aetheria now has repeatable Unity package consumer-build evidence for the
+  Eve UI Toolkit runtime. `scripts/run-aetheria-unity-package-smoke.ps1`
+  verifies Aetheria's Unity `Packages/manifest.json` consumes Eve's surface and
+  UI Toolkit packages by file reference, checks the generated
+  `GameCult.Eve.UnityUIToolkit.csproj` includes all current runtime files, and
+  builds the package through Aetheria's Unity-generated project.
 - Unity UI Toolkit now has a first-party `norn.graph` plugin-host proof for
   `embed.norn`. `NornGraphUiToolkitPluginHost` owns the native embedded graph
   shell and graph command emission path, while Norn keeps graph layout and graph

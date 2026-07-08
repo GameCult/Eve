@@ -99,6 +99,19 @@ and `aetheria-world-command-replay` scenario. Generated copies remain under
 Eve's `artifacts/aetheria-conformance-consumer-smoke` so the provider worktree
 does not become dirty merely by proving the boundary.
 
+Aetheria Unity package consumer smoke:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-aetheria-unity-package-smoke.ps1
+```
+
+That script checks that Aetheria's Unity package manifest consumes Eve's surface
+and UI Toolkit packages by file reference, verifies the generated
+`GameCult.Eve.UnityUIToolkit.csproj` includes all current Unity runtime source
+files, then builds the package through Aetheria's Unity-generated project. It is
+consumer-build evidence, not a replacement for runtime-owned Unity capture or
+release CI.
+
 The smoke runner writes:
 
 - `artifacts/parity-smoke/<timestamp>/parity-smoke.md`
