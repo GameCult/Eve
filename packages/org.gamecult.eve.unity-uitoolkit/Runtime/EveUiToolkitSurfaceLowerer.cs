@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using GameCult.Eve.Surface;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -38,6 +40,7 @@ namespace GameCult.Eve.UnityUIToolkit
             element.AddToClassList("eve-component");
             element.AddToClassList($"eve-kind-{SafeClass(component.Kind)}");
             element.userData = component;
+            ApplyGeneratedLayout(element, component);
 
             foreach (var child in component.Children)
                 element.Add(LowerComponent(child, document, commandSink));
@@ -90,6 +93,17 @@ namespace GameCult.Eve.UnityUIToolkit
                     element.style.alignItems = Align.Stretch;
                     return element;
                 }
+                case "partition":
+                {
+                    var element = new VisualElement();
+                    element.style.flexDirection = component.GetProp("split") == "x"
+                        ? FlexDirection.Row
+                        : FlexDirection.Column;
+                    element.style.flexWrap = Wrap.Wrap;
+                    return element;
+                }
+                case "pane":
+                case "modal":
                 case "card":
                 {
                     var card = new VisualElement();
@@ -108,6 +122,25 @@ namespace GameCult.Eve.UnityUIToolkit
                     metric.Add(MutedLabel(component.GetProp("label")));
                     metric.Add(ValueLabel(component.GetProp("value")));
                     return metric;
+                }
+                case "progress":
+                {
+                    var progress = new VisualElement();
+                    progress.AddToClassList("eve-progress");
+                    progress.style.flexDirection = FlexDirection.Column;
+                    progress.Add(MutedLabel(component.GetProp("label")));
+                    progress.Add(ValueLabel(component.GetProp("value")));
+                    return progress;
+                }
+                case "options":
+                {
+                    var options = new VisualElement();
+                    options.AddToClassList("eve-options");
+                    options.style.flexDirection = FlexDirection.Column;
+                    var label = component.GetProp("label");
+                    if (!string.IsNullOrWhiteSpace(label))
+                        options.Add(TitleLabel(label));
+                    return options;
                 }
                 case "inspector.kv":
                 {
@@ -131,12 +164,14 @@ namespace GameCult.Eve.UnityUIToolkit
                     return BodyLabel(component.GetProp("text", component.GetProp("value", component.GetProp("title"))));
                 }
                 case "control.button":
+                case "control.popup":
                 {
                     var label = component.GetProp("label", component.GetProp("title", "Invoke"));
                     var command = component.GetProp("command", component.GetProp("action", "invoke"));
                     return new Button(() => EmitCommand(document, component, command, commandSink)) { text = label };
                 }
                 case "control.text":
+                case "control.input.text":
                 {
                     var label = component.GetProp("label", component.GetProp("title", "Value"));
                     var command = component.GetProp("command", component.GetProp("action", "set"));
@@ -263,6 +298,194 @@ namespace GameCult.Eve.UnityUIToolkit
 
                 root.AddToClassList($"eve-style-token-{SafeClass(token.Name)}");
             }
+        }
+
+        private static void ApplyGeneratedLayout(VisualElement element, EveSurfaceComponent component)
+        {
+            var layout = component.Layout ?? new Dictionary<string, string>(StringComparer.Ordinal);
+            var style = component.Style ?? new Dictionary<string, string>(StringComparer.Ordinal);
+
+            if (TryGet(layout, "display", out var display))
+                element.style.display = string.Equals(display, "none", StringComparison.OrdinalIgnoreCase)
+                    ? DisplayStyle.None
+                    : DisplayStyle.Flex;
+            if (TryGet(layout, "direction", out var direction))
+            {
+                if (string.Equals(direction, "horizontal", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(direction, "row", StringComparison.OrdinalIgnoreCase))
+                    element.style.flexDirection = FlexDirection.Row;
+                else if (string.Equals(direction, "vertical", StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(direction, "column", StringComparison.OrdinalIgnoreCase))
+                    element.style.flexDirection = FlexDirection.Column;
+            }
+            if (TryGet(layout, "flexWrap", out var flexWrap))
+                element.style.flexWrap = string.Equals(flexWrap, "wrap", StringComparison.OrdinalIgnoreCase) ? Wrap.Wrap : Wrap.NoWrap;
+            if (TryGet(layout, "alignItems", out var alignItems) && TryParseAlign(alignItems, out var align))
+                element.style.alignItems = align;
+            if (TryGet(layout, "justifyContent", out var justifyContent) && TryParseJustify(justifyContent, out var justify))
+                element.style.justifyContent = justify;
+            if (TryGet(layout, "width", out var width))
+                element.style.width = ParseLength(width);
+            if (TryGet(layout, "minWidth", out var minWidth))
+                element.style.minWidth = ParseLength(minWidth);
+            if (TryGet(layout, "maxWidth", out var maxWidth))
+                element.style.maxWidth = ParseLength(maxWidth);
+            if (TryGet(layout, "height", out var height))
+                element.style.height = ParseLength(height);
+            if (TryGet(layout, "minHeight", out var minHeight))
+                element.style.minHeight = ParseLength(minHeight);
+            if (TryGet(layout, "maxHeight", out var maxHeight))
+                element.style.maxHeight = ParseLength(maxHeight);
+            if (TryGet(layout, "padding", out var padding))
+                ApplyBoxLength(padding, value =>
+                {
+                    element.style.paddingTop = value;
+                    element.style.paddingRight = value;
+                    element.style.paddingBottom = value;
+                    element.style.paddingLeft = value;
+                });
+            if (TryGet(layout, "margin", out var margin))
+                ApplyBoxLength(margin, value =>
+                {
+                    element.style.marginTop = value;
+                    element.style.marginRight = value;
+                    element.style.marginBottom = value;
+                    element.style.marginLeft = value;
+                });
+            if (TryGet(layout, "overflow", out var overflow))
+                element.style.overflow = string.Equals(overflow, "hidden", StringComparison.OrdinalIgnoreCase)
+                    ? Overflow.Hidden
+                    : Overflow.Visible;
+
+            if (TryGet(style, "background", out var background) && TryParseColor(background, out var backgroundColor))
+                element.style.backgroundColor = backgroundColor;
+            if (TryGet(style, "color", out var color) && TryParseColor(color, out var textColor))
+                element.style.color = textColor;
+            if (TryGet(style, "borderWidth", out var borderWidth))
+                ApplyBoxLength(borderWidth, value =>
+                {
+                    element.style.borderTopWidth = value;
+                    element.style.borderRightWidth = value;
+                    element.style.borderBottomWidth = value;
+                    element.style.borderLeftWidth = value;
+                });
+            if (TryGet(style, "borderColor", out var borderColor) && TryParseColor(borderColor, out var border))
+            {
+                element.style.borderTopColor = border;
+                element.style.borderRightColor = border;
+                element.style.borderBottomColor = border;
+                element.style.borderLeftColor = border;
+            }
+            if (TryGet(style, "borderRadius", out var borderRadius))
+                ApplyBoxLength(borderRadius, value =>
+                {
+                    element.style.borderTopLeftRadius = value;
+                    element.style.borderTopRightRadius = value;
+                    element.style.borderBottomRightRadius = value;
+                    element.style.borderBottomLeftRadius = value;
+                });
+            if (TryGet(style, "fontSize", out var fontSize))
+                element.style.fontSize = ParseLength(fontSize);
+            if (TryGet(style, "fontWeight", out var fontWeight) &&
+                (string.Equals(fontWeight, "bold", StringComparison.OrdinalIgnoreCase) || fontWeight == "700"))
+                element.style.unityFontStyleAndWeight = FontStyle.Bold;
+        }
+
+        private static bool TryGet(IReadOnlyDictionary<string, string> values, string key, out string value)
+        {
+            if (values.TryGetValue(key, out value) && !string.IsNullOrWhiteSpace(value))
+                return true;
+
+            value = "";
+            return false;
+        }
+
+        private static StyleLength ParseLength(string value)
+        {
+            value = FirstToken(value);
+            if (string.Equals(value, "auto", StringComparison.OrdinalIgnoreCase))
+                return StyleKeyword.Auto;
+            if (value.EndsWith("%", StringComparison.Ordinal) &&
+                float.TryParse(value.Substring(0, value.Length - 1), NumberStyles.Float, CultureInfo.InvariantCulture, out var percent))
+                return new Length(percent, LengthUnit.Percent);
+            if (value.EndsWith("px", StringComparison.OrdinalIgnoreCase))
+                value = value.Substring(0, value.Length - 2);
+            if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var pixels))
+                return new Length(pixels, LengthUnit.Pixel);
+
+            return StyleKeyword.Null;
+        }
+
+        private static void ApplyBoxLength(string value, Action<StyleLength> apply)
+        {
+            apply(ParseLength(value));
+        }
+
+        private static bool TryParseColor(string value, out Color color)
+        {
+            value = value.Trim();
+            if (value.StartsWith("var(", StringComparison.Ordinal))
+            {
+                color = default;
+                return false;
+            }
+            return ColorUtility.TryParseHtmlString(value, out color);
+        }
+
+        private static bool TryParseAlign(string value, out Align align)
+        {
+            switch (value)
+            {
+                case "center":
+                    align = Align.Center;
+                    return true;
+                case "end":
+                case "flex-end":
+                    align = Align.FlexEnd;
+                    return true;
+                case "stretch":
+                    align = Align.Stretch;
+                    return true;
+                case "start":
+                case "flex-start":
+                    align = Align.FlexStart;
+                    return true;
+                default:
+                    align = Align.Auto;
+                    return false;
+            }
+        }
+
+        private static bool TryParseJustify(string value, out Justify justify)
+        {
+            switch (value)
+            {
+                case "center":
+                    justify = Justify.Center;
+                    return true;
+                case "end":
+                case "flex-end":
+                    justify = Justify.FlexEnd;
+                    return true;
+                case "space-between":
+                    justify = Justify.SpaceBetween;
+                    return true;
+                case "space-around":
+                    justify = Justify.SpaceAround;
+                    return true;
+                case "start":
+                case "flex-start":
+                    justify = Justify.FlexStart;
+                    return true;
+                default:
+                    justify = Justify.FlexStart;
+                    return false;
+            }
+        }
+
+        private static string FirstToken(string value)
+        {
+            return (value ?? "").Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "";
         }
 
         private static string NormalizeKind(string kind)

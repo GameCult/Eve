@@ -128,7 +128,9 @@ namespace GameCult.Eve.Surface
             IReadOnlyDictionary<string, string> props,
             IReadOnlyList<EveSurfaceComponent> children,
             IReadOnlyList<CultMeshStateBindingDescriptor> stateBindings,
-            IReadOnlyList<EveEmbeddedDocumentSlot> embeddedDocuments)
+            IReadOnlyList<EveEmbeddedDocumentSlot> embeddedDocuments,
+            IReadOnlyDictionary<string, string>? layout = null,
+            IReadOnlyDictionary<string, string>? style = null)
         {
             Id = id ?? "";
             Kind = kind ?? "";
@@ -136,6 +138,8 @@ namespace GameCult.Eve.Surface
             Children = children ?? Array.Empty<EveSurfaceComponent>();
             StateBindings = stateBindings ?? Array.Empty<CultMeshStateBindingDescriptor>();
             EmbeddedDocuments = embeddedDocuments ?? Array.Empty<EveEmbeddedDocumentSlot>();
+            Layout = layout ?? new Dictionary<string, string>(StringComparer.Ordinal);
+            Style = style ?? new Dictionary<string, string>(StringComparer.Ordinal);
         }
 
         [Key(0)]
@@ -155,6 +159,12 @@ namespace GameCult.Eve.Surface
 
         [Key(5)]
         public IReadOnlyList<EveEmbeddedDocumentSlot> EmbeddedDocuments { get; }
+
+        [Key(6)]
+        public IReadOnlyDictionary<string, string> Layout { get; }
+
+        [Key(7)]
+        public IReadOnlyDictionary<string, string> Style { get; }
 
         public string GetProp(string key, string fallback = "")
         {
