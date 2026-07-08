@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.conformance_export.v1",
+  "title": "Eve Conformance Export",
+  "type": "object",
+  "required": [
+    "schema",
+    "generatedAt",
+    "sourceManifest",
+    "packs",
+    "plugins",
+    "providers",
+    "runtimes",
+    "splitTargets"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.conformance_export.v1"
+    },
+    "generatedAt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceManifest": {
+      "type": "string",
+      "minLength": 1
+    },
+    "boundaryRule": {
+      "type": "string"
+    },
+    "incubationPolicy": {
+      "type": "string"
+    },
+    "packs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "fixtures"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string"
+          },
+          "exitCriteria": {
+            "type": "string"
+          },
+          "fixtures": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "plugins": {
+      "type": "array"
+    },
+    "providers": {
+      "type": "array"
+    },
+    "runtimes": {
+      "type": "array"
+    },
+    "splitTargets": {
+      "type": "array"
+    }
+  },
+  "additionalProperties": true
+}

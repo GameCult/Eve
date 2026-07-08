@@ -9,6 +9,9 @@ const manifestPath = path.join(repoRoot, "tools/parity/parity-manifest.json");
 const outputRoot = process.env.EVE_PARITY_OUTPUT
   ? path.resolve(process.env.EVE_PARITY_OUTPUT)
   : path.join(repoRoot, "artifacts/parity");
+const conformanceOutputRoot = process.env.EVE_CONFORMANCE_OUTPUT
+  ? path.resolve(process.env.EVE_CONFORMANCE_OUTPUT)
+  : path.join(repoRoot, "artifacts/conformance");
 
 const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -39,15 +42,26 @@ const report = {
   splitTargets: splitTargetResults,
   runtimes: runtimeResults,
 };
+const conformanceExport = buildConformanceExport(report);
+const conformanceExportErrors = validateSchemaSubset(
+  JSON.parse(await readFile(path.join(repoRoot, manifest.schemas["gamecult.eve.conformance_export.v1"]), "utf8")),
+  conformanceExport,
+  "conformanceExport",
+);
 
 await writeFile(path.join(runDirectory, "parity-report.json"), `${JSON.stringify(report, null, 2)}\n`);
 await writeFile(path.join(runDirectory, "parity-report.md"), renderMarkdown(report));
 await writeFile(path.join(outputRoot, "latest.json"), `${JSON.stringify(report, null, 2)}\n`);
 await writeFile(path.join(outputRoot, "latest.md"), renderMarkdown(report));
+await writeConformanceExport(conformanceExport, path.join(conformanceOutputRoot, stamp));
+await writeConformanceExport(conformanceExport, path.join(conformanceOutputRoot, "latest"));
 
 console.log(`Parity report: ${path.relative(repoRoot, path.join(runDirectory, "parity-report.md"))}`);
+console.log(`Conformance export: ${path.relative(repoRoot, path.join(conformanceOutputRoot, "latest", "index.md"))}`);
+for (const error of conformanceExportErrors) console.error(`Conformance export error: ${error}`);
 if (report.summary.failedFixtures > 0) process.exitCode = 1;
 if (report.summary.failedProviders > 0) process.exitCode = 1;
+if (conformanceExportErrors.length > 0) process.exitCode = 1;
 
 async function evaluateFixture(fixture) {
   const startedAt = Date.now();
@@ -210,6 +224,7 @@ async function evaluateFixture(fixture) {
     title: fixture.title,
     pack: fixture.pack || "",
     ownerRepo: fixture.ownerRepo || "",
+    surface: fixture.surface || {},
     requiredPlugins: fixture.requiredPlugins || [],
     status: checks.every(check => check.pass) ? "pass" : "fail",
     durationMs: Date.now() - startedAt,
@@ -1004,6 +1019,112 @@ function summarize(fixtures, runtimes, plugins, providers, splitTargets) {
     totalSplitTargets: splitTargets.length,
     readySplitTargets: splitTargets.filter(target => target.status === "ready-to-split").length,
   };
+}
+
+function buildConformanceExport(report) {
+  const packs = (report.conformancePacks || []).map(pack => {
+    const fixtures = report.fixtures
+      .filter(fixture => fixture.pack === pack.id)
+      .map(fixture => ({
+        fixtureId: fixture.id,
+        title: fixture.title,
+        ownerRepo: fixture.ownerRepo,
+        status: fixture.status,
+        surface: fixture.surface,
+        metadataPath: fixture.metadataPath,
+        purpose: fixture.metadata?.purpose || "",
+        exitCriteria: fixture.metadata?.exitCriteria || "",
+        asserts: fixture.metadata?.asserts || [],
+        requiredPlugins: fixture.requiredPlugins || [],
+      }));
+
+    return {
+      id: pack.id,
+      ownerRepo: pack.ownerRepo || "",
+      exitCriteria: pack.exitCriteria || "",
+      fixtures,
+    };
+  });
+
+  return {
+    schema: "gamecult.eve.conformance_export.v1",
+    generatedAt: report.generatedAt,
+    sourceManifest: report.manifest,
+    boundaryRule: report.repoStrategy.boundaryRule || "",
+    incubationPolicy: report.repoStrategy.incubationPolicy || "",
+    packs,
+    plugins: (report.plugins || []).map(plugin => ({
+      pluginId: plugin.pluginId,
+      status: plugin.status,
+      ownerRepo: plugin.ownerRepo,
+      abiFixturePath: plugin.abiFixturePath,
+      capabilities: plugin.capabilities,
+    })),
+    providers: (report.providers || []).map(provider => ({
+      providerId: provider.providerId,
+      status: provider.status,
+      ownerRepo: provider.ownerRepo,
+      advertisementPath: provider.advertisementPath,
+      scenarioPath: provider.scenarioPath,
+      scenarioId: provider.scenarioId,
+      surfaces: provider.surfaceIds,
+      commands: provider.commandIds,
+    })),
+    runtimes: (report.runtimes || []).map(runtime => ({
+      runtimeId: runtime.id,
+      status: runtime.status,
+      ownerRepo: runtime.ownerRepo,
+      splitTarget: runtime.splitTarget,
+      supportedFeatures: runtime.supportedFeatures,
+      supportedPlugins: runtime.supportedPlugins,
+      unsupportedPlugins: runtime.unsupportedPlugins,
+      commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
+    })),
+    splitTargets: report.splitTargets || [],
+  };
+}
+
+async function writeConformanceExport(conformanceExport, directory) {
+  await mkdir(path.join(directory, "packs"), { recursive: true });
+  await writeFile(path.join(directory, "index.json"), `${JSON.stringify(conformanceExport, null, 2)}\n`);
+  await writeFile(path.join(directory, "index.md"), renderConformanceExportMarkdown(conformanceExport));
+  for (const pack of conformanceExport.packs) {
+    await writeFile(path.join(directory, "packs", `${pack.id}.json`), `${JSON.stringify(pack, null, 2)}\n`);
+  }
+}
+
+function renderConformanceExportMarkdown(conformanceExport) {
+  const lines = [
+    "# Eve Conformance Export",
+    "",
+    `Generated: ${conformanceExport.generatedAt}`,
+    "",
+    `Boundary rule: ${conformanceExport.boundaryRule || "not declared"}`,
+    "",
+    "## Packs",
+    "",
+    "| Pack | Owner | Fixtures | Exit |",
+    "| --- | --- | ---: | --- |",
+  ];
+
+  for (const pack of conformanceExport.packs) {
+    lines.push(`| ${pack.id} | ${pack.ownerRepo} | ${pack.fixtures.length} | ${pack.exitCriteria} |`);
+  }
+
+  lines.push("", "## Fixtures", "", "| Pack | Fixture | Status | Owner | Surface | Metadata |", "| --- | --- | --- | --- | --- | --- |");
+  for (const pack of conformanceExport.packs) {
+    for (const fixture of pack.fixtures) {
+      lines.push(`| ${pack.id} | ${fixture.title} | ${fixture.status} | ${fixture.ownerRepo} | ${fixture.surface?.path || ""} | ${fixture.metadataPath || ""} |`);
+    }
+  }
+
+  lines.push("", "## Runtime Targets", "", "| Runtime | Status | Split Target | Command Schema | Unsupported Plugins |", "| --- | --- | --- | --- | --- |");
+  for (const runtime of conformanceExport.runtimes) {
+    const unsupported = (runtime.unsupportedPlugins || []).map(plugin => plugin.pluginId).join(", ");
+    lines.push(`| ${runtime.runtimeId} | ${runtime.status} | ${runtime.splitTarget || ""} | ${runtime.commandTransportSchema || ""} | ${unsupported} |`);
+  }
+
+  return `${lines.join("\n")}\n`;
 }
 
 function renderMarkdown(report) {

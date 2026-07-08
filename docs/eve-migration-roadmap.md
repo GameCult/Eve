@@ -274,11 +274,16 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Prepare an `EveConformance` export layout so core, plugin, runtime, and
-   provider packs can be consumed without Eve's local source layout.
+1. Add a real Unity plugin-host proof for either Sai or Norn, or keep
+   `EveUnity` blocked on explicit unsupported-plugin declarations.
+2. Move one conformance-pack consumer outside Eve's source layout and run it
+   against `artifacts/conformance/latest`.
 
 Recently cut:
 
+- The parity harness now emits an `EveConformance`-shaped export under
+  `artifacts/conformance/latest`, with a top-level index and per-pack JSON
+  files for core, plugin, provider, and runtime consumers.
 - Unity's plugin-host capability gap is now explicitly demoted. The UI Toolkit
   runtime owns generic projection and command requests, while Sai, Norn, and
   TeX semantics remain unsupported until a real Unity plugin host exists.
