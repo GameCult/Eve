@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:eve_parity/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,6 +42,40 @@ void main() {
       );
     });
   }
+
+  test('parses embedded document slots for CultUI nested surfaces', () {
+    final node = EveNode.fromJson(const {
+      'id': 'test.slot',
+      'kind': 'surface.slot',
+      'props': {'presentationKind': 'inventory.dropdown'},
+      'embeddedDocuments': [
+        {
+          'slotId': 'inventory.dropdown',
+          'documentId': 'cultmesh://test/dropdown',
+          'schemaId': 'gamecult.eve.surface.v1',
+          'presentationKind': 'inventory.dropdown',
+        }
+      ],
+    });
+
+    expect(node.embeddedDocuments, hasLength(1));
+    expect(node.embeddedDocuments.single.slotId, 'inventory.dropdown');
+    expect(node.embeddedDocuments.single.documentId, 'cultmesh://test/dropdown');
+  });
+
+  test('embedded_surface_fixture_contract', () {
+    final raw = File('../../web/fixtures/cultui-embedded-surface.json').readAsStringSync();
+    final json = jsonDecode(raw) as Map<String, dynamic>;
+    final surface = json['surface'] as Map<String, dynamic>;
+    final root = EveNode.fromJson(surface['root'] as Map<String, dynamic>);
+    final slot = root.children.singleWhere((node) => node.kind == 'surface.slot');
+
+    expect(json['schema'], 'gamecult.eve.surface.v1');
+    expect(slot.embeddedDocuments, hasLength(1));
+    expect(slot.embeddedDocuments.single.slotId, 'inventory.dropdown');
+    expect(slot.embeddedDocuments.single.schemaId, 'gamecult.eve.surface.v1');
+    expect(slot.embeddedDocuments.single.presentationKind, 'inventory.dropdown');
+  });
 }
 
 const fixtureId = String.fromEnvironment('EVE_PARITY_FIXTURE', defaultValue: 'cultui-inspector');

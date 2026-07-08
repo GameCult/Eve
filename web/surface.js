@@ -212,11 +212,12 @@ function delay(ms) {
 function renderSurface(state, source) {
   surfaceId.textContent = state.providerId || "surface unknown";
   surfaceVersion.textContent = `v${state.version ?? "?"}`;
+  const providerId = state.providerId || currentProvider?.providerId || "";
   renderEveSurface(state, app, {
     body: document.body,
     clientId: liveHermodr ? "hermodr.browser" : "browser.reference",
     commandSink: publishCommandIntent,
-    documentResolver: liveHermodr ? resolveHermodrDocument : undefined,
+    documentResolver: liveHermodr ? createHermodrDocumentResolver(providerId) : undefined,
     assetUrlResolver: liveHermodr ? resolveHermodrAssetUrl : undefined,
     provider: currentProvider,
     source,
@@ -224,15 +225,17 @@ function renderSurface(state, source) {
   });
 }
 
-async function resolveHermodrDocument(request) {
-  const providerId = currentProvider?.providerId || "";
-  const params = new URLSearchParams();
-  params.set("documentId", request.documentId);
-  if (request.schemaId) params.set("schemaId", request.schemaId);
-  if (request.slotId) params.set("slotId", request.slotId);
-  const response = await fetch(`/hermodr/document/${encodeURIComponent(providerId)}?${params.toString()}`, { cache: "no-store" });
-  if (!response.ok) throw new Error(await response.text());
-  return response.json();
+function createHermodrDocumentResolver(providerId) {
+  return async function resolveHermodrDocument(request) {
+    if (!providerId) return undefined;
+    const params = new URLSearchParams();
+    params.set("documentId", request.documentId);
+    if (request.schemaId) params.set("schemaId", request.schemaId);
+    if (request.slotId) params.set("slotId", request.slotId);
+    const response = await fetch(`/hermodr/document/${encodeURIComponent(providerId)}?${params.toString()}`, { cache: "no-store" });
+    if (!response.ok) throw new Error(await response.text());
+    return response.json();
+  };
 }
 
 function resolveHermodrAssetUrl(uri) {

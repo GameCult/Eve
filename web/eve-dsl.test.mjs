@@ -40,3 +40,13 @@ test("preserves slider skin anatomy as retained control parts", () => {
   assert.equal(skin.children[3].props.name, "thumb");
   assert.equal(skin.children[3].props.bleed, 3);
 });
+
+test("surface JSON can declare embedded CultMesh document slots", () => {
+  const state = JSON.parse(readFileSync(new URL("./fixtures/cultui-embedded-surface.json", import.meta.url), "utf8"));
+  const slot = state.surface.root.children[1];
+
+  assert.equal(slot.kind, "surface.slot");
+  assert.equal(slot.embeddedDocuments.length, 1);
+  assert.equal(slot.embeddedDocuments[0].slotId, "inventory.dropdown");
+  assert.equal(slot.embeddedDocuments[0].documentId, "cultmesh://demo/inventory/dropdown");
+});

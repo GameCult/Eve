@@ -51,8 +51,6 @@ import org.gamecult.cultmesh.eve.EveDashboardUiElement
 import org.gamecult.cultmesh.eve.EveMediaObservationDocument
 import org.gamecult.cultmesh.eve.EveSensorObservationDocument
 import java.net.URI
-import java.net.HttpURLConnection
-import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -61,13 +59,18 @@ import java.util.concurrent.Executors
 import org.json.JSONObject
 
 class MainActivity : Activity(), SensorEventListener {
+    companion object {
+        const val EXTRA_DASHBOARD_URI = "org.gamecult.eve.DASHBOARD_URI"
+        const val EXTRA_SENSOR_URI = "org.gamecult.eve.SENSOR_URI"
+    }
+
     private val mesh = CultMeshNode()
     private val main = Handler(Looper.getMainLooper())
     private val workers = Executors.newCachedThreadPool()
     private val deviceId = "periwinkle"
     private val clientId = "eve-android-periwinkle"
-    private val dashboardUri = URI.create("ws://192.168.1.66:8795/eve/deck/cultmesh")
-    private val sensorUri = URI.create("ws://192.168.1.66:8796/eve/periwinkle")
+    private var dashboardUri: URI? = null
+    private var sensorUri: URI? = null
 
     private var sensorManager: SensorManager? = null
     private var dashboardSocket: CultNetWebSocketClient? = null
@@ -102,6 +105,8 @@ class MainActivity : Activity(), SensorEventListener {
             setContentView(buildParityFixtureUi())
             return
         }
+        dashboardUri = resolveDashboardUri(intent.getStringExtra(EXTRA_DASHBOARD_URI))
+        sensorUri = resolveConfiguredUri(intent.getStringExtra(EXTRA_SENSOR_URI))
         sensorManager = getSystemService(SENSOR_SERVICE) as? SensorManager
         setContentView(buildUi())
         startSensors()
@@ -197,6 +202,7 @@ class MainActivity : Activity(), SensorEventListener {
                     addView(renderCultUiNode(child, values, tokens), stageParams(child))
                 }
             }
+            "surface.slot" -> embeddedSurfaceSlot(node, props, tokens)
             "control.button" -> label(props.optString("label", ""), 14f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), true).apply {
                 gravity = Gravity.CENTER
                 setPadding(dp(14), dp(12), dp(14), dp(12))
@@ -322,6 +328,34 @@ class MainActivity : Activity(), SensorEventListener {
         }
     }
 
+    private fun embeddedSurfaceSlot(node: JSONObject, props: JSONObject, tokens: JSONObject): View {
+        val slots = node.optJSONArray("embeddedDocuments")
+        val slot = slots?.optJSONObject(0)
+        val slotId = props.optString("slotId", slot?.optString("slotId", "") ?: "")
+        val documentId = props.optString("documentId", slot?.optString("documentId", "") ?: "")
+        val schemaId = props.optString("schemaId", slot?.optString("schemaId", "") ?: "")
+        val presentationKind = props.optString("presentationKind", slot?.optString("presentationKind", "") ?: "")
+        val title = presentationKind.ifBlank { slotId.ifBlank { "embedded surface" } }
+        val detail = listOf(documentId, schemaId)
+            .filter { it.isNotBlank() }
+            .joinToString("\n")
+
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), dp(10), dp(12), dp(10))
+            background = android.graphics.drawable.GradientDrawable().apply {
+                setColor(tokenColor(tokens, "colorPanel", Color.rgb(7, 25, 24)))
+                setStroke(dp(1), tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()))
+                cornerRadius = dp(6).toFloat()
+            }
+            addView(label(title, 12f, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()), true))
+            if (detail.isNotBlank()) {
+                addView(label(detail, 11f, tokenColor(tokens, "colorMuted", 0xffd3bb7f.toInt()), false))
+            }
+            contentDescription = "embeddedDocuments:$slotId:$documentId:$schemaId:$presentationKind"
+        }
+    }
+
     private fun stageParams(node: JSONObject): FrameLayout.LayoutParams {
         val kind = node.optString("kind", "")
         val props = node.optJSONObject("props") ?: JSONObject()
@@ -430,9 +464,9 @@ class MainActivity : Activity(), SensorEventListener {
         scroll.addView(root, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         root.addView(label("Eve / Periwinkle", 18f, 0xff8efcff.toInt(), true))
         root.addView(label("CultMesh dashboard and sensor edge", 11f, 0xffb7c7c7.toInt(), false))
-        brokerText = card("CultMesh broker\nconnecting $dashboardUri")
+        brokerText = card("CultMesh broker\n${dashboardUriText()}")
         selectedText = card("selection\nwaiting for dashboard state")
-        sensorText = card("CultMesh sensors\nconnecting $sensorUri")
+        sensorText = card("CultMesh sensors\n${sensorUriText()}")
         touchText = card("touch surface\nwaiting for operator input")
         mediaText = card("media sensors\nwaiting for camera/mic permissions")
         providerPicker = Spinner(this).apply {
@@ -471,7 +505,6 @@ class MainActivity : Activity(), SensorEventListener {
         root.addView(mediaText)
         root.addView(touchText)
         root.addView(card("contract\nPeriwinkle consumes mimir.eve_dashboard_state.v1, sends mimir.eve_dashboard_command.v1, and publishes mimir.eve_sensor_observation.v1 plus mimir.eve_media_observation.v1. Mimir accepts meaning; Android renders and observes."))
-        refreshProviderCatalog()
         return scroll
     }
 
@@ -496,11 +529,16 @@ class MainActivity : Activity(), SensorEventListener {
         }
 
     private fun connectDashboard() {
+        val uri = dashboardUri
+        if (uri == null) {
+            postBroker("CultMesh broker\nno dashboard endpoint configured\nwaiting for Odin/CultMesh discovery")
+            return
+        }
         workers.execute {
             while (!Thread.currentThread().isInterrupted) {
                 try {
-                    dashboardSocket = mesh.connect(dashboardUri)
-                    postBroker("CultMesh broker\nconnected $dashboardUri\ndocument=mimir.eve_dashboard_state.v1")
+                    dashboardSocket = mesh.connect(uri)
+                    postBroker("CultMesh broker\nconnected $uri\ndocument=mimir.eve_dashboard_state.v1")
                     while (!Thread.currentThread().isInterrupted) {
                         val frame: CultNetFrame = dashboardSocket!!.readFrame()
                         if (frame.opcode == 0x8) error("dashboard closed")
@@ -511,22 +549,45 @@ class MainActivity : Activity(), SensorEventListener {
                         }
                     }
                 } catch (ex: Exception) {
-                    postBroker("CultMesh broker\nwaiting for Mimir\n${ex.javaClass.simpleName}: ${ex.message}")
+                    postBroker("CultMesh broker\nwaiting for configured CultMesh dashboard\n${ex.javaClass.simpleName}: ${ex.message}")
                     Thread.sleep(2000)
                 }
             }
         }
     }
 
+    private fun resolveDashboardUri(value: String?): URI? = resolveConfiguredUri(value)
+
+    private fun resolveConfiguredUri(value: String?): URI? {
+        val text = value?.trim().orEmpty()
+        if (text.isBlank()) return null
+        return try {
+            URI.create(text)
+        } catch (_: IllegalArgumentException) {
+            null
+        }
+    }
+
+    private fun dashboardUriText(): String =
+        dashboardUri?.let { "connecting $it" } ?: "no dashboard endpoint configured"
+
+    private fun sensorUriText(): String =
+        sensorUri?.let { "connecting $it" } ?: "no sensor endpoint configured"
+
     private fun connectSensorUplink() {
+        val uri = sensorUri
+        if (uri == null) {
+            postSensor("CultMesh sensors\nno sensor endpoint configured\nwaiting for Odin/CultMesh discovery")
+            return
+        }
         workers.execute {
             while (!Thread.currentThread().isInterrupted) {
                 try {
-                    sensorSocket = mesh.connect(sensorUri)
-                    postSensor("CultMesh sensors\nconnected $sensorUri\ndocument=mimir.eve_sensor_observation.v1")
+                    sensorSocket = mesh.connect(uri)
+                    postSensor("CultMesh sensors\nconnected $uri\ndocument=mimir.eve_sensor_observation.v1")
                     return@execute
                 } catch (ex: Exception) {
-                    postSensor("CultMesh sensors\nwaiting for receiver\n${ex.javaClass.simpleName}: ${ex.message}")
+                    postSensor("CultMesh sensors\nwaiting for configured CultMesh sensor receiver\n${ex.javaClass.simpleName}: ${ex.message}")
                     Thread.sleep(2000)
                 }
             }
@@ -602,47 +663,6 @@ class MainActivity : Activity(), SensorEventListener {
             }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
                 setMargins(0, dp(6), dp(6), 0)
             })
-        }
-    }
-
-    private fun refreshProviderCatalog() {
-        workers.execute {
-            runCatching {
-                val url = URL("http://${dashboardUri.host}:${dashboardUri.port}/eve/deck/providers")
-                val connection = (url.openConnection() as HttpURLConnection).apply {
-                    connectTimeout = 1500
-                    readTimeout = 1500
-                }
-                val raw = connection.inputStream.bufferedReader().use { it.readText() }
-                val providers = JSONObject(raw).optJSONArray("providers") ?: return@runCatching
-                val nodes = mutableListOf<EveDashboardNodeSnapshot>()
-                for (index in 0 until providers.length()) {
-                    val provider = providers.getJSONObject(index)
-                    val providerId = provider.optString("id", "")
-                    if (providerId.isBlank()) continue
-                    nodes += EveDashboardNodeSnapshot(
-                        id = "provider-${providerId.replace('.', '-')}",
-                        label = provider.optString("title", providerId),
-                        kind = "dashboard-provider",
-                        visible = true,
-                        x = 0.0,
-                        y = 0.0,
-                        z = 0.0,
-                        rotation = 0.0,
-                        scale = 1.0,
-                        width = 0.0,
-                        height = 0.0,
-                        health = "ok",
-                        providerId = providerId,
-                        command = "open-provider",
-                        endpoint = provider.optString("endpoint", "").ifBlank { null },
-                    )
-                }
-                main.post {
-                    if (nodes.isNotEmpty()) providerPickerNodes = nodes
-                    latestState?.let { renderProviderPicker(it) }
-                }
-            }
         }
     }
 

@@ -104,6 +104,7 @@ class EveNode {
     required this.props,
     required this.layout,
     required this.children,
+    required this.embeddedDocuments,
   });
 
   final String id;
@@ -111,6 +112,7 @@ class EveNode {
   final Map<String, dynamic> props;
   final Map<String, dynamic> layout;
   final List<EveNode> children;
+  final List<EveEmbeddedDocumentSlot> embeddedDocuments;
 
   factory EveNode.fromJson(Map<String, dynamic> json) {
     return EveNode(
@@ -121,6 +123,32 @@ class EveNode {
       children: ((json['children'] as List<dynamic>?) ?? const [])
           .map((child) => EveNode.fromJson(child as Map<String, dynamic>))
           .toList(),
+      embeddedDocuments: ((json['embeddedDocuments'] as List<dynamic>?) ?? const [])
+          .map((slot) => EveEmbeddedDocumentSlot.fromJson(slot as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class EveEmbeddedDocumentSlot {
+  EveEmbeddedDocumentSlot({
+    required this.slotId,
+    required this.documentId,
+    required this.schemaId,
+    required this.presentationKind,
+  });
+
+  final String slotId;
+  final String documentId;
+  final String schemaId;
+  final String presentationKind;
+
+  factory EveEmbeddedDocumentSlot.fromJson(Map<String, dynamic> json) {
+    return EveEmbeddedDocumentSlot(
+      slotId: (json['slotId'] ?? '').toString(),
+      documentId: (json['documentId'] ?? '').toString(),
+      schemaId: (json['schemaId'] ?? '').toString(),
+      presentationKind: (json['presentationKind'] ?? '').toString(),
     );
   }
 }
@@ -250,9 +278,34 @@ class EveNodeView extends StatelessWidget {
         return _dialogue();
       case 'rail.actions':
         return _actions();
+      case 'surface.slot':
+        return _surfaceSlot();
       default:
         return _fallback();
     }
+  }
+
+  Widget _surfaceSlot() {
+    final slot = node.embeddedDocuments.firstOrNull;
+    final label = node.props['presentationKind']?.toString() ??
+        slot?.presentationKind ??
+        node.props['slotId']?.toString() ??
+        slot?.slotId ??
+        'embedded surface';
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: state.tokens.panelAlt.withValues(alpha: 0.65),
+        border: Border.all(color: state.tokens.accent.withValues(alpha: 0.45)),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Text(
+          label,
+          style: TextStyle(color: state.tokens.muted, fontFamily: 'EveParity', fontSize: 12),
+        ),
+      ),
+    );
   }
 
   Widget _vnStage() {

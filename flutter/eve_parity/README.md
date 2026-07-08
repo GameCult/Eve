@@ -9,6 +9,8 @@ Current smoke target:
 
 - `CultUiInspectorSurface`
 - custom-painted slider track/fill/thumb
+- `EmbeddedSurfaceDemo`, which verifies `surface.slot` /
+  `embeddedDocuments` parsing and rendering from the shared fixture
 - golden PNG output through `flutter test --update-goldens`
 
 Run from the repository root:

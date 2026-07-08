@@ -130,6 +130,46 @@ static NSData *EVEMediaObservation(NSString *observationId,
   return data;
 }
 
+static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
+  NSUserDefaults *defaults = NSUserDefaults.standardUserDefaults;
+  id configured = [defaults objectForKey:key];
+  NSMutableArray<NSString *> *values = [NSMutableArray array];
+
+  if ([configured isKindOfClass:NSArray.class]) {
+    for (id item in (NSArray *)configured) {
+      if ([item isKindOfClass:NSString.class]) {
+        [values addObject:item];
+      }
+    }
+  } else if ([configured isKindOfClass:NSString.class]) {
+    NSCharacterSet *separators = [NSCharacterSet characterSetWithCharactersInString:@", \n\t"];
+    for (NSString *part in [(NSString *)configured componentsSeparatedByCharactersInSet:separators]) {
+      if (part.length > 0) {
+        [values addObject:part];
+      }
+    }
+  }
+
+  NSString *envValue = NSProcessInfo.processInfo.environment[key];
+  if ([envValue isKindOfClass:NSString.class] && envValue.length > 0) {
+    NSCharacterSet *separators = [NSCharacterSet characterSetWithCharactersInString:@", \n\t"];
+    for (NSString *part in [envValue componentsSeparatedByCharactersInSet:separators]) {
+      if (part.length > 0) {
+        [values addObject:part];
+      }
+    }
+  }
+
+  NSMutableArray<NSURL *> *urls = [NSMutableArray array];
+  for (NSString *value in values) {
+    NSURL *url = [NSURL URLWithString:value];
+    if (url) {
+      [urls addObject:url];
+    }
+  }
+  return urls;
+}
+
 @interface EVEViewController () <EVEFrameStreamClientDelegate, EVEDashboardClientDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate>
 
 @property(nonatomic, strong) EVEGLView *glView;
@@ -240,39 +280,23 @@ static NSData *EVEMediaObservation(NSString *observationId,
   self.streamScale = 2.0;
   self.streamStatus = @"stream idle";
   self.streamCodec = @"jpeg";
-  self.dialogueLine = @"awaiting Mimir";
+  self.dialogueLine = @"awaiting configured stream";
   self.dashboardStatus = @"dashboard idle";
   self.dashboardProviderId = @"";
   self.activeSurfaceFontScale = 1.0;
   self.nodeViews = [NSMutableDictionary dictionary];
   self.dashboardNodes = [NSMutableDictionary dictionary];
   self.avatarCache = [NSMutableDictionary dictionary];
-  NSArray<NSURL *> *streamURLs = @[
-    [NSURL URLWithString:@"ws://127.0.0.1:8792/stream"],
-    [NSURL URLWithString:@"ws://192.168.1.66:8792/stream"],
-  ];
+  NSArray<NSURL *> *streamURLs = EVEConfiguredURLs(@"EVE_STREAM_URLS");
   self.streamClient = [[EVEFrameStreamClient alloc] initWithURLs:streamURLs delegate:self];
   [self.streamClient connect];
 
-  NSArray<NSURL *> *dashboardURLs = @[
-    [NSURL URLWithString:@"ws://127.0.0.1:8797/eve/deck"],
-    [NSURL URLWithString:@"ws://192.168.1.66:8797/eve/deck"],
-    [NSURL URLWithString:@"ws://127.0.0.1:8795/eve/deck"],
-    [NSURL URLWithString:@"ws://192.168.1.66:8795/eve/deck"],
-    [NSURL URLWithString:@"ws://127.0.0.1:8795/eve/dashboard"],
-    [NSURL URLWithString:@"ws://192.168.1.66:8795/eve/dashboard"],
-  ];
+  NSArray<NSURL *> *dashboardURLs = EVEConfiguredURLs(@"EVE_DASHBOARD_URLS");
   self.dashboardClient = [[EVEDashboardClient alloc] initWithURLs:dashboardURLs delegate:self];
   [self.dashboardClient connect];
 
-  NSArray<NSURL *> *cameraURLs = @[
-    [NSURL URLWithString:@"ws://127.0.0.1:8793/eve/camera"],
-    [NSURL URLWithString:@"ws://192.168.1.66:8793/eve/camera"],
-  ];
-  NSArray<NSURL *> *micURLs = @[
-    [NSURL URLWithString:@"ws://127.0.0.1:8794/eve/mic"],
-    [NSURL URLWithString:@"ws://192.168.1.66:8794/eve/mic"],
-  ];
+  NSArray<NSURL *> *cameraURLs = EVEConfiguredURLs(@"EVE_CAMERA_URLS");
+  NSArray<NSURL *> *micURLs = EVEConfiguredURLs(@"EVE_MIC_URLS");
   self.cameraUplink = [[EVESensorUplinkClient alloc] initWithURLs:cameraURLs label:@"camera"];
   self.micUplink = [[EVESensorUplinkClient alloc] initWithURLs:micURLs label:@"mic"];
   [self.cameraUplink connect];
@@ -1255,6 +1279,27 @@ static NSData *EVEMediaObservation(NSString *observationId,
 
   if ([kind isEqualToString:@"rail"] || [kind isEqualToString:@"rail.actions"]) {
     return [self renderSurfaceRail:element props:props children:children depth:depth];
+  }
+
+  if ([kind isEqualToString:@"surface.slot"]) {
+    NSArray *slots = [element[@"embeddedDocuments"] isKindOfClass:NSArray.class] ? element[@"embeddedDocuments"] : @[];
+    NSDictionary *slot = slots.count > 0 && [slots[0] isKindOfClass:NSDictionary.class] ? slots[0] : @{};
+    NSString *slotId = [props[@"slotId"] isKindOfClass:NSString.class] ? props[@"slotId"] : ([slot[@"slotId"] isKindOfClass:NSString.class] ? slot[@"slotId"] : @"");
+    NSString *documentId = [props[@"documentId"] isKindOfClass:NSString.class] ? props[@"documentId"] : ([slot[@"documentId"] isKindOfClass:NSString.class] ? slot[@"documentId"] : @"");
+    NSString *schemaId = [props[@"schemaId"] isKindOfClass:NSString.class] ? props[@"schemaId"] : ([slot[@"schemaId"] isKindOfClass:NSString.class] ? slot[@"schemaId"] : @"");
+    NSString *presentationKind = [props[@"presentationKind"] isKindOfClass:NSString.class] ? props[@"presentationKind"] : ([slot[@"presentationKind"] isKindOfClass:NSString.class] ? slot[@"presentationKind"] : @"");
+    NSString *title = presentationKind.length > 0 ? presentationKind : (slotId.length > 0 ? slotId : @"embedded surface");
+    NSString *detail = [@[documentId ?: @"", schemaId ?: @""] componentsJoinedByString:@"\n"];
+    UILabel *label = [self surfaceLabelWithText:[NSString stringWithFormat:@"%@\n%@", title.uppercaseString, detail]
+                                           size:11.0
+                                         weight:UIFontWeightMedium
+                                          color:[self fensalirPrimaryTextColor]];
+    label.accessibilityIdentifier = [NSString stringWithFormat:@"embeddedDocuments:%@:%@:%@:%@", slotId ?: @"", documentId ?: @"", schemaId ?: @"", presentationKind ?: @""];
+    label.layer.borderWidth = 1.0;
+    label.layer.borderColor = [self fensalirAccentSoftColor].CGColor;
+    label.layer.cornerRadius = 5.0;
+    label.backgroundColor = [UIColor colorWithRed:0.014 green:0.050 blue:0.052 alpha:0.92];
+    return label;
   }
 
   if ([kind isEqualToString:@"avatar"]) {
