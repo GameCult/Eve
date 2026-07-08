@@ -271,6 +271,8 @@ namespace GameCult.Eve.Surface
 
     public sealed class EveSurfaceCommandRequest
     {
+        public const string SchemaId = "gamecult.eve.command.v1";
+
         public EveSurfaceCommandRequest(
             string providerId,
             string surfaceId,
@@ -286,6 +288,8 @@ namespace GameCult.Eve.Surface
             IssuedAt = issuedAt;
             ClientId = clientId;
         }
+
+        public string Schema => SchemaId;
 
         public string ProviderId { get; }
 

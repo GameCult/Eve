@@ -17,8 +17,12 @@ void main() {
   });
 
   for (final viewport in _viewports) {
-    testWidgets('renders selected Eve parity fixture at ${viewport.id}', (tester) async {
-      await tester.binding.setSurfaceSize(Size(viewport.width, viewport.height));
+    testWidgets('renders selected Eve parity fixture at ${viewport.id}', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(
+        Size(viewport.width, viewport.height),
+      );
       addTearDown(() => tester.binding.setSurfaceSize(null));
       await tester.pumpWidget(EveParityApp(key: ValueKey(viewport.id)));
       await tester.pump(const Duration(milliseconds: 100));
@@ -54,31 +58,76 @@ void main() {
           'documentId': 'cultmesh://test/dropdown',
           'schemaId': 'gamecult.eve.surface.v1',
           'presentationKind': 'inventory.dropdown',
-        }
+        },
       ],
     });
 
     expect(node.embeddedDocuments, hasLength(1));
     expect(node.embeddedDocuments.single.slotId, 'inventory.dropdown');
-    expect(node.embeddedDocuments.single.documentId, 'cultmesh://test/dropdown');
+    expect(
+      node.embeddedDocuments.single.documentId,
+      'cultmesh://test/dropdown',
+    );
   });
 
   test('embedded_surface_fixture_contract', () {
-    final raw = File('../../web/fixtures/cultui-embedded-surface.json').readAsStringSync();
+    final raw = File(
+      '../../web/fixtures/cultui-embedded-surface.json',
+    ).readAsStringSync();
     final json = jsonDecode(raw) as Map<String, dynamic>;
     final surface = json['surface'] as Map<String, dynamic>;
     final root = EveNode.fromJson(surface['root'] as Map<String, dynamic>);
-    final slot = root.children.singleWhere((node) => node.kind == 'surface.slot');
+    final slot = root.children.singleWhere(
+      (node) => node.kind == 'surface.slot',
+    );
 
     expect(json['schema'], 'gamecult.eve.surface.v1');
     expect(slot.embeddedDocuments, hasLength(1));
     expect(slot.embeddedDocuments.single.slotId, 'inventory.dropdown');
     expect(slot.embeddedDocuments.single.schemaId, 'gamecult.eve.surface.v1');
-    expect(slot.embeddedDocuments.single.presentationKind, 'inventory.dropdown');
+    expect(
+      slot.embeddedDocuments.single.presentationKind,
+      'inventory.dropdown',
+    );
+  });
+
+  testWidgets('emits gamecult Eve command intent from Aetheria controls', (
+    tester,
+  ) async {
+    final raw = File(
+      '../../web/fixtures/aetheria-world-surface.json',
+    ).readAsStringSync();
+    final json = jsonDecode(raw) as Map<String, dynamic>;
+    final state = EveSurfaceState.fromJson(json);
+    final intents = <EveCommandIntent>[];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: EveSurfaceView(
+          state: state,
+          commandSink: (intent, node) => intents.add(intent),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Focus Relay'));
+    await tester.pump();
+
+    expect(intents, hasLength(1));
+    expect(intents.single.schema, 'gamecult.eve.command.v1');
+    expect(intents.single.providerId, 'aetheria');
+    expect(intents.single.surfaceId, 'aetheria.daemon.game');
+    expect(intents.single.command, 'aetheria.daemon.commands');
+    expect(intents.single.commandId, 'aetheria.daemon.focus');
+    expect(intents.single.clientId, 'flutter-parity');
+    expect(intents.single.payload['action']['operation'], 'focus_entity');
   });
 }
 
-const fixtureId = String.fromEnvironment('EVE_PARITY_FIXTURE', defaultValue: 'cultui-inspector');
+const fixtureId = String.fromEnvironment(
+  'EVE_PARITY_FIXTURE',
+  defaultValue: 'cultui-inspector',
+);
 
 const _viewports = [
   _Viewport('phone', 390, 844),

@@ -286,6 +286,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   if (requiredFixtures.includes("embedded-surface") && !supportedFeatures.includes("embeddedDocuments")) {
     missingRequiredFeatures.push("embeddedDocuments");
   }
+  const commandTransportSmokeErrors = await validateRuntimeCommandTransportSmoke(runtime);
   const missingIncubationFields = requiredIncubationFields(runtime).filter(field => !runtime[field]);
   const pluginCapabilityGaps = collectPluginCapabilityGaps(runtime, fixtureResults);
   let status = runtime.kind === "active" ? "active" : "pending";
@@ -293,6 +294,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   if (runtime.kind === "active" && missingSourceSymbols.length) status = "missing-source-symbol";
   if (runtime.kind === "active" && missingRequiredFixtures.length) status = "missing-required-fixture";
   if (runtime.kind === "active" && missingRequiredFeatures.length) status = "missing-required-feature";
+  if (runtime.kind === "active" && commandTransportSmokeErrors.length) status = "missing-command-transport-smoke";
   if (runtime.kind === "active" && missingIncubationFields.length) status = "missing-incubation-metadata";
   if (runtime.kind === "active" && pluginCapabilityGaps.length && status === "active") status = "active-with-capability-gaps";
   if (runtime.kind === "pending" && runtime.adapterSpike === "external" && !missingExternalPaths.length && !missingExternalSourceSymbols.length) {
@@ -321,6 +323,8 @@ async function evaluateRuntime(runtime, fixtureResults) {
     supportedFeatures,
     supportedPlugins,
     missingRequiredFeatures,
+    commandTransportSmoke: runtime.commandTransportSmoke || null,
+    commandTransportSmokeErrors,
     ownerRepo: runtime.ownerRepo || "",
     repoRole: runtime.repoRole || "",
     graduationTrigger: runtime.graduationTrigger || "",
@@ -759,6 +763,36 @@ function collectPluginCapabilityGaps(runtime, fixtureResults) {
   return gaps;
 }
 
+async function validateRuntimeCommandTransportSmoke(runtime) {
+  const smoke = runtime.commandTransportSmoke;
+  if (!smoke) return [];
+
+  const errors = [];
+  if (smoke.schema !== "gamecult.eve.command.v1") {
+    errors.push(`schema:expected gamecult.eve.command.v1 got ${smoke.schema || ""}`);
+  }
+
+  for (const candidate of smoke.expectedPaths || []) {
+    if (!existsSync(path.join(repoRoot, candidate))) errors.push(`path:${candidate}:missing`);
+  }
+
+  for (const expectation of smoke.expectedSourceSymbols || []) {
+    const sourcePath = expectation.path || "";
+    const absolutePath = path.join(repoRoot, sourcePath);
+    if (!existsSync(absolutePath)) {
+      errors.push(`source:${sourcePath}:missing`);
+      continue;
+    }
+
+    const source = await readFile(absolutePath, "utf8");
+    for (const symbol of expectation.contains || []) {
+      if (!source.includes(symbol)) errors.push(`source:${sourcePath}:${symbol}:missing`);
+    }
+  }
+
+  return errors;
+}
+
 function evaluateSplitTargets(splitTargets, runtimeResults) {
   const runtimeById = new Map(runtimeResults.map(runtime => [runtime.id, runtime]));
   return splitTargets.map(target => {
@@ -1043,7 +1077,7 @@ function renderMarkdown(report) {
     lines.push(`| ${provider.title || provider.providerId} | ${provider.status} | ${provider.ownerRepo} | ${provider.scenarioId || ""} | ${provider.scenarioReceiptStates.join(", ")} | ${provider.surfaceIds.join(", ")} | ${provider.commandIds.join(", ")} | ${provider.witnessKinds.join(", ")} | ${missing} |`);
   }
 
-  lines.push("", "## Runtimes", "", "| Runtime | Status | Owner | Capture | Required Fixtures | Plugin Fixtures | Features | Plugin Gaps | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+  lines.push("", "## Runtimes", "", "| Runtime | Status | Owner | Capture | Command Smoke | Required Fixtures | Plugin Fixtures | Features | Plugin Gaps | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
   for (const runtime of report.runtimes) {
     const missing = [
       ...runtime.missingPaths,
@@ -1052,9 +1086,10 @@ function renderMarkdown(report) {
       ...runtime.missingExternalSourceSymbols.map(id => `external-source:${id}`),
       ...runtime.missingRequiredFixtures.map(id => `fixture:${id}`),
       ...runtime.missingRequiredFeatures.map(id => `feature:${id}`),
+      ...runtime.commandTransportSmokeErrors.map(id => `command-smoke:${id}`),
       ...runtime.missingIncubationFields.map(id => `metadata:${id}`),
     ].join(", ");
-    lines.push(`| ${runtime.title} | ${runtime.status} | ${runtime.ownerRepo} | ${runtime.capture?.status || "unknown"} | ${runtime.requiredFixtures.join(", ")} | ${runtime.pluginFixtures.join(", ")} | ${runtime.supportedFeatures.join(", ")} | ${runtime.pluginCapabilityGaps.join(", ")} | ${missing} |`);
+    lines.push(`| ${runtime.title} | ${runtime.status} | ${runtime.ownerRepo} | ${runtime.capture?.status || "unknown"} | ${runtime.commandTransportSmoke?.schema || ""} | ${runtime.requiredFixtures.join(", ")} | ${runtime.pluginFixtures.join(", ")} | ${runtime.supportedFeatures.join(", ")} | ${runtime.pluginCapabilityGaps.join(", ")} | ${missing} |`);
   }
 
   lines.push("", "## Split Readiness", "", "| Target | Status | Owner | Runtimes | Blockers |", "| --- | --- | --- | --- | --- |");

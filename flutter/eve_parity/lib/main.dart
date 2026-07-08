@@ -7,10 +7,17 @@ void main() {
   runApp(const EveParityApp());
 }
 
+typedef EveCommandSink = void Function(EveCommandIntent intent, EveNode node);
+
 class EveParityApp extends StatefulWidget {
-  const EveParityApp({super.key, this.assetPath = 'assets/current-surface.json'});
+  const EveParityApp({
+    super.key,
+    this.assetPath = 'assets/current-surface.json',
+    this.commandSink,
+  });
 
   final String assetPath;
+  final EveCommandSink? commandSink;
 
   @override
   State<EveParityApp> createState() => _EveParityAppState();
@@ -42,11 +49,19 @@ class _EveParityAppState extends State<EveParityApp> {
                 child: snapshot.hasError
                     ? Text(
                         'Eve surface load failed\n${snapshot.error}',
-                        style: const TextStyle(color: Color(0xFFFFB84F), fontFamily: 'monospace'),
+                        style: const TextStyle(
+                          color: Color(0xFFFFB84F),
+                          fontFamily: 'monospace',
+                        ),
                       )
                     : state == null
-                        ? const SizedBox.shrink()
-                        : SingleChildScrollView(child: EveSurfaceView(state: state)),
+                    ? const SizedBox.shrink()
+                    : SingleChildScrollView(
+                        child: EveSurfaceView(
+                          state: state,
+                          commandSink: widget.commandSink,
+                        ),
+                      ),
               ),
             ),
           );
@@ -59,6 +74,7 @@ class _EveParityAppState extends State<EveParityApp> {
 class EveSurfaceState {
   EveSurfaceState({
     required this.providerId,
+    required this.surfaceId,
     required this.title,
     required this.root,
     required this.tokens,
@@ -67,6 +83,7 @@ class EveSurfaceState {
   });
 
   final String providerId;
+  final String surfaceId;
   final String title;
   final EveNode root;
   final EveTokens tokens;
@@ -76,10 +93,15 @@ class EveSurfaceState {
   static Future<EveSurfaceState> load(String assetPath) async {
     final raw = await rootBundle.loadString(assetPath);
     final json = jsonDecode(raw) as Map<String, dynamic>;
+    return EveSurfaceState.fromJson(json);
+  }
+
+  factory EveSurfaceState.fromJson(Map<String, dynamic> json) {
     final surface = json['surface'] as Map<String, dynamic>;
     final styles = (surface['styles'] as Map<String, dynamic>?) ?? const {};
     final skins = <String, List<EveNode>>{};
-    final rawSkins = (styles['controlSkins'] as Map<String, dynamic>?) ?? const {};
+    final rawSkins =
+        (styles['controlSkins'] as Map<String, dynamic>?) ?? const {};
     for (final entry in rawSkins.entries) {
       final skin = entry.value as Map<String, dynamic>;
       skins[entry.key] = ((skin['children'] as List<dynamic>?) ?? const [])
@@ -88,9 +110,12 @@ class EveSurfaceState {
     }
     return EveSurfaceState(
       providerId: (json['providerId'] ?? '').toString(),
+      surfaceId: (surface['id'] ?? '').toString(),
       title: (json['title'] ?? '').toString(),
       root: EveNode.fromJson(surface['root'] as Map<String, dynamic>),
-      tokens: EveTokens.fromJson((styles['tokens'] as Map<String, dynamic>?) ?? const {}),
+      tokens: EveTokens.fromJson(
+        (styles['tokens'] as Map<String, dynamic>?) ?? const {},
+      ),
       controlSkins: skins,
       values: (json['values'] as Map<String, dynamic>?) ?? const {},
     );
@@ -123,11 +148,92 @@ class EveNode {
       children: ((json['children'] as List<dynamic>?) ?? const [])
           .map((child) => EveNode.fromJson(child as Map<String, dynamic>))
           .toList(),
-      embeddedDocuments: ((json['embeddedDocuments'] as List<dynamic>?) ?? const [])
-          .map((slot) => EveEmbeddedDocumentSlot.fromJson(slot as Map<String, dynamic>))
-          .toList(),
+      embeddedDocuments:
+          ((json['embeddedDocuments'] as List<dynamic>?) ?? const [])
+              .map(
+                (slot) => EveEmbeddedDocumentSlot.fromJson(
+                  slot as Map<String, dynamic>,
+                ),
+              )
+              .toList(),
     );
   }
+}
+
+class EveCommandIntent {
+  EveCommandIntent({
+    required this.type,
+    required this.schema,
+    required this.providerId,
+    required this.surfaceId,
+    required this.command,
+    required this.commandId,
+    required this.clientId,
+    required this.issuedAtUtc,
+    required this.payload,
+  });
+
+  final String type;
+  final String schema;
+  final String providerId;
+  final String surfaceId;
+  final String command;
+  final String commandId;
+  final String clientId;
+  final String issuedAtUtc;
+  final Map<String, dynamic> payload;
+
+  Map<String, dynamic> toJson() => {
+    'type': type,
+    'schema': schema,
+    'providerId': providerId,
+    'surfaceId': surfaceId,
+    'command': command,
+    'commandId': commandId,
+    'clientId': clientId,
+    'issuedAtUtc': issuedAtUtc,
+    'payload': payload,
+  };
+}
+
+EveCommandIntent createEveCommandIntent(
+  EveSurfaceState state,
+  EveNode node,
+  String command,
+) {
+  return EveCommandIntent(
+    type: 'surface-command',
+    schema: 'gamecult.eve.command.v1',
+    providerId: state.providerId,
+    surfaceId: state.surfaceId,
+    command: command,
+    commandId: node.props['commandId']?.toString() ?? command,
+    clientId: 'flutter-parity',
+    issuedAtUtc: DateTime.now().toUtc().toIso8601String(),
+    payload: {
+      'nodeId': node.id,
+      'kind': node.kind,
+      'props': node.props,
+      if (node.props['action'] != null) 'action': node.props['action'],
+    },
+  );
+}
+
+String resolveComponentCommandId(Map<String, dynamic> props, EveNode node) {
+  final action = props['action'] is Map<String, dynamic>
+      ? props['action'] as Map<String, dynamic>
+      : const <String, dynamic>{};
+  for (final value in [
+    props['command'],
+    action['command'],
+    action['target'],
+    action['type'],
+    props['commandId'],
+    node.id,
+  ]) {
+    if (value is String && value.trim().isNotEmpty) return value;
+  }
+  return '';
 }
 
 class EveEmbeddedDocumentSlot {
@@ -210,21 +316,32 @@ class EveTokens {
 }
 
 class EveSurfaceView extends StatelessWidget {
-  const EveSurfaceView({required this.state, super.key});
+  const EveSurfaceView({required this.state, this.commandSink, super.key});
 
   final EveSurfaceState state;
+  final EveCommandSink? commandSink;
 
   @override
   Widget build(BuildContext context) {
-    return EveNodeView(state: state, node: state.root);
+    return EveNodeView(
+      state: state,
+      node: state.root,
+      commandSink: commandSink,
+    );
   }
 }
 
 class EveNodeView extends StatelessWidget {
-  const EveNodeView({required this.state, required this.node, super.key});
+  const EveNodeView({
+    required this.state,
+    required this.node,
+    this.commandSink,
+    super.key,
+  });
 
   final EveSurfaceState state;
   final EveNode node;
+  final EveCommandSink? commandSink;
 
   @override
   Widget build(BuildContext context) {
@@ -287,7 +404,8 @@ class EveNodeView extends StatelessWidget {
 
   Widget _surfaceSlot() {
     final slot = node.embeddedDocuments.firstOrNull;
-    final label = node.props['presentationKind']?.toString() ??
+    final label =
+        node.props['presentationKind']?.toString() ??
         slot?.presentationKind ??
         node.props['slotId']?.toString() ??
         slot?.slotId ??
@@ -302,24 +420,38 @@ class EveNodeView extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Text(
           label,
-          style: TextStyle(color: state.tokens.muted, fontFamily: 'EveParity', fontSize: 12),
+          style: TextStyle(
+            color: state.tokens.muted,
+            fontFamily: 'EveParity',
+            fontSize: 12,
+          ),
         ),
       ),
     );
   }
 
   Widget _vnStage() {
-    final background = node.children.where((child) => child.kind == 'image.background').firstOrNull;
+    final background = node.children
+        .where((child) => child.kind == 'image.background')
+        .firstOrNull;
     final sceneChildren = node.children.where((child) {
-      return child.kind != 'image.background' && child.kind != 'panel.dialogue' && child.kind != 'rail.actions';
+      return child.kind != 'image.background' &&
+          child.kind != 'panel.dialogue' &&
+          child.kind != 'rail.actions';
     }).toList();
-    final dialogue = node.children.where((child) => child.kind == 'panel.dialogue').firstOrNull;
-    final actions = node.children.where((child) => child.kind == 'rail.actions').firstOrNull;
+    final dialogue = node.children
+        .where((child) => child.kind == 'panel.dialogue')
+        .firstOrNull;
+    final actions = node.children
+        .where((child) => child.kind == 'rail.actions')
+        .firstOrNull;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final height = constraints.maxHeight.isFinite ? constraints.maxHeight : width * 0.56;
+        final height = constraints.maxHeight.isFinite
+            ? constraints.maxHeight
+            : width * 0.56;
         return SizedBox(
           width: width,
           height: height.clamp(520, 900),
@@ -327,8 +459,16 @@ class EveNodeView extends StatelessWidget {
             children: [
               Positioned.fill(
                 child: background == null
-                    ? DecoratedBox(decoration: BoxDecoration(color: state.tokens.background))
-                    : EveNodeView(state: state, node: background),
+                    ? DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: state.tokens.background,
+                        ),
+                      )
+                    : EveNodeView(
+                        state: state,
+                        node: background,
+                        commandSink: commandSink,
+                      ),
               ),
               for (final child in sceneChildren) _stageOverlay(child),
               if (dialogue != null)
@@ -336,10 +476,23 @@ class EveNodeView extends StatelessWidget {
                   left: 28,
                   right: 28,
                   bottom: actions == null ? 24 : 96,
-                  child: EveNodeView(state: state, node: dialogue),
+                  child: EveNodeView(
+                    state: state,
+                    node: dialogue,
+                    commandSink: commandSink,
+                  ),
                 ),
               if (actions != null)
-                Positioned(left: 28, right: 28, bottom: 24, child: EveNodeView(state: state, node: actions)),
+                Positioned(
+                  left: 28,
+                  right: 28,
+                  bottom: 24,
+                  child: EveNodeView(
+                    state: state,
+                    node: actions,
+                    commandSink: commandSink,
+                  ),
+                ),
             ],
           ),
         );
@@ -348,22 +501,45 @@ class EveNodeView extends StatelessWidget {
   }
 
   Positioned _stageOverlay(EveNode child) {
-    if (child.kind == 'layer.embedded-surfaces' || child.kind == 'layer.cards') {
+    if (child.kind == 'layer.embedded-surfaces' ||
+        child.kind == 'layer.cards') {
       return Positioned.fill(
         child: IgnorePointer(
-          child: Stack(children: [for (final grandchild in child.children) _stageOverlay(grandchild)]),
+          child: Stack(
+            children: [
+              for (final grandchild in child.children)
+                _stageOverlay(grandchild),
+            ],
+          ),
         ),
       );
     }
     final placement = _map(child.props['placement']);
     final anchor = placement['anchor']?.toString();
     if (child.kind == 'embed.norn' || anchor == 'whiteboard') {
-      return Positioned(left: 54, top: 46, width: 520, height: 310, child: EveNodeView(state: state, node: child));
+      return Positioned(
+        left: 54,
+        top: 46,
+        width: 520,
+        height: 310,
+        child: EveNodeView(state: state, node: child, commandSink: commandSink),
+      );
     }
     if (child.kind == 'embed.tex' || anchor == 'whiteboard-equation') {
-      return Positioned(left: 96, top: 350, width: 500, height: 94, child: EveNodeView(state: state, node: child));
+      return Positioned(
+        left: 96,
+        top: 350,
+        width: 500,
+        height: 94,
+        child: EveNodeView(state: state, node: child, commandSink: commandSink),
+      );
     }
-    return Positioned(right: 32, top: 52, width: 300, child: EveNodeView(state: state, node: child));
+    return Positioned(
+      right: 32,
+      top: 52,
+      width: 300,
+      child: EveNodeView(state: state, node: child, commandSink: commandSink),
+    );
   }
 
   Widget _background() {
@@ -373,13 +549,21 @@ class EveNodeView extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [state.tokens.panelAlt, state.tokens.background, const Color(0xFF10161F)],
+          colors: [
+            state.tokens.panelAlt,
+            state.tokens.background,
+            const Color(0xFF10161F),
+          ],
         ),
       ),
       child: Stack(
         children: [
           Positioned.fill(
-            child: CustomPaint(painter: EveGridPainter(color: state.tokens.accent.withValues(alpha: 0.10))),
+            child: CustomPaint(
+              painter: EveGridPainter(
+                color: state.tokens.accent.withValues(alpha: 0.10),
+              ),
+            ),
           ),
           Positioned(
             left: 28,
@@ -412,7 +596,11 @@ class EveNodeView extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: CustomPaint(
-          painter: EveNornPainter(nodes: nodes, edges: edges, tokens: state.tokens),
+          painter: EveNornPainter(
+            nodes: nodes,
+            edges: edges,
+            tokens: state.tokens,
+          ),
           child: const SizedBox.expand(),
         ),
       ),
@@ -444,7 +632,11 @@ class EveNodeView extends StatelessWidget {
               ),
             Text(
               node.props['source']?.toString() ?? '',
-              style: TextStyle(color: state.tokens.text, fontFamily: 'EveParity', fontSize: 18),
+              style: TextStyle(
+                color: state.tokens.text,
+                fontFamily: 'EveParity',
+                fontSize: 18,
+              ),
             ),
           ],
         ),
@@ -460,7 +652,13 @@ class EveNodeView extends StatelessWidget {
         color: state.tokens.panel.withValues(alpha: 0.94),
         border: Border.all(color: state.tokens.border),
         borderRadius: BorderRadius.circular(8),
-        boxShadow: const [BoxShadow(color: Color(0x8A000000), blurRadius: 24, offset: Offset(0, 10))],
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x8A000000),
+            blurRadius: 24,
+            offset: Offset(0, 10),
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.all(18),
@@ -478,7 +676,14 @@ class EveNodeView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(text, style: TextStyle(color: state.tokens.text, fontFamily: 'EveParity', fontSize: 20)),
+            Text(
+              text,
+              style: TextStyle(
+                color: state.tokens.text,
+                fontFamily: 'EveParity',
+                fontSize: 20,
+              ),
+            ),
           ],
         ),
       ),
@@ -489,7 +694,13 @@ class EveNodeView extends StatelessWidget {
     return Row(
       children: [
         for (var index = 0; index < node.children.length; index += 1) ...[
-          Expanded(child: EveNodeView(state: state, node: node.children[index])),
+          Expanded(
+            child: EveNodeView(
+              state: state,
+              node: node.children[index],
+              commandSink: commandSink,
+            ),
+          ),
           if (index != node.children.length - 1) const SizedBox(width: 10),
         ],
       ],
@@ -497,8 +708,10 @@ class EveNodeView extends StatelessWidget {
   }
 
   Widget _button() {
-    final label = node.props['label']?.toString() ?? node.props['text']?.toString() ?? '';
-    return DecoratedBox(
+    final label =
+        node.props['label']?.toString() ?? node.props['text']?.toString() ?? '';
+    final command = resolveComponentCommandId(node.props, node);
+    final body = DecoratedBox(
       decoration: BoxDecoration(
         color: state.tokens.accent.withValues(alpha: 0.17),
         border: Border.all(color: state.tokens.accent.withValues(alpha: 0.64)),
@@ -518,6 +731,13 @@ class EveNodeView extends StatelessWidget {
         ),
       ),
     );
+    if (command.isEmpty || commandSink == null) return body;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () =>
+          commandSink?.call(createEveCommandIntent(state, node, command), node),
+      child: body,
+    );
   }
 
   Widget _imagePreview() {
@@ -536,10 +756,20 @@ class EveNodeView extends StatelessWidget {
             ),
             child: Stack(
               children: [
-                Positioned.fill(child: CustomPaint(painter: EveGridPainter(color: state.tokens.accent.withValues(alpha: 0.10)))),
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: EveGridPainter(
+                      color: state.tokens.accent.withValues(alpha: 0.10),
+                    ),
+                  ),
+                ),
                 if (assetPath != null)
                   Positioned.fill(
-                    child: Image.asset(assetPath, fit: BoxFit.cover, filterQuality: FilterQuality.none),
+                    child: Image.asset(
+                      assetPath,
+                      fit: BoxFit.cover,
+                      filterQuality: FilterQuality.none,
+                    ),
                   )
                 else
                   Center(
@@ -548,7 +778,11 @@ class EveNodeView extends StatelessWidget {
                       child: Text(
                         label,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: state.tokens.muted, fontFamily: 'EveParity', fontSize: 12),
+                        style: TextStyle(
+                          color: state.tokens.muted,
+                          fontFamily: 'EveParity',
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ),
@@ -557,7 +791,14 @@ class EveNodeView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(label, style: TextStyle(color: state.tokens.muted, fontFamily: 'EveParity', fontSize: 12)),
+        Text(
+          label,
+          style: TextStyle(
+            color: state.tokens.muted,
+            fontFamily: 'EveParity',
+            fontSize: 12,
+          ),
+        ),
       ],
     );
   }
@@ -568,7 +809,12 @@ class EveNodeView extends StatelessWidget {
       children: [
         Text(
           node.props['label']?.toString() ?? 'Canvas',
-          style: TextStyle(color: state.tokens.accent, fontFamily: 'EveParity', fontSize: 12, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: state.tokens.accent,
+            fontFamily: 'EveParity',
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         const SizedBox(height: 8),
         SizedBox(
@@ -581,11 +827,23 @@ class EveNodeView extends StatelessWidget {
             ),
             child: Stack(
               children: [
-                Positioned.fill(child: CustomPaint(painter: EveGridPainter(color: state.tokens.accent.withValues(alpha: editor ? 0.18 : 0.08)))),
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: EveGridPainter(
+                      color: state.tokens.accent.withValues(
+                        alpha: editor ? 0.18 : 0.08,
+                      ),
+                    ),
+                  ),
+                ),
                 Center(
                   child: Text(
                     node.props['state']?.toString() ?? '',
-                    style: TextStyle(color: state.tokens.muted, fontFamily: 'EveParity', fontSize: 12),
+                    style: TextStyle(
+                      color: state.tokens.muted,
+                      fontFamily: 'EveParity',
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ],
@@ -608,11 +866,34 @@ class EveNodeView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(node.props['label']?.toString() ?? 'Status', style: TextStyle(color: state.tokens.accent, fontFamily: 'EveParity', fontSize: 12, fontWeight: FontWeight.w700)),
+            Text(
+              node.props['label']?.toString() ?? 'Status',
+              style: TextStyle(
+                color: state.tokens.accent,
+                fontFamily: 'EveParity',
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             const SizedBox(height: 6),
-            Text(node.props['stage']?.toString() ?? '', style: TextStyle(color: state.tokens.text, fontFamily: 'EveParity', fontSize: 15, fontWeight: FontWeight.w700)),
+            Text(
+              node.props['stage']?.toString() ?? '',
+              style: TextStyle(
+                color: state.tokens.text,
+                fontFamily: 'EveParity',
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             const SizedBox(height: 4),
-            Text(node.props['detail']?.toString() ?? '', style: TextStyle(color: state.tokens.muted, fontFamily: 'EveParity', fontSize: 12)),
+            Text(
+              node.props['detail']?.toString() ?? '',
+              style: TextStyle(
+                color: state.tokens.muted,
+                fontFamily: 'EveParity',
+                fontSize: 12,
+              ),
+            ),
           ],
         ),
       ),
@@ -623,13 +904,31 @@ class EveNodeView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(node.props['label']?.toString() ?? '', style: TextStyle(color: state.tokens.accent, fontFamily: 'EveParity', fontSize: 11, fontWeight: FontWeight.w700)),
+        Text(
+          node.props['label']?.toString() ?? '',
+          style: TextStyle(
+            color: state.tokens.accent,
+            fontFamily: 'EveParity',
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
         const SizedBox(height: 4),
         DecoratedBox(
-          decoration: BoxDecoration(color: state.tokens.panelInset, border: Border.all(color: state.tokens.border)),
+          decoration: BoxDecoration(
+            color: state.tokens.panelInset,
+            border: Border.all(color: state.tokens.border),
+          ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            child: Text(node.props['value']?.toString() ?? '', style: TextStyle(color: state.tokens.text, fontFamily: 'EveParity', fontSize: 13)),
+            child: Text(
+              node.props['value']?.toString() ?? '',
+              style: TextStyle(
+                color: state.tokens.text,
+                fontFamily: 'EveParity',
+                fontSize: 13,
+              ),
+            ),
           ),
         ),
       ],
@@ -638,12 +937,19 @@ class EveNodeView extends StatelessWidget {
 
   Widget _toggle() {
     return DecoratedBox(
-      decoration: BoxDecoration(color: state.tokens.panelInset, border: Border.all(color: state.tokens.border)),
+      decoration: BoxDecoration(
+        color: state.tokens.panelInset,
+        border: Border.all(color: state.tokens.border),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Text(
           '${node.props['label'] ?? 'Toggle'}: ${node.props['value'] == true ? 'on' : 'off'}',
-          style: TextStyle(color: state.tokens.text, fontFamily: 'EveParity', fontSize: 12),
+          style: TextStyle(
+            color: state.tokens.text,
+            fontFamily: 'EveParity',
+            fontSize: 12,
+          ),
         ),
       ),
     );
@@ -686,13 +992,16 @@ class EveNodeView extends StatelessWidget {
     final split = (node.props['split'] ?? _layoutDirection()).toString();
     final gap = _number(node.props['gap'] ?? node.layout['gap'], 0);
     final padding = _number(node.props['padding'] ?? node.layout['padding'], 0);
-    final body = _children(axis: split == 'x' ? Axis.horizontal : Axis.vertical);
+    final body = _children(
+      axis: split == 'x' ? Axis.horizontal : Axis.vertical,
+    );
     return Padding(
       padding: EdgeInsets.all(padding),
       child: split == 'x'
           ? LayoutBuilder(
               builder: (context, constraints) {
-                if (constraints.maxWidth < 520 && node.props['role'] == 'inspector.row') {
+                if (constraints.maxWidth < 520 &&
+                    node.props['role'] == 'inspector.row') {
                   return _column(gap);
                 }
                 return body;
@@ -709,7 +1018,11 @@ class EveNodeView extends StatelessWidget {
         border: Border.all(color: state.tokens.border),
         borderRadius: BorderRadius.circular(6),
         boxShadow: const [
-          BoxShadow(color: Color(0x59000000), blurRadius: 26, offset: Offset(0, 12)),
+          BoxShadow(
+            color: Color(0x59000000),
+            blurRadius: 26,
+            offset: Offset(0, 12),
+          ),
         ],
       ),
       child: Padding(
@@ -774,7 +1087,8 @@ class EveNodeView extends StatelessWidget {
   Widget _text() {
     final bind = node.props['bind']?.toString();
     final value = bind == null ? node.props['text'] : state.values[bind];
-    final text = '${node.props['prefix'] ?? ''}${value ?? ''}${node.props['suffix'] ?? ''}';
+    final text =
+        '${node.props['prefix'] ?? ''}${value ?? ''}${node.props['suffix'] ?? ''}';
     return Text(
       node.kind == 'label' ? text.toUpperCase() : text,
       style: TextStyle(
@@ -787,20 +1101,32 @@ class EveNodeView extends StatelessWidget {
   }
 
   Widget _fallback() {
-    return node.children.isEmpty ? const SizedBox.shrink() : _children(axis: Axis.vertical);
+    return node.children.isEmpty
+        ? const SizedBox.shrink()
+        : _children(axis: Axis.vertical);
   }
 
   Widget _children({required Axis axis, double? maxWidth}) {
     final gap = _number(node.props['gap'], 0);
     final childWidgets = _spacedChildren(axis, gap);
     final content = axis == Axis.horizontal
-        ? Row(crossAxisAlignment: CrossAxisAlignment.center, children: childWidgets)
-        : Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: childWidgets);
+        ? Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: childWidgets,
+          )
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: childWidgets,
+          );
     final constrained = maxWidth == null
         ? content
         : Align(
             alignment: Alignment.topLeft,
-            child: ConstrainedBox(constraints: BoxConstraints(maxWidth: maxWidth), child: content),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              child: content,
+            ),
           );
     return constrained;
   }
@@ -817,13 +1143,21 @@ class EveNodeView extends StatelessWidget {
     final widgets = <Widget>[];
     for (var index = 0; index < node.children.length; index += 1) {
       final child = node.children[index];
-      Widget view = EveNodeView(state: state, node: child);
+      Widget view = EveNodeView(
+        state: state,
+        node: child,
+        commandSink: commandSink,
+      );
       if (axis == Axis.horizontal && _isFlexible(child)) {
         view = Expanded(child: view);
       }
       widgets.add(view);
       if (gap > 0 && index != node.children.length - 1) {
-        widgets.add(axis == Axis.horizontal ? SizedBox(width: gap) : SizedBox(height: gap));
+        widgets.add(
+          axis == Axis.horizontal
+              ? SizedBox(width: gap)
+              : SizedBox(height: gap),
+        );
       }
     }
     return widgets;
@@ -842,7 +1176,8 @@ class EveNodeView extends StatelessWidget {
     return 'y';
   }
 
-  Map<String, dynamic> _map(Object? value) => value is Map<String, dynamic> ? value : const {};
+  Map<String, dynamic> _map(Object? value) =>
+      value is Map<String, dynamic> ? value : const {};
 
   Color? _parseColor(Object? value) {
     if (value is! String || !value.startsWith('#')) return null;
@@ -854,8 +1189,12 @@ class EveNodeView extends StatelessWidget {
 
   String? _previewAssetPath(Object? source) {
     final src = source?.toString() ?? '';
-    if (src.endsWith('/character-input.png')) return 'assets/repixelizer/character-input.png';
-    if (src.endsWith('/character-repixelized.png')) return 'assets/repixelizer/character-repixelized.png';
+    if (src.endsWith('/character-input.png')) {
+      return 'assets/repixelizer/character-input.png';
+    }
+    if (src.endsWith('/character-repixelized.png')) {
+      return 'assets/repixelizer/character-repixelized.png';
+    }
     return null;
   }
 }
@@ -881,7 +1220,11 @@ class EveGridPainter extends CustomPainter {
 }
 
 class EveNornPainter extends CustomPainter {
-  EveNornPainter({required this.nodes, required this.edges, required this.tokens});
+  EveNornPainter({
+    required this.nodes,
+    required this.edges,
+    required this.tokens,
+  });
 
   final List<dynamic> nodes;
   final List<dynamic> edges;
@@ -894,7 +1237,10 @@ class EveNornPainter extends CustomPainter {
       if (raw is! Map<String, dynamic>) continue;
       final id = raw['id']?.toString();
       if (id == null) continue;
-      nodeById[id] = Offset(_number(raw['x'], 0.5) * size.width, _number(raw['y'], 0.5) * size.height);
+      nodeById[id] = Offset(
+        _number(raw['x'], 0.5) * size.width,
+        _number(raw['y'], 0.5) * size.height,
+      );
     }
     final edgePaint = Paint()
       ..color = tokens.muted.withValues(alpha: 0.5)
@@ -913,7 +1259,11 @@ class EveNornPainter extends CustomPainter {
       final center = id == null ? null : nodeById[id];
       if (center == null) continue;
       final current = raw['current'] == true;
-      canvas.drawCircle(center, current ? 24 : 20, Paint()..color = current ? tokens.accent : tokens.panelAlt);
+      canvas.drawCircle(
+        center,
+        current ? 24 : 20,
+        Paint()..color = current ? tokens.accent : tokens.panelAlt,
+      );
       canvas.drawCircle(
         center,
         current ? 24 : 20,
@@ -926,7 +1276,12 @@ class EveNornPainter extends CustomPainter {
       final paragraph = TextPainter(
         text: TextSpan(
           text: label,
-          style: TextStyle(color: tokens.text, fontFamily: 'EveParity', fontSize: 13, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: tokens.text,
+            fontFamily: 'EveParity',
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         textDirection: TextDirection.ltr,
       )..layout(maxWidth: 100);
@@ -935,7 +1290,8 @@ class EveNornPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(EveNornPainter oldDelegate) => oldDelegate.nodes != nodes || oldDelegate.edges != edges;
+  bool shouldRepaint(EveNornPainter oldDelegate) =>
+      oldDelegate.nodes != nodes || oldDelegate.edges != edges;
 }
 
 class EveSlider extends StatelessWidget {
@@ -951,9 +1307,13 @@ class EveSlider extends StatelessWidget {
     final max = _number(node.props['max'], 1);
     final rawValue = bind == null ? node.props['value'] : state.values[bind];
     final value = _number(rawValue, min).clamp(min, max);
-    final percent = max == min ? 0.0 : ((value - min) / (max - min)).clamp(0.0, 1.0);
+    final percent = max == min
+        ? 0.0
+        : ((value - min) / (max - min)).clamp(0.0, 1.0);
     final skin = state.controlSkins[node.props['skin']?.toString()] ?? const [];
-    final box = skin.where((part) => part.kind == 'control.box').firstOrNull?.props ?? const {};
+    final box =
+        skin.where((part) => part.kind == 'control.box').firstOrNull?.props ??
+        const {};
     return CustomPaint(
       painter: EveSliderPainter(
         value: percent,
@@ -969,7 +1329,11 @@ class EveSlider extends StatelessWidget {
 }
 
 class EveSliderPainter extends CustomPainter {
-  EveSliderPainter({required this.value, required this.tokens, required this.skin});
+  EveSliderPainter({
+    required this.value,
+    required this.tokens,
+    required this.skin,
+  });
 
   final double value;
   final EveTokens tokens;
@@ -985,7 +1349,12 @@ class EveSliderPainter extends CustomPainter {
       Radius.circular(_partRadius('track', 2)),
     );
     final fill = RRect.fromRectAndRadius(
-      Rect.fromLTWH(0, centerY - trackHeight / 2, size.width * value, trackHeight),
+      Rect.fromLTWH(
+        0,
+        centerY - trackHeight / 2,
+        size.width * value,
+        trackHeight,
+      ),
       Radius.circular(_partRadius('fill', 2)),
     );
 
@@ -999,29 +1368,41 @@ class EveSliderPainter extends CustomPainter {
         ..color = tokens.accent.withValues(alpha: 0.35)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
     );
-    canvas.drawCircle(thumbCenter, thumbSize / 2, Paint()..color = tokens.accent);
+    canvas.drawCircle(
+      thumbCenter,
+      thumbSize / 2,
+      Paint()..color = tokens.accent,
+    );
   }
 
   double _partSize(String name, int index, double fallback) {
     final part = _part(name);
     final size = part?['size'];
-    if (size is List && size.length > index) return _number(size[index], fallback);
+    if (size is List && size.length > index) {
+      return _number(size[index], fallback);
+    }
     return fallback;
   }
 
-  double _partRadius(String name, double fallback) => _number(_part(name)?['radius'], fallback);
-  double _partBleed(String name, double fallback) => _number(_part(name)?['bleed'], fallback);
+  double _partRadius(String name, double fallback) =>
+      _number(_part(name)?['radius'], fallback);
+  double _partBleed(String name, double fallback) =>
+      _number(_part(name)?['bleed'], fallback);
 
   Map<String, dynamic>? _part(String name) {
     for (final node in skin) {
-      if (node.kind == 'control.part' && node.props['name'] == name) return node.props;
+      if (node.kind == 'control.part' && node.props['name'] == name) {
+        return node.props;
+      }
     }
     return null;
   }
 
   @override
   bool shouldRepaint(covariant EveSliderPainter oldDelegate) {
-    return oldDelegate.value != value || oldDelegate.tokens != tokens || oldDelegate.skin != skin;
+    return oldDelegate.value != value ||
+        oldDelegate.tokens != tokens ||
+        oldDelegate.skin != skin;
   }
 }
 

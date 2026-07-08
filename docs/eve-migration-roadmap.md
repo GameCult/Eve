@@ -274,11 +274,17 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add runtime command-transport smokes for Flutter and Unity so split targets
-   can prove command emission through `gamecult.eve.command.v1`.
+1. Resolve or explicitly demote the Unity plugin-host capability gap so
+   `EveUnity` can explain whether Sai/Norn support is real runtime behavior or
+   still incubating proof work.
+2. Prepare an `EveConformance` export layout so core, plugin, runtime, and
+   provider packs can be consumed without Eve's local source layout.
 
 Recently cut:
 
+- Flutter and Unity now have runtime command-transport smoke evidence in the
+  parity report. Flutter emits `gamecult.eve.command.v1` intents from lowered
+  controls, and Unity command requests now carry the same command schema.
 - Aetheria now has a provider scenario replay fixture advertised through its
   provider advertisement. The parity harness validates advertised surfaces,
   command boundary consumption, command intents, and provider-owned receipt

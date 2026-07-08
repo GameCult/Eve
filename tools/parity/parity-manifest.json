@@ -402,7 +402,6 @@
       ],
       "pendingProofs": [
         "Provider picker consumes provider advertisements without Eve source-layout knowledge.",
-        "Command transport emits gamecult.eve.command.v1 through advertised provider boundaries.",
         "Flutter build, release, and capture lifecycle can run from EveFlutter.",
         "Conformance pack can be consumed without depending on Eve's local harness layout."
       ]
@@ -504,6 +503,20 @@
           "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot"]
         }
       ],
+      "commandTransportSmoke": {
+        "schema": "gamecult.eve.command.v1",
+        "expectedPaths": ["flutter/eve_parity/lib/main.dart", "flutter/eve_parity/test/parity_smoke_test.dart"],
+        "expectedSourceSymbols": [
+          {
+            "path": "flutter/eve_parity/lib/main.dart",
+            "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command.v1", "flutter-parity"]
+          },
+          {
+            "path": "flutter/eve_parity/test/parity_smoke_test.dart",
+            "contains": ["emits gamecult Eve command intent", "aetheria.daemon.commands", "aetheria.daemon.focus"]
+          }
+        ]
+      },
       "capture": {
         "status": "golden",
         "note": "Uses the Flutter parity golden smoke on the Windows host."
@@ -541,6 +554,20 @@
           "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot"]
         }
       ],
+      "commandTransportSmoke": {
+        "schema": "gamecult.eve.command.v1",
+        "expectedPaths": ["flutter/eve_parity/lib/main.dart", "flutter/eve_parity/test/parity_smoke_test.dart"],
+        "expectedSourceSymbols": [
+          {
+            "path": "flutter/eve_parity/lib/main.dart",
+            "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command.v1", "flutter-parity"]
+          },
+          {
+            "path": "flutter/eve_parity/test/parity_smoke_test.dart",
+            "contains": ["emits gamecult Eve command intent", "aetheria.daemon.commands", "aetheria.daemon.focus"]
+          }
+        ]
+      },
       "capture": {
         "status": "ssh-golden",
         "note": "Runs the Flutter parity golden smoke on Nightwing over SSH and pulls back phone, tablet, and desktop PNGs."
@@ -601,6 +628,20 @@
           "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot"]
         }
       ],
+      "commandTransportSmoke": {
+        "schema": "gamecult.eve.command.v1",
+        "expectedPaths": ["flutter/eve_parity/lib/main.dart", "flutter/eve_parity/test/parity_smoke_test.dart"],
+        "expectedSourceSymbols": [
+          {
+            "path": "flutter/eve_parity/lib/main.dart",
+            "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command.v1", "flutter-parity"]
+          },
+          {
+            "path": "flutter/eve_parity/test/parity_smoke_test.dart",
+            "contains": ["emits gamecult Eve command intent", "aetheria.daemon.commands", "aetheria.daemon.focus"]
+          }
+        ]
+      },
       "capture": {
         "status": "adb-png",
         "note": "Builds the shared Flutter parity APK, installs it on Periwinkle, and pulls responsive plus physical-panel screencaps through adb."
@@ -647,6 +688,23 @@
           "contains": ["LowerEmbeddedDocument(", "EmbeddedDocuments", "eve-embedded-document"]
         }
       ],
+      "commandTransportSmoke": {
+        "schema": "gamecult.eve.command.v1",
+        "expectedPaths": [
+          "packages/org.gamecult.eve.surface/Runtime/EveSurfaceDocument.cs",
+          "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs"
+        ],
+        "expectedSourceSymbols": [
+          {
+            "path": "packages/org.gamecult.eve.surface/Runtime/EveSurfaceDocument.cs",
+            "contains": ["EveSurfaceCommandRequest", "SchemaId", "gamecult.eve.command.v1", "ClientId"]
+          },
+          {
+            "path": "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs",
+            "contains": ["commandSink", "EmitCommand", "ResolveOperation", "unity-uitoolkit"]
+          }
+        ]
+      },
       "capture": {
         "status": "semantic",
         "note": "Unity UI Toolkit lowers embedded document slots through a resolver-backed child surface host."
