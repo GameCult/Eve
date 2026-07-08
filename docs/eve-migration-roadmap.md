@@ -274,16 +274,18 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add command descriptor checks to fixtures and runtime source-symbol
-   expectations.
-2. Add authority/staleness witness fixture to browser reference.
-3. Add conformance-pack metadata files beside fixtures.
-4. Add a Direct2D adapter spike or explicitly demote Direct2D until Fensalir owns
+1. Add authority/staleness witness fixture to browser reference.
+2. Add conformance-pack metadata files beside fixtures.
+3. Add a Direct2D adapter spike or explicitly demote Direct2D until Fensalir owns
    the body.
-5. Add split-readiness reports for EveFlutter and EveUnity.
+4. Add split-readiness reports for EveFlutter and EveUnity.
 
 Recently cut:
 
+- Command descriptor validation now runs for strict fixtures. Sai proves
+  `story.*`/`style.patch`; Aetheria proves the daemon command boundary; the web
+  lowerer resolves authored `action.command` through the shared Eve command
+  intent path.
 - Provider advertisement validation now runs in the parity harness.
 - Repixelizer and Aetheria provider advertisements are checked against
   `gamecult.eve.provider_advertisement.v1`.

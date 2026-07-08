@@ -6,6 +6,7 @@
     "graduationDocument": "docs/repo-strategy.md"
   },
   "schemas": {
+    "gamecult.eve.command.v1": "schemas/gamecult.eve.command.v1.schema.json",
     "gamecult.eve.plugin.v1": "schemas/gamecult.eve.plugin.v1.schema.json",
     "gamecult.eve.plugin_advertisement.v1": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
     "gamecult.eve.provider_advertisement.v1": "schemas/gamecult.eve.provider_advertisement.v1.schema.json"
@@ -166,7 +167,10 @@
           "fontBody",
           "fontTitle",
           "pixelArt"
-        ]
+        ],
+        "commandDescriptors": ["story.continue", "story.choose", "story.jump", "style.patch"],
+        "commandDescriptorSchema": "gamecult.eve.command.v1",
+        "commandReferencesDeclared": true
       }
     },
     {
@@ -182,7 +186,10 @@
         "providerId": "aetheria",
         "componentKinds": ["surface", "card", "text", "metric", "partition", "field.surface2d", "control.button"],
         "styleTokens": ["colorBackground", "colorPanel", "colorText", "colorMuted", "colorAccent"],
-        "bindings": ["aetheria.daemon.frameId", "aetheria.daemon.soaView.gravityField", "aetheria.daemon.commands"]
+        "bindings": ["aetheria.daemon.frameId", "aetheria.daemon.soaView.gravityField", "aetheria.daemon.commands"],
+        "commandDescriptors": ["aetheria.daemon.commands"],
+        "commandDescriptorSchema": "gamecult.eve.command.v1",
+        "commandReferencesDeclared": true
       }
     },
     {
@@ -352,7 +359,7 @@
       "expectedSourceSymbols": [
         {
           "path": "packages/eve-browser-lowering/src/index.ts",
-          "contains": ["surface.slot", "embeddedDocuments", "cultui-embedded-slot"]
+          "contains": ["surface.slot", "embeddedDocuments", "cultui-embedded-slot", "createEveCommandIntent", "resolveComponentCommandId"]
         }
       ],
       "capture": {

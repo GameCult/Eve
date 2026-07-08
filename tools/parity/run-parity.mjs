@@ -66,6 +66,10 @@ async function evaluateFixture(fixture) {
     .map(node => node.props?.name)
     .filter(Boolean))].sort();
   const tokenNames = Object.keys(state.surface?.styles?.tokens || {}).sort();
+  const commandDescriptors = readCommandDescriptors(state.commands || []);
+  const commandIds = commandDescriptors.map(command => command.command).sort();
+  const commandReferences = readCommandReferences(nodes);
+  const commandDescriptorErrors = await validateCommandDescriptors(fixture, commandDescriptors);
   const checks = [];
 
   addCheck(checks, "providerId", state.providerId === fixture.expect.providerId, {
@@ -122,6 +126,29 @@ async function evaluateFixture(fixture) {
     });
   }
 
+  for (const command of fixture.expect.commandDescriptors || []) {
+    addCheck(checks, `command:${command}`, commandIds.includes(command), {
+      expected: "present",
+      actual: commandIds,
+    });
+  }
+
+  for (const error of commandDescriptorErrors) {
+    addCheck(checks, `commandDescriptor:${error}`, false, {
+      expected: "valid command descriptor",
+      actual: error,
+    });
+  }
+
+  if (fixture.expect.commandReferencesDeclared) {
+    for (const reference of commandReferences) {
+      addCheck(checks, `commandReference:${reference.nodeId}:${reference.command}`, commandIds.includes(reference.command), {
+        expected: "declared command descriptor",
+        actual: commandIds,
+      });
+    }
+  }
+
   const knownPacks = new Set((manifest.conformancePacks || []).map(pack => pack.id));
   if (fixture.pack) {
     addCheck(checks, "conformancePack", knownPacks.has(fixture.pack), {
@@ -151,6 +178,9 @@ async function evaluateFixture(fixture) {
     controlParts: controlPartNames,
     bindings,
     embeddedDocuments,
+    commands: commandIds,
+    commandReferences,
+    commandDescriptorErrors,
     checks,
   };
 }
@@ -486,6 +516,53 @@ function readBindings(node) {
   return bindings;
 }
 
+function readCommandDescriptors(commands) {
+  return commands
+    .filter(command => command && typeof command === "object")
+    .map(command => ({
+      ...command,
+      command: typeof command.command === "string" ? command.command : "",
+      schema: typeof command.schema === "string" ? command.schema : "",
+    }))
+    .filter(command => command.command);
+}
+
+async function validateCommandDescriptors(fixture, commandDescriptors) {
+  if (!fixture.expect.commandDescriptorSchema) return [];
+  const schemaPath = manifest.schemas?.[fixture.expect.commandDescriptorSchema];
+  if (!schemaPath) return [`${fixture.expect.commandDescriptorSchema}:schemaPath:missing`];
+  const absoluteSchemaPath = path.join(repoRoot, schemaPath);
+  if (!existsSync(absoluteSchemaPath)) return [`${schemaPath}:missing`];
+  const schema = JSON.parse(await readFile(absoluteSchemaPath, "utf8"));
+  return commandDescriptors.flatMap(command =>
+    validateSchemaSubset(schema, command, `command:${command.command}`));
+}
+
+function readCommandReferences(nodes) {
+  return nodes.flatMap(node => {
+    const props = node.props || {};
+    const action = objectProps(props.action);
+    const command = firstNonEmptyString(props.command, props.commandId, action.command, action.target, action.type, node.commandId);
+    if (!command) return [];
+    return [{
+      nodeId: node.id || "",
+      kind: node.kind || "",
+      command,
+    }];
+  }).sort((a, b) => `${a.nodeId}:${a.command}`.localeCompare(`${b.nodeId}:${b.command}`));
+}
+
+function firstNonEmptyString(...values) {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim()) return value;
+  }
+  return "";
+}
+
+function objectProps(value) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+
 function countBy(items, selector) {
   const counts = {};
   for (const item of items) {
@@ -566,6 +643,12 @@ function renderMarkdown(report) {
   for (const fixture of report.fixtures) {
     const failed = fixture.checks.filter(check => !check.pass).map(check => check.id).join(", ") || "";
     lines.push(`| ${fixture.title} | ${fixture.pack} | ${fixture.status} | ${fixture.providerId} | ${fixture.componentCount} | ${failed} |`);
+  }
+
+  lines.push("", "## Fixture Commands", "", "| Fixture | Descriptors | References | Descriptor Errors |", "| --- | --- | --- | --- |");
+  for (const fixture of report.fixtures) {
+    const refs = fixture.commandReferences.map(reference => `${reference.nodeId}:${reference.command}`).join(", ");
+    lines.push(`| ${fixture.title} | ${fixture.commands.join(", ")} | ${refs} | ${fixture.commandDescriptorErrors.join(", ")} |`);
   }
 
   lines.push("", "## Plugins", "", "| Plugin | Status | Owner | Capabilities | Missing |", "| --- | --- | --- | --- | --- |");
