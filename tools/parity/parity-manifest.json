@@ -367,6 +367,63 @@
       ]
     }
   ],
+  "splitTargets": [
+    {
+      "id": "EveFlutter",
+      "ownerRepo": "EveFlutter",
+      "repoRole": "runtime-target",
+      "status": "incubating",
+      "runtimes": ["windows-flutter", "linux-flutter", "android-flutter"],
+      "requiredRuntimeStatuses": ["active"],
+      "requiredFeatures": ["embeddedDocuments"],
+      "requiredPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
+        },
+        {
+          "pluginId": "norn.graph",
+          "capabilities": ["embed.norn"]
+        },
+        {
+          "pluginId": "tex.math",
+          "capabilities": ["embed.tex"]
+        }
+      ],
+      "pendingProofs": [
+        "Provider picker consumes provider advertisements without Eve source-layout knowledge.",
+        "Command transport emits gamecult.eve.command.v1 through advertised provider boundaries.",
+        "Flutter build, release, and capture lifecycle can run from EveFlutter.",
+        "Conformance pack can be consumed without depending on Eve's local harness layout."
+      ]
+    },
+    {
+      "id": "EveUnity",
+      "ownerRepo": "EveUnity",
+      "repoRole": "runtime-target",
+      "status": "incubating",
+      "runtimes": ["unity-uitoolkit"],
+      "requiredRuntimeStatuses": ["active"],
+      "requiredFeatures": ["embeddedDocuments"],
+      "requiredPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
+        },
+        {
+          "pluginId": "norn.graph",
+          "capabilities": ["embed.norn"]
+        }
+      ],
+      "pendingProofs": [
+        "UPM package and release lifecycle are runtime-owned.",
+        "Unity test and capture lifecycle are runtime-owned.",
+        "Plugin host behavior declares reusable Sai and Norn capabilities.",
+        "Aetheria consumes provider advertisements and surfaces without Eve internals.",
+        "Conformance pack can be consumed without depending on Eve's local harness layout."
+      ]
+    }
+  ],
   "runtimes": [
     {
       "id": "web",

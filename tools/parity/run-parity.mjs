@@ -24,6 +24,7 @@ for (const fixture of manifest.fixtures) {
 const pluginResults = await Promise.all((manifest.pluginManifests || []).map(plugin => evaluatePlugin(plugin, fixtureResults)));
 const providerResults = await Promise.all((manifest.providerAdvertisements || []).map(provider => evaluateProvider(provider, fixtureResults)));
 const runtimeResults = await Promise.all(manifest.runtimes.map(runtime => evaluateRuntime(runtime, fixtureResults)));
+const splitTargetResults = evaluateSplitTargets(manifest.splitTargets || [], runtimeResults);
 const report = {
   schema: "gamecult.eve.parity_report.v1",
   generatedAt: new Date().toISOString(),
@@ -31,10 +32,11 @@ const report = {
   repoStrategy: manifest.repoStrategy || {},
   conformancePacks: manifest.conformancePacks || [],
   responsiveCases: manifest.responsiveCases || [],
-  summary: summarize(fixtureResults, runtimeResults, pluginResults, providerResults),
+  summary: summarize(fixtureResults, runtimeResults, pluginResults, providerResults, splitTargetResults),
   fixtures: fixtureResults,
   plugins: pluginResults,
   providers: providerResults,
+  splitTargets: splitTargetResults,
   runtimes: runtimeResults,
 };
 
@@ -596,6 +598,71 @@ function collectPluginCapabilityGaps(runtime, fixtureResults) {
   return gaps;
 }
 
+function evaluateSplitTargets(splitTargets, runtimeResults) {
+  const runtimeById = new Map(runtimeResults.map(runtime => [runtime.id, runtime]));
+  return splitTargets.map(target => {
+    const requiredRuntimeStatuses = target.requiredRuntimeStatuses || ["active"];
+    const requiredFeatures = target.requiredFeatures || [];
+    const requiredPlugins = target.requiredPlugins || [];
+    const runtimeIds = target.runtimes || [];
+    const blockers = [];
+    const runtimeStatuses = {};
+
+    for (const runtimeId of runtimeIds) {
+      const runtime = runtimeById.get(runtimeId);
+      if (!runtime) {
+        blockers.push(`runtime:${runtimeId}:missing`);
+        continue;
+      }
+
+      runtimeStatuses[runtimeId] = runtime.status;
+      if (!requiredRuntimeStatuses.includes(runtime.status)) {
+        blockers.push(`runtime:${runtimeId}:status:${runtime.status}`);
+      }
+
+      for (const feature of requiredFeatures) {
+        if (!runtime.supportedFeatures.includes(feature)) {
+          blockers.push(`runtime:${runtimeId}:feature:${feature}`);
+        }
+      }
+
+      const supportedPlugins = new Map(runtime.supportedPlugins.map(plugin => [plugin.pluginId, new Set(plugin.capabilities || [])]));
+      for (const requirement of requiredPlugins) {
+        const capabilities = supportedPlugins.get(requirement.pluginId);
+        if (!capabilities) {
+          blockers.push(`runtime:${runtimeId}:plugin:${requirement.pluginId}`);
+          continue;
+        }
+
+        for (const capability of requirement.capabilities || []) {
+          if (!capabilities.has(capability)) {
+            blockers.push(`runtime:${runtimeId}:plugin:${requirement.pluginId}:${capability}`);
+          }
+        }
+      }
+    }
+
+    for (const proof of target.pendingProofs || []) {
+      blockers.push(`proof:${proof}`);
+    }
+
+    return {
+      id: target.id,
+      ownerRepo: target.ownerRepo || "",
+      repoRole: target.repoRole || "",
+      status: blockers.length ? "incubating" : "ready-to-split",
+      declaredStatus: target.status || "",
+      runtimes: runtimeIds,
+      runtimeStatuses,
+      requiredRuntimeStatuses,
+      requiredFeatures,
+      requiredPlugins,
+      pendingProofs: target.pendingProofs || [],
+      blockers,
+    };
+  });
+}
+
 function requiredIncubationFields(entry) {
   if (entry.repoRole === "core") return ["ownerRepo", "repoRole"];
   return ["ownerRepo", "repoRole", "graduationTrigger"];
@@ -699,7 +766,7 @@ function addCheck(checks, id, pass, detail) {
   checks.push({ id, pass, ...detail });
 }
 
-function summarize(fixtures, runtimes, plugins, providers) {
+function summarize(fixtures, runtimes, plugins, providers, splitTargets) {
   return {
     totalFixtures: fixtures.length,
     passedFixtures: fixtures.filter(fixture => fixture.status === "pass").length,
@@ -712,6 +779,8 @@ function summarize(fixtures, runtimes, plugins, providers) {
     totalRuntimes: runtimes.length,
     activeRuntimes: runtimes.filter(runtime => runtime.status === "active").length,
     pendingRuntimes: runtimes.filter(runtime => runtime.status !== "active").length,
+    totalSplitTargets: splitTargets.length,
+    readySplitTargets: splitTargets.filter(target => target.status === "ready-to-split").length,
   };
 }
 
@@ -727,6 +796,7 @@ function renderMarkdown(report) {
     `- Plugins: ${report.summary.healthyPlugins}/${report.summary.totalPlugins} declared`,
     `- Providers: ${report.summary.advertisedProviders}/${report.summary.totalProviders} advertised`,
     `- Runtimes: ${report.summary.activeRuntimes}/${report.summary.totalRuntimes} active`,
+    `- Split targets: ${report.summary.readySplitTargets}/${report.summary.totalSplitTargets} ready`,
     "",
     "## Repo Strategy",
     "",
@@ -822,6 +892,12 @@ function renderMarkdown(report) {
       ...runtime.missingIncubationFields.map(id => `metadata:${id}`),
     ].join(", ");
     lines.push(`| ${runtime.title} | ${runtime.status} | ${runtime.ownerRepo} | ${runtime.capture?.status || "unknown"} | ${runtime.requiredFixtures.join(", ")} | ${runtime.pluginFixtures.join(", ")} | ${runtime.supportedFeatures.join(", ")} | ${runtime.pluginCapabilityGaps.join(", ")} | ${missing} |`);
+  }
+
+  lines.push("", "## Split Readiness", "", "| Target | Status | Owner | Runtimes | Blockers |", "| --- | --- | --- | --- | --- |");
+  for (const target of report.splitTargets) {
+    const runtimes = target.runtimes.map(runtimeId => `${runtimeId}:${target.runtimeStatuses[runtimeId] || "missing"}`).join(", ");
+    lines.push(`| ${target.id} | ${target.status} | ${target.ownerRepo} | ${runtimes} | ${target.blockers.join("<br>")} |`);
   }
 
   lines.push("", "## Runtime Notes", "");

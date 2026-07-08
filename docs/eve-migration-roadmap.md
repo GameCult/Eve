@@ -274,10 +274,19 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add split-readiness reports for EveFlutter and EveUnity.
+1. Add plugin ABI fixtures for Sai, Norn, and TeX describe/validate/project/apply
+   behavior without moving their semantics into Eve core.
+2. Add Aetheria scenario conformance replay that consumes provider
+   advertisements and reports command receipts without provider internals.
+3. Add runtime command-transport smokes for Flutter and Unity so split targets
+   can prove command emission through `gamecult.eve.command.v1`.
 
 Recently cut:
 
+- Split-readiness reporting now exists for `EveFlutter` and `EveUnity`. The
+  parity report lists member runtime health, required plugin capability claims,
+  pending proofs, and blockers before either repo can graduate out of Eve
+  incubation.
 - Direct2D is now recorded as an external Fensalir adapter spike, not an active
   Eve runtime. Activation requires recorded `gamecult.eve.surface.v1` fixture
   replay, command emission through the advertised boundary, and Direct2D frame
