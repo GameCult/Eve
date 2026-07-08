@@ -132,18 +132,19 @@ Fensalir Direct2D:
 
 ## Current Proof
 
-The current iOS app consumes Mimir's `/eve/deck` WebSocket broker. That broker is
-already shaped like the future API: provider manifests, retained dashboard
-state, provider switching, commands, and typed node metadata. The VoidBot
-provider proves that Eve can render an app-specific native cockpit from a
-structured mesh snapshot: CTB rail, avatar images, selected Persona/status pane,
-state tree, and detail panel.
+The current native app consumes Mimir's dashboard WebSocket lowering for retained
+dashboard state. That lowering is shaped like the future API: retained dashboard
+state, provider switching, commands, and typed node metadata. It is a renderer
+path over daemon-owned state, not provider discovery authority. Live provider
+discovery belongs to Odin/CultMesh advertisements.
 
 The Android proof under `android/` builds directly against the installed Android
-SDK and runs on Periwinkle. It is deliberately small: display Eve's role, poll
-the Mimir broker health endpoint, and show timestamped motion/touch samples.
-It is a device-edge proof while the browser reference and Flutter/native shared
-client are still being cut.
+SDK and runs on Periwinkle. It is deliberately small: display Eve's role, render
+a configured CultMesh dashboard lowering when one is provided, and capture
+timestamped motion/touch/media samples. It does not bake in Mimir dashboard or
+sensor URLs; missing discovery stays visible until Odin/CultMesh provides the
+endpoints. It is a device-edge proof while the browser reference and
+Flutter/native shared client are still being cut.
 
 The public site now reflects the same pressure. The integrated dossier frames
 CultMesh as typed distributed state. The Week 07 damage report records Fensalir

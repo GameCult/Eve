@@ -36,21 +36,38 @@ metric "Opacity" bind program.Field(x => x.Layers[1].Opacity)
 
 Today the lower substrate exposes reactive document changes through CultMesh /
 CultNet database watch streams. The field-level POCO binding handle is the
-next ergonomic cut. Until that lands, Eve documents should still carry explicit
-binding descriptors:
+next ergonomic cut. Eve documents now carry explicit
+`CultMeshStateBindingDescriptor` values on each component so renderers do not
+have to infer provider state from string props:
 
-- document schema;
-- document id, key, or named handle;
-- field path;
-- value kind;
-- access mode;
-- authority label;
-- optional command id for writes;
-- freshness, prediction, denial, and reconciliation metadata where available.
+- `targetProp`, the component prop that receives the live value;
+- `pointerId`, the stable typed CultMesh state pointer;
+- `sourceId`, the provider/CultMesh source, record, witness, or field id;
+- `schemaId`, the state schema;
+- `routeKind` and `routeDescription`, so runtimes can prefer in-process,
+  shared-memory, IPC, network, or WASM paths without app glue.
 
 This keeps the DSL honest. The visual language can name a field; the provider
 and CultMesh decide whether that field is readable, writable, predicted,
 accepted, denied, stale, or missing.
+
+Commands follow the same rule. Eve command templates carry
+`CultMeshOperationBindingDescriptor` values so a button or menu item points at
+a typed operation id, optional request schema, label, and route hint. The DSL
+may provide friendly `button` sugar, but the compiled surface should not make a
+free-floating command string the canonical operation boundary or public
+runtime construction path.
+
+When a renderer fires that command, the request carries a
+`CultMeshOperationInvocationDescriptor`. That invocation preserves operation id,
+request schema, preferred route, and optional idempotency through the renderer
+boundary so Aetheria, Bifrost, Unity, Electron, and browser runtimes do not each
+invent a local command envelope. The request payload is a
+`CultMeshOperationPayload`, so renderers can ingest surface props at the edge
+while command handlers read scalar fields through shared typed helpers. New
+runtime code should construct requests from the invocation descriptor and
+payload primitive directly; raw command strings and dictionary payloads are
+serialization details, not live APIs.
 
 Discovery of those backing documents should come from a provider advertisement
 when available. See

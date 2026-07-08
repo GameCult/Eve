@@ -167,12 +167,12 @@ Transport routes are separate from service identity:
 ```json
 {
   "kind": "cultnet",
-  "address": "cultnet://10.77.0.4:3075",
+  "address": "cultmesh://asgard.yggdrasil.streampixels/transport/cultnet",
   "carries": [
     "asgard.yggdrasil.streampixels/eve/tui",
     "asgard.yggdrasil.streampixels/eve/gui"
   ],
-  "note": "CultNet reliable UDP route for this located service."
+  "note": "Odin/CultMesh-discovered CultNet reliable UDP route for this located service."
 }
 ```
 

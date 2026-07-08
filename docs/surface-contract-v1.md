@@ -79,7 +79,9 @@ Every component has:
   "id": "stable.local.id",
   "kind": "panel.dialogue",
   "props": {},
-  "children": []
+  "children": [],
+  "stateBindings": [],
+  "embeddedDocuments": []
 }
 ```
 
@@ -101,6 +103,46 @@ an implementation route, not permission to invent a different control face:
 If a renderer does not know a specialized kind, it should fall back through the
 kind path: `panel.dialogue` may render as `panel`; `image.sprite` may render as
 `image`.
+
+`stateBindings` are explicit `CultMeshStateBindingDescriptor` values attached
+to component props. They keep provider state identity out of ad-hoc renderer
+stores and out of string-only prop conventions. A binding names:
+
+- `targetProp`: component prop receiving the live value, usually `value`.
+- `pointerId`: stable typed CultMesh state pointer id.
+- `sourceId`: provider/CultMesh source, record, witness, or field id.
+- `schemaId`: schema of the source state.
+- `routeKind`: preferred locality such as `in-process`, `shared-memory`,
+  `ipc`, `network`, or `wasm`.
+- `routeDescription`: optional diagnostics for tools and operators.
+
+Renderers may still honor compatibility props such as `valueRef`, but new
+CultUI/Eve runtimes should use `stateBindings` as the canonical contract and
+let the CultMesh runtime resolve, watch, predict, or deny the value. Eve does
+not define a parallel binding DTO; the live surface contract imports the shared
+CultMesh primitive directly.
+
+### Embedded Documents
+
+`embeddedDocuments` are explicit CultMesh document slots attached to a component.
+Use them when a provider wants one surface to own layout while a nested region
+remains a separately synced document. Inventory panels, inspectors with live
+subdocuments, tab bodies, drag/drop overlays, and remote tool panes should use
+slots instead of copying child state into a parent DTO.
+
+Each slot names:
+
+- `slotId`: stable local slot identity inside the parent component.
+- `documentId`: CultMesh document id to resolve and subscribe to.
+- `schemaId`: expected schema, commonly `gamecult.eve.surface.v1` or a
+  provider-specific surface document schema.
+- `presentationKind`: semantic lowering hint such as `inventory.dropdown`.
+- `routeHint`: optional CultMesh locality hint for resolving the child.
+
+Renderers lower normal `children` first, then resolve and mount
+`embeddedDocuments` through their CultMesh document resolver. A renderer that
+cannot resolve a slot must preserve the slot identity in diagnostics or a
+placeholder; it must not invent a local substitute for the child document.
 
 ## Embedded Knowledge Surfaces
 
@@ -216,6 +258,24 @@ Standard command names:
 - `transform.rotate`
 
 Providers may add command names, but they must advertise them in `commands`.
+Live Eve command templates carry `CultMeshOperationBindingDescriptor` values:
+the operation id is the canonical command identity, `schemaId` may name the
+typed request body, `label` names the visible affordance, and `routeHint`
+describes the preferred invocation locality. Compatibility fields such as
+`command` and `transport` may still be projected for old renderers, but they
+are not the authoritative live command model and should not appear as public
+runtime construction APIs.
+
+Renderer command requests carry `CultMeshOperationInvocationDescriptor` values.
+That invocation descriptor is the canonical operation identity at click/change
+time and preserves request schema, preferred route, and optional idempotency.
+Renderer command requests also carry `CultMeshOperationPayload`, a shared
+payload value with typed scalar readers. Legacy `command` strings and string
+payload fields may be serialized while old documents migrate, but live
+CultUI/Eve runtimes route from the shared CultMesh invocation descriptor and
+read scalar fields through the shared payload primitive. Renderer code should
+construct requests from `CultMeshOperationInvocationDescriptor` and
+`CultMeshOperationPayload`, not from command strings plus raw dictionaries.
 
 ## Synchronized Style
 

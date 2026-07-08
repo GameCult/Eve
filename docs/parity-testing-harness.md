@@ -85,27 +85,65 @@ fixture claiming to render CultUI while the retained tree no longer contains
 the partitions, bindings, tokens, or slider anatomy the renderer is supposed to
 lower.
 
+The fixture matrix also includes `embedded-surface`, which proves that nested
+CultMesh document slots survive the shared surface contract. The web reference,
+Flutter parity body, Unity UI Toolkit lowerer, iOS UIKit renderer, and native
+Android Kotlin dashboard renderer all need to understand
+`surface.slot`/`embeddedDocuments`. Rust participates at the CultMesh document
+sync layer: it must preserve the same `gamecult.eve.surface.v1` slot contract
+through typed document replication even when it is not painting pixels.
+
+Nested surface support is a required feature for every active GUI runtime in
+`tools/parity/parity-manifest.json`. Active runtimes list
+`requiredFixtures: ["embedded-surface"]` and
+`supportedFeatures: ["embeddedDocuments"]`; the semantic report prints both so a
+runtime cannot quietly fall out of the contract. Runtime entries also use
+`expectedSourceSymbols` for the renderer files that must contain the slot
+lowering path, so a runtime cannot keep a green body merely because its source
+file exists. The shared fixture is `web/fixtures/cultui-embedded-surface.json`,
+and renderer-specific tests should load that fixture rather than hand-authoring
+a local substitute.
+
 ## Runtime Status
 
 The harness tracks every target runtime:
 
 - Web reference: active semantic and screenshot target through Chrome headless
-  using the provider query parameter.
+  using the provider query parameter. Required nested-surface evidence:
+  `node --test web\eve-dsl.test.mjs` plus the `embedded-surface` fixture in
+  `tools/parity/run-parity.mjs`.
 - Web responsive layout: Chrome headless emits phone, tablet, and desktop PNGs.
 - iOS / UIKit: screenshot target through SSH and EveCanvas'
   `/var/mobile/Library/EveCanvas/capture-request` service. Current iOS capture
-  is fixed-device until a simulator or device-resize adapter exists.
+  is fixed-device until a simulator or device-resize adapter exists. Required
+  nested-surface evidence: run `scripts/run-parity-smoke.ps1 -ProviderId
+  gamecult.eve.embedded-demo` against the device target.
 - Windows / Flutter: screenshot target through the Flutter parity golden smoke,
-  with phone, tablet, and desktop goldens.
+  with phone, tablet, and desktop goldens. Required nested-surface evidence:
+  `flutter test --plain-name embedded_surface_fixture_contract` plus
+  `scripts/capture-flutter-parity.ps1 -FixtureId
+  gamecult.eve.embedded-demo`.
 - Linux / Flutter: screenshot target through Nightwing over SSH. The smoke
   stages `flutter/eve_parity`, runs Flutter goldens on Nightwing, and pulls back
-  phone, tablet, and desktop PNGs.
+  phone, tablet, and desktop PNGs. Required nested-surface evidence:
+  `scripts/capture-linux-flutter-parity.ps1 -FixtureId
+  gamecult.eve.embedded-demo`.
 - Android / Flutter: screenshot target through the same Flutter renderer,
   packaged as a debug APK, installed on Periwinkle through `adb`, and captured
   with optional `adb shell wm size`, orientation control, and `adb exec-out
   screencap`; the script restores device size and rotation after each viewport.
-- Android / Kotlin device edge: compatibility body for CultMesh dashboard and
-  sensor experiments. It is not the GUI parity target.
+  Required nested-surface evidence: `scripts/capture-android-flutter-parity.ps1
+  -FixtureId gamecult.eve.embedded-demo`.
+- Android / Kotlin device edge: lightweight native CultMesh dashboard and
+  sensor host. Required nested-surface evidence:
+  `android/app/src/main/java/org/gamecult/eve/MainActivity.kt` renders
+  `surface.slot` with a content description containing the embedded slot
+  identity, and `node tools/parity/run-parity.mjs` reports
+  `embeddedDocuments` support for `android-kotlin`.
+- Rust / CultMesh: typed document runtime rather than a CultUI renderer.
+  Required nested-surface evidence: `cargo test -p cultnet-rs
+  rust_preserves_cultui_embedded_surface_slots_through_typed_document_sync`
+  in CultLib.
 - Fensalir Direct2D: specialized native target, adapter/capture still missing.
 
 Pending runtimes are allowed. Silent fake parity is not.

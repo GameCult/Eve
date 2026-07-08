@@ -154,10 +154,18 @@ payloads as `mimir.eve_media_observation.v1`.
   accepted state, commands, and side effects.
 
 See `docs/cultmesh-streaming-ui-framework.md` for the target architecture.
+See `docs/repo-strategy.md` for the kernel/plugin/runtime/provider ownership
+boundary and graduation rules.
 See `docs/renderer-parity.md` for current browser/iOS/Android/Fensalir/Flutter
 renderer parity.
 See `docs/surface-contract-v1.md` for the shared CultUI/CultMesh surface and
 command contract.
+Nested CultUI surfaces are documented there as `embeddedDocuments` /
+`surface.slot`; the parity fixture is
+`web/fixtures/cultui-embedded-surface.json`, and the runtime matrix is in
+`docs/parity-testing-harness.md`. Renderer runtimes lower or preserve the slot
+directly; Rust proves the same `gamecult.eve.surface.v1` contract at the
+CultMesh typed document sync layer in CultLib.
 See `docs/eve-dsl-reactive-bindings.md` for the first Eve DSL and reactive
 CultMesh binding contract.
 See `docs/eve-multiverse.md` for the Eve MultiVerse philosophy and missing API
@@ -172,9 +180,9 @@ Start the browser reference surface runner:
 powershell -ExecutionPolicy Bypass -File .\scripts\start-browser-reference.ps1
 ```
 
-Open `http://127.0.0.1:8891/`. The page can spawn:
+Open `http://127.0.0.1:8891/`. The page can render local fixture and
+advertisement surfaces:
 
-- `VoidBot Live`, connected to Mimir's `/eve/deck` broker.
 - `Fensalir Direct2D`, a fixture surface for the planned
   CultMesh-to-`AquariumUiDocument` lowering.
 - `Sai VN Surface`, a fixture for visual-novel scenes exported as
@@ -186,6 +194,9 @@ Open `http://127.0.0.1:8891/`. The page can spawn:
 - `Reactive DSL`, a browser-reference fixture that compiles a small `.eve`
   composition language into the same surface contract and binds UI controls to
   live CultMesh-shaped vars, collections, and derived fields.
+- `Embedded Surface Slot`, a CultUI fixture proving that a parent surface can
+  reserve layout while a child CultMesh document is resolved and rendered as a
+  nested surface.
 
 ## VoidBot CEF Stream
 
@@ -195,8 +206,9 @@ Start the Starfire relay from `E:\Projects\VoidBot`:
 npm run swarm:eve-cef-relay -- --width 1620 --height 2160 --scale 2 --port 8792
 ```
 
-EveCanvas connects to `ws://192.168.1.66:8792/stream`, displays binary JPEG
-frames, and returns touch events to the relay.
+EveCanvas displays binary JPEG frames and returns touch events only when a
+stream lowering is configured through `EVE_STREAM_URLS`. The native app no
+longer guesses a Starfire relay address.
 
 ## Mimir Sensor Uplink
 
@@ -208,10 +220,11 @@ dotnet run --project E:\Projects\Mimir\src\Mimir.EveSensorReceiver\Mimir.EveSens
 dotnet run --project E:\Projects\Mimir\src\Mimir.EveSensorReceiver\Mimir.EveSensorReceiver.csproj -- --port 8794 --path /eve/mic --source-id eve-mic --type audio-block
 ```
 
-EveCanvas sends binary `mimir.eve_media_observation.v1` camera observations to
-`ws://192.168.1.66:8793/eve/camera` and microphone observations to
-`ws://192.168.1.66:8794/eve/mic`. Periwinkle sends camera, microphone, motion,
-and touch observations through `ws://192.168.1.66:8796/eve/periwinkle`.
+EveCanvas sends binary `mimir.eve_media_observation.v1` camera and microphone
+observations only when `EVE_CAMERA_URLS` and `EVE_MIC_URLS` are configured.
+Periwinkle sends camera, microphone, motion, and touch observations only when
+launched with an explicit `org.gamecult.eve.SENSOR_URI`; the apps no longer
+guess receiver URLs.
 
 ## Native Mimir Dashboard
 
@@ -221,12 +234,12 @@ Start the dashboard authority on Starfire:
 dotnet run --project E:\Projects\Mimir\src\Mimir.EveDashboard\Mimir.EveDashboard.csproj -- --port 8795
 ```
 
-EveCanvas connects first to `ws://192.168.1.66:8795/eve/deck`, with
-`/eve/dashboard` kept as a compatibility fallback. The Starfire broker sends
-native retained `dashboard-state` snapshots. This is the current CultNet-shaped
-surface document for provider id, title, scene nodes, selection, visibility,
-transform, size, health, detail text, identity ids, and avatar URLs. EveCanvas
-sends compact commands back:
+EveCanvas connects to the Mimir dashboard WebSocket lowering for native retained
+`dashboard-state` snapshots. That lowering renders the daemon-owned CultMesh
+dashboard state; it is not provider discovery authority. Live provider discovery
+belongs to Odin/CultMesh advertisements. Native iOS dashboard lowerings must be
+configured through `EVE_DASHBOARD_URLS`; missing discovery stays visible instead
+of falling back to LAN constants. EveCanvas sends compact commands back:
 
 - `select`
 - `move`
@@ -254,11 +267,13 @@ Build the Android proof APK from Starfire:
 powershell -ExecutionPolicy Bypass -File .\scripts\build-android.ps1
 ```
 
-Install to Periwinkle:
+Install to Periwinkle, then launch it. If Odin/CultMesh has provided dashboard
+and sensor endpoints, pass them explicitly; otherwise the app starts with those
+network paths disabled instead of guessing LAN addresses.
 
 ```powershell
 & "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s bad9dd01 install -r .\artifacts\android\eve-debug.apk
-& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s bad9dd01 shell monkey -p org.gamecult.eve -c android.intent.category.LAUNCHER 1
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s bad9dd01 shell am start -n org.gamecult.eve/.MainActivity --es org.gamecult.eve.DASHBOARD_URI "ws://<odin-or-dashboard-lowering>/eve/deck/cultmesh" --es org.gamecult.eve.SENSOR_URI "ws://<odin-or-sensor-lowering>/eve/periwinkle"
 ```
 
 On Xiaomi/MIUI devices, ADB install may require enabling developer setting
