@@ -38,8 +38,8 @@ The runtime capability manifest is
 evidence:
 
 - release: incubating UPM package identity and import surface;
-- test: package-owned EditMode tests plus Aetheria consumer-build smoke through
-  Unity's generated project;
+- test: package-owned EditMode tests run through Aetheria in Unity batchmode,
+  plus Aetheria consumer-build smoke through Unity's generated project;
 - capture: pending Unity editor or batchmode artifact.
 
 Those lifecycle claims are validated by the parity harness. A missing evidence
@@ -48,6 +48,11 @@ path is a runtime capability error, not a README footnote.
 For Aetheria, the Unity evidence path is:
 
 - `powershell -ExecutionPolicy Bypass -File ..\..\scripts\run-aetheria-unity-package-smoke.ps1`
+- `powershell -ExecutionPolicy Bypass -File ..\..\scripts\run-aetheria-unity-editmode-tests.ps1`
+
+The EditMode test asmdef declares Unity precompiled references for the
+Brokkr/CultMesh DLLs Unity needs to resolve `GameCult.Mesh`. That is Unity
+assembly plumbing, not a claim that CultLib lacks NuGet/.NET packaging.
 
 Those checks sit alongside Eve's shared browser, Flutter, iOS, Android/Kotlin,
 and Rust contract tests, all discoverable from the parity manifest.

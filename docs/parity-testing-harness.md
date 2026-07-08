@@ -113,6 +113,21 @@ files, then builds the package through Aetheria's Unity-generated project. It is
 consumer-build evidence, not a replacement for runtime-owned Unity capture or
 release CI.
 
+Aetheria Unity EditMode test smoke:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-aetheria-unity-editmode-tests.ps1
+```
+
+That script temporarily adds `org.gamecult.eve.unity-uitoolkit` to Aetheria's
+Unity `testables`, runs `GameCult.Eve.UnityUIToolkit.Tests` in Unity batchmode,
+writes XML and log artifacts under `artifacts/aetheria-unity-editmode`, and
+restores `Packages/manifest.json` before returning. The test asmdef uses
+Unity-style precompiled references for the Brokkr/CultMesh DLLs that Unity
+needs to resolve `GameCult.Mesh`; this complements the normal CultLib
+.NET/NuGet dependency story rather than replacing it. The runner proves the
+incubating package test lifecycle, not final EveUnity-owned release or capture.
+
 Unity runtime lifecycle evidence:
 
 `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
@@ -122,8 +137,8 @@ The parity harness validates those lifecycle claims against
 exist. The current lifecycle proof is deliberately split:
 
 - release: incubating UPM package identity and import surface exist in Eve;
-- test: package-owned EditMode tests are authored and Aetheria can build the
-  package through Unity's generated project;
+- test: package-owned EditMode tests run through Aetheria in Unity batchmode,
+  and Aetheria can build the package through Unity's generated project;
 - capture: Unity editor or batchmode capture remains a split blocker.
 
 The smoke runner writes:

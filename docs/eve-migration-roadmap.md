@@ -285,10 +285,18 @@ Recently cut:
   parity harness validates release, test, and capture lifecycle claims against
   `tools/parity/parity-manifest.json`, checks declared evidence paths, and
   exports lifecycle status through the conformance index. Current proof covers
-  incubating UPM package identity, authored package EditMode tests, and the
-  Aetheria consumer-build smoke; tagged EveUnity release, runtime-owned
-  batchmode test execution, and editor or batchmode capture remain explicit
-  split blockers.
+  incubating UPM package identity, package EditMode tests, Aetheria
+  consumer-build smoke, and an Eve-owned batchmode EditMode run through the
+  Aetheria Unity project; tagged EveUnity release, moving the batchmode runner
+  into EveUnity, and editor or batchmode capture remain explicit split
+  blockers.
+- Aetheria now has repeatable Unity EditMode evidence for the Eve UI Toolkit
+  runtime. `scripts/run-aetheria-unity-editmode-tests.ps1` temporarily adds
+  `org.gamecult.eve.unity-uitoolkit` to Aetheria's Unity `testables`, runs
+  `GameCult.Eve.UnityUIToolkit.Tests` in Unity batchmode, writes XML and log
+  artifacts under `artifacts/aetheria-unity-editmode`, and restores
+  `Packages/manifest.json` before returning. This proves the incubating test
+  lifecycle; it does not make Eve own Unity's final runtime lifecycle.
 - Aetheria now has repeatable Unity package consumer-build evidence for the
   Eve UI Toolkit runtime. `scripts/run-aetheria-unity-package-smoke.ps1`
   verifies Aetheria's Unity `Packages/manifest.json` consumes Eve's surface and
