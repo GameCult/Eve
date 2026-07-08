@@ -7,7 +7,8 @@
   },
   "schemas": {
     "gamecult.eve.plugin.v1": "schemas/gamecult.eve.plugin.v1.schema.json",
-    "gamecult.eve.plugin_advertisement.v1": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json"
+    "gamecult.eve.plugin_advertisement.v1": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
+    "gamecult.eve.provider_advertisement.v1": "schemas/gamecult.eve.provider_advertisement.v1.schema.json"
   },
   "conformancePacks": [
     {
@@ -169,6 +170,22 @@
       }
     },
     {
+      "id": "aetheria-world",
+      "title": "Aetheria Interactive World",
+      "pack": "provider",
+      "ownerRepo": "Aetheria",
+      "surface": {
+        "transport": "local-json",
+        "path": "web/fixtures/aetheria-world-surface.json"
+      },
+      "expect": {
+        "providerId": "aetheria",
+        "componentKinds": ["surface", "card", "text", "metric", "partition", "field.surface2d", "control.button"],
+        "styleTokens": ["colorBackground", "colorPanel", "colorText", "colorMuted", "colorAccent"],
+        "bindings": ["aetheria.daemon.frameId", "aetheria.daemon.soaView.gravityField", "aetheria.daemon.commands"]
+      }
+    },
+    {
       "id": "reactive-dsl",
       "title": "Reactive DSL",
       "pack": "core",
@@ -213,6 +230,36 @@
         "embeddedDocuments": ["inventory.dropdown"],
         "styleTokens": ["colorBackground", "colorPanel", "colorText", "colorMuted", "colorAccent"]
       }
+    }
+  ],
+  "providerAdvertisements": [
+    {
+      "providerId": "repixelizer",
+      "title": "Repixelizer",
+      "kind": "service.product",
+      "ownerRepo": "Repixelizer",
+      "repoRole": "provider-external",
+      "graduationTrigger": "Provider-owned product state, assets, sessions, and receipts stay in Repixelizer; Eve keeps only the advertisement-shaped fixture.",
+      "schemaPath": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
+      "advertisementPath": "web/fixtures/repixelizer.provider-advertisement.json",
+      "requiredFixtures": ["repixelizer"],
+      "expectedSchemas": ["gamecult.eve.surface.v1"],
+      "expectedSurfaces": ["repixelizer.operator.surface"],
+      "expectedCommands": ["repixelizer.job.submit", "repixelizer.job.cancel_own"]
+    },
+    {
+      "providerId": "aetheria",
+      "title": "Aetheria",
+      "kind": "game.runtime",
+      "ownerRepo": "Aetheria",
+      "repoRole": "provider-external",
+      "graduationTrigger": "Aetheria owns RTS/ARPG world surfaces, generated level state, assets, command receipts, and scenario conformance; Eve keeps contract fixtures only.",
+      "schemaPath": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
+      "advertisementPath": "web/fixtures/aetheria.provider-advertisement.json",
+      "requiredFixtures": ["aetheria-world"],
+      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "aetheria.runtime.daemon.frame.v1"],
+      "expectedSurfaces": ["aetheria.daemon.game", "aetheria.daemon.editor"],
+      "expectedCommands": ["aetheria.daemon.commands"]
     }
   ],
   "pluginManifests": [

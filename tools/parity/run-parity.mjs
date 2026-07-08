@@ -22,6 +22,7 @@ for (const fixture of manifest.fixtures) {
 }
 
 const pluginResults = await Promise.all((manifest.pluginManifests || []).map(plugin => evaluatePlugin(plugin, fixtureResults)));
+const providerResults = await Promise.all((manifest.providerAdvertisements || []).map(provider => evaluateProvider(provider, fixtureResults)));
 const runtimeResults = await Promise.all(manifest.runtimes.map(runtime => evaluateRuntime(runtime, fixtureResults)));
 const report = {
   schema: "gamecult.eve.parity_report.v1",
@@ -30,9 +31,10 @@ const report = {
   repoStrategy: manifest.repoStrategy || {},
   conformancePacks: manifest.conformancePacks || [],
   responsiveCases: manifest.responsiveCases || [],
-  summary: summarize(fixtureResults, runtimeResults, pluginResults),
+  summary: summarize(fixtureResults, runtimeResults, pluginResults, providerResults),
   fixtures: fixtureResults,
   plugins: pluginResults,
+  providers: providerResults,
   runtimes: runtimeResults,
 };
 
@@ -43,6 +45,7 @@ await writeFile(path.join(outputRoot, "latest.md"), renderMarkdown(report));
 
 console.log(`Parity report: ${path.relative(repoRoot, path.join(runDirectory, "parity-report.md"))}`);
 if (report.summary.failedFixtures > 0) process.exitCode = 1;
+if (report.summary.failedProviders > 0) process.exitCode = 1;
 
 async function evaluateFixture(fixture) {
   const startedAt = Date.now();
@@ -277,6 +280,75 @@ async function evaluatePlugin(plugin, fixtureResults) {
   };
 }
 
+async function evaluateProvider(provider, fixtureResults) {
+  const expectedPaths = provider.expectedPaths || [];
+  const missingPaths = expectedPaths.filter(candidate => !existsSync(path.join(repoRoot, candidate)));
+  const requiredFixtures = provider.requiredFixtures || [];
+  const missingRequiredFixtures = requiredFixtures.filter(id => !fixtureResults.some(fixture => fixture.id === id && fixture.status === "pass"));
+  const missingIncubationFields = requiredIncubationFields(provider).filter(field => !provider[field]);
+  const advertisementErrors = await validateJsonDocument(provider.schemaPath, provider.advertisementPath, {
+    schema: "gamecult.eve.provider_advertisement.v1",
+    providerId: provider.providerId,
+  });
+  const advertisement = advertisementErrors.length ? null : await readJsonDocument(provider.advertisementPath);
+  const schemaIds = advertisement ? extractProviderSchemaIds(advertisement.schemas || []) : [];
+  const advertisedSchemaIds = advertisement ? [...new Set([
+    ...schemaIds,
+    ...(advertisement.surfaces || []).map(surface => surface.schema).filter(Boolean),
+    ...(advertisement.commands || []).map(command => command.schema).filter(Boolean),
+  ])].sort() : [];
+  const surfaceIds = advertisement ? (advertisement.surfaces || []).map(surface => surface.surfaceId).filter(Boolean).sort() : [];
+  const commandIds = advertisement ? (advertisement.commands || []).map(command => command.command).filter(Boolean).sort() : [];
+  const witnessKinds = advertisement ? (advertisement.witnesses || []).map(witness => witness.kind).filter(Boolean).sort() : [];
+  const missingSchemas = (provider.expectedSchemas || []).filter(schema => !advertisedSchemaIds.includes(schema));
+  const missingSurfaces = (provider.expectedSurfaces || []).filter(surface => !surfaceIds.includes(surface));
+  const missingCommands = (provider.expectedCommands || []).filter(command => !commandIds.includes(command));
+  const status = missingPaths.length
+    ? "missing-body"
+    : missingRequiredFixtures.length
+      ? "missing-required-fixture"
+      : missingIncubationFields.length
+        ? "missing-ownership-metadata"
+        : advertisementErrors.length
+          ? "invalid-provider-advertisement"
+          : missingSchemas.length || missingSurfaces.length || missingCommands.length
+            ? "capability-gap"
+            : "advertised";
+
+  return {
+    providerId: provider.providerId,
+    title: provider.title,
+    kind: provider.kind,
+    ownerRepo: provider.ownerRepo || "",
+    repoRole: provider.repoRole || "",
+    graduationTrigger: provider.graduationTrigger || "",
+    requiredFixtures,
+    missingRequiredFixtures,
+    schemaPath: provider.schemaPath || "",
+    advertisementPath: provider.advertisementPath || "",
+    advertisementErrors,
+    expectedPaths,
+    missingPaths,
+    missingIncubationFields,
+    expectedSchemas: provider.expectedSchemas || [],
+    expectedSurfaces: provider.expectedSurfaces || [],
+    expectedCommands: provider.expectedCommands || [],
+    schemaIds,
+    advertisedSchemaIds,
+    surfaceIds,
+    commandIds,
+    witnessKinds,
+    missingSchemas,
+    missingSurfaces,
+    missingCommands,
+    status,
+  };
+}
+
+async function readJsonDocument(documentPath) {
+  return JSON.parse(await readFile(path.join(repoRoot, documentPath), "utf8"));
+}
+
 async function validateJsonDocument(schemaPath, documentPath, expected = {}) {
   const errors = [];
   if (!schemaPath) errors.push("schemaPath:missing");
@@ -301,6 +373,14 @@ async function validateJsonDocument(schemaPath, documentPath, expected = {}) {
   }
 
   return errors;
+}
+
+function extractProviderSchemaIds(schemas) {
+  return schemas.map(schema => {
+    if (typeof schema === "string") return schema;
+    if (schema && typeof schema === "object") return schema.schema || schema.id || "";
+    return "";
+  }).filter(Boolean).sort();
 }
 
 function validateSchemaSubset(schema, value, pointer = "$") {
@@ -419,13 +499,16 @@ function addCheck(checks, id, pass, detail) {
   checks.push({ id, pass, ...detail });
 }
 
-function summarize(fixtures, runtimes, plugins) {
+function summarize(fixtures, runtimes, plugins, providers) {
   return {
     totalFixtures: fixtures.length,
     passedFixtures: fixtures.filter(fixture => fixture.status === "pass").length,
     failedFixtures: fixtures.filter(fixture => fixture.status !== "pass").length,
     totalPlugins: plugins.length,
     healthyPlugins: plugins.filter(plugin => plugin.status === "incubating" || plugin.status === "external-owner-planned").length,
+    totalProviders: providers.length,
+    advertisedProviders: providers.filter(provider => provider.status === "advertised").length,
+    failedProviders: providers.filter(provider => provider.status !== "advertised").length,
     totalRuntimes: runtimes.length,
     activeRuntimes: runtimes.filter(runtime => runtime.status === "active").length,
     pendingRuntimes: runtimes.filter(runtime => runtime.status !== "active").length,
@@ -442,6 +525,7 @@ function renderMarkdown(report) {
     "",
     `- Fixtures: ${report.summary.passedFixtures}/${report.summary.totalFixtures} passed`,
     `- Plugins: ${report.summary.healthyPlugins}/${report.summary.totalPlugins} declared`,
+    `- Providers: ${report.summary.advertisedProviders}/${report.summary.totalProviders} advertised`,
     `- Runtimes: ${report.summary.activeRuntimes}/${report.summary.totalRuntimes} active`,
     "",
     "## Repo Strategy",
@@ -494,6 +578,20 @@ function renderMarkdown(report) {
       ...plugin.advertisementErrors.map(id => `advertisement:${id}`),
     ].join(", ");
     lines.push(`| ${plugin.title || plugin.pluginId} | ${plugin.status} | ${plugin.ownerRepo} | ${plugin.capabilities.join(", ")} | ${missing} |`);
+  }
+
+  lines.push("", "## Providers", "", "| Provider | Status | Owner | Surfaces | Commands | Witnesses | Missing |", "| --- | --- | --- | --- | --- | --- | --- |");
+  for (const provider of report.providers || []) {
+    const missing = [
+      ...provider.missingPaths,
+      ...provider.missingRequiredFixtures.map(id => `fixture:${id}`),
+      ...provider.missingIncubationFields.map(id => `metadata:${id}`),
+      ...provider.advertisementErrors.map(id => `advertisement:${id}`),
+      ...provider.missingSchemas.map(id => `schema:${id}`),
+      ...provider.missingSurfaces.map(id => `surface:${id}`),
+      ...provider.missingCommands.map(id => `command:${id}`),
+    ].join(", ");
+    lines.push(`| ${provider.title || provider.providerId} | ${provider.status} | ${provider.ownerRepo} | ${provider.surfaceIds.join(", ")} | ${provider.commandIds.join(", ")} | ${provider.witnessKinds.join(", ")} | ${missing} |`);
   }
 
   lines.push("", "## Runtimes", "", "| Runtime | Status | Owner | Capture | Required Fixtures | Plugin Fixtures | Features | Plugin Gaps | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- |");

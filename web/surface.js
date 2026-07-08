@@ -19,6 +19,13 @@ let openProviderGeneration = 0;
 
 const localProviders = [
   {
+    providerId: "aetheria",
+    title: "Aetheria",
+    kind: "game.runtime",
+    advertisement: "./fixtures/aetheria.provider-advertisement.json",
+    surfaces: [{ transport: "local-json", surfaceId: "aetheria.daemon.game", url: "./fixtures/aetheria-world-surface.json" }],
+  },
+  {
     providerId: "repixelizer",
     title: "Repixelizer",
     kind: "service.product",
@@ -92,6 +99,7 @@ async function bootProviders() {
   }));
   const requestedProviderId = new URLSearchParams(location.search).get("provider");
   const firstProduct = providers.find(provider => provider.providerId === requestedProviderId || provider.aliases?.includes(requestedProviderId))
+    || providers.find(provider => provider.providerId === "aetheria")
     || providers.find(provider => provider.providerId === "aetheria.main_menu.root")
     || providers.find(provider => provider.providerId === "aetheria.inventory.panel")
     || providers.find(provider => provider.providerId === "repixelizer")

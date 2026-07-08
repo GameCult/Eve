@@ -136,6 +136,7 @@ Work:
 - Add explicit authority/staleness witness UI in the browser reference for
   stale, missing, predicted, denied, accepted, and reconciled values.
 - Add provider advertisement fixture checks for local and live discovery paths.
+  First cut is in place for Repixelizer and Aetheria provider advertisements.
 - Add plugin advertisement fixture checks before adding more plugin semantics.
 
 Exit criteria:
@@ -273,14 +274,21 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add provider advertisement checks to the parity harness.
-2. Add command descriptor checks to fixtures and runtime source-symbol
+1. Add command descriptor checks to fixtures and runtime source-symbol
    expectations.
-3. Add authority/staleness witness fixture to browser reference.
-4. Add conformance-pack metadata files beside fixtures.
-5. Add a Direct2D adapter spike or explicitly demote Direct2D until Fensalir owns
+2. Add authority/staleness witness fixture to browser reference.
+3. Add conformance-pack metadata files beside fixtures.
+4. Add a Direct2D adapter spike or explicitly demote Direct2D until Fensalir owns
    the body.
-6. Add split-readiness reports for EveFlutter and EveUnity.
+5. Add split-readiness reports for EveFlutter and EveUnity.
+
+Recently cut:
+
+- Provider advertisement validation now runs in the parity harness.
+- Repixelizer and Aetheria provider advertisements are checked against
+  `gamecult.eve.provider_advertisement.v1`.
+- Aetheria has a minimal provider-owned interactive world fixture in Eve so the
+  browser oracle can prove the surface path without owning Aetheria truth.
 
 ## Stop Conditions
 

@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.provider_advertisement.v1",
+  "title": "Eve Provider Advertisement",
+  "type": "object",
+  "required": [
+    "schema",
+    "providerId",
+    "serviceId",
+    "verseId",
+    "title",
+    "kind",
+    "freshness",
+    "schemas",
+    "witnesses",
+    "surfaces",
+    "commands"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.provider_advertisement.v1"
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "serviceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verseId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rootVerse": {
+      "type": "string",
+      "minLength": 1
+    },
+    "canonicalService": {
+      "type": "string"
+    },
+    "locatedService": {
+      "type": "string"
+    },
+    "cultMeshAddress": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updatedAt": {
+      "type": "string"
+    },
+    "updatedAtUtc": {
+      "type": "string"
+    },
+    "freshness": {
+      "type": "object",
+      "required": ["state"],
+      "properties": {
+        "state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lastSeenAt": {
+          "type": "string"
+        },
+        "lastSeenAtUtc": {
+          "type": "string"
+        },
+        "maxAgeMs": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+    "schemas": {
+      "type": "array",
+      "items": {
+        "type": ["string", "object"]
+      }
+    },
+    "witnesses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ref": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "surfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["surfaceId", "schema", "transport"],
+        "properties": {
+          "surfaceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "key": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "transport": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["command", "transport"],
+        "properties": {
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "transport": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
