@@ -12,12 +12,19 @@
   "supportedFeatures": [
     "embeddedDocuments"
   ],
-  "supportedPlugins": [],
-  "unsupportedPlugins": [
+  "supportedPlugins": [
     {
       "pluginId": "sai.vn",
-      "reason": "Unity UI Toolkit currently lowers Sai VN component kinds as generic Eve containers; no Sai plugin host exists in this runtime."
-    },
+      "capabilities": [
+        "vn.stage",
+        "story.choose",
+        "story.continue",
+        "story.jump"
+      ],
+      "host": "SaiVisualNovelUiToolkitPluginHost"
+    }
+  ],
+  "unsupportedPlugins": [
     {
       "pluginId": "norn.graph",
       "reason": "Unity UI Toolkit currently preserves embed.norn as generic Eve structure; no Norn graph plugin host or layout adapter exists in this runtime."

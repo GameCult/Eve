@@ -76,6 +76,10 @@ namespace GameCult.Eve.UnityUIToolkit
             EveSurfaceDocument document,
             Action<EveSurfaceCommandRequest>? commandSink)
         {
+            var pluginHost = _options.FindPluginHost(component);
+            if (pluginHost != null)
+                return pluginHost.Lower(component, document, commandSink);
+
             switch (NormalizeKind(component.Kind))
             {
                 case "surface":

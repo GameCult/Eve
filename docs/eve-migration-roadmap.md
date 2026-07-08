@@ -274,11 +274,19 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add a real Unity plugin-host proof for either Sai or Norn, backed by a
-   runtime-owned capability manifest and Unity test/capture lifecycle evidence.
+1. Add a Unity Norn graph plugin-host proof for `embed.norn`.
+2. Move EveUnity toward split readiness with runtime-owned UPM release,
+   Unity test, and capture lifecycle evidence.
 
 Recently cut:
 
+- Unity UI Toolkit now has a first-party `sai.vn` plugin-host proof. The
+  runtime owns `IEveUiToolkitPluginHost`, registers
+  `SaiVisualNovelUiToolkitPluginHost` through `EveUiToolkitSurfaceOptions`, and
+  declares support for `vn.stage`, `story.choose`, `story.continue`, and
+  `story.jump` in its runtime capability manifest. Sai still owns story state
+  and command semantics; Unity only lowers the visual stage/dialogue/action
+  surface and emits Eve command requests.
 - Unity UI Toolkit now publishes a runtime-owned capability manifest at
   `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`. The
   parity harness validates that manifest against

@@ -26,6 +26,10 @@ transport schema, and incubation metadata. The central parity manifest may
 coordinate split-readiness, but the runtime body must publish the capability
 claim it expects other repos to consume.
 
+Unity UI Toolkit currently uses this path for its first `sai.vn` plugin-host
+proof while leaving `norn.graph` and `tex.math` as explicit unsupported plugin
+semantics.
+
 ## Run
 
 Semantic checks:

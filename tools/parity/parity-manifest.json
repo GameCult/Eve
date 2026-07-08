@@ -429,9 +429,7 @@
       "pendingProofs": [
         "UPM package and release lifecycle are runtime-owned.",
         "Unity test and capture lifecycle are runtime-owned.",
-        "Plugin host behavior declares reusable Sai and Norn capabilities.",
-        "Aetheria consumes provider advertisements and surfaces without Eve internals.",
-        "Conformance pack can be consumed without depending on Eve's local harness layout."
+        "Norn graph plugin host behavior declares reusable embed.norn capabilities."
       ]
     }
   ],
@@ -687,11 +685,13 @@
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["embeddedDocuments"],
-      "unsupportedPlugins": [
+      "supportedPlugins": [
         {
           "pluginId": "sai.vn",
-          "reason": "Unity UI Toolkit currently lowers Sai VN component kinds as generic Eve containers; no Sai plugin host exists in this runtime."
-        },
+          "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
+        }
+      ],
+      "unsupportedPlugins": [
         {
           "pluginId": "norn.graph",
           "reason": "Unity UI Toolkit currently preserves embed.norn as generic Eve structure; no Norn graph plugin host or layout adapter exists in this runtime."
@@ -701,11 +701,23 @@
           "reason": "Unity UI Toolkit currently preserves embed.tex as generic Eve structure; no TeX render plugin host exists in this runtime."
         }
       ],
-      "expectedPaths": ["packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs"],
+      "expectedPaths": [
+        "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs",
+        "packages/org.gamecult.eve.unity-uitoolkit/Runtime/IEveUiToolkitPluginHost.cs",
+        "packages/org.gamecult.eve.unity-uitoolkit/Runtime/SaiVisualNovelUiToolkitPluginHost.cs"
+      ],
       "expectedSourceSymbols": [
         {
           "path": "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs",
-          "contains": ["LowerEmbeddedDocument(", "EmbeddedDocuments", "eve-embedded-document"]
+          "contains": ["LowerEmbeddedDocument(", "EmbeddedDocuments", "eve-embedded-document", "FindPluginHost", "pluginHost.Lower"]
+        },
+        {
+          "path": "packages/org.gamecult.eve.unity-uitoolkit/Runtime/IEveUiToolkitPluginHost.cs",
+          "contains": ["PluginId", "Capabilities", "CanLower", "Lower("]
+        },
+        {
+          "path": "packages/org.gamecult.eve.unity-uitoolkit/Runtime/SaiVisualNovelUiToolkitPluginHost.cs",
+          "contains": ["sai.vn", "vn.stage", "story.choose", "story.continue", "story.jump", "StoryButton", "EmitStoryCommand", "EveSurfaceCommandRequest", "sai-vn-stage", "sai-vn-dialogue", "sai-vn-actions"]
         }
       ],
       "commandTransportSmoke": {

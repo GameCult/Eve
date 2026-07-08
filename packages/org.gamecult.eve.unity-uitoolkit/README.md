@@ -7,11 +7,12 @@ It owns native projection only. Providers still own truth, accepted state,
 style token values, and command effects through CultMesh/CultNet. Unknown
 component kinds degrade to inert containers instead of gaining local semantics.
 
-Plugin semantics are not hosted here yet. `sai.vn`, `norn.graph`, and
-`tex.math` surfaces may pass through as generic Eve component structure, but
-Unity UI Toolkit does not currently own the Sai VN stage model, Norn graph
-layout, or TeX render pipeline. Those remain plugin-owned semantics until an
-explicit Unity plugin host exists.
+Plugin semantics enter through runtime plugin hosts. The package includes a
+first-party `sai.vn` host proof for `vn.stage`, dialogue panels, action rails,
+and story command projection. Sai still owns story state and command semantics;
+Unity only owns native projection and emits `gamecult.eve.command.v1` requests.
+`norn.graph` and `tex.math` still pass through as generic Eve component
+structure until they gain explicit Unity plugin hosts.
 
 This package lives in the Eve repository as the shared Unity lowering target.
 Aetheria and other Unity consumers should import it from Eve instead of
