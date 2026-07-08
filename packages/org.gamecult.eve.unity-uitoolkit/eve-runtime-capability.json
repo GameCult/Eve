@@ -42,6 +42,41 @@
     "emitter": "EveUiToolkitSurfaceLowerer.EmitCommand",
     "clientId": "unity-uitoolkit"
   },
+  "lifecycle": {
+    "release": {
+      "ownerRepo": "EveUnity",
+      "status": "incubating-upm-package",
+      "packageName": "org.gamecult.eve.unity-uitoolkit",
+      "packageManifest": "packages/org.gamecult.eve.unity-uitoolkit/package.json",
+      "evidencePaths": [
+        "packages/org.gamecult.eve.unity-uitoolkit/package.json",
+        "packages/org.gamecult.eve.unity-uitoolkit/README.md",
+        "scripts/run-aetheria-unity-package-smoke.ps1"
+      ],
+      "pendingProofs": [
+        "Tagged UPM release cut from EveUnity rather than Eve incubation."
+      ]
+    },
+    "test": {
+      "ownerRepo": "EveUnity",
+      "status": "consumer-build-smoke",
+      "command": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-aetheria-unity-package-smoke.ps1",
+      "evidencePaths": [
+        "scripts/run-aetheria-unity-package-smoke.ps1"
+      ],
+      "pendingProofs": [
+        "Unity EditMode or PlayMode test assembly runs from the runtime repo."
+      ]
+    },
+    "capture": {
+      "ownerRepo": "EveUnity",
+      "status": "pending-editor-capture",
+      "evidencePaths": [],
+      "pendingProofs": [
+        "Unity batchmode or editor capture artifact attached to the runtime conformance report."
+      ]
+    }
+  },
   "capture": {
     "status": "semantic",
     "note": "Unity UI Toolkit lowers embedded document slots through a resolver-backed child surface host."

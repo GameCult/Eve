@@ -347,6 +347,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
     commandTransportSmokeErrors,
     capabilityManifest: runtime.capabilityManifest || null,
     capabilityManifestErrors,
+    lifecycle: runtime.lifecycle || null,
     ownerRepo: runtime.ownerRepo || "",
     repoRole: runtime.repoRole || "",
     graduationTrigger: runtime.graduationTrigger || "",
@@ -850,6 +851,7 @@ async function validateRuntimeCapabilityManifest(runtime) {
   const supportedPlugins = document.supportedPlugins || [];
   const unsupportedPlugins = document.unsupportedPlugins || [];
   const commandTransport = document.commandTransport || {};
+  const lifecycle = document.lifecycle || {};
 
   errors.push(...missingMembers(runtime.supportedFeatures || [], supportedFeatures, `${capabilityManifest.manifestPath}:supportedFeatures`));
   errors.push(...comparePluginCapabilityClaims(
@@ -880,6 +882,42 @@ async function validateRuntimeCapabilityManifest(runtime) {
     }
   }
 
+  errors.push(...compareRuntimeLifecycleClaims(
+    runtime.lifecycle || {},
+    lifecycle,
+    capabilityManifest.manifestPath,
+  ));
+
+  return errors;
+}
+
+function compareRuntimeLifecycleClaims(expectedLifecycle, actualLifecycle, manifestPath) {
+  const errors = [];
+  for (const stage of ["release", "test", "capture"]) {
+    const expected = expectedLifecycle[stage];
+    const actual = actualLifecycle[stage];
+    const label = `${manifestPath}:lifecycle.${stage}`;
+    if (!expected) continue;
+    if (!actual) {
+      errors.push(`${label}:missing`);
+      continue;
+    }
+
+    for (const key of ["ownerRepo", "status"]) {
+      if ((expected[key] || "") !== (actual[key] || "")) {
+        errors.push(`${label}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
+      }
+    }
+
+    errors.push(...missingMembers(expected.evidencePaths || [], actual.evidencePaths || [], `${label}.evidencePaths`));
+    errors.push(...missingMembers(expected.pendingProofs || [], actual.pendingProofs || [], `${label}.pendingProofs`));
+
+    for (const evidencePath of actual.evidencePaths || []) {
+      if (!existsSync(path.join(repoRoot, evidencePath))) {
+        errors.push(`${label}.evidencePaths:${evidencePath}:missing`);
+      }
+    }
+  }
   return errors;
 }
 
@@ -1166,6 +1204,7 @@ function buildConformanceExport(report) {
       capabilityManifestPath: runtime.capabilityManifest?.manifestPath || "",
       capabilityManifestErrors: runtime.capabilityManifestErrors || [],
       commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
+      lifecycle: runtime.lifecycle,
     })),
     splitTargets: report.splitTargets || [],
   };
@@ -1312,7 +1351,7 @@ function renderMarkdown(report) {
     lines.push(`| ${provider.title || provider.providerId} | ${provider.status} | ${provider.ownerRepo} | ${provider.scenarioId || ""} | ${provider.scenarioReceiptStates.join(", ")} | ${provider.surfaceIds.join(", ")} | ${provider.commandIds.join(", ")} | ${provider.witnessKinds.join(", ")} | ${missing} |`);
   }
 
-  lines.push("", "## Runtimes", "", "| Runtime | Status | Owner | Capture | Command Smoke | Required Fixtures | Plugin Fixtures | Features | Plugin Gaps | Unsupported Plugins | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+  lines.push("", "## Runtimes", "", "| Runtime | Status | Owner | Lifecycle | Capture | Command Smoke | Required Fixtures | Plugin Fixtures | Features | Plugin Gaps | Unsupported Plugins | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
   for (const runtime of report.runtimes) {
     const missing = [
       ...runtime.missingPaths,
@@ -1325,7 +1364,7 @@ function renderMarkdown(report) {
       ...runtime.capabilityManifestErrors.map(id => `runtime-capability:${id}`),
       ...runtime.missingIncubationFields.map(id => `metadata:${id}`),
     ].join(", ");
-    lines.push(`| ${runtime.title} | ${runtime.status} | ${runtime.ownerRepo} | ${runtime.capture?.status || "unknown"} | ${runtime.commandTransportSmoke?.schema || ""} | ${runtime.requiredFixtures.join(", ")} | ${runtime.pluginFixtures.join(", ")} | ${runtime.supportedFeatures.join(", ")} | ${runtime.pluginCapabilityGaps.join(", ")} | ${runtime.unsupportedPluginNotes.join(", ")} | ${missing} |`);
+    lines.push(`| ${runtime.title} | ${runtime.status} | ${runtime.ownerRepo} | ${summarizeLifecycle(runtime.lifecycle)} | ${runtime.capture?.status || "unknown"} | ${runtime.commandTransportSmoke?.schema || ""} | ${runtime.requiredFixtures.join(", ")} | ${runtime.pluginFixtures.join(", ")} | ${runtime.supportedFeatures.join(", ")} | ${runtime.pluginCapabilityGaps.join(", ")} | ${runtime.unsupportedPluginNotes.join(", ")} | ${missing} |`);
   }
 
   lines.push("", "## Split Readiness", "", "| Target | Status | Owner | Runtimes | Blockers |", "| --- | --- | --- | --- | --- |");
@@ -1345,4 +1384,11 @@ function renderMarkdown(report) {
   }
 
   return `${lines.join("\n")}\n`;
+}
+
+function summarizeLifecycle(lifecycle) {
+  if (!lifecycle) return "";
+  return ["release", "test", "capture"]
+    .map(stage => lifecycle[stage] ? `${stage}:${lifecycle[stage].status || "unknown"}` : `${stage}:missing`)
+    .join("<br>");
 }

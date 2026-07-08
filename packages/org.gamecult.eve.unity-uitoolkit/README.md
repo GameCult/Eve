@@ -32,10 +32,20 @@ Unity consumers should keep verifier coverage that builds a parent surface with
 a resolver-backed child, then checks for the embedded visual element rather than
 copying child state into a local adapter.
 
+The runtime capability manifest is
+`eve-runtime-capability.json`. Its lifecycle section records the current split
+evidence:
+
+- release: incubating UPM package identity and import surface;
+- test: Aetheria consumer-build smoke through Unity's generated project;
+- capture: pending Unity editor or batchmode artifact.
+
+Those lifecycle claims are validated by the parity harness. A missing evidence
+path is a runtime capability error, not a README footnote.
+
 For Aetheria, the Unity evidence path is:
 
-- `dotnet build GameCult.Aetheria.State.Unity.csproj --no-restore --nologo -v:minimal`
-- `dotnet run --project Aetheria.State.Verify\Aetheria.State.Verify.csproj --no-restore`
+- `powershell -ExecutionPolicy Bypass -File ..\..\scripts\run-aetheria-unity-package-smoke.ps1`
 
 Those checks sit alongside Eve's shared browser, Flutter, iOS, Android/Kotlin,
 and Rust contract tests, all discoverable from the parity manifest.

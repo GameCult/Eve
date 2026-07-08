@@ -12,7 +12,8 @@
     "supportedFeatures",
     "supportedPlugins",
     "unsupportedPlugins",
-    "commandTransport"
+    "commandTransport",
+    "lifecycle"
   ],
   "properties": {
     "schema": {
@@ -119,6 +120,125 @@
         "schema": {
           "type": "string",
           "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": [
+        "release",
+        "test",
+        "capture"
+      ],
+      "properties": {
+        "release": {
+          "type": "object",
+          "required": [
+            "ownerRepo",
+            "status",
+            "evidencePaths"
+          ],
+          "properties": {
+            "ownerRepo": {
+              "type": "string",
+              "minLength": 1
+            },
+            "status": {
+              "type": "string",
+              "minLength": 1
+            },
+            "command": {
+              "type": "string"
+            },
+            "evidencePaths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "pendingProofs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "test": {
+          "type": "object",
+          "required": [
+            "ownerRepo",
+            "status",
+            "evidencePaths"
+          ],
+          "properties": {
+            "ownerRepo": {
+              "type": "string",
+              "minLength": 1
+            },
+            "status": {
+              "type": "string",
+              "minLength": 1
+            },
+            "command": {
+              "type": "string"
+            },
+            "evidencePaths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "pendingProofs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "capture": {
+          "type": "object",
+          "required": [
+            "ownerRepo",
+            "status",
+            "evidencePaths"
+          ],
+          "properties": {
+            "ownerRepo": {
+              "type": "string",
+              "minLength": 1
+            },
+            "status": {
+              "type": "string",
+              "minLength": 1
+            },
+            "command": {
+              "type": "string"
+            },
+            "evidencePaths": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "pendingProofs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "additionalProperties": true
         }
       },
       "additionalProperties": true

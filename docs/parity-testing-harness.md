@@ -112,6 +112,18 @@ files, then builds the package through Aetheria's Unity-generated project. It is
 consumer-build evidence, not a replacement for runtime-owned Unity capture or
 release CI.
 
+Unity runtime lifecycle evidence:
+
+`packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
+declares release, test, and capture lifecycle stages for the UI Toolkit runtime.
+The parity harness validates those lifecycle claims against
+`tools/parity/parity-manifest.json` and checks that declared evidence paths
+exist. The current lifecycle proof is deliberately split:
+
+- release: incubating UPM package identity and import surface exist in Eve;
+- test: Aetheria can build the package through Unity's generated project;
+- capture: Unity editor or batchmode capture remains a split blocker.
+
 The smoke runner writes:
 
 - `artifacts/parity-smoke/<timestamp>/parity-smoke.md`

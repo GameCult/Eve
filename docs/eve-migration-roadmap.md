@@ -279,6 +279,14 @@ Exit criteria:
 
 Recently cut:
 
+- Unity UI Toolkit now declares runtime lifecycle evidence in
+  `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`. The
+  parity harness validates release, test, and capture lifecycle claims against
+  `tools/parity/parity-manifest.json`, checks declared evidence paths, and
+  exports lifecycle status through the conformance index. Current proof covers
+  incubating UPM package identity and the Aetheria consumer-build smoke; tagged
+  EveUnity release, Unity EditMode/PlayMode tests, and editor or batchmode
+  capture remain explicit split blockers.
 - Aetheria now has repeatable Unity package consumer-build evidence for the
   Eve UI Toolkit runtime. `scripts/run-aetheria-unity-package-smoke.ps1`
   verifies Aetheria's Unity `Packages/manifest.json` consumes Eve's surface and
