@@ -274,12 +274,14 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add a Direct2D adapter spike or explicitly demote Direct2D until Fensalir owns
-   the body.
-2. Add split-readiness reports for EveFlutter and EveUnity.
+1. Add split-readiness reports for EveFlutter and EveUnity.
 
 Recently cut:
 
+- Direct2D is now recorded as an external Fensalir adapter spike, not an active
+  Eve runtime. Activation requires recorded `gamecult.eve.surface.v1` fixture
+  replay, command emission through the advertised boundary, and Direct2D frame
+  capture evidence from Fensalir.
 - Fixture conformance metadata now lives beside each fixture and is validated by
   the parity harness, so the corpus can move toward `EveConformance` without
   relying only on Eve's local manifest layout.

@@ -245,6 +245,8 @@ async function loadSurface(surface) {
 async function evaluateRuntime(runtime, fixtureResults) {
   const expectedPaths = runtime.expectedPaths || [];
   const missingPaths = expectedPaths.filter(candidate => !existsSync(path.join(repoRoot, candidate)));
+  const expectedExternalPaths = runtime.expectedExternalPaths || [];
+  const missingExternalPaths = expectedExternalPaths.filter(candidate => !existsSync(candidate));
   const expectedSourceSymbols = runtime.expectedSourceSymbols || [];
   const missingSourceSymbols = [];
   for (const expectation of expectedSourceSymbols) {
@@ -258,6 +260,20 @@ async function evaluateRuntime(runtime, fixtureResults) {
     const source = await readFile(absolutePath, "utf8");
     for (const symbol of expectation.contains || []) {
       if (!source.includes(symbol)) missingSourceSymbols.push(`${sourcePath}:${symbol}`);
+    }
+  }
+  const expectedExternalSourceSymbols = runtime.expectedExternalSourceSymbols || [];
+  const missingExternalSourceSymbols = [];
+  for (const expectation of expectedExternalSourceSymbols) {
+    const sourcePath = expectation.path || "";
+    if (!existsSync(sourcePath)) {
+      missingExternalSourceSymbols.push(`${sourcePath}:missing`);
+      continue;
+    }
+
+    const source = await readFile(sourcePath, "utf8");
+    for (const symbol of expectation.contains || []) {
+      if (!source.includes(symbol)) missingExternalSourceSymbols.push(`${sourcePath}:${symbol}`);
     }
   }
   const requiredFixtures = runtime.requiredFixtures || [];
@@ -277,6 +293,9 @@ async function evaluateRuntime(runtime, fixtureResults) {
   if (runtime.kind === "active" && missingRequiredFeatures.length) status = "missing-required-feature";
   if (runtime.kind === "active" && missingIncubationFields.length) status = "missing-incubation-metadata";
   if (runtime.kind === "active" && pluginCapabilityGaps.length && status === "active") status = "active-with-capability-gaps";
+  if (runtime.kind === "pending" && runtime.adapterSpike === "external" && !missingExternalPaths.length && !missingExternalSourceSymbols.length) {
+    status = "external-adapter-spike";
+  }
   if (["ssh-png", "adb-png", "golden"].includes(runtime.capture?.status) && status === "pending") {
     status = "capture-ready";
   }
@@ -288,8 +307,12 @@ async function evaluateRuntime(runtime, fixtureResults) {
     semanticHarness: Boolean(runtime.semanticHarness),
     expectedPaths,
     missingPaths,
+    expectedExternalPaths,
+    missingExternalPaths,
     expectedSourceSymbols,
     missingSourceSymbols,
+    expectedExternalSourceSymbols,
+    missingExternalSourceSymbols,
     requiredFixtures,
     pluginFixtures: runtime.pluginFixtures || [],
     missingRequiredFixtures,
@@ -300,6 +323,9 @@ async function evaluateRuntime(runtime, fixtureResults) {
     repoRole: runtime.repoRole || "",
     graduationTrigger: runtime.graduationTrigger || "",
     splitTarget: runtime.splitTarget || "",
+    adapterSpike: runtime.adapterSpike || "",
+    demotionReason: runtime.demotionReason || "",
+    activationCriteria: runtime.activationCriteria || [],
     missingIncubationFields,
     pluginCapabilityGaps,
     capture: runtime.capture,
@@ -788,7 +814,9 @@ function renderMarkdown(report) {
   for (const runtime of report.runtimes) {
     const missing = [
       ...runtime.missingPaths,
+      ...runtime.missingExternalPaths.map(id => `external:${id}`),
       ...runtime.missingSourceSymbols.map(id => `source:${id}`),
+      ...runtime.missingExternalSourceSymbols.map(id => `external-source:${id}`),
       ...runtime.missingRequiredFixtures.map(id => `fixture:${id}`),
       ...runtime.missingRequiredFeatures.map(id => `feature:${id}`),
       ...runtime.missingIncubationFields.map(id => `metadata:${id}`),
@@ -799,6 +827,11 @@ function renderMarkdown(report) {
   lines.push("", "## Runtime Notes", "");
   for (const runtime of report.runtimes) {
     if (runtime.capture?.note) lines.push(`- ${runtime.title}: ${runtime.capture.note}`);
+    if (runtime.adapterSpike) lines.push(`- ${runtime.title} adapter: ${runtime.adapterSpike}`);
+    if (runtime.demotionReason) lines.push(`- ${runtime.title} demotion: ${runtime.demotionReason}`);
+    for (const criterion of runtime.activationCriteria || []) {
+      lines.push(`- ${runtime.title} activation: ${criterion}`);
+    }
   }
 
   return `${lines.join("\n")}\n`;

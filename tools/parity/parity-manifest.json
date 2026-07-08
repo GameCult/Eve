@@ -593,13 +593,36 @@
       "repoRole": "runtime-external-target",
       "splitTarget": "Fensalir or EveDirect2D if it earns a separate body",
       "graduationTrigger": "Do not graduate until the Eve-to-AquariumUiDocument adapter and Direct2D frame capture exist.",
+      "adapterSpike": "external",
+      "demotionReason": "Fensalir has an external Aquarium.EveSurface adapter spike, but Eve has no Direct2D frame capture and the local fensalir fixture is still legacy dashboard-state instead of gamecult.eve.surface.v1 conformance input.",
+      "activationCriteria": [
+        "Fensalir runs recorded gamecult.eve.surface.v1 fixtures without provider-specific renderer knowledge.",
+        "Fensalir emits gamecult.eve.command.v1 intents through the advertised provider command boundary.",
+        "Direct2D capture artifacts are produced and attached to the parity report."
+      ],
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": [],
       "expectedPaths": ["web/fixtures/fensalir-client-surface.json"],
+      "expectedExternalPaths": [
+        "E:\\Projects\\Fensalir\\src\\Aquarium.EveSurface\\EveSurfaceRuntime.cs",
+        "E:\\Projects\\Fensalir\\docs\\eve-direct2d-client-surface.md"
+      ],
+      "expectedExternalSourceSymbols": [
+        {
+          "path": "E:\\Projects\\Fensalir\\src\\Aquarium.EveSurface\\EveSurfaceRuntime.cs",
+          "contains": [
+            "FENSALIR_EVE_BROKER",
+            "AquariumUiDocument Ui => ComposeUi()",
+            "ReadSurface(root)",
+            "EveCompositionElement",
+            "DirectWriteOverlay"
+          ]
+        }
+      ],
       "capture": {
         "status": "missing",
-        "note": "Needs Eve surface to AquariumUiDocument adapter and Direct2D frame capture."
+        "note": "External Fensalir adapter spike exists; Eve still needs recorded surface replay and Direct2D frame capture before this runtime can become active."
       }
     }
   ]

@@ -38,7 +38,7 @@ proves the same contract at the CultMesh typed document sync layer.
 | iOS / UIKit | Active native screenshot target | SSH capture stages selected fixture JSON, EveCanvas renders it, and emits a PNG from `/var/mobile/Library/EveCanvas/latest-screenshot.png`; `embedded-surface` is part of the required fixture matrix | Needs real scene composition for `vn.stage`, Repixelizer token fidelity, and responsive/simulator capture |
 | Android / Kotlin device edge | Active lightweight renderer | Native APK consumes CultMesh dashboard/sensor documents and preserves `surface.slot` / `embeddedDocuments` identity in the dashboard renderer | Needs automated native dashboard capture |
 | Rust / CultMesh | Document-sync contract runtime | CultLib replicates the `gamecult.eve.surface.v1` embedded slot contract through typed document sync | Not a pixel renderer |
-| Fensalir Direct2D | Specialized native/game-runtime landing zone | Existing `AquariumUiDocument` and `DirectWriteOverlay` path | Needs adapter from Eve surface document to `AquariumUiDocument`, DirectWrite/Direct2D token lowering, and a clear reason to stay separate from Flutter for desktop UI |
+| Fensalir Direct2D | External adapter spike, not active parity runtime | Fensalir has `src/Aquarium.EveSurface/EveSurfaceRuntime.cs`, reads an Eve broker, and lowers into `AquariumUiDocument` / `DirectWriteOverlay` | Needs recorded `gamecult.eve.surface.v1` fixture replay, command emission through the advertised boundary, DirectWrite/Direct2D token lowering, frame capture, and a clear reason to stay separate from Flutter for desktop UI |
 
 ## Spawned Surfaces
 
