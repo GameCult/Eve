@@ -18,7 +18,8 @@ namespace GameCult.Eve.UnityUIToolkit
             EmbeddedDocumentResolver = embeddedDocumentResolver;
             PluginHosts = pluginHosts ?? new IEveUiToolkitPluginHost[]
             {
-                new SaiVisualNovelUiToolkitPluginHost()
+                new SaiVisualNovelUiToolkitPluginHost(),
+                new NornGraphUiToolkitPluginHost()
             };
         }
 

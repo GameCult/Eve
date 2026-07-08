@@ -274,12 +274,17 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add a Unity Norn graph plugin-host proof for `embed.norn`.
-2. Move EveUnity toward split readiness with runtime-owned UPM release,
+1. Move EveUnity toward split readiness with runtime-owned UPM release,
    Unity test, and capture lifecycle evidence.
 
 Recently cut:
 
+- Unity UI Toolkit now has a first-party `norn.graph` plugin-host proof for
+  `embed.norn`. `NornGraphUiToolkitPluginHost` owns the native embedded graph
+  shell and graph command emission path, while Norn keeps graph layout and graph
+  semantics. EveUnity split-readiness is now blocked on runtime-owned release,
+  test, and capture lifecycle evidence rather than missing Sai/Norn plugin
+  support.
 - Unity UI Toolkit now has a first-party `sai.vn` plugin-host proof. The
   runtime owns `IEveUiToolkitPluginHost`, registers
   `SaiVisualNovelUiToolkitPluginHost` through `EveUiToolkitSurfaceOptions`, and

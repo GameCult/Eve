@@ -22,13 +22,16 @@
         "story.jump"
       ],
       "host": "SaiVisualNovelUiToolkitPluginHost"
+    },
+    {
+      "pluginId": "norn.graph",
+      "capabilities": [
+        "embed.norn"
+      ],
+      "host": "NornGraphUiToolkitPluginHost"
     }
   ],
   "unsupportedPlugins": [
-    {
-      "pluginId": "norn.graph",
-      "reason": "Unity UI Toolkit currently preserves embed.norn as generic Eve structure; no Norn graph plugin host or layout adapter exists in this runtime."
-    },
     {
       "pluginId": "tex.math",
       "reason": "Unity UI Toolkit currently preserves embed.tex as generic Eve structure; no TeX render plugin host exists in this runtime."

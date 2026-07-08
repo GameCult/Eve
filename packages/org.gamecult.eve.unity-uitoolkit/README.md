@@ -11,8 +11,10 @@ Plugin semantics enter through runtime plugin hosts. The package includes a
 first-party `sai.vn` host proof for `vn.stage`, dialogue panels, action rails,
 and story command projection. Sai still owns story state and command semantics;
 Unity only owns native projection and emits `gamecult.eve.command.v1` requests.
-`norn.graph` and `tex.math` still pass through as generic Eve component
-structure until they gain explicit Unity plugin hosts.
+The package also includes a `norn.graph` host proof for `embed.norn`; Norn still
+owns graph layout and graph semantics, while Unity owns the embedded graph shell
+and command emission. `tex.math` still passes through as generic Eve component
+structure until it gains an explicit Unity plugin host.
 
 This package lives in the Eve repository as the shared Unity lowering target.
 Aetheria and other Unity consumers should import it from Eve instead of

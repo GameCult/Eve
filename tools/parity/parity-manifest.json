@@ -428,8 +428,7 @@
       ],
       "pendingProofs": [
         "UPM package and release lifecycle are runtime-owned.",
-        "Unity test and capture lifecycle are runtime-owned.",
-        "Norn graph plugin host behavior declares reusable embed.norn capabilities."
+        "Unity test and capture lifecycle are runtime-owned."
       ]
     }
   ],
@@ -689,13 +688,13 @@
         {
           "pluginId": "sai.vn",
           "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
+        },
+        {
+          "pluginId": "norn.graph",
+          "capabilities": ["embed.norn"]
         }
       ],
       "unsupportedPlugins": [
-        {
-          "pluginId": "norn.graph",
-          "reason": "Unity UI Toolkit currently preserves embed.norn as generic Eve structure; no Norn graph plugin host or layout adapter exists in this runtime."
-        },
         {
           "pluginId": "tex.math",
           "reason": "Unity UI Toolkit currently preserves embed.tex as generic Eve structure; no TeX render plugin host exists in this runtime."
@@ -704,7 +703,8 @@
       "expectedPaths": [
         "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs",
         "packages/org.gamecult.eve.unity-uitoolkit/Runtime/IEveUiToolkitPluginHost.cs",
-        "packages/org.gamecult.eve.unity-uitoolkit/Runtime/SaiVisualNovelUiToolkitPluginHost.cs"
+        "packages/org.gamecult.eve.unity-uitoolkit/Runtime/SaiVisualNovelUiToolkitPluginHost.cs",
+        "packages/org.gamecult.eve.unity-uitoolkit/Runtime/NornGraphUiToolkitPluginHost.cs"
       ],
       "expectedSourceSymbols": [
         {
@@ -718,6 +718,10 @@
         {
           "path": "packages/org.gamecult.eve.unity-uitoolkit/Runtime/SaiVisualNovelUiToolkitPluginHost.cs",
           "contains": ["sai.vn", "vn.stage", "story.choose", "story.continue", "story.jump", "StoryButton", "EmitStoryCommand", "EveSurfaceCommandRequest", "sai-vn-stage", "sai-vn-dialogue", "sai-vn-actions"]
+        },
+        {
+          "path": "packages/org.gamecult.eve.unity-uitoolkit/Runtime/NornGraphUiToolkitPluginHost.cs",
+          "contains": ["norn.graph", "embed.norn", "NornGraphUiToolkitPluginHost", "norn-graph", "EmitGraphCommand", "EveSurfaceCommandRequest"]
         }
       ],
       "commandTransportSmoke": {
