@@ -1,5 +1,32 @@
 {
   "schema": "gamecult.eve.parity_manifest.v1",
+  "repoStrategy": {
+    "boundaryRule": "Eve core owns contracts; plugins own semantics; runtime repos own native projection; provider repos own live truth.",
+    "incubationPolicy": "Eve may host runtimes, plugins, and conformance packs only while their contract is still forming.",
+    "graduationDocument": "docs/repo-strategy.md"
+  },
+  "conformancePacks": [
+    {
+      "id": "core",
+      "ownerRepo": "Eve",
+      "exitCriteria": "Stays in Eve; proves surface contract, CultUI DSL, bindings, commands, and embedded documents."
+    },
+    {
+      "id": "plugin",
+      "ownerRepo": "EvePlugins until owner repos stabilize",
+      "exitCriteria": "Moves when plugin semantics, fixtures, and conformance cases are stable."
+    },
+    {
+      "id": "provider",
+      "ownerRepo": "Provider repo",
+      "exitCriteria": "Moves when fixture carries product-specific state, assets, flows, or receipts."
+    },
+    {
+      "id": "runtime",
+      "ownerRepo": "Runtime repo",
+      "exitCriteria": "Moves when runtime has its own build/deploy lifecycle or platform SDK pressure."
+    }
+  ],
   "responsiveCases": [
     {
       "id": "phone",
@@ -37,6 +64,8 @@
     {
       "id": "cultui-inspector",
       "title": "CultUI Inspector",
+      "pack": "core",
+      "ownerRepo": "Eve",
       "surface": {
         "transport": "local-eve-dsl",
         "path": "web/fixtures/cultui-slider-inspector.eve"
@@ -57,6 +86,8 @@
     {
       "id": "repixelizer",
       "title": "Repixelizer",
+      "pack": "provider",
+      "ownerRepo": "Repixelizer",
       "surface": {
         "transport": "local-json",
         "path": "web/fixtures/repixelizer.eve-surface.json"
@@ -90,6 +121,22 @@
     {
       "id": "sai-vn",
       "title": "Sai VN",
+      "pack": "plugin",
+      "ownerRepo": "Sai",
+      "requiredPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
+        },
+        {
+          "pluginId": "norn.graph",
+          "capabilities": ["embed.norn"]
+        },
+        {
+          "pluginId": "tex.math",
+          "capabilities": ["embed.tex"]
+        }
+      ],
       "surface": {
         "transport": "local-json",
         "path": "web/fixtures/sai-vn-surface.json"
@@ -120,6 +167,8 @@
     {
       "id": "reactive-dsl",
       "title": "Reactive DSL",
+      "pack": "core",
+      "ownerRepo": "Eve",
       "surface": {
         "transport": "local-eve-dsl",
         "path": "web/fixtures/reactive-composition.eve"
@@ -133,6 +182,8 @@
     {
       "id": "huginn-cc",
       "title": "Huginn .cc",
+      "pack": "provider",
+      "ownerRepo": "Huginn",
       "surface": {
         "transport": "local-eve-dsl",
         "path": "web/fixtures/huginn-cc-surface.eve"
@@ -142,6 +193,61 @@
         "componentKinds": ["surface", "card", "text", "list"],
         "bindings": ["huginn.catalog.entries", "huginn.records.entries"]
       }
+    },
+    {
+      "id": "embedded-surface",
+      "title": "Embedded Surface Slot",
+      "pack": "core",
+      "ownerRepo": "Eve",
+      "surface": {
+        "transport": "local-json",
+        "path": "web/fixtures/cultui-embedded-surface.json"
+      },
+      "expect": {
+        "providerId": "gamecult.eve.embedded-demo",
+        "componentKinds": ["surface", "card", "text", "surface.slot"],
+        "embeddedDocuments": ["inventory.dropdown"],
+        "styleTokens": ["colorBackground", "colorPanel", "colorText", "colorMuted", "colorAccent"]
+      }
+    }
+  ],
+  "pluginManifests": [
+    {
+      "pluginId": "sai.vn",
+      "title": "Sai Visual Novel",
+      "kind": "external-owner-planned",
+      "ownerRepo": "Sai",
+      "repoRole": "plugin-incubating",
+      "splitTarget": "Sai/sai-vn-plugin",
+      "graduationTrigger": "Split when VN/Ink semantics, story command fixtures, and ABI project/apply/validate cases are stable.",
+      "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"],
+      "optionalPlugins": ["norn.graph", "tex.math"],
+      "requiredFixtures": ["sai-vn"],
+      "expectedPaths": ["plugins/incubating/sai-vn.plugin.json"]
+    },
+    {
+      "pluginId": "norn.graph",
+      "title": "Norn Graph",
+      "kind": "external-owner-planned",
+      "ownerRepo": "Norn",
+      "repoRole": "plugin-incubating",
+      "splitTarget": "Norn/eve-plugin-graph",
+      "graduationTrigger": "Split when embed.norn graph layout, interaction, fallback, and conformance fixtures are stable.",
+      "capabilities": ["embed.norn", "graph.node.activate"],
+      "requiredFixtures": ["sai-vn"],
+      "expectedPaths": ["plugins/incubating/norn-graph.plugin.json"]
+    },
+    {
+      "pluginId": "tex.math",
+      "title": "TeX Math",
+      "kind": "incubating",
+      "ownerRepo": "EvePlugins",
+      "repoRole": "plugin-incubating",
+      "splitTarget": "EvePlugins/eve-plugin-tex",
+      "graduationTrigger": "Split when TeX source, macro, baseline, cached render, and fallback fixtures are stable.",
+      "capabilities": ["embed.tex", "tex.inline", "tex.block"],
+      "requiredFixtures": ["sai-vn"],
+      "expectedPaths": ["plugins/incubating/tex-math.plugin.json"]
     }
   ],
   "runtimes": [
@@ -149,7 +255,34 @@
       "id": "web",
       "title": "Web reference",
       "kind": "active",
+      "ownerRepo": "Eve",
+      "repoRole": "core",
+      "splitTarget": "EveWeb only if browser reference gains independent platform lifecycle",
+      "graduationTrigger": "Stay in Eve while it is the behavior oracle; split only if it becomes a deployable runtime product.",
       "semanticHarness": true,
+      "requiredFixtures": ["embedded-surface"],
+      "pluginFixtures": ["sai-vn"],
+      "supportedFeatures": ["embeddedDocuments"],
+      "supportedPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
+        },
+        {
+          "pluginId": "norn.graph",
+          "capabilities": ["embed.norn"]
+        },
+        {
+          "pluginId": "tex.math",
+          "capabilities": ["embed.tex"]
+        }
+      ],
+      "expectedSourceSymbols": [
+        {
+          "path": "packages/eve-browser-lowering/src/index.ts",
+          "contains": ["surface.slot", "embeddedDocuments", "cultui-embedded-slot"]
+        }
+      ],
       "capture": {
         "status": "chrome-headless",
         "note": "Chrome headless captures phone, tablet, and desktop PNGs through the provider query parameter."
@@ -159,7 +292,34 @@
       "id": "windows-flutter",
       "title": "Windows / Flutter",
       "kind": "active",
+      "ownerRepo": "Eve",
+      "repoRole": "runtime-incubating",
+      "splitTarget": "EveFlutter",
+      "graduationTrigger": "Split when Flutter has provider picker, command transport, plugin host, and its own build/release lifecycle.",
+      "requiredFixtures": ["embedded-surface"],
+      "pluginFixtures": ["sai-vn"],
+      "supportedFeatures": ["embeddedDocuments"],
+      "supportedPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
+        },
+        {
+          "pluginId": "norn.graph",
+          "capabilities": ["embed.norn"]
+        },
+        {
+          "pluginId": "tex.math",
+          "capabilities": ["embed.tex"]
+        }
+      ],
       "expectedPaths": ["flutter/eve_parity/lib/main.dart", "scripts/capture-flutter-parity.ps1"],
+      "expectedSourceSymbols": [
+        {
+          "path": "flutter/eve_parity/lib/main.dart",
+          "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot"]
+        }
+      ],
       "capture": {
         "status": "golden",
         "note": "Uses the Flutter parity golden smoke on the Windows host."
@@ -169,7 +329,34 @@
       "id": "linux-flutter",
       "title": "Linux / Flutter",
       "kind": "active",
+      "ownerRepo": "Eve",
+      "repoRole": "runtime-incubating",
+      "splitTarget": "EveFlutter",
+      "graduationTrigger": "Split with EveFlutter when Linux capture and runner health become runtime-owned.",
+      "requiredFixtures": ["embedded-surface"],
+      "pluginFixtures": ["sai-vn"],
+      "supportedFeatures": ["embeddedDocuments"],
+      "supportedPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
+        },
+        {
+          "pluginId": "norn.graph",
+          "capabilities": ["embed.norn"]
+        },
+        {
+          "pluginId": "tex.math",
+          "capabilities": ["embed.tex"]
+        }
+      ],
       "expectedPaths": ["flutter/eve_parity/linux", "scripts/capture-flutter-parity.ps1"],
+      "expectedSourceSymbols": [
+        {
+          "path": "flutter/eve_parity/lib/main.dart",
+          "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot"]
+        }
+      ],
       "capture": {
         "status": "ssh-golden",
         "note": "Runs the Flutter parity golden smoke on Nightwing over SSH and pulls back phone, tablet, and desktop PNGs."
@@ -179,7 +366,20 @@
       "id": "ios-uikit",
       "title": "iOS / UIKit",
       "kind": "active",
+      "ownerRepo": "Eve",
+      "repoRole": "runtime-incubating",
+      "splitTarget": "EveIOS",
+      "graduationTrigger": "Split when UIKit renderer has generic surface lowering, sensor edge release flow, and device CI independent of Eve core.",
+      "requiredFixtures": ["embedded-surface"],
+      "pluginFixtures": ["sai-vn"],
+      "supportedFeatures": ["embeddedDocuments"],
       "expectedPaths": ["Sources/EVEViewController.mm", "scripts/capture-eve-screenshot.ps1"],
+      "expectedSourceSymbols": [
+        {
+          "path": "Sources/EVEViewController.mm",
+          "contains": ["surface.slot", "embeddedDocuments", "accessibilityIdentifier"]
+        }
+      ],
       "capture": {
         "status": "ssh-png",
         "note": "SSH capture script foregrounds EveCanvas and requests latest-screenshot.png."
@@ -189,7 +389,34 @@
       "id": "android-flutter",
       "title": "Android / Flutter",
       "kind": "active",
+      "ownerRepo": "Eve",
+      "repoRole": "runtime-incubating",
+      "splitTarget": "EveFlutter",
+      "graduationTrigger": "Split with EveFlutter when Android APK smoke, provider discovery, command transport, and plugin host are runtime-owned.",
+      "requiredFixtures": ["embedded-surface"],
+      "pluginFixtures": ["sai-vn"],
+      "supportedFeatures": ["embeddedDocuments"],
+      "supportedPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
+        },
+        {
+          "pluginId": "norn.graph",
+          "capabilities": ["embed.norn"]
+        },
+        {
+          "pluginId": "tex.math",
+          "capabilities": ["embed.tex"]
+        }
+      ],
       "expectedPaths": ["flutter/eve_parity/lib/main.dart", "scripts/capture-android-flutter-parity.ps1"],
+      "expectedSourceSymbols": [
+        {
+          "path": "flutter/eve_parity/lib/main.dart",
+          "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot"]
+        }
+      ],
       "capture": {
         "status": "adb-png",
         "note": "Builds the shared Flutter parity APK, installs it on Periwinkle, and pulls responsive plus physical-panel screencaps through adb."
@@ -198,17 +425,60 @@
     {
       "id": "android-kotlin",
       "title": "Android / Kotlin device edge",
-      "kind": "compatibility",
+      "kind": "active",
+      "ownerRepo": "Eve",
+      "repoRole": "runtime-incubating",
+      "splitTarget": "EveAndroid",
+      "graduationTrigger": "Split when Kotlin device edge has generic surface traversal, sensor release flow, and Android-specific CI.",
+      "requiredFixtures": ["embedded-surface"],
+      "pluginFixtures": ["sai-vn"],
+      "supportedFeatures": ["cultmesh-dashboard-documents", "sensor-uplink", "embeddedDocuments"],
       "expectedPaths": ["android/app/src/main/java/org/gamecult/eve/MainActivity.kt", "scripts/build-android.ps1"],
+      "expectedSourceSymbols": [
+        {
+          "path": "android/app/src/main/java/org/gamecult/eve/MainActivity.kt",
+          "contains": ["surface.slot", "embeddedDocuments", "contentDescription"]
+        }
+      ],
       "capture": {
         "status": "manual",
-        "note": "Native Kotlin remains a CultMesh sensor/dashboard compatibility body; it is not the GUI CultUI parity target."
+        "note": "Native Kotlin preserves CultUI embedded document slots in its lightweight dashboard renderer; full responsive GUI capture still belongs to Android Flutter."
+      }
+    },
+    {
+      "id": "unity-uitoolkit",
+      "title": "Unity / UI Toolkit",
+      "kind": "active",
+      "ownerRepo": "Eve",
+      "repoRole": "runtime-incubating",
+      "splitTarget": "EveUnity",
+      "graduationTrigger": "Split when Unity package has independent UPM release, plugin host behavior, and Unity test/capture lifecycle.",
+      "requiredFixtures": ["embedded-surface"],
+      "pluginFixtures": ["sai-vn"],
+      "supportedFeatures": ["embeddedDocuments"],
+      "expectedPaths": ["packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs"],
+      "expectedSourceSymbols": [
+        {
+          "path": "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs",
+          "contains": ["LowerEmbeddedDocument(", "EmbeddedDocuments", "eve-embedded-document"]
+        }
+      ],
+      "capture": {
+        "status": "semantic",
+        "note": "Unity UI Toolkit lowers embedded document slots through a resolver-backed child surface host."
       }
     },
     {
       "id": "direct2d",
       "title": "Fensalir Direct2D",
       "kind": "pending",
+      "ownerRepo": "Fensalir",
+      "repoRole": "runtime-external-target",
+      "splitTarget": "Fensalir or EveDirect2D if it earns a separate body",
+      "graduationTrigger": "Do not graduate until the Eve-to-AquariumUiDocument adapter and Direct2D frame capture exist.",
+      "requiredFixtures": ["embedded-surface"],
+      "pluginFixtures": ["sai-vn"],
+      "supportedFeatures": [],
       "expectedPaths": ["web/fixtures/fensalir-client-surface.json"],
       "capture": {
         "status": "missing",

@@ -1,0 +1,38 @@
+{
+  "schema": "gamecult.eve.plugin.v1",
+  "pluginId": "tex.math",
+  "title": "TeX Math",
+  "owner": "EvePlugins",
+  "incubation": {
+    "ownerRepo": "EvePlugins",
+    "currentHostRepo": "Eve",
+    "splitTarget": "EvePlugins/eve-plugin-tex",
+    "graduationTrigger": "Split when TeX source, macro, baseline, cached render, and fallback fixtures are stable."
+  },
+  "componentKinds": [
+    "embed.tex"
+  ],
+  "commands": [],
+  "stateSchemas": [
+    "tex.math.source.v1",
+    "tex.math.render_request.v1",
+    "tex.math.render_result.v1"
+  ],
+  "fixtures": [
+    {
+      "fixtureId": "sai-vn",
+      "schema": "gamecult.eve.surface.v1",
+      "path": "web/fixtures/sai-vn-surface.json"
+    }
+  ],
+  "capabilities": {
+    "requires": [
+      "embed.tex"
+    ],
+    "optionalCapabilities": [
+      "tex.inline",
+      "tex.block",
+      "tex.scene-placement"
+    ]
+  }
+}
