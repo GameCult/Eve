@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.conformance_fixture.v1",
+  "title": "Eve Conformance Fixture Metadata",
+  "type": "object",
+  "required": [
+    "schema",
+    "fixtureId",
+    "title",
+    "pack",
+    "ownerRepo",
+    "surface",
+    "purpose",
+    "exitCriteria",
+    "asserts"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.conformance_fixture.v1"
+    },
+    "fixtureId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pack": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerRepo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surface": {
+      "type": "object",
+      "required": ["transport", "path"],
+      "properties": {
+        "transport": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exitCriteria": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asserts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "requiredPlugins": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "splitTarget": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

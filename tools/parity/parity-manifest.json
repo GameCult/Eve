@@ -6,6 +6,7 @@
     "graduationDocument": "docs/repo-strategy.md"
   },
   "schemas": {
+    "gamecult.eve.conformance_fixture.v1": "schemas/gamecult.eve.conformance_fixture.v1.schema.json",
     "gamecult.eve.command.v1": "schemas/gamecult.eve.command.v1.schema.json",
     "gamecult.eve.plugin.v1": "schemas/gamecult.eve.plugin.v1.schema.json",
     "gamecult.eve.plugin_advertisement.v1": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
@@ -76,6 +77,7 @@
         "transport": "local-eve-dsl",
         "path": "web/fixtures/cultui-slider-inspector.eve"
       },
+      "metadataPath": "web/fixtures/cultui-slider-inspector.conformance.json",
       "expect": {
         "providerId": "eve.cultui.inspector",
         "componentKinds": ["surface", "partition", "pane", "label", "control.slider"],
@@ -98,6 +100,7 @@
         "transport": "local-json",
         "path": "web/fixtures/repixelizer.eve-surface.json"
       },
+      "metadataPath": "web/fixtures/repixelizer.conformance.json",
       "expect": {
         "providerId": "repixelizer",
         "componentKinds": [
@@ -147,6 +150,7 @@
         "transport": "local-json",
         "path": "web/fixtures/sai-vn-surface.json"
       },
+      "metadataPath": "web/fixtures/sai-vn-surface.conformance.json",
       "expect": {
         "providerId": "gamecult.home.vn",
         "componentKinds": [
@@ -182,6 +186,7 @@
         "transport": "local-json",
         "path": "web/fixtures/aetheria-world-surface.json"
       },
+      "metadataPath": "web/fixtures/aetheria-world-surface.conformance.json",
       "expect": {
         "providerId": "aetheria",
         "componentKinds": ["surface", "card", "text", "metric", "partition", "field.surface2d", "control.button"],
@@ -201,6 +206,7 @@
         "transport": "local-json",
         "path": "web/fixtures/authority-staleness-witness.json"
       },
+      "metadataPath": "web/fixtures/authority-staleness-witness.conformance.json",
       "expect": {
         "providerId": "gamecult.eve.authority-witness",
         "componentKinds": ["surface", "card", "text", "metric", "partition"],
@@ -230,6 +236,7 @@
         "transport": "local-eve-dsl",
         "path": "web/fixtures/reactive-composition.eve"
       },
+      "metadataPath": "web/fixtures/reactive-composition.conformance.json",
       "expect": {
         "providerId": "gamecult.eve.reactive-demo",
         "componentKinds": ["surface", "card", "text", "metric", "list", "control.button"],
@@ -245,6 +252,7 @@
         "transport": "local-eve-dsl",
         "path": "web/fixtures/huginn-cc-surface.eve"
       },
+      "metadataPath": "web/fixtures/huginn-cc-surface.conformance.json",
       "expect": {
         "providerId": "cultcache.huginn.inspector",
         "componentKinds": ["surface", "card", "text", "list"],
@@ -260,6 +268,7 @@
         "transport": "local-json",
         "path": "web/fixtures/cultui-embedded-surface.json"
       },
+      "metadataPath": "web/fixtures/cultui-embedded-surface.conformance.json",
       "expect": {
         "providerId": "gamecult.eve.embedded-demo",
         "componentKinds": ["surface", "card", "text", "surface.slot"],

@@ -75,6 +75,7 @@ async function evaluateFixture(fixture) {
   const authorityOwners = [...new Set(authorityWitnesses.map(witness => witness.owner))].filter(Boolean).sort();
   const receiptRefs = [...new Set(authorityWitnesses.map(witness => witness.receiptRef))].filter(Boolean).sort();
   const witnessRefs = [...new Set(authorityWitnesses.map(witness => witness.witnessRef))].filter(Boolean).sort();
+  const metadataResult = await evaluateFixtureMetadata(fixture);
   const checks = [];
 
   addCheck(checks, "providerId", state.providerId === fixture.expect.providerId, {
@@ -182,6 +183,13 @@ async function evaluateFixture(fixture) {
     });
   }
 
+  for (const error of metadataResult.errors) {
+    addCheck(checks, `metadata:${error}`, false, {
+      expected: "valid fixture metadata",
+      actual: error,
+    });
+  }
+
   const knownPacks = new Set((manifest.conformancePacks || []).map(pack => pack.id));
   if (fixture.pack) {
     addCheck(checks, "conformancePack", knownPacks.has(fixture.pack), {
@@ -219,6 +227,9 @@ async function evaluateFixture(fixture) {
     receiptRefs,
     witnessRefs,
     authorityWitnesses,
+    metadataPath: fixture.metadataPath || "",
+    metadata: metadataResult.metadata,
+    metadataErrors: metadataResult.errors,
     checks,
   };
 }
@@ -346,6 +357,34 @@ async function evaluatePlugin(plugin, fixtureResults) {
     missingIncubationFields,
     status,
   };
+}
+
+async function evaluateFixtureMetadata(fixture) {
+  const errors = [];
+  if (!fixture.metadataPath) return { metadata: null, errors: ["metadataPath:missing"] };
+
+  errors.push(...await validateJsonDocument(
+    manifest.schemas?.["gamecult.eve.conformance_fixture.v1"],
+    fixture.metadataPath,
+    {
+      schema: "gamecult.eve.conformance_fixture.v1",
+      fixtureId: fixture.id,
+    },
+  ));
+  if (errors.length) return { metadata: null, errors };
+
+  const metadata = await readJsonDocument(fixture.metadataPath);
+  if (metadata.pack !== fixture.pack) errors.push(`pack:expected ${fixture.pack} got ${metadata.pack}`);
+  if (metadata.ownerRepo !== fixture.ownerRepo) errors.push(`ownerRepo:expected ${fixture.ownerRepo} got ${metadata.ownerRepo}`);
+  if (metadata.surface?.transport !== fixture.surface?.transport) {
+    errors.push(`surface.transport:expected ${fixture.surface?.transport} got ${metadata.surface?.transport}`);
+  }
+  if (metadata.surface?.path !== fixture.surface?.path) {
+    errors.push(`surface.path:expected ${fixture.surface?.path} got ${metadata.surface?.path}`);
+  }
+  if (!Array.isArray(metadata.asserts) || metadata.asserts.length === 0) errors.push("asserts:empty");
+
+  return { metadata, errors };
 }
 
 async function evaluateProvider(provider, fixtureResults) {
@@ -712,6 +751,11 @@ function renderMarkdown(report) {
   lines.push("", "## Authority Witnesses", "", "| Fixture | States | Owners | Witness Refs | Receipt Refs |", "| --- | --- | --- | ---: | ---: |");
   for (const fixture of report.fixtures) {
     lines.push(`| ${fixture.title} | ${fixture.authorityStates.join(", ")} | ${fixture.authorityOwners.join(", ")} | ${fixture.witnessRefs.length} | ${fixture.receiptRefs.length} |`);
+  }
+
+  lines.push("", "## Fixture Metadata", "", "| Fixture | Metadata | Purpose | Errors |", "| --- | --- | --- | --- |");
+  for (const fixture of report.fixtures) {
+    lines.push(`| ${fixture.title} | ${fixture.metadataPath} | ${fixture.metadata?.purpose || ""} | ${fixture.metadataErrors.join(", ")} |`);
   }
 
   lines.push("", "## Plugins", "", "| Plugin | Status | Owner | Capabilities | Missing |", "| --- | --- | --- | --- | --- |");

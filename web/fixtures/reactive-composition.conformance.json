@@ -1,0 +1,19 @@
+{
+  "schema": "gamecult.eve.conformance_fixture.v1",
+  "fixtureId": "reactive-dsl",
+  "title": "Reactive DSL",
+  "pack": "core",
+  "ownerRepo": "Eve",
+  "surface": {
+    "transport": "local-eve-dsl",
+    "path": "web/fixtures/reactive-composition.eve"
+  },
+  "purpose": "Proves Eve DSL reactive bindings for vars, collections, derived values, lists, metrics, and command-like authored actions.",
+  "exitCriteria": "Stays in Eve core while CultUI reactive authoring remains part of the kernel contract.",
+  "asserts": [
+    "reactive var binding",
+    "collection binding",
+    "derived binding",
+    "control.button lowering"
+  ]
+}

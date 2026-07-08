@@ -1,0 +1,20 @@
+{
+  "schema": "gamecult.eve.conformance_fixture.v1",
+  "fixtureId": "cultui-inspector",
+  "title": "CultUI Inspector",
+  "pack": "core",
+  "ownerRepo": "Eve",
+  "surface": {
+    "transport": "local-eve-dsl",
+    "path": "web/fixtures/cultui-slider-inspector.eve"
+  },
+  "purpose": "Proves CultUI DSL lowering for partition layout, slider anatomy, style skins, retained control parts, and bindings.",
+  "exitCriteria": "Stays in Eve core because it proves the portable CultUI surface contract.",
+  "asserts": [
+    "partition topology",
+    "control.slider nodes",
+    "slider skin anatomy",
+    "control.part names",
+    "state bindings"
+  ]
+}

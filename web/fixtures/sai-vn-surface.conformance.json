@@ -1,0 +1,26 @@
+{
+  "schema": "gamecult.eve.conformance_fixture.v1",
+  "fixtureId": "sai-vn",
+  "title": "Sai VN",
+  "pack": "plugin",
+  "ownerRepo": "Sai",
+  "surface": {
+    "transport": "local-json",
+    "path": "web/fixtures/sai-vn-surface.json"
+  },
+  "purpose": "Proves Sai visual-novel semantics with Norn and TeX embedded plugin surfaces before the plugins graduate.",
+  "exitCriteria": "Move to Sai when VN/Ink story state, story commands, projection fixtures, and plugin ABI cases stabilize.",
+  "asserts": [
+    "vn.stage component",
+    "embed.norn component",
+    "embed.tex component",
+    "story command descriptors",
+    "plugin capability requirements"
+  ],
+  "requiredPlugins": [
+    "sai.vn",
+    "norn.graph",
+    "tex.math"
+  ],
+  "splitTarget": "Sai/sai-vn-plugin"
+}

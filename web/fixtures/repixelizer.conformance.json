@@ -1,0 +1,20 @@
+{
+  "schema": "gamecult.eve.conformance_fixture.v1",
+  "fixtureId": "repixelizer",
+  "title": "Repixelizer",
+  "pack": "provider",
+  "ownerRepo": "Repixelizer",
+  "surface": {
+    "transport": "local-json",
+    "path": "web/fixtures/repixelizer.eve-surface.json"
+  },
+  "purpose": "Proves a provider-owned product surface can be advertised and lowered without making Eve own product state.",
+  "exitCriteria": "Move to Repixelizer when job/session/artifact/operator state or receipts become live product authority.",
+  "asserts": [
+    "provider surface shape",
+    "image and canvas placeholders",
+    "product style tokens",
+    "provider command references"
+  ],
+  "splitTarget": "Repixelizer"
+}

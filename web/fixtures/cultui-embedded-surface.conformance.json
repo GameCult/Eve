@@ -1,0 +1,18 @@
+{
+  "schema": "gamecult.eve.conformance_fixture.v1",
+  "fixtureId": "embedded-surface",
+  "title": "Embedded Surface Slot",
+  "pack": "core",
+  "ownerRepo": "Eve",
+  "surface": {
+    "transport": "local-json",
+    "path": "web/fixtures/cultui-embedded-surface.json"
+  },
+  "purpose": "Proves surface.slot and embedded CultMesh document slots remain explicit across runtime lowering.",
+  "exitCriteria": "Stays in Eve core because embedded document slots are part of the portable surface contract.",
+  "asserts": [
+    "surface.slot component",
+    "embeddedDocuments slot metadata",
+    "embedded document style tokens"
+  ]
+}

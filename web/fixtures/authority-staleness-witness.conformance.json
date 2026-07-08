@@ -1,0 +1,24 @@
+{
+  "schema": "gamecult.eve.conformance_fixture.v1",
+  "fixtureId": "authority-staleness",
+  "title": "Authority And Staleness Witness",
+  "pack": "core",
+  "ownerRepo": "Eve",
+  "surface": {
+    "transport": "local-json",
+    "path": "web/fixtures/authority-staleness-witness.json"
+  },
+  "purpose": "Proves Eve surfaces preserve provider truth, local prediction, staleness, denial, receipts, and reconciliation as visible contract state.",
+  "exitCriteria": "Stays in Eve core because authority visibility is a surface contract invariant.",
+  "asserts": [
+    "fresh state",
+    "accepted state",
+    "stale state",
+    "missing state",
+    "pending state",
+    "denied state",
+    "predicted state",
+    "reconciled state",
+    "receipt references"
+  ]
+}

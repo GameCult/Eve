@@ -1,0 +1,20 @@
+{
+  "schema": "gamecult.eve.conformance_fixture.v1",
+  "fixtureId": "aetheria-world",
+  "title": "Aetheria Interactive World",
+  "pack": "provider",
+  "ownerRepo": "Aetheria",
+  "surface": {
+    "transport": "local-json",
+    "path": "web/fixtures/aetheria-world-surface.json"
+  },
+  "purpose": "Proves Aetheria can expose daemon-owned interactive world surfaces through Eve without moving game truth into Eve.",
+  "exitCriteria": "Move to Aetheria when generated level state, assets, command receipts, and scenario conformance become product-owned fixtures.",
+  "asserts": [
+    "field.surface2d world projection",
+    "daemon command boundary",
+    "provider-owned bindings",
+    "Aetheria style tokens"
+  ],
+  "splitTarget": "Aetheria"
+}

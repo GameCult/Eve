@@ -274,13 +274,15 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add conformance-pack metadata files beside fixtures.
-2. Add a Direct2D adapter spike or explicitly demote Direct2D until Fensalir owns
+1. Add a Direct2D adapter spike or explicitly demote Direct2D until Fensalir owns
    the body.
-3. Add split-readiness reports for EveFlutter and EveUnity.
+2. Add split-readiness reports for EveFlutter and EveUnity.
 
 Recently cut:
 
+- Fixture conformance metadata now lives beside each fixture and is validated by
+  the parity harness, so the corpus can move toward `EveConformance` without
+  relying only on Eve's local manifest layout.
 - The browser reference now has an authority/staleness witness fixture. The
   parity report verifies visible `fresh`, `accepted`, `stale`, `missing`,
   `pending`, `denied`, `predicted`, and `reconciled` states, with provider and
