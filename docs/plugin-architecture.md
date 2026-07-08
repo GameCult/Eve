@@ -45,6 +45,8 @@ Renderer clients own:
 - input capture and command emission;
 - local sensor/media capture when relevant;
 - runtime-specific capability gaps;
+- runtime capability manifests that declare supported features, plugin-host
+  support, unsupported plugin semantics, command transport, and split metadata;
 - screenshots, frame capture, and performance telemetry.
 
 Providers own:

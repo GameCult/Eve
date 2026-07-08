@@ -274,11 +274,18 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add a real Unity plugin-host proof for either Sai or Norn, or keep
-   `EveUnity` blocked on explicit unsupported-plugin declarations.
+1. Add a real Unity plugin-host proof for either Sai or Norn, backed by a
+   runtime-owned capability manifest and Unity test/capture lifecycle evidence.
 
 Recently cut:
 
+- Unity UI Toolkit now publishes a runtime-owned capability manifest at
+  `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`. The
+  parity harness validates that manifest against
+  `gamecult.eve.runtime_capability.v1`, cross-checks supported features,
+  unsupported Sai/Norn/TeX plugin declarations, command transport schema, and
+  incubation metadata, then exports the manifest path and validation errors
+  through the conformance report.
 - Aetheria now consumes the exported conformance pack from its own working
   directory through `scripts/run-aetheria-conformance-consumer-smoke.ps1`. The
   smoke asserts the provider pack, `aetheria-world` fixture, `aetheria`

@@ -18,6 +18,14 @@ style-token expectations, same control anatomy, and explicit capture gaps.
 The manifest is the cut line. If a fixture or runtime is not in the manifest,
 it is not part of the parity claim.
 
+Runtime capability manifests are the runtime-owned side of that claim. When a
+runtime entry has `capabilityManifest`, the harness validates the JSON document
+against `gamecult.eve.runtime_capability.v1` and cross-checks runtime id,
+supported features, supported and unsupported plugin declarations, command
+transport schema, and incubation metadata. The central parity manifest may
+coordinate split-readiness, but the runtime body must publish the capability
+claim it expects other repos to consume.
+
 ## Run
 
 Semantic checks:
@@ -63,6 +71,10 @@ The semantic runner writes:
 - `artifacts/conformance/latest/index.json`
 - `artifacts/conformance/latest/packs/*.json`
 - `artifacts/conformance/<timestamp>/...`
+
+The conformance export includes runtime `capabilityManifestPath` and
+`capabilityManifestErrors` fields so external consumers can distinguish a
+generic projection runtime from a runtime that actually hosts plugin semantics.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into

@@ -12,6 +12,7 @@
     "gamecult.eve.plugin.v1": "schemas/gamecult.eve.plugin.v1.schema.json",
     "gamecult.eve.plugin_abi_fixture.v1": "schemas/gamecult.eve.plugin_abi_fixture.v1.schema.json",
     "gamecult.eve.plugin_advertisement.v1": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
+    "gamecult.eve.runtime_capability.v1": "schemas/gamecult.eve.runtime_capability.v1.schema.json",
     "gamecult.eve.provider_scenario.v1": "schemas/gamecult.eve.provider_scenario.v1.schema.json",
     "gamecult.eve.provider_advertisement.v1": "schemas/gamecult.eve.provider_advertisement.v1.schema.json"
   },
@@ -679,6 +680,10 @@
       "repoRole": "runtime-incubating",
       "splitTarget": "EveUnity",
       "graduationTrigger": "Split when Unity package has independent UPM release, plugin host behavior, and Unity test/capture lifecycle.",
+      "capabilityManifest": {
+        "schemaPath": "schemas/gamecult.eve.runtime_capability.v1.schema.json",
+        "manifestPath": "packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json"
+      },
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["embeddedDocuments"],

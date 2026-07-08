@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.runtime_capability.v1",
+  "title": "Eve Runtime Capability Manifest",
+  "type": "object",
+  "required": [
+    "schema",
+    "runtimeId",
+    "title",
+    "owner",
+    "incubation",
+    "supportedFeatures",
+    "supportedPlugins",
+    "unsupportedPlugins",
+    "commandTransport"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.runtime_capability.v1"
+    },
+    "runtimeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "incubation": {
+      "type": "object",
+      "required": [
+        "ownerRepo",
+        "currentHostRepo",
+        "splitTarget",
+        "graduationTrigger"
+      ],
+      "properties": {
+        "ownerRepo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "currentHostRepo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "splitTarget": {
+          "type": "string",
+          "minLength": 1
+        },
+        "graduationTrigger": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "supportedFeatures": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "supportedPlugins": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "pluginId",
+          "capabilities"
+        ],
+        "properties": {
+          "pluginId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "unsupportedPlugins": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "pluginId",
+          "reason"
+        ],
+        "properties": {
+          "pluginId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "commandTransport": {
+      "type": "object",
+      "required": [
+        "schema"
+      ],
+      "properties": {
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

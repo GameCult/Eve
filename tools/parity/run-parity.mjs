@@ -302,6 +302,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
     missingRequiredFeatures.push("embeddedDocuments");
   }
   const commandTransportSmokeErrors = await validateRuntimeCommandTransportSmoke(runtime);
+  const capabilityManifestErrors = await validateRuntimeCapabilityManifest(runtime);
   const missingIncubationFields = requiredIncubationFields(runtime).filter(field => !runtime[field]);
   const pluginCapabilityGaps = collectPluginCapabilityGaps(runtime, fixtureResults);
   const unsupportedPluginNotes = collectUnsupportedPluginNotes(runtime, fixtureResults);
@@ -311,6 +312,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   if (runtime.kind === "active" && missingRequiredFixtures.length) status = "missing-required-fixture";
   if (runtime.kind === "active" && missingRequiredFeatures.length) status = "missing-required-feature";
   if (runtime.kind === "active" && commandTransportSmokeErrors.length) status = "missing-command-transport-smoke";
+  if (runtime.kind === "active" && capabilityManifestErrors.length) status = "invalid-runtime-capability";
   if (runtime.kind === "active" && missingIncubationFields.length) status = "missing-incubation-metadata";
   if (runtime.kind === "active" && pluginCapabilityGaps.length && status === "active") status = "active-with-capability-gaps";
   if (runtime.kind === "pending" && runtime.adapterSpike === "external" && !missingExternalPaths.length && !missingExternalSourceSymbols.length) {
@@ -343,6 +345,8 @@ async function evaluateRuntime(runtime, fixtureResults) {
     missingRequiredFeatures,
     commandTransportSmoke: runtime.commandTransportSmoke || null,
     commandTransportSmokeErrors,
+    capabilityManifest: runtime.capabilityManifest || null,
+    capabilityManifestErrors,
     ownerRepo: runtime.ownerRepo || "",
     repoRole: runtime.repoRole || "",
     graduationTrigger: runtime.graduationTrigger || "",
@@ -830,6 +834,87 @@ async function validateRuntimeCommandTransportSmoke(runtime) {
   return errors;
 }
 
+async function validateRuntimeCapabilityManifest(runtime) {
+  const capabilityManifest = runtime.capabilityManifest;
+  if (!capabilityManifest) return [];
+
+  const errors = await validateJsonDocument(capabilityManifest.schemaPath, capabilityManifest.manifestPath, {
+    schema: "gamecult.eve.runtime_capability.v1",
+    runtimeId: runtime.id,
+  });
+  if (errors.length) return errors;
+
+  const documentPath = path.join(repoRoot, capabilityManifest.manifestPath);
+  const document = JSON.parse(await readFile(documentPath, "utf8"));
+  const supportedFeatures = document.supportedFeatures || [];
+  const supportedPlugins = document.supportedPlugins || [];
+  const unsupportedPlugins = document.unsupportedPlugins || [];
+  const commandTransport = document.commandTransport || {};
+
+  errors.push(...missingMembers(runtime.supportedFeatures || [], supportedFeatures, `${capabilityManifest.manifestPath}:supportedFeatures`));
+  errors.push(...comparePluginCapabilityClaims(
+    runtime.supportedPlugins || [],
+    supportedPlugins,
+    `${capabilityManifest.manifestPath}:supportedPlugins`,
+  ));
+  errors.push(...compareUnsupportedPluginClaims(
+    runtime.unsupportedPlugins || [],
+    unsupportedPlugins,
+    `${capabilityManifest.manifestPath}:unsupportedPlugins`,
+  ));
+
+  const expectedCommandSchema = runtime.commandTransportSmoke?.schema || "";
+  if (expectedCommandSchema && commandTransport.schema !== expectedCommandSchema) {
+    errors.push(`${capabilityManifest.manifestPath}:commandTransport.schema:expected ${expectedCommandSchema} got ${commandTransport.schema || ""}`);
+  }
+
+  const incubation = document.incubation || {};
+  for (const [key, value] of Object.entries({
+    ownerRepo: runtime.splitTarget || runtime.ownerRepo || "",
+    currentHostRepo: runtime.ownerRepo || "",
+    splitTarget: runtime.splitTarget || "",
+    graduationTrigger: runtime.graduationTrigger || "",
+  })) {
+    if (value && incubation[key] !== value) {
+      errors.push(`${capabilityManifest.manifestPath}:incubation.${key}:expected ${value} got ${incubation[key] || ""}`);
+    }
+  }
+
+  return errors;
+}
+
+function comparePluginCapabilityClaims(expectedPlugins, actualPlugins, label) {
+  const errors = [];
+  const actual = new Map(actualPlugins.map(plugin => [plugin.pluginId, new Set(plugin.capabilities || [])]));
+  for (const plugin of expectedPlugins) {
+    const capabilities = actual.get(plugin.pluginId);
+    if (!capabilities) {
+      errors.push(`${label}:${plugin.pluginId}:missing`);
+      continue;
+    }
+    for (const capability of plugin.capabilities || []) {
+      if (!capabilities.has(capability)) errors.push(`${label}:${plugin.pluginId}:${capability}:missing`);
+    }
+  }
+  return errors;
+}
+
+function compareUnsupportedPluginClaims(expectedPlugins, actualPlugins, label) {
+  const errors = [];
+  const actual = new Map(actualPlugins.map(plugin => [plugin.pluginId, plugin.reason || ""]));
+  for (const plugin of expectedPlugins) {
+    const reason = actual.get(plugin.pluginId);
+    if (!reason) {
+      errors.push(`${label}:${plugin.pluginId}:missing`);
+      continue;
+    }
+    if (plugin.reason && reason !== plugin.reason) {
+      errors.push(`${label}:${plugin.pluginId}:reason:expected ${plugin.reason} got ${reason}`);
+    }
+  }
+  return errors;
+}
+
 function evaluateSplitTargets(splitTargets, runtimeResults) {
   const runtimeById = new Map(runtimeResults.map(runtime => [runtime.id, runtime]));
   return splitTargets.map(target => {
@@ -1078,6 +1163,8 @@ function buildConformanceExport(report) {
       supportedFeatures: runtime.supportedFeatures,
       supportedPlugins: runtime.supportedPlugins,
       unsupportedPlugins: runtime.unsupportedPlugins,
+      capabilityManifestPath: runtime.capabilityManifest?.manifestPath || "",
+      capabilityManifestErrors: runtime.capabilityManifestErrors || [],
       commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
     })),
     splitTargets: report.splitTargets || [],
@@ -1235,6 +1322,7 @@ function renderMarkdown(report) {
       ...runtime.missingRequiredFixtures.map(id => `fixture:${id}`),
       ...runtime.missingRequiredFeatures.map(id => `feature:${id}`),
       ...runtime.commandTransportSmokeErrors.map(id => `command-smoke:${id}`),
+      ...runtime.capabilityManifestErrors.map(id => `runtime-capability:${id}`),
       ...runtime.missingIncubationFields.map(id => `metadata:${id}`),
     ].join(", ");
     lines.push(`| ${runtime.title} | ${runtime.status} | ${runtime.ownerRepo} | ${runtime.capture?.status || "unknown"} | ${runtime.commandTransportSmoke?.schema || ""} | ${runtime.requiredFixtures.join(", ")} | ${runtime.pluginFixtures.join(", ")} | ${runtime.supportedFeatures.join(", ")} | ${runtime.pluginCapabilityGaps.join(", ")} | ${runtime.unsupportedPluginNotes.join(", ")} | ${missing} |`);

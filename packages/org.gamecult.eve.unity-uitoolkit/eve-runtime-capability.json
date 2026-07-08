@@ -1,0 +1,39 @@
+{
+  "schema": "gamecult.eve.runtime_capability.v1",
+  "runtimeId": "unity-uitoolkit",
+  "title": "Unity / UI Toolkit",
+  "owner": "EveUnity",
+  "incubation": {
+    "ownerRepo": "EveUnity",
+    "currentHostRepo": "Eve",
+    "splitTarget": "EveUnity",
+    "graduationTrigger": "Split when Unity package has independent UPM release, plugin host behavior, and Unity test/capture lifecycle."
+  },
+  "supportedFeatures": [
+    "embeddedDocuments"
+  ],
+  "supportedPlugins": [],
+  "unsupportedPlugins": [
+    {
+      "pluginId": "sai.vn",
+      "reason": "Unity UI Toolkit currently lowers Sai VN component kinds as generic Eve containers; no Sai plugin host exists in this runtime."
+    },
+    {
+      "pluginId": "norn.graph",
+      "reason": "Unity UI Toolkit currently preserves embed.norn as generic Eve structure; no Norn graph plugin host or layout adapter exists in this runtime."
+    },
+    {
+      "pluginId": "tex.math",
+      "reason": "Unity UI Toolkit currently preserves embed.tex as generic Eve structure; no TeX render plugin host exists in this runtime."
+    }
+  ],
+  "commandTransport": {
+    "schema": "gamecult.eve.command.v1",
+    "emitter": "EveUiToolkitSurfaceLowerer.EmitCommand",
+    "clientId": "unity-uitoolkit"
+  },
+  "capture": {
+    "status": "semantic",
+    "note": "Unity UI Toolkit lowers embedded document slots through a resolver-backed child surface host."
+  }
+}
