@@ -137,6 +137,14 @@
       "summary": "Refresh player settings state."
     }
   ],
+  "conformanceScenarios": [
+    {
+      "scenarioId": "aetheria-world-command-replay",
+      "schema": "gamecult.eve.provider_scenario.v1",
+      "path": "web/fixtures/aetheria-world-scenario.json",
+      "summary": "Interactive world replay through provider advertisement, daemon game surface, and provider-owned command receipts."
+    }
+  ],
   "styleCapabilities": [
     {
       "styleProfile": "aetheria.daemon.world",

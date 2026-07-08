@@ -274,13 +274,15 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add Aetheria scenario conformance replay that consumes provider
-   advertisements and reports command receipts without provider internals.
-2. Add runtime command-transport smokes for Flutter and Unity so split targets
+1. Add runtime command-transport smokes for Flutter and Unity so split targets
    can prove command emission through `gamecult.eve.command.v1`.
 
 Recently cut:
 
+- Aetheria now has a provider scenario replay fixture advertised through its
+  provider advertisement. The parity harness validates advertised surfaces,
+  command boundary consumption, command intents, and provider-owned receipt
+  states without importing Aetheria internals into Eve.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
   project, and apply behavior. The parity harness validates those fixtures
   against plugin manifests, so Eve proves the ABI shape without owning plugin

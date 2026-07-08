@@ -443,6 +443,8 @@ async function evaluateProvider(provider, fixtureResults) {
   const missingSchemas = (provider.expectedSchemas || []).filter(schema => !advertisedSchemaIds.includes(schema));
   const missingSurfaces = (provider.expectedSurfaces || []).filter(surface => !surfaceIds.includes(surface));
   const missingCommands = (provider.expectedCommands || []).filter(command => !commandIds.includes(command));
+  const scenarioErrors = await validateProviderScenario(provider, advertisement, fixtureResults, advertisedSchemaIds, surfaceIds, commandIds);
+  const scenario = scenarioErrors.length || !provider.scenarioPath ? null : await readJsonDocument(provider.scenarioPath);
   const status = missingPaths.length
     ? "missing-body"
     : missingRequiredFixtures.length
@@ -453,7 +455,9 @@ async function evaluateProvider(provider, fixtureResults) {
           ? "invalid-provider-advertisement"
           : missingSchemas.length || missingSurfaces.length || missingCommands.length
             ? "capability-gap"
-            : "advertised";
+            : scenarioErrors.length
+              ? "invalid-provider-scenario"
+              : "advertised";
 
   return {
     providerId: provider.providerId,
@@ -466,7 +470,9 @@ async function evaluateProvider(provider, fixtureResults) {
     missingRequiredFixtures,
     schemaPath: provider.schemaPath || "",
     advertisementPath: provider.advertisementPath || "",
+    scenarioPath: provider.scenarioPath || "",
     advertisementErrors,
+    scenarioErrors,
     expectedPaths,
     missingPaths,
     missingIncubationFields,
@@ -481,12 +487,83 @@ async function evaluateProvider(provider, fixtureResults) {
     missingSchemas,
     missingSurfaces,
     missingCommands,
+    scenarioId: scenario?.scenarioId || "",
+    scenarioReceiptStates: scenario ? [...new Set((scenario.expectedReceipts || []).map(receipt => receipt.state).filter(Boolean))].sort() : [],
     status,
   };
 }
 
 async function readJsonDocument(documentPath) {
   return JSON.parse(await readFile(path.join(repoRoot, documentPath), "utf8"));
+}
+
+async function validateProviderScenario(provider, advertisement, fixtureResults, advertisedSchemaIds, surfaceIds, commandIds) {
+  if (!provider.scenarioPath) return [];
+
+  const errors = await validateJsonDocument(
+    manifest.schemas?.["gamecult.eve.provider_scenario.v1"],
+    provider.scenarioPath,
+    {
+      schema: "gamecult.eve.provider_scenario.v1",
+      providerId: provider.providerId,
+    },
+  );
+  if (errors.length) return errors;
+
+  try {
+    const scenario = await readJsonDocument(provider.scenarioPath);
+    if (scenario.ownerRepo !== provider.ownerRepo) {
+      errors.push(`${provider.scenarioPath}:ownerRepo:expected ${provider.ownerRepo} got ${scenario.ownerRepo}`);
+    }
+    if (scenario.advertisementPath !== provider.advertisementPath) {
+      errors.push(`${provider.scenarioPath}:advertisementPath:expected ${provider.advertisementPath} got ${scenario.advertisementPath}`);
+    }
+
+    const advertisedScenario = (advertisement?.conformanceScenarios || []).find(candidate =>
+      candidate.scenarioId === scenario.scenarioId && candidate.path === provider.scenarioPath);
+    if (!advertisedScenario) {
+      errors.push(`${provider.advertisementPath}:conformanceScenarios:${scenario.scenarioId}:missing`);
+    }
+
+    for (const fixtureId of scenario.requires?.fixtures || []) {
+      if (!fixtureResults.some(fixture => fixture.id === fixtureId && fixture.status === "pass")) {
+        errors.push(`${provider.scenarioPath}:requires.fixtures:${fixtureId}:missing`);
+      }
+    }
+    errors.push(...missingMembers(scenario.requires?.surfaces || [], surfaceIds, `${provider.scenarioPath}:requires.surfaces`));
+    errors.push(...missingMembers(scenario.requires?.commands || [], commandIds, `${provider.scenarioPath}:requires.commands`));
+    errors.push(...missingMembers(scenario.requires?.schemas || [], advertisedSchemaIds, `${provider.scenarioPath}:requires.schemas`));
+
+    const receipts = scenario.expectedReceipts || [];
+    const receiptKeys = new Set(receipts.map(receipt => `${receipt.command}:${receipt.commandId}`));
+    for (const intent of scenario.commandIntents || []) {
+      if (!commandIds.includes(intent.command)) {
+        errors.push(`${provider.scenarioPath}:commandIntents:${intent.command}:unadvertised`);
+      }
+      if (!receiptKeys.has(`${intent.command}:${intent.commandId}`)) {
+        errors.push(`${provider.scenarioPath}:expectedReceipts:${intent.command}:${intent.commandId}:missing`);
+      }
+    }
+
+    for (const receipt of receipts) {
+      if (!commandIds.includes(receipt.command)) {
+        errors.push(`${provider.scenarioPath}:expectedReceipts:${receipt.command}:unadvertised`);
+      }
+      if (receipt.ownerRepo !== provider.ownerRepo) {
+        errors.push(`${provider.scenarioPath}:expectedReceipts:${receipt.receiptId}:ownerRepo:expected ${provider.ownerRepo} got ${receipt.ownerRepo}`);
+      }
+      if (!["accepted", "denied", "pending", "reconciled"].includes(receipt.state)) {
+        errors.push(`${provider.scenarioPath}:expectedReceipts:${receipt.receiptId}:state:${receipt.state}:unknown`);
+      }
+      if (receipt.schema && !advertisedSchemaIds.includes(receipt.schema)) {
+        errors.push(`${provider.scenarioPath}:expectedReceipts:${receipt.receiptId}:schema:${receipt.schema}:unadvertised`);
+      }
+    }
+  } catch (error) {
+    errors.push(`${provider.scenarioPath}:invalid-json:${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  return errors;
 }
 
 async function validatePluginAbiFixture(plugin) {
@@ -951,18 +1028,19 @@ function renderMarkdown(report) {
     lines.push(`| ${plugin.title || plugin.pluginId} | ${plugin.status} | ${plugin.ownerRepo} | ${plugin.abiFixturePath || ""} | ${plugin.capabilities.join(", ")} | ${missing} |`);
   }
 
-  lines.push("", "## Providers", "", "| Provider | Status | Owner | Surfaces | Commands | Witnesses | Missing |", "| --- | --- | --- | --- | --- | --- | --- |");
+  lines.push("", "## Providers", "", "| Provider | Status | Owner | Scenario | Receipt States | Surfaces | Commands | Witnesses | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- |");
   for (const provider of report.providers || []) {
     const missing = [
       ...provider.missingPaths,
       ...provider.missingRequiredFixtures.map(id => `fixture:${id}`),
       ...provider.missingIncubationFields.map(id => `metadata:${id}`),
       ...provider.advertisementErrors.map(id => `advertisement:${id}`),
+      ...provider.scenarioErrors.map(id => `scenario:${id}`),
       ...provider.missingSchemas.map(id => `schema:${id}`),
       ...provider.missingSurfaces.map(id => `surface:${id}`),
       ...provider.missingCommands.map(id => `command:${id}`),
     ].join(", ");
-    lines.push(`| ${provider.title || provider.providerId} | ${provider.status} | ${provider.ownerRepo} | ${provider.surfaceIds.join(", ")} | ${provider.commandIds.join(", ")} | ${provider.witnessKinds.join(", ")} | ${missing} |`);
+    lines.push(`| ${provider.title || provider.providerId} | ${provider.status} | ${provider.ownerRepo} | ${provider.scenarioId || ""} | ${provider.scenarioReceiptStates.join(", ")} | ${provider.surfaceIds.join(", ")} | ${provider.commandIds.join(", ")} | ${provider.witnessKinds.join(", ")} | ${missing} |`);
   }
 
   lines.push("", "## Runtimes", "", "| Runtime | Status | Owner | Capture | Required Fixtures | Plugin Fixtures | Features | Plugin Gaps | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- |");

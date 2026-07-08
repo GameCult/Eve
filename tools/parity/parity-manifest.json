@@ -11,6 +11,7 @@
     "gamecult.eve.plugin.v1": "schemas/gamecult.eve.plugin.v1.schema.json",
     "gamecult.eve.plugin_abi_fixture.v1": "schemas/gamecult.eve.plugin_abi_fixture.v1.schema.json",
     "gamecult.eve.plugin_advertisement.v1": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
+    "gamecult.eve.provider_scenario.v1": "schemas/gamecult.eve.provider_scenario.v1.schema.json",
     "gamecult.eve.provider_advertisement.v1": "schemas/gamecult.eve.provider_advertisement.v1.schema.json"
   },
   "conformancePacks": [
@@ -302,10 +303,12 @@
       "graduationTrigger": "Aetheria owns RTS/ARPG world surfaces, generated level state, assets, command receipts, and scenario conformance; Eve keeps contract fixtures only.",
       "schemaPath": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
       "advertisementPath": "web/fixtures/aetheria.provider-advertisement.json",
+      "scenarioPath": "web/fixtures/aetheria-world-scenario.json",
       "requiredFixtures": ["aetheria-world"],
       "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "aetheria.runtime.daemon.frame.v1"],
       "expectedSurfaces": ["aetheria.daemon.game", "aetheria.daemon.editor"],
-      "expectedCommands": ["aetheria.daemon.commands"]
+      "expectedCommands": ["aetheria.daemon.commands"],
+      "expectedPaths": ["web/fixtures/aetheria-world-scenario.json"]
     }
   ],
   "pluginManifests": [
