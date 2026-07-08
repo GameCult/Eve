@@ -362,7 +362,7 @@ namespace GameCult.Eve.UnityUIToolkit
             if (TryGet(style, "color", out var color) && TryParseColor(color, out var textColor))
                 element.style.color = textColor;
             if (TryGet(style, "borderWidth", out var borderWidth))
-                ApplyBoxLength(borderWidth, value =>
+                ApplyBoxFloat(borderWidth, value =>
                 {
                     element.style.borderTopWidth = value;
                     element.style.borderRightWidth = value;
@@ -416,9 +416,24 @@ namespace GameCult.Eve.UnityUIToolkit
             return StyleKeyword.Null;
         }
 
+        private static StyleFloat ParseFloat(string value)
+        {
+            value = FirstToken(value);
+            if (value.EndsWith("px", StringComparison.OrdinalIgnoreCase))
+                value = value.Substring(0, value.Length - 2);
+            return float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var pixels)
+                ? pixels
+                : StyleKeyword.Null;
+        }
+
         private static void ApplyBoxLength(string value, Action<StyleLength> apply)
         {
             apply(ParseLength(value));
+        }
+
+        private static void ApplyBoxFloat(string value, Action<StyleFloat> apply)
+        {
+            apply(ParseFloat(value));
         }
 
         private static bool TryParseColor(string value, out Color color)
