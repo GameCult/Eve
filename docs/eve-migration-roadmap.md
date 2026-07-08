@@ -25,8 +25,8 @@ The target shape:
 - Owner repos: Sai owns VN/Ink, Norn owns graph semantics, providers such as
   Aetheria own live state and authored product surfaces.
 - Runtime repos: EveUnity, EveFlutter, EveAndroid, EveIOS, EveGodot, EveElectron,
-  Fensalir/Direct2D, and future bodies own projection, build glue, plugin host
-  adapters, capture, and runtime tests.
+  Fensalir/Direct2D, and future bodies own projection, build glue, plugin
+  projection adapters, capture, and runtime tests.
 - EveConformance: fixture corpus, parity runner, capability matrix,
   screenshot/report artifacts, plugin packs, and CI once the harness is stable
   enough to leave Eve core.
@@ -208,10 +208,11 @@ Purpose: let runtime repos own native projection without losing conformance.
 
 Work:
 
-- EveFlutter: provider picker, command transport, plugin host, Android/iOS/desktop
-  build flow, native capture, and parity reports.
-- EveUnity: UPM package release, plugin host behavior, resolver-backed embedded
-  documents, Unity test/capture lifecycle, and Aetheria consumption.
+- EveFlutter: provider picker, command transport, plugin projection adapters,
+  Android/iOS/desktop build flow, native capture, and parity reports.
+- EveUnity: UPM package release, plugin projection adapter behavior,
+  resolver-backed embedded documents, Unity test/capture lifecycle, and Aetheria
+  consumption.
 - EveAndroid: Kotlin device edge, generic surface traversal, sensor publishing,
   Android-specific CI, and explicit discovery input.
 - EveIOS: UIKit renderer, sensor edge release flow, fixed-device and simulator
@@ -284,28 +285,29 @@ Recently cut:
   parity harness validates release, test, and capture lifecycle claims against
   `tools/parity/parity-manifest.json`, checks declared evidence paths, and
   exports lifecycle status through the conformance index. Current proof covers
-  incubating UPM package identity and the Aetheria consumer-build smoke; tagged
-  EveUnity release, Unity EditMode/PlayMode tests, and editor or batchmode
-  capture remain explicit split blockers.
+  incubating UPM package identity, authored package EditMode tests, and the
+  Aetheria consumer-build smoke; tagged EveUnity release, runtime-owned
+  batchmode test execution, and editor or batchmode capture remain explicit
+  split blockers.
 - Aetheria now has repeatable Unity package consumer-build evidence for the
   Eve UI Toolkit runtime. `scripts/run-aetheria-unity-package-smoke.ps1`
   verifies Aetheria's Unity `Packages/manifest.json` consumes Eve's surface and
   UI Toolkit packages by file reference, checks the generated
   `GameCult.Eve.UnityUIToolkit.csproj` includes all current runtime files, and
   builds the package through Aetheria's Unity-generated project.
-- Unity UI Toolkit now has a first-party `norn.graph` plugin-host proof for
-  `embed.norn`. `NornGraphUiToolkitPluginHost` owns the native embedded graph
-  shell and graph command emission path, while Norn keeps graph layout and graph
-  semantics. EveUnity split-readiness is now blocked on runtime-owned release,
-  test, and capture lifecycle evidence rather than missing Sai/Norn plugin
-  support.
-- Unity UI Toolkit now has a first-party `sai.vn` plugin-host proof. The
-  runtime owns `IEveUiToolkitPluginHost`, registers
-  `SaiVisualNovelUiToolkitPluginHost` through `EveUiToolkitSurfaceOptions`, and
-  declares support for `vn.stage`, `story.choose`, `story.continue`, and
-  `story.jump` in its runtime capability manifest. Sai still owns story state
-  and command semantics; Unity only lowers the visual stage/dialogue/action
-  surface and emits Eve command requests.
+- Unity UI Toolkit now has a first-party `norn.graph` projection-adapter proof
+  for `embed.norn`. `NornGraphUiToolkitProjectionAdapter` owns the native
+  embedded graph shell and graph command emission path, while the Norn sidecar
+  plugin keeps graph layout and graph semantics. EveUnity split-readiness is now
+  blocked on runtime-owned release, test, and capture lifecycle evidence rather
+  than missing Sai/Norn projection support.
+- Unity UI Toolkit now has a first-party `sai.vn` projection-adapter proof. The
+  runtime owns `IEveUiToolkitPluginProjectionAdapter`, registers
+  `SaiVisualNovelUiToolkitProjectionAdapter` through
+  `EveUiToolkitSurfaceOptions`, and declares support for `vn.stage`,
+  `story.choose`, `story.continue`, and `story.jump` in its runtime capability
+  manifest. Sai still owns story state and command semantics; Unity only lowers
+  the visual stage/dialogue/action surface and emits Eve command requests.
 - Unity UI Toolkit now publishes a runtime-owned capability manifest at
   `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`. The
   parity harness validates that manifest against
@@ -324,9 +326,10 @@ Recently cut:
 - The parity harness now emits an `EveConformance`-shaped export under
   `artifacts/conformance/latest`, with a top-level index and per-pack JSON
   files for core, plugin, provider, and runtime consumers.
-- Unity's plugin-host capability gap is now explicitly demoted. The UI Toolkit
-  runtime owns generic projection and command requests, while Sai, Norn, and
-  TeX semantics remain unsupported until a real Unity plugin host exists.
+- Unity's plugin projection capability gap is now explicitly demoted. The UI
+  Toolkit runtime owns generic projection and command requests, while Sai, Norn,
+  and TeX semantics remain sidecar-plugin responsibilities. Unity only adds
+  projection adapters for capabilities a plugin advertises through Eve.
 - Flutter and Unity now have runtime command-transport smoke evidence in the
   parity report. Flutter emits `gamecult.eve.command.v1` intents from lowered
   controls, and Unity command requests now carry the same command schema.

@@ -7,14 +7,15 @@ It owns native projection only. Providers still own truth, accepted state,
 style token values, and command effects through CultMesh/CultNet. Unknown
 component kinds degrade to inert containers instead of gaining local semantics.
 
-Plugin semantics enter through runtime plugin hosts. The package includes a
-first-party `sai.vn` host proof for `vn.stage`, dialogue panels, action rails,
-and story command projection. Sai still owns story state and command semantics;
-Unity only owns native projection and emits `gamecult.eve.command.v1` requests.
-The package also includes a `norn.graph` host proof for `embed.norn`; Norn still
-owns graph layout and graph semantics, while Unity owns the embedded graph shell
-and command emission. `tex.math` still passes through as generic Eve component
-structure until it gains an explicit Unity plugin host.
+Plugin semantics enter through plugin ABI sidecars and advertisements, not
+through Unity. This package includes first-party projection adapters for the
+`sai.vn` projection surface (`vn.stage`, dialogue panels, action rails, and
+story command requests) and the `norn.graph` projection surface (`embed.norn`).
+Sai still owns story state and command semantics. Norn still owns graph layout
+and graph semantics. Unity only owns native projection of already-declared
+plugin capabilities and emits `gamecult.eve.command.v1` requests. `tex.math`
+still passes through as generic Eve component structure until it gains an
+explicit Unity projection adapter.
 
 This package lives in the Eve repository as the shared Unity lowering target.
 Aetheria and other Unity consumers should import it from Eve instead of
@@ -37,7 +38,8 @@ The runtime capability manifest is
 evidence:
 
 - release: incubating UPM package identity and import surface;
-- test: Aetheria consumer-build smoke through Unity's generated project;
+- test: package-owned EditMode tests plus Aetheria consumer-build smoke through
+  Unity's generated project;
 - capture: pending Unity editor or batchmode artifact.
 
 Those lifecycle claims are validated by the parity harness. A missing evidence

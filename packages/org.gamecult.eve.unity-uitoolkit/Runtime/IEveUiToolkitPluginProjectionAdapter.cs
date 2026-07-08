@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace GameCult.Eve.UnityUIToolkit
 {
-    public interface IEveUiToolkitPluginHost
+    public interface IEveUiToolkitPluginProjectionAdapter
     {
         string PluginId { get; }
 

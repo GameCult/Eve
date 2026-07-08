@@ -22,7 +22,7 @@ Anything else is guilty until it can explain why it protects a core invariant.
 ## Graduation Rules
 
 - A runtime splits when it has its own build/deploy lifecycle, platform SDK pain,
-  plugin host behavior, capture pipeline, or release cadence.
+  plugin projection behavior, capture pipeline, or release cadence.
 - A plugin splits when it owns domain semantics, fixtures, and conformance cases.
 - A product demo splits when it carries product-specific state, assets, flows,
   receipts, or deployment authority.
@@ -37,7 +37,7 @@ Anything else is guilty until it can explain why it protects a core invariant.
 - `Sai`: owner for the VN/Ink plugin once `sai.vn` graduates.
 - `Norn`: owner for graph plugin semantics once `norn.graph` graduates.
 - `EveUnity`, `EveGodot`, `EveFlutter`, `EveElectron`, and similar runtime
-  repos: native projection, platform build glue, plugin host, captures, and
+  repos: native projection, platform build glue, plugin projection adapters, captures, and
   runtime tests.
 - `EveConformance`: fixture corpus, parity runner, capability matrix,
   screenshot/report artifacts, plugin packs, and CI orchestration once the

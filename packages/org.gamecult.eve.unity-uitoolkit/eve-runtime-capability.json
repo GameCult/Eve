@@ -7,7 +7,7 @@
     "ownerRepo": "EveUnity",
     "currentHostRepo": "Eve",
     "splitTarget": "EveUnity",
-    "graduationTrigger": "Split when Unity package has independent UPM release, plugin host behavior, and Unity test/capture lifecycle."
+    "graduationTrigger": "Split when Unity package has independent UPM release, plugin projection adapter behavior, and Unity test/capture lifecycle."
   },
   "supportedFeatures": [
     "embeddedDocuments"
@@ -21,20 +21,20 @@
         "story.continue",
         "story.jump"
       ],
-      "host": "SaiVisualNovelUiToolkitPluginHost"
+      "projectionAdapter": "SaiVisualNovelUiToolkitProjectionAdapter"
     },
     {
       "pluginId": "norn.graph",
       "capabilities": [
         "embed.norn"
       ],
-      "host": "NornGraphUiToolkitPluginHost"
+      "projectionAdapter": "NornGraphUiToolkitProjectionAdapter"
     }
   ],
   "unsupportedPlugins": [
     {
       "pluginId": "tex.math",
-      "reason": "Unity UI Toolkit currently preserves embed.tex as generic Eve structure; no TeX render plugin host exists in this runtime."
+      "reason": "Unity UI Toolkit currently preserves embed.tex as generic Eve structure; no TeX projection adapter exists in this runtime."
     }
   ],
   "commandTransport": {
@@ -59,13 +59,15 @@
     },
     "test": {
       "ownerRepo": "EveUnity",
-      "status": "consumer-build-smoke",
+      "status": "authored-editmode-tests-and-consumer-build-smoke",
       "command": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-aetheria-unity-package-smoke.ps1",
       "evidencePaths": [
+        "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/GameCult.Eve.UnityUIToolkit.Tests.asmdef",
+        "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/EveUiToolkitSurfaceLowererTests.cs",
         "scripts/run-aetheria-unity-package-smoke.ps1"
       ],
       "pendingProofs": [
-        "Unity EditMode or PlayMode test assembly runs from the runtime repo."
+        "Unity EditMode or PlayMode test assembly runs from the runtime repo in batchmode."
       ]
     },
     "capture": {

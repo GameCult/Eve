@@ -36,9 +36,9 @@ $project = Get-Content -Raw -LiteralPath $unityToolkitProject
 $requiredCompileItems = @(
   "Runtime\EveUiToolkitSurfaceOptions.cs",
   "Runtime\EveUiToolkitSurfaceLowerer.cs",
-  "Runtime\IEveUiToolkitPluginHost.cs",
-  "Runtime\SaiVisualNovelUiToolkitPluginHost.cs",
-  "Runtime\NornGraphUiToolkitPluginHost.cs"
+  "Runtime\IEveUiToolkitPluginProjectionAdapter.cs",
+  "Runtime\SaiVisualNovelUiToolkitProjectionAdapter.cs",
+  "Runtime\NornGraphUiToolkitProjectionAdapter.cs"
 )
 foreach ($compileItem in $requiredCompileItems) {
   $expected = Join-Path $eveRoot "packages\org.gamecult.eve.unity-uitoolkit\$compileItem"

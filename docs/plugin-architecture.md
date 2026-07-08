@@ -45,8 +45,9 @@ Renderer clients own:
 - input capture and command emission;
 - local sensor/media capture when relevant;
 - runtime-specific capability gaps;
-- runtime capability manifests that declare supported features, plugin-host
-  support, unsupported plugin semantics, command transport, and split metadata;
+- runtime capability manifests that declare supported features, plugin projection
+  adapter support, unsupported plugin projections, command transport, and split
+  metadata;
 - screenshots, frame capture, and performance telemetry.
 
 Providers own:
@@ -129,7 +130,7 @@ Allowed implementation forms:
 - process sidecar;
 - WASM module hosted by an Eve runtime;
 - native dynamic library behind the same ABI when performance demands it;
-- in-process package only when wrapped by the same plugin host interface.
+- in-process package only when wrapped by the same executable plugin ABI.
 
 Forbidden integration:
 
@@ -196,7 +197,7 @@ Example ABI response:
 ```
 
 If a provider and plugin are written in the same language, the provider may run
-the plugin host in-process for performance. It still talks to the same ABI
+the plugin runtime in-process for performance. It still talks to the same ABI
 object model. No special trusted back door.
 
 ### Example Plugin Manifest

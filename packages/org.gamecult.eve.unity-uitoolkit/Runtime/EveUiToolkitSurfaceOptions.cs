@@ -13,23 +13,23 @@ namespace GameCult.Eve.UnityUIToolkit
 
         public EveUiToolkitSurfaceOptions(
             Func<EveEmbeddedDocumentSlot, EveSurfaceDocument?>? embeddedDocumentResolver = null,
-            IReadOnlyList<IEveUiToolkitPluginHost>? pluginHosts = null)
+            IReadOnlyList<IEveUiToolkitPluginProjectionAdapter>? pluginProjectionAdapters = null)
         {
             EmbeddedDocumentResolver = embeddedDocumentResolver;
-            PluginHosts = pluginHosts ?? new IEveUiToolkitPluginHost[]
+            PluginProjectionAdapters = pluginProjectionAdapters ?? new IEveUiToolkitPluginProjectionAdapter[]
             {
-                new SaiVisualNovelUiToolkitPluginHost(),
-                new NornGraphUiToolkitPluginHost()
+                new SaiVisualNovelUiToolkitProjectionAdapter(),
+                new NornGraphUiToolkitProjectionAdapter()
             };
         }
 
         public Func<EveEmbeddedDocumentSlot, EveSurfaceDocument?>? EmbeddedDocumentResolver { get; }
 
-        public IReadOnlyList<IEveUiToolkitPluginHost> PluginHosts { get; }
+        public IReadOnlyList<IEveUiToolkitPluginProjectionAdapter> PluginProjectionAdapters { get; }
 
-        public IEveUiToolkitPluginHost? FindPluginHost(EveSurfaceComponent component)
+        public IEveUiToolkitPluginProjectionAdapter? FindPluginProjectionAdapter(EveSurfaceComponent component)
         {
-            return PluginHosts.FirstOrDefault(host => host.CanLower(component));
+            return PluginProjectionAdapters.FirstOrDefault(adapter => adapter.CanLower(component));
         }
     }
 }

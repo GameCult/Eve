@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 namespace GameCult.Eve.UnityUIToolkit
 {
-    public sealed class NornGraphUiToolkitPluginHost : IEveUiToolkitPluginHost
+    public sealed class NornGraphUiToolkitProjectionAdapter : IEveUiToolkitPluginProjectionAdapter
     {
         public string PluginId => "norn.graph";
 
@@ -29,7 +29,7 @@ namespace GameCult.Eve.UnityUIToolkit
             Action<EveSurfaceCommandRequest>? commandSink)
         {
             var graph = new VisualElement();
-            graph.AddToClassList("eve-plugin-host");
+            graph.AddToClassList("eve-plugin-projection");
             graph.AddToClassList("eve-plugin-norn-graph");
             graph.AddToClassList("norn-graph");
             graph.style.flexDirection = FlexDirection.Column;

@@ -27,7 +27,7 @@ coordinate split-readiness, but the runtime body must publish the capability
 claim it expects other repos to consume.
 
 Unity UI Toolkit currently uses this path for its `sai.vn` and `norn.graph`
-plugin-host proofs while leaving `tex.math` as explicit unsupported plugin
+plugin projection adapter proofs while leaving `tex.math` as explicit unsupported plugin
 semantics.
 
 ## Run
@@ -78,7 +78,8 @@ The semantic runner writes:
 
 The conformance export includes runtime `capabilityManifestPath` and
 `capabilityManifestErrors` fields so external consumers can distinguish a
-generic projection runtime from a runtime that actually hosts plugin semantics.
+generic projection runtime from a runtime that can project plugin-declared
+capabilities.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into
@@ -121,7 +122,8 @@ The parity harness validates those lifecycle claims against
 exist. The current lifecycle proof is deliberately split:
 
 - release: incubating UPM package identity and import surface exist in Eve;
-- test: Aetheria can build the package through Unity's generated project;
+- test: package-owned EditMode tests are authored and Aetheria can build the
+  package through Unity's generated project;
 - capture: Unity editor or batchmode capture remains a split blocker.
 
 The smoke runner writes:

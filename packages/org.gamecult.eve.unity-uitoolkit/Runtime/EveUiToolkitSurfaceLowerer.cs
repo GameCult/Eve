@@ -76,9 +76,9 @@ namespace GameCult.Eve.UnityUIToolkit
             EveSurfaceDocument document,
             Action<EveSurfaceCommandRequest>? commandSink)
         {
-            var pluginHost = _options.FindPluginHost(component);
-            if (pluginHost != null)
-                return pluginHost.Lower(component, document, commandSink);
+            var projectionAdapter = _options.FindPluginProjectionAdapter(component);
+            if (projectionAdapter != null)
+                return projectionAdapter.Lower(component, document, commandSink);
 
             switch (NormalizeKind(component.Kind))
             {

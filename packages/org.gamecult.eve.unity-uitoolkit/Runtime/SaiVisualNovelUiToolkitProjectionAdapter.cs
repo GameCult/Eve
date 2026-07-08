@@ -9,7 +9,7 @@ using UnityEngine.UIElements;
 
 namespace GameCult.Eve.UnityUIToolkit
 {
-    public sealed class SaiVisualNovelUiToolkitPluginHost : IEveUiToolkitPluginHost
+    public sealed class SaiVisualNovelUiToolkitProjectionAdapter : IEveUiToolkitPluginProjectionAdapter
     {
         public string PluginId => "sai.vn";
 
@@ -62,7 +62,7 @@ namespace GameCult.Eve.UnityUIToolkit
         private static VisualElement Stage(EveSurfaceComponent component)
         {
             var stage = new VisualElement();
-            stage.AddToClassList("eve-plugin-host");
+            stage.AddToClassList("eve-plugin-projection");
             stage.AddToClassList("eve-plugin-sai-vn");
             stage.AddToClassList("sai-vn-stage");
             stage.style.flexGrow = 1;
@@ -86,7 +86,7 @@ namespace GameCult.Eve.UnityUIToolkit
         private static VisualElement DialoguePanel(EveSurfaceComponent component)
         {
             var panel = new VisualElement();
-            panel.AddToClassList("eve-plugin-host");
+            panel.AddToClassList("eve-plugin-projection");
             panel.AddToClassList("eve-plugin-sai-vn");
             panel.AddToClassList("sai-vn-dialogue");
             panel.style.flexDirection = FlexDirection.Column;
@@ -114,7 +114,7 @@ namespace GameCult.Eve.UnityUIToolkit
         private static VisualElement DialogueText(EveSurfaceComponent component)
         {
             var text = new Label(component.GetProp("text"));
-            text.AddToClassList("eve-plugin-host");
+            text.AddToClassList("eve-plugin-projection");
             text.AddToClassList("eve-plugin-sai-vn");
             text.AddToClassList("sai-vn-dialogue-text");
             return text;
@@ -123,7 +123,7 @@ namespace GameCult.Eve.UnityUIToolkit
         private static VisualElement ActionRail()
         {
             var rail = new VisualElement();
-            rail.AddToClassList("eve-plugin-host");
+            rail.AddToClassList("eve-plugin-projection");
             rail.AddToClassList("eve-plugin-sai-vn");
             rail.AddToClassList("sai-vn-actions");
             rail.style.flexDirection = FlexDirection.Row;
@@ -139,7 +139,7 @@ namespace GameCult.Eve.UnityUIToolkit
             var label = component.GetProp("label", component.GetProp("title", "Continue"));
             var command = StoryCommand(component);
             var button = new Button(() => EmitStoryCommand(document, component, command, commandSink)) { text = label };
-            button.AddToClassList("eve-plugin-host");
+            button.AddToClassList("eve-plugin-projection");
             button.AddToClassList("eve-plugin-sai-vn");
             button.AddToClassList("sai-vn-story-command");
             button.AddToClassList($"sai-vn-command-{SafeClass(command)}");
