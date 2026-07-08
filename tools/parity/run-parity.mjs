@@ -348,6 +348,7 @@ async function evaluatePlugin(plugin, fixtureResults) {
     schema: "gamecult.eve.plugin_advertisement.v1",
     pluginId: plugin.pluginId,
   });
+  const abiErrors = await validatePluginAbiFixture(plugin);
   const status = missingPaths.length
     ? "missing-body"
     : missingRequiredFixtures.length
@@ -358,9 +359,11 @@ async function evaluatePlugin(plugin, fixtureResults) {
           ? "invalid-plugin-manifest"
           : advertisementErrors.length
             ? "invalid-plugin-advertisement"
-            : plugin.kind === "incubating"
-              ? "incubating"
-              : "external-owner-planned";
+            : abiErrors.length
+              ? "invalid-plugin-abi-fixture"
+              : plugin.kind === "incubating"
+                ? "incubating"
+                : "external-owner-planned";
 
   return {
     pluginId: plugin.pluginId,
@@ -376,10 +379,12 @@ async function evaluatePlugin(plugin, fixtureResults) {
     missingRequiredFixtures,
     schemaPath: plugin.schemaPath || "",
     manifestPath: plugin.manifestPath || "",
+    abiFixturePath: plugin.abiFixturePath || "",
     advertisementSchemaPath: plugin.advertisementSchemaPath || "",
     advertisementPath: plugin.advertisementPath || "",
     schemaErrors,
     advertisementErrors,
+    abiErrors,
     expectedPaths,
     missingPaths,
     missingIncubationFields,
@@ -482,6 +487,85 @@ async function evaluateProvider(provider, fixtureResults) {
 
 async function readJsonDocument(documentPath) {
   return JSON.parse(await readFile(path.join(repoRoot, documentPath), "utf8"));
+}
+
+async function validatePluginAbiFixture(plugin) {
+  const errors = await validateJsonDocument(
+    manifest.schemas?.["gamecult.eve.plugin_abi_fixture.v1"],
+    plugin.abiFixturePath,
+    {
+      schema: "gamecult.eve.plugin_abi_fixture.v1",
+      pluginId: plugin.pluginId,
+    },
+  );
+  if (errors.length) return errors;
+
+  try {
+    const abiFixture = await readJsonDocument(plugin.abiFixturePath);
+    const pluginManifest = await readJsonDocument(plugin.manifestPath);
+    const operations = new Map((abiFixture.operations || []).map(operation => [operation.operation, operation]));
+
+    if (abiFixture.ownerRepo !== plugin.ownerRepo) {
+      errors.push(`${plugin.abiFixturePath}:ownerRepo:expected ${plugin.ownerRepo} got ${abiFixture.ownerRepo}`);
+    }
+    if (abiFixture.contract !== "gamecult.eve.plugin_abi.v1") {
+      errors.push(`${plugin.abiFixturePath}:contract:expected gamecult.eve.plugin_abi.v1 got ${abiFixture.contract}`);
+    }
+
+    for (const operation of ["describe", "validate", "project", "apply"]) {
+      if (!operations.has(operation)) errors.push(`${plugin.abiFixturePath}:operation:${operation}:missing`);
+    }
+
+    if (!(pluginManifest.abiFixtures || []).includes(plugin.abiFixturePath)) {
+      errors.push(`${plugin.manifestPath}:abiFixtures:${plugin.abiFixturePath}:missing`);
+    }
+
+    const manifestCommands = (pluginManifest.commands || []).map(command => command.command);
+    const manifestComponentKinds = pluginManifest.componentKinds || [];
+    const manifestCommandEffects = new Map((pluginManifest.commands || []).map(command => [command.command, command.effect]));
+
+    const describe = operations.get("describe")?.expect || {};
+    if (describe.pluginId !== plugin.pluginId) {
+      errors.push(`${plugin.abiFixturePath}:describe.pluginId:expected ${plugin.pluginId} got ${describe.pluginId}`);
+    }
+    errors.push(...missingMembers(manifestComponentKinds, describe.componentKinds || [], `${plugin.abiFixturePath}:describe.componentKinds`));
+    errors.push(...missingMembers(manifestCommands, describe.commands || [], `${plugin.abiFixturePath}:describe.commands`));
+    errors.push(...missingMembers(plugin.capabilities || [], describe.capabilities || [], `${plugin.abiFixturePath}:describe.capabilities`));
+
+    const validate = operations.get("validate")?.expect || {};
+    errors.push(...missingMembers(manifestComponentKinds, validate.acceptedComponentKinds || [], `${plugin.abiFixturePath}:validate.acceptedComponentKinds`));
+
+    const project = operations.get("project")?.expect || {};
+    errors.push(...missingMembers(manifestComponentKinds, project.ownedComponentKinds || [], `${plugin.abiFixturePath}:project.ownedComponentKinds`));
+    if (!project.projectionKind) errors.push(`${plugin.abiFixturePath}:project.projectionKind:missing`);
+
+    const apply = operations.get("apply")?.expect || {};
+    if (manifestCommands.length) {
+      const commandEffects = apply.commandEffects || {};
+      for (const command of manifestCommands) {
+        if (!commandEffects[command]) {
+          errors.push(`${plugin.abiFixturePath}:apply.commandEffects:${command}:missing`);
+          continue;
+        }
+
+        const expectedEffect = manifestCommandEffects.get(command);
+        if (commandEffects[command] !== expectedEffect) {
+          errors.push(`${plugin.abiFixturePath}:apply.commandEffects:${command}:expected ${expectedEffect} got ${commandEffects[command]}`);
+        }
+      }
+    } else if (!(apply.stateEffects || []).length) {
+      errors.push(`${plugin.abiFixturePath}:apply.stateEffects:missing`);
+    }
+  } catch (error) {
+    errors.push(`${plugin.abiFixturePath}:invalid-json:${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  return errors;
+}
+
+function missingMembers(expected, actual, label) {
+  const actualSet = new Set(actual);
+  return expected.filter(item => !actualSet.has(item)).map(item => `${label}:${item}:missing`);
 }
 
 async function validateJsonDocument(schemaPath, documentPath, expected = {}) {
@@ -854,7 +938,7 @@ function renderMarkdown(report) {
     lines.push(`| ${fixture.title} | ${fixture.metadataPath} | ${fixture.metadata?.purpose || ""} | ${fixture.metadataErrors.join(", ")} |`);
   }
 
-  lines.push("", "## Plugins", "", "| Plugin | Status | Owner | Capabilities | Missing |", "| --- | --- | --- | --- | --- |");
+  lines.push("", "## Plugins", "", "| Plugin | Status | Owner | ABI Fixture | Capabilities | Missing |", "| --- | --- | --- | --- | --- | --- |");
   for (const plugin of report.plugins || []) {
     const missing = [
       ...plugin.missingPaths,
@@ -862,8 +946,9 @@ function renderMarkdown(report) {
       ...plugin.missingIncubationFields.map(id => `metadata:${id}`),
       ...plugin.schemaErrors.map(id => `schema:${id}`),
       ...plugin.advertisementErrors.map(id => `advertisement:${id}`),
+      ...plugin.abiErrors.map(id => `abi:${id}`),
     ].join(", ");
-    lines.push(`| ${plugin.title || plugin.pluginId} | ${plugin.status} | ${plugin.ownerRepo} | ${plugin.capabilities.join(", ")} | ${missing} |`);
+    lines.push(`| ${plugin.title || plugin.pluginId} | ${plugin.status} | ${plugin.ownerRepo} | ${plugin.abiFixturePath || ""} | ${plugin.capabilities.join(", ")} | ${missing} |`);
   }
 
   lines.push("", "## Providers", "", "| Provider | Status | Owner | Surfaces | Commands | Witnesses | Missing |", "| --- | --- | --- | --- | --- | --- | --- |");

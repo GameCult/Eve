@@ -125,6 +125,13 @@
         "additionalProperties": true
       }
     },
+    "abiFixtures": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
     "capabilities": {
       "type": "object",
       "required": [

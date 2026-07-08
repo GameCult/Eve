@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.plugin_abi_fixture.v1",
+  "title": "Eve Plugin ABI Fixture",
+  "type": "object",
+  "required": [
+    "schema",
+    "fixtureId",
+    "pluginId",
+    "ownerRepo",
+    "contract",
+    "operations"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.plugin_abi_fixture.v1"
+    },
+    "fixtureId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "pluginId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerRepo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "contract": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceFixture": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "operation",
+          "input",
+          "expect"
+        ],
+        "properties": {
+          "operation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "input": {
+            "type": "object"
+          },
+          "expect": {
+            "type": "object"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

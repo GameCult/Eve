@@ -36,6 +36,9 @@
       "path": "web/fixtures/sai-vn-surface.json"
     }
   ],
+  "abiFixtures": [
+    "plugins/incubating/norn-graph.plugin-abi-fixture.json"
+  ],
   "capabilities": {
     "requires": [
       "embed.norn"

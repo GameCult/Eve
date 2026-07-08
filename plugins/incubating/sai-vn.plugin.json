@@ -43,6 +43,9 @@
       "path": "web/fixtures/sai-vn-surface.json"
     }
   ],
+  "abiFixtures": [
+    "plugins/incubating/sai-vn.plugin-abi-fixture.json"
+  ],
   "capabilities": {
     "requires": [
       "vn.stage",

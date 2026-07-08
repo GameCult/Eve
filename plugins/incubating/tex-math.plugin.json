@@ -25,6 +25,9 @@
       "path": "web/fixtures/sai-vn-surface.json"
     }
   ],
+  "abiFixtures": [
+    "plugins/incubating/tex-math.plugin-abi-fixture.json"
+  ],
   "capabilities": {
     "requires": [
       "embed.tex"

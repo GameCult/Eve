@@ -1,0 +1,60 @@
+{
+  "schema": "gamecult.eve.plugin_abi_fixture.v1",
+  "fixtureId": "norn-graph-plugin-abi",
+  "pluginId": "norn.graph",
+  "ownerRepo": "Norn",
+  "contract": "gamecult.eve.plugin_abi.v1",
+  "sourceFixture": "sai-vn",
+  "operations": [
+    {
+      "operation": "describe",
+      "input": {
+        "manifest": "plugins/incubating/norn-graph.plugin.json",
+        "advertisement": "plugins/incubating/norn-graph.plugin-advertisement.json"
+      },
+      "expect": {
+        "pluginId": "norn.graph",
+        "componentKinds": ["embed.norn"],
+        "commands": ["graph.node.activate", "graph.focus"],
+        "capabilities": ["embed.norn", "graph.node.activate"]
+      }
+    },
+    {
+      "operation": "validate",
+      "input": {
+        "surface": "web/fixtures/sai-vn-surface.json",
+        "componentKinds": ["embed.norn"]
+      },
+      "expect": {
+        "acceptedComponentKinds": ["embed.norn"],
+        "rejectedComponentKinds": ["embed.tex", "vn.stage"],
+        "requiredCapabilities": ["embed.norn"]
+      }
+    },
+    {
+      "operation": "project",
+      "input": {
+        "surface": "web/fixtures/sai-vn-surface.json",
+        "nodeKind": "embed.norn"
+      },
+      "expect": {
+        "projectionKind": "embedded-semantic-surface",
+        "ownedComponentKinds": ["embed.norn"],
+        "outputSchemas": ["norn.graph.document.v1", "norn.graph.layout_request.v1", "norn.graph.layout_result.v1"]
+      }
+    },
+    {
+      "operation": "apply",
+      "input": {
+        "commands": ["graph.node.activate", "graph.focus"]
+      },
+      "expect": {
+        "commandEffects": {
+          "graph.node.activate": "activate-node",
+          "graph.focus": "focus-graph"
+        },
+        "receiptSchema": "gamecult.eve.command_receipt.v1"
+      }
+    }
+  ]
+}

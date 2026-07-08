@@ -9,6 +9,7 @@
     "gamecult.eve.conformance_fixture.v1": "schemas/gamecult.eve.conformance_fixture.v1.schema.json",
     "gamecult.eve.command.v1": "schemas/gamecult.eve.command.v1.schema.json",
     "gamecult.eve.plugin.v1": "schemas/gamecult.eve.plugin.v1.schema.json",
+    "gamecult.eve.plugin_abi_fixture.v1": "schemas/gamecult.eve.plugin_abi_fixture.v1.schema.json",
     "gamecult.eve.plugin_advertisement.v1": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
     "gamecult.eve.provider_advertisement.v1": "schemas/gamecult.eve.provider_advertisement.v1.schema.json"
   },
@@ -321,10 +322,12 @@
       "requiredFixtures": ["sai-vn"],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
       "manifestPath": "plugins/incubating/sai-vn.plugin.json",
+      "abiFixturePath": "plugins/incubating/sai-vn.plugin-abi-fixture.json",
       "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
       "advertisementPath": "plugins/incubating/sai-vn.plugin-advertisement.json",
       "expectedPaths": [
         "plugins/incubating/sai-vn.plugin.json",
+        "plugins/incubating/sai-vn.plugin-abi-fixture.json",
         "plugins/incubating/sai-vn.plugin-advertisement.json"
       ]
     },
@@ -340,10 +343,12 @@
       "requiredFixtures": ["sai-vn"],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
       "manifestPath": "plugins/incubating/norn-graph.plugin.json",
+      "abiFixturePath": "plugins/incubating/norn-graph.plugin-abi-fixture.json",
       "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
       "advertisementPath": "plugins/incubating/norn-graph.plugin-advertisement.json",
       "expectedPaths": [
         "plugins/incubating/norn-graph.plugin.json",
+        "plugins/incubating/norn-graph.plugin-abi-fixture.json",
         "plugins/incubating/norn-graph.plugin-advertisement.json"
       ]
     },
@@ -359,10 +364,12 @@
       "requiredFixtures": ["sai-vn"],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
       "manifestPath": "plugins/incubating/tex-math.plugin.json",
+      "abiFixturePath": "plugins/incubating/tex-math.plugin-abi-fixture.json",
       "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
       "advertisementPath": "plugins/incubating/tex-math.plugin-advertisement.json",
       "expectedPaths": [
         "plugins/incubating/tex-math.plugin.json",
+        "plugins/incubating/tex-math.plugin-abi-fixture.json",
         "plugins/incubating/tex-math.plugin-advertisement.json"
       ]
     }

@@ -1,0 +1,57 @@
+{
+  "schema": "gamecult.eve.plugin_abi_fixture.v1",
+  "fixtureId": "tex-math-plugin-abi",
+  "pluginId": "tex.math",
+  "ownerRepo": "EvePlugins",
+  "contract": "gamecult.eve.plugin_abi.v1",
+  "sourceFixture": "sai-vn",
+  "operations": [
+    {
+      "operation": "describe",
+      "input": {
+        "manifest": "plugins/incubating/tex-math.plugin.json",
+        "advertisement": "plugins/incubating/tex-math.plugin-advertisement.json"
+      },
+      "expect": {
+        "pluginId": "tex.math",
+        "componentKinds": ["embed.tex"],
+        "commands": [],
+        "capabilities": ["embed.tex", "tex.inline", "tex.block"]
+      }
+    },
+    {
+      "operation": "validate",
+      "input": {
+        "surface": "web/fixtures/sai-vn-surface.json",
+        "componentKinds": ["embed.tex"]
+      },
+      "expect": {
+        "acceptedComponentKinds": ["embed.tex"],
+        "rejectedComponentKinds": ["embed.norn", "vn.stage"],
+        "requiredCapabilities": ["embed.tex"]
+      }
+    },
+    {
+      "operation": "project",
+      "input": {
+        "surface": "web/fixtures/sai-vn-surface.json",
+        "nodeKind": "embed.tex"
+      },
+      "expect": {
+        "projectionKind": "render-request",
+        "ownedComponentKinds": ["embed.tex"],
+        "outputSchemas": ["tex.math.render_request.v1", "tex.math.render_result.v1"]
+      }
+    },
+    {
+      "operation": "apply",
+      "input": {
+        "stateSchemas": ["tex.math.source.v1", "tex.math.render_request.v1", "tex.math.render_result.v1"]
+      },
+      "expect": {
+        "stateEffects": ["cache-render-result", "emit-fallback-on-render-failure"],
+        "receiptSchema": "gamecult.eve.plugin_receipt.v1"
+      }
+    }
+  ]
+}

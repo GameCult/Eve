@@ -274,15 +274,17 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add plugin ABI fixtures for Sai, Norn, and TeX describe/validate/project/apply
-   behavior without moving their semantics into Eve core.
-2. Add Aetheria scenario conformance replay that consumes provider
+1. Add Aetheria scenario conformance replay that consumes provider
    advertisements and reports command receipts without provider internals.
-3. Add runtime command-transport smokes for Flutter and Unity so split targets
+2. Add runtime command-transport smokes for Flutter and Unity so split targets
    can prove command emission through `gamecult.eve.command.v1`.
 
 Recently cut:
 
+- Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
+  project, and apply behavior. The parity harness validates those fixtures
+  against plugin manifests, so Eve proves the ABI shape without owning plugin
+  semantics.
 - Split-readiness reporting now exists for `EveFlutter` and `EveUnity`. The
   parity report lists member runtime health, required plugin capability claims,
   pending proofs, and blockers before either repo can graduate out of Eve
