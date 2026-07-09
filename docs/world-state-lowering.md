@@ -164,6 +164,12 @@ radii, asset refs, controllability, and command affordances. The generic
 `EveUnitySceneProviderConnection` adds the live-source port shape:
 `IEveUnitySceneProviderSurfaceSource` supplies current and updated snapshots,
 while `IEveUnitySceneCommandSink` receives command envelopes.
+`IEveUnitySceneProviderSurfaceDocumentSource`,
+`EveUnitySceneProviderSurfaceDocument`, and
+`EveUnitySceneProviderSurfaceDocumentSource` now make that snapshot source a
+typed document-consumer boundary: a CultMesh/CultCache adapter can own surface
+delivery and publish provider-authored documents, while EveUnity only converts
+them into snapshots for the generic lowerer.
 `EveUnityPlayableWorldLiveClient` composes that connection with the playable
 world presenter: every provider snapshot is lowered into a presentation pass,
 Unity input still emits provider-owned command intents rather than mutating
@@ -193,10 +199,10 @@ does not import Aetheria runtime types, prefab classes, or apply movement
 locally.
 
 This is not yet the final playable client. The remaining cut is a live
-CultMesh/CultNet provider subscription adapter implementing those source/sink
-ports, concrete CultMesh/CultCache readers for provider snapshots and asset
-manifest documents, and proof that daemon receipts plus provider snapshots drive
-the next rendered Unity frame rather than renderer-local state.
+CultMesh/CultNet provider subscription adapter implementing those document and
+command ports, concrete CultMesh/CultCache readers for provider snapshots and
+asset manifest documents, and proof that daemon receipts plus provider
+snapshots drive the next rendered Unity frame rather than renderer-local state.
 
 ## Non-Goals
 

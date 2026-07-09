@@ -485,6 +485,12 @@ types. It also declares `providerSurfaceSource` through
 `EveUnitySceneProviderConnection`, `IEveUnitySceneProviderSurfaceSource`, and
 `IEveUnitySceneCommandSink`, so the live CultMesh/CultNet adapter has a narrow
 runtime-owned port to implement. The runtime now also declares
+`providerSurfaceDocumentSource`: `IEveUnitySceneProviderSurfaceDocumentSource`,
+`EveUnitySceneProviderSurfaceDocument`, and
+`EveUnitySceneProviderSurfaceDocumentSource` convert provider-authored surface
+documents into snapshots before lowering, so the future CultMesh/CultCache
+reader can own document delivery without importing Aetheria types. The runtime
+now also declares
 `livePlayableWorldClient`: `EveUnityPlayableWorldLiveClient` composes the
 provider connection with `EveUnityPlayableWorldPresenter`, applies every live
 snapshot to the scene sink, and delegates player intent back to the advertised
@@ -514,8 +520,8 @@ declares `providerAssetManifestDocumentSource`:
 `EveUnityPlayableWorldAssetManifestDocumentSource` convert provider-authored
 manifest documents into the runtime cache without importing Aetheria asset
 classes. The remaining blocker is the live CultMesh/CultNet adapter, concrete
-CultMesh/CultCache readers for provider snapshots and asset manifests, and Unity
-screenshot or frame-capture PNG production from EveUnity.
+CultMesh/CultCache readers for provider surface and asset manifest documents,
+and Unity screenshot or frame-capture PNG production from EveUnity.
 
 Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
 Each record joins runtime status, capture owner, lifecycle capture contract,

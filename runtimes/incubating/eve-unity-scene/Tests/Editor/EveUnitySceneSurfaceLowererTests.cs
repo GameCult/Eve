@@ -199,6 +199,56 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void ProviderSurfaceDocumentSourceFeedsPlayableClientWithoutAetheriaTypes()
+        {
+            var documentSource = new FakeProviderSurfaceDocumentSource(new EveUnitySceneProviderSurfaceDocument(
+                PlayableArpgDocument(),
+                Advertisement("aetheria.daemon.game"),
+                "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                1));
+            using var surfaceSource = new EveUnitySceneProviderSurfaceDocumentSource(documentSource);
+            var commandSink = new FakeCommandSink("cultmesh-command-sink");
+            var sceneSink = new FakePlayableWorldSceneSink();
+            using var connection = new EveUnitySceneProviderConnection(surfaceSource, commandSink);
+            using var client = new EveUnityPlayableWorldLiveClient(
+                connection,
+                new EveUnityPlayableWorldPresenter(sceneSink, new EveUnityAssetRefResolver()));
+
+            var initialPresentation = client.Connect();
+
+            Assert.That(surfaceSource.ProviderId, Is.EqualTo("aetheria"));
+            Assert.That(surfaceSource.SurfaceId, Is.EqualTo("aetheria.daemon.game"));
+            Assert.That(surfaceSource.SourcePointer, Is.EqualTo("cultmesh://aetheria/eve/surfaces/aetheria.daemon.game"));
+            Assert.That(initialPresentation.ActiveEntities, Is.EqualTo(3));
+            Assert.That(client.ActiveWorld, Is.Not.Null);
+            Assert.That(client.ActiveWorld!.StatePointerId, Is.EqualTo("cultmesh://aetheria/run/current"));
+            Assert.That(client.ActiveWorld.AssetManifest, Is.EqualTo("cultmesh://aetheria/assets/manifest"));
+
+            documentSource.Publish(new EveUnitySceneProviderSurfaceDocument(
+                PlayableArpgDocument(includeRaider: false, playerPosition: "11,0,5"),
+                Advertisement("aetheria.daemon.game"),
+                "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                2));
+
+            Assert.That(client.ActiveVersion, Is.EqualTo(2));
+            Assert.That(client.LastPresentation, Is.Not.Null);
+            Assert.That(client.LastPresentation!.ActiveEntities, Is.EqualTo(2));
+            Assert.That(sceneSink.RemovedEntityIds, Does.Contain("raider-scout"));
+            Assert.That(sceneSink.Upserts[3].entity.EntityId, Is.EqualTo("player-vanguard"));
+            Assert.That(sceneSink.Upserts[3].entity.PositionX, Is.EqualTo(11f));
+            Assert.That(sceneSink.Upserts[3].entity.PositionZ, Is.EqualTo(5f));
+
+            var moveIntent = client.SubmitMoveIntent("player-vanguard", 12f, 0f, 8f);
+
+            Assert.That(commandSink.Submitted.Count, Is.EqualTo(1));
+            Assert.That(commandSink.Submitted[0], Is.SameAs(moveIntent));
+            Assert.That(moveIntent.ProviderId, Is.EqualTo("aetheria"));
+            Assert.That(moveIntent.SurfaceId, Is.EqualTo("aetheria.daemon.game"));
+            Assert.That(moveIntent.CommandBoundary, Is.EqualTo("aetheria.daemon.commands"));
+            Assert.That(moveIntent.ReceiptSchema, Is.EqualTo("aetheria.eve_command_acceptance_status.v1"));
+        }
+
+        [Test]
         public void PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities()
         {
             var lowerer = new EveUnitySceneSurfaceLowerer();
@@ -934,6 +984,14 @@ namespace GameCult.Eve.UnityScene.Tests
 
             public event Action<EveUnitySceneProviderSurfaceSnapshot>? SnapshotAvailable;
 
+            public void Connect()
+            {
+            }
+
+            public void Disconnect()
+            {
+            }
+
             public void Stage(EveUnitySceneProviderSurfaceSnapshot snapshot)
             {
                 CurrentSnapshot = snapshot;
@@ -943,6 +1001,24 @@ namespace GameCult.Eve.UnityScene.Tests
             {
                 CurrentSnapshot = snapshot;
                 SnapshotAvailable?.Invoke(snapshot);
+            }
+        }
+
+        private sealed class FakeProviderSurfaceDocumentSource : IEveUnitySceneProviderSurfaceDocumentSource
+        {
+            public FakeProviderSurfaceDocumentSource(EveUnitySceneProviderSurfaceDocument currentDocument)
+            {
+                CurrentDocument = currentDocument;
+            }
+
+            public EveUnitySceneProviderSurfaceDocument CurrentDocument { get; private set; }
+
+            public event Action<EveUnitySceneProviderSurfaceDocument>? DocumentAvailable;
+
+            public void Publish(EveUnitySceneProviderSurfaceDocument document)
+            {
+                CurrentDocument = document;
+                DocumentAvailable?.Invoke(document);
             }
         }
 

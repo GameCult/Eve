@@ -73,7 +73,7 @@
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, provider snapshot session, live playable-world client composition, provider command receipt observation, playable-world scene presentation, Unity GameObject scene sink, typed provider asset manifest document loading, provider asset manifest resolution, provider asset manifest source/cache, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
+      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, typed provider surface document loading, provider snapshot session, live playable-world client composition, provider command receipt observation, playable-world scene presentation, Unity GameObject scene sink, typed provider asset manifest document loading, provider asset manifest resolution, provider asset manifest source/cache, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
     },
     {
       "id": "unity-scene-sai-plugin-projection",
@@ -122,7 +122,7 @@
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "Unity scene input emits gamecult.eve.command.v1 intents through a provider-snapshot client session, IEveUnitySceneProviderSurfaceSource, IEveUnitySceneCommandSink, IEveUnitySceneCommandReceiptSource, and advertised command boundaries, then observes provider receipts and refreshes from provider snapshots instead of mutating local world truth."
+      "replacementProof": "Unity scene input emits gamecult.eve.command.v1 intents through typed provider surface documents, a provider-snapshot client session, IEveUnitySceneProviderSurfaceSource, IEveUnitySceneCommandSink, IEveUnitySceneCommandReceiptSource, and advertised command boundaries, then observes provider receipts and refreshes from provider documents/snapshots instead of mutating local world truth."
     },
     {
       "id": "unity-scene-capture-lifecycle",
@@ -161,7 +161,7 @@
     "EveUnity builds the provider-agnostic Unity scene UPM package artifact.",
     "EveUnity owns a provider-agnostic scene graph lowerer that consumes advertised worldInteraction boundaries without importing Aetheria internals.",
     "EveUnity owns a provider-snapshot Unity scene client session that lowers Aetheria's surface and emits command intents without importing Aetheria project code.",
-    "EveUnity owns provider surface source and command sink ports that a live CultMesh/CultNet adapter can implement without changing scene lowering.",
+    "EveUnity owns typed provider surface document, provider surface source, and command sink ports that a live CultMesh/CultNet adapter can implement without changing scene lowering.",
     "EveUnity owns a live playable-world client coordinator that applies provider snapshots through the presenter, observes provider command receipts, and emits command intents through the advertised provider command sink without local simulation.",
     "EveUnity owns a playable-world presenter that maps provider-authored entity rows and asset refs into Unity scene operations without importing Aetheria entity or prefab classes.",
     "EveUnity owns a generic Unity GameObject scene sink and asset-provider hook for playable-world rows without importing Aetheria entity or prefab classes.",
@@ -175,7 +175,7 @@
     "EveUnity lowers at least one non-Aetheria provider-authored world surface into Unity scene objects.",
     "EveUnity lowers Aetheria's game world surface into generic playableWorld projection data through provider advertisements without importing Aetheria internals.",
     "A generic EveUnity scene client subscribes to the live Aetheria daemon surface over CultMesh/CultNet without Aetheria project code.",
-    "Unity scene input emits gamecult.eve.command.v1 intents, observes provider receipts, and refreshes rendered state from provider snapshots.",
+    "Unity scene input emits gamecult.eve.command.v1 intents, observes provider receipts, and refreshes rendered state from provider surface documents/snapshots.",
     "Unity scene screenshot or frame-capture PNG artifacts are attached to conformance output."
   ]
 }

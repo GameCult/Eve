@@ -18,6 +18,7 @@
     "commandTransport",
     "providerSurfaceSession",
     "providerSurfaceSource",
+    "providerSurfaceDocumentSource",
     "livePlayableWorldClient",
     "providerCommandReceipts",
     "providerAssetManifestDocumentSource",
@@ -178,7 +179,7 @@
       ],
       "pendingProofs": [
         "Unity scene provider-advertisement smoke runs from EveUnity with real Unity scene/frame objects and no Aetheria imports.",
-        "Live CultMesh/CultNet provider subscription adapter implements IEveUnitySceneProviderSurfaceSource and feeds EveUnitySceneClientSession snapshots instead of Eve-local fixture documents."
+        "Live CultMesh/CultNet provider subscription adapter implements IEveUnitySceneProviderSurfaceDocumentSource/IEveUnitySceneProviderSurfaceSource and feeds EveUnitySceneClientSession snapshots from provider-owned documents instead of Eve-local fixture documents."
       ]
     },
     "capture": {
