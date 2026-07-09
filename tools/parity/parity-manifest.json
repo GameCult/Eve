@@ -809,7 +809,7 @@
         },
         {
           "path": "packages/eve-browser-lowering/src/index.ts",
-          "contains": ["surface.slot", "embeddedDocuments", "cultui-embedded-slot", "createEveCommandIntent", "resolveComponentCommandId"]
+          "contains": ["surface.slot", "embeddedDocuments", "cultui-embedded-slot", "createEveCommandIntent", "resolveComponentCommandId", "localAdvertisement"]
         }
       ],
       "commandTransportSmoke": {
@@ -818,7 +818,7 @@
         "expectedSourceSymbols": [
           {
             "path": "packages/eve-browser-lowering/src/index.ts",
-            "contains": ["EveCommandIntent", "createEveCommandIntent", "schema: \"gamecult.eve.command.v1\"", "clientId"]
+            "contains": ["EveCommandIntent", "createEveCommandIntent", "schema: \"gamecult.eve.command.v1\"", "clientId", "commandBoundary", "receiptSchema"]
           },
           {
             "path": "web/surface.js",

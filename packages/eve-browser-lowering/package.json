@@ -1,0 +1,17 @@
+{
+  "name": "@gamecult/eve-browser-lowering",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "styles.css"
+  ],
+  "scripts": {
+    "build": "C:\\Progra~1\\nodejs\\node.exe ./node_modules/typescript/bin/tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

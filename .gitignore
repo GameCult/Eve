@@ -1,6 +1,9 @@
 .theos/
 packages/*
 !packages/.gitkeep
+!packages/eve-browser-lowering/
+!packages/eve-browser-lowering/**
+packages/eve-browser-lowering/node_modules/
 !packages/org.gamecult.eve.surface/
 !packages/org.gamecult.eve.surface/**
 !packages/org.gamecult.eve.unity-uitoolkit/

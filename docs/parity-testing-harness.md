@@ -135,6 +135,12 @@ otherwise it reports `missing-runtime`, `missing-runtime-claim`,
 `missing-provider-boundary`, or `missing-command-transport`. Consumer smokes can
 assert it with
 `--expect-command-boundary-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>`.
+The browser reference lowerer also copies the active surface's advertised
+`worldInteraction.commandBoundary` and `worldInteraction.receiptSchema` into
+`gamecult.eve.command.v1` intents, falling back to component action metadata
+only when the advertisement lacks those fields. That keeps command routing on
+the provider/plugin advertisement contract instead of letting the browser
+reference probe provider source layout.
 Declared runtime/plugin projection gaps are exported as
 `runtimePluginProjectionGaps[]`. These records carry runtime id, runtime owner,
 split target, plugin id, reason, severity, and fixture lists so EveUnity,

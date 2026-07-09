@@ -310,6 +310,11 @@ Recently cut:
   and Unity UI Toolkit are `covered` because they advertise
   `gamecult.eve.command.v1`; Unity scene and TUI stay visible as
   `missing-runtime-claim` until their generic lowerers exist.
+- The browser reference lowerer now carries the active provider surface's
+  advertised `worldInteraction.commandBoundary` and
+  `worldInteraction.receiptSchema` into each `gamecult.eve.command.v1` intent.
+  It can use component action metadata as a fallback, but the provider
+  advertisement is the authority when present.
 - The conformance export carries `splitHandoffMoveCoverage[]`, joining runtime
   split handoff move sets to source path status. EveElectron now exposes the
   existing Aetheria `Aetheria.Rts.Web/Electron` and command transport paths as
