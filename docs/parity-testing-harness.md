@@ -325,9 +325,9 @@ Electron source paths named by the handoff currently exist as
 `observed-provider` sources, so the extraction pressure is visible without
 turning those paths into EveElectron authority. The Electron runtime now claims
 a narrow provider-advertised surface-tree command surface and exposes a typed
-capture request contract. It preserves embedded document slot identity in the
-generic shell projection, while packaged rendering, actual window capture, and
-plugin projection remain blockers.
+capture request contract plus a schema-backed JSON shell projection artifact.
+It preserves embedded document slot identity in the generic shell projection,
+while packaged rendering and actual window PNG capture remain blockers.
 EveTui is now an active incubating runtime: it claims a lossy
 provider-advertised terminal-grid command surface, preserves embedded document
 slot identity in the grid artifact, projects Sai/Norn/TeX fallback shells, and
@@ -403,6 +403,13 @@ that record as `runtime.captureArtifacts[]`; runtime-owner consumers can assert
 it without depending on Eve's source layout. The remaining blocker is
 owner-repo production of the same capture path, not absence of a cell-grid
 artifact.
+
+Electron semantic capture evidence follows the same evidence rule without
+pretending it is a packaged window PNG. `tools/eveelectron/eveelectron-capture-artifact.mjs`
+lowers the Aetheria world surface through `EveElectronShell` into
+`gamecult.eve.electron_shell_projection.v1` and writes
+`artifacts/eveelectron-capture/latest/electron-shell-projection.json`. The
+remaining blocker is packaged Electron window capture.
 
 EveUnity split handoff evidence:
 

@@ -194,5 +194,6 @@ foreach ($pathProperty in @("requestBuilder", "advertisementPath")) {
 & (Join-Path $projectRoot "scripts\run-eveelectron-release-contract-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-eveelectron-provider-shell-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-eveelectron-capture-contract-smoke.ps1")
+& (Join-Path $projectRoot "scripts\run-eveelectron-capture-smoke.ps1")
 
 Write-Host "EveElectron lifecycle smoke passed: $absoluteManifestPath"

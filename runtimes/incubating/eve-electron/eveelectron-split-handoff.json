@@ -73,10 +73,13 @@
       "currentPaths": [
         "tools/eveelectron/eveelectron-capture-contract.mjs",
         "tools/eveelectron/eveelectron-capture-contract.test.mjs",
-        "scripts/run-eveelectron-capture-contract-smoke.ps1"
+        "tools/eveelectron/eveelectron-capture-artifact.mjs",
+        "tools/eveelectron/eveelectron-capture-artifact.test.mjs",
+        "scripts/run-eveelectron-capture-contract-smoke.ps1",
+        "scripts/run-eveelectron-capture-smoke.ps1"
       ],
       "destinationOwner": "EveElectron",
-      "replacementProof": "EveElectron builds a provider-advertisement-backed capture request now; the split is not complete until the EveElectron repo attaches desktop-window capture artifacts to conformance output for at least one non-Aetheria provider and one Aetheria scenario."
+      "replacementProof": "EveElectron builds a provider-advertisement-backed capture request and deterministic gamecult.eve.electron_shell_projection.v1 JSON projection artifact now; the split is not complete until the EveElectron repo attaches desktop-window capture artifacts to conformance output for at least one non-Aetheria provider and one Aetheria scenario."
     }
   ],
   "contractInputs": [
@@ -103,6 +106,6 @@
     "EveElectron lowers at least one generic Eve provider surface that is not Aetheria.",
     "EveElectron lowers Aetheria world/editor surfaces through provider advertisements without importing Aetheria internals.",
     "Aetheria keeps Starbridge-specific UI, assets, authored flows, and receipts in the Aetheria repo.",
-    "EveElectron attaches Electron capture artifacts to conformance output."
+    "EveElectron attaches packaged Electron window PNG capture artifacts to conformance output."
   ]
 }

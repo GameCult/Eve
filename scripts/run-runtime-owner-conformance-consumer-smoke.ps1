@@ -133,7 +133,8 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-status android-flutter:adb-png `
   --expect-runtime-capture-status unity-uitoolkit:semantic `
   --expect-runtime-capture-status unity-scene:missing `
-  --expect-runtime-capture-status electron-shell:missing `
+  --expect-runtime-capture-status electron-shell:json-projection `
+  --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-status tui:json-grid `
   --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-status direct2d:missing `

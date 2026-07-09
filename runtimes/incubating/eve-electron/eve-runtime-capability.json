@@ -149,7 +149,10 @@
       "evidencePaths": [
         "tools/eveelectron/eveelectron-capture-contract.mjs",
         "tools/eveelectron/eveelectron-capture-contract.test.mjs",
-        "scripts/run-eveelectron-capture-contract-smoke.ps1"
+        "tools/eveelectron/eveelectron-capture-artifact.mjs",
+        "tools/eveelectron/eveelectron-capture-artifact.test.mjs",
+        "scripts/run-eveelectron-capture-contract-smoke.ps1",
+        "scripts/run-eveelectron-capture-smoke.ps1"
       ],
       "pendingProofs": [
         "Electron window capture artifact is attached to the runtime conformance report."
@@ -157,7 +160,19 @@
     }
   },
   "capture": {
-    "status": "missing",
-    "note": "Electron capture is a split blocker until EveElectron attaches provider-agnostic shell window artifacts."
+    "status": "json-projection",
+    "note": "Electron attaches a provider-advertisement-backed gamecult.eve.electron_shell_projection.v1 JSON projection artifact; packaged window PNG capture remains an EveElectron split blocker.",
+    "artifacts": [
+      {
+        "kind": "json-projection",
+        "schema": "gamecult.eve.electron_shell_projection.v1",
+        "path": "artifacts/eveelectron-capture/latest/electron-shell-projection.json",
+        "runtimeId": "electron-shell",
+        "providerId": "aetheria",
+        "surfaceId": "aetheria.daemon.game",
+        "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
+        "requestPath": "artifacts/eveelectron-capture/latest/capture-request.json"
+      }
+    ]
   }
 }

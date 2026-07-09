@@ -490,9 +490,12 @@ Recently cut:
   `tools/eveelectron/eveelectron-release-contract.mjs` and
   `scripts/run-eveelectron-release-contract-smoke.ps1`; capture uses
   `tools/eveelectron/eveelectron-capture-contract.mjs` and
-  `scripts/run-eveelectron-capture-contract-smoke.ps1`. The packaged Electron
-  app, packaged window rendering, and actual Electron window capture artifacts
-  remain pending EveElectron work.
+  `scripts/run-eveelectron-capture-contract-smoke.ps1`, plus a deterministic
+  `gamecult.eve.electron_shell_projection.v1` JSON projection artifact through
+  `tools/eveelectron/eveelectron-capture-artifact.mjs` and
+  `scripts/run-eveelectron-capture-smoke.ps1`. The packaged Electron app,
+  packaged window rendering, and actual Electron window PNG artifacts remain
+  pending EveElectron work.
 - Electron pending lifecycle details and TUI active-incubation lifecycle details
   now live in their runtime capability manifests rather than being duplicated in
   `tools/parity/parity-manifest.json`. The parity ledger points at the
@@ -575,9 +578,12 @@ Recently cut:
   authority rule. `tools/eveelectron/eveelectron-capture-contract.mjs` builds a
   `gamecult.eve.runtime_capture_request.v1` request from the runtime capability
   manifest and provider advertisement, and
-  `scripts/run-eveelectron-capture-contract-smoke.ps1` proves that request path
-  without pretending an Electron window PNG has been captured. The actual
-  capture artifact remains a split blocker for EveElectron.
+  `scripts/run-eveelectron-capture-contract-smoke.ps1` proves that request path.
+  `tools/eveelectron/eveelectron-capture-artifact.mjs` now also lowers the
+  Aetheria world surface through `EveElectronShell`, writes
+  `artifacts/eveelectron-capture/latest/electron-shell-projection.json`, and
+  exports it as `runtime.captureArtifacts[]`. The actual packaged window PNG
+  remains a split blocker for EveElectron.
 - EveTui capture lifecycle now attaches a typed terminal-grid artifact instead
   of stopping at a request contract. `tools/evetui/evetui-capture-artifact.mjs`
   lowers `web/fixtures/aetheria-world-surface.json` through `EveTuiShell`,
