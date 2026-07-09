@@ -308,6 +308,11 @@ Recently cut:
   `plugins[].abiOperationContracts`. Sai and Norn can consume operation-level
   `input` and `expect` contracts for `describe`, `validate`, `project`,
   `lower`, `measure`, and `apply` without reading Eve-local fixture files.
+- Runtime/plugin projection gaps are now exported as
+  `runtimePluginProjectionGaps[]`. The runtime-owner smoke asserts Unity and
+  Electron plugin gaps as typed records, so missing Sai, Norn, or TeX projection
+  support is owned by the runtime split target and does not imply those plugin
+  semantics should move into Eve core or Aetheria product code.
 - EveUnity now has a pending Unity scene handoff at
   `runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json`.
   The active `unity-uitoolkit` runtime remains a semantic UI surface lowerer;

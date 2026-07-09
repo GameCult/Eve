@@ -1607,6 +1607,7 @@ function buildConformanceExport(report) {
     conformanceHandoffExportPath: makeHandoffExportPath("conformance", "EveConformance", report.repoStrategy.conformanceHandoffPath || ""),
     packs,
     capabilityMatrix: buildCapabilityMatrix(report),
+    runtimePluginProjectionGaps: collectRuntimePluginProjectionGaps(report),
     worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
     capabilityGaps: collectCapabilityGaps(report),
     plugins: (report.plugins || []).map(plugin => ({
@@ -1828,7 +1829,7 @@ function collectCapabilityGaps(report) {
     for (const note of runtime.unsupportedPluginNotes || []) {
       addGap({
         kind: "runtime",
-        ownerRepo: runtime.ownerRepo,
+        ownerRepo: resolveRuntimeProjectionOwnerRepo(runtime),
         subjectId: runtime.id,
         gap: `unsupported-plugin:${note}`,
         severity: "declared-gap",
@@ -1860,6 +1861,36 @@ function collectCapabilityGaps(report) {
   }
 
   return gaps;
+}
+
+function collectRuntimePluginProjectionGaps(report) {
+  const gaps = [];
+  for (const runtime of report.runtimes || []) {
+    for (const plugin of runtime.unsupportedPlugins || []) {
+      if (!plugin.pluginId) continue;
+      gaps.push({
+        runtimeId: runtime.id,
+        runtimeStatus: runtime.status || "",
+        ownerRepo: resolveRuntimeProjectionOwnerRepo(runtime),
+        splitTarget: runtime.splitTarget || "",
+        pluginId: plugin.pluginId,
+        severity: "declared-gap",
+        reason: plugin.reason || "unsupported",
+        requiredFixtures: runtime.requiredFixtures || [],
+        pluginFixtures: runtime.pluginFixtures || [],
+      });
+    }
+  }
+  return gaps;
+}
+
+function resolveRuntimeProjectionOwnerRepo(runtime) {
+  return runtime.lifecycle?.release?.ownerRepo
+    || runtime.lifecycle?.test?.ownerRepo
+    || runtime.lifecycle?.capture?.ownerRepo
+    || runtime.splitTarget
+    || runtime.ownerRepo
+    || "";
 }
 
 function collectWorldSurfaceLoweringGaps(report) {

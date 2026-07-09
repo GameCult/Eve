@@ -95,6 +95,58 @@
         "additionalProperties": true
       }
     },
+    "runtimePluginProjectionGaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "runtimeId",
+          "runtimeStatus",
+          "ownerRepo",
+          "splitTarget",
+          "pluginId",
+          "severity",
+          "reason",
+          "requiredFixtures",
+          "pluginFixtures"
+        ],
+        "properties": {
+          "runtimeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeStatus": {
+            "type": "string"
+          },
+          "ownerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "splitTarget": {
+            "type": "string"
+          },
+          "pluginId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requiredFixtures": {
+            "type": "array"
+          },
+          "pluginFixtures": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "worldSurfaceLoweringGaps": {
       "type": "array",
       "items": {

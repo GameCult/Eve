@@ -113,6 +113,12 @@ The same facts are also exported as `worldSurfaceLoweringGaps[]` so runtime
 owners can consume provider id, surface id, target id, owner repo, runtime id,
 split target, and runtime status as typed fields instead of parsing the generic
 gap text.
+Declared runtime/plugin projection gaps are exported as
+`runtimePluginProjectionGaps[]`. These records carry runtime id, runtime owner,
+split target, plugin id, reason, severity, and fixture lists so EveUnity,
+EveElectron, Sai, Norn, and TeX owners can distinguish "runtime cannot project
+this plugin yet" from "plugin semantics belong in Eve core." Consumer smokes can
+assert them with `--expect-runtime-plugin-gap <runtimeId:pluginId:ownerRepo>`.
 
 The conformance export includes runtime `capabilityManifestPath` and
 `capabilityManifestErrors` fields so external consumers can distinguish a

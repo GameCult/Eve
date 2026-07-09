@@ -18,6 +18,7 @@ if (!exportDirectory) {
     "  --expect-split-target <id>",
     "  --expect-capability-matrix",
     "  --expect-capability-gap <substring>",
+    "  --expect-runtime-plugin-gap <runtimeId:pluginId:ownerRepo>",
     "  --expect-world-lowering-gap <providerId:surfaceId:targetId:ownerRepo:runtimeId>",
     "  --expect-conformance-handoff",
     "  --expect-plugin-operation <pluginId:operation>",
@@ -122,6 +123,7 @@ function validateIndex(index, directory, expectations, errors) {
   const runtimes = mergeRuntimeRecords(Array.isArray(index.runtimes) ? index.runtimes : [], exportedRuntimeTargets);
   const splitTargets = Array.isArray(index.splitTargets) ? index.splitTargets : [];
   const capabilityGaps = Array.isArray(index.capabilityGaps) ? index.capabilityGaps : [];
+  const runtimePluginProjectionGaps = Array.isArray(index.runtimePluginProjectionGaps) ? index.runtimePluginProjectionGaps : [];
   const worldSurfaceLoweringGaps = Array.isArray(index.worldSurfaceLoweringGaps) ? index.worldSurfaceLoweringGaps : [];
 
   validatePluginRecords(plugins, errors);
@@ -139,10 +141,26 @@ function validateIndex(index, directory, expectations, errors) {
     validateCapabilityMatrix(index.capabilityMatrix, packs, plugins, providers, runtimes, splitTargets, errors);
   }
   validateCapabilityGaps(index.capabilityGaps, errors);
+  validateRuntimePluginProjectionGaps(index.runtimePluginProjectionGaps, errors);
   validateWorldSurfaceLoweringGaps(index.worldSurfaceLoweringGaps, errors);
   for (const expectedGap of expectations.capabilityGaps) {
     if (!capabilityGaps.some(gap => capabilityGapText(gap).includes(expectedGap))) {
       errors.push(`capabilityGaps:${expectedGap}:missing`);
+    }
+  }
+  for (const expectation of expectations.runtimePluginGaps) {
+    const gap = runtimePluginProjectionGaps.find(candidate =>
+      candidate.runtimeId === expectation.runtimeId &&
+      candidate.pluginId === expectation.pluginId);
+    if (!gap) {
+      errors.push(`runtimePluginProjectionGaps:${expectation.runtimeId}:${expectation.pluginId}:missing`);
+      continue;
+    }
+    if (gap.ownerRepo !== expectation.ownerRepo) {
+      errors.push(`runtimePluginProjectionGaps:${expectation.runtimeId}:${expectation.pluginId}:ownerRepo:expected ${expectation.ownerRepo} got ${gap.ownerRepo || ""}`);
+    }
+    if (!gap.reason) {
+      errors.push(`runtimePluginProjectionGaps:${expectation.runtimeId}:${expectation.pluginId}:reason:missing`);
     }
   }
   for (const expectation of expectations.worldLoweringGaps) {
@@ -577,6 +595,21 @@ function validateCapabilityGaps(gaps, errors) {
   }
 }
 
+function validateRuntimePluginProjectionGaps(gaps, errors) {
+  if (!Array.isArray(gaps)) {
+    errors.push("runtimePluginProjectionGaps:missing");
+    return;
+  }
+  for (const [index, gap] of gaps.entries()) {
+    for (const field of ["runtimeId", "ownerRepo", "pluginId", "severity", "reason"]) {
+      if (!gap?.[field]) errors.push(`runtimePluginProjectionGaps:${index}:${field}:missing`);
+    }
+    for (const field of ["requiredFixtures", "pluginFixtures"]) {
+      if (!Array.isArray(gap?.[field])) errors.push(`runtimePluginProjectionGaps:${index}:${field}:expected array`);
+    }
+  }
+}
+
 function validateWorldSurfaceLoweringGaps(gaps, errors) {
   if (!Array.isArray(gaps)) {
     errors.push("worldSurfaceLoweringGaps:missing");
@@ -699,6 +732,7 @@ function parseArguments(args) {
     splitTargetProofs: [],
     capabilityMatrix: false,
     capabilityGaps: [],
+    runtimePluginGaps: [],
     worldLoweringGaps: [],
     conformanceHandoff: false,
   };
@@ -738,6 +772,7 @@ function parseArguments(args) {
     ["--expect-split-target-blocker", expectations.splitTargetBlockers],
     ["--expect-split-target-proof", expectations.splitTargetProofs],
     ["--expect-capability-gap", expectations.capabilityGaps],
+    ["--expect-runtime-plugin-gap", expectations.runtimePluginGaps],
     ["--expect-world-lowering-gap", expectations.worldLoweringGaps],
   ]);
 
@@ -817,6 +852,8 @@ function parseArguments(args) {
       target.push(parseSplitTargetExpectation(value, "proof"));
     } else if (option === "--expect-world-lowering-gap") {
       target.push(parseWorldLoweringGapExpectation(value));
+    } else if (option === "--expect-runtime-plugin-gap") {
+      target.push(parseRuntimePluginGapExpectation(value));
     } else {
       target.push(value);
     }
@@ -838,6 +875,19 @@ function parseWorldLoweringGapExpectation(value) {
     targetId: parts[2],
     ownerRepo: parts[3],
     runtimeId: parts[4],
+  };
+}
+
+function parseRuntimePluginGapExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 3 || parts.some(part => !part)) {
+    console.error(`Expected runtime plugin projection gap in <runtimeId:pluginId:ownerRepo> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    pluginId: parts[1],
+    ownerRepo: parts[2],
   };
 }
 

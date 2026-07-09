@@ -54,6 +54,11 @@ node $consumerScript $consumerExport `
   --expect-runtime-world-target unity-uitoolkit:unity-uitoolkit `
   --expect-runtime-world-field unity-uitoolkit:unity-uitoolkit:supportLevel:ui-toolkit-semantic-command-surface `
   --expect-runtime-world-field unity-uitoolkit:unity-uitoolkit:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
+  --expect-runtime-plugin-gap unity-uitoolkit:tex.math:EveUnity `
+  --expect-runtime-plugin-gap unity-scene:sai.vn:EveUnity `
+  --expect-runtime-plugin-gap unity-scene:norn.graph:EveUnity `
+  --expect-runtime-plugin-gap electron-shell:sai.vn:EveElectron `
+  --expect-runtime-plugin-gap electron-shell:norn.graph:EveElectron `
   --expect-runtime-handoff unity-uitoolkit `
   --expect-runtime-command-schema web:gamecult.eve.command.v1 `
   --expect-runtime-command-schema windows-flutter:gamecult.eve.command.v1 `
