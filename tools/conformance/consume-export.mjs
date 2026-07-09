@@ -47,6 +47,7 @@ if (!exportDirectory) {
     "  --expect-runtime-lifecycle-field <runtimeId:stage:field.path:value>",
     "  --expect-split-target-status <targetId:status>",
     "  --expect-split-target-blocker <targetId:blocker-substring>",
+    "  --expect-split-target-blocker-record <targetId:kind:subject>",
     "  --expect-split-target-proof <targetId:proof-substring>",
   ].join("\n"));
   process.exit(2);
@@ -124,6 +125,7 @@ function validateIndex(index, directory, expectations, errors) {
   const splitTargets = Array.isArray(index.splitTargets) ? index.splitTargets : [];
   const capabilityGaps = Array.isArray(index.capabilityGaps) ? index.capabilityGaps : [];
   const runtimePluginProjectionGaps = Array.isArray(index.runtimePluginProjectionGaps) ? index.runtimePluginProjectionGaps : [];
+  const splitTargetBlockers = Array.isArray(index.splitTargetBlockers) ? index.splitTargetBlockers : [];
   const worldSurfaceLoweringGaps = Array.isArray(index.worldSurfaceLoweringGaps) ? index.worldSurfaceLoweringGaps : [];
 
   validatePluginRecords(plugins, errors);
@@ -142,6 +144,7 @@ function validateIndex(index, directory, expectations, errors) {
   }
   validateCapabilityGaps(index.capabilityGaps, errors);
   validateRuntimePluginProjectionGaps(index.runtimePluginProjectionGaps, errors);
+  validateSplitTargetBlockers(index.splitTargetBlockers, errors);
   validateWorldSurfaceLoweringGaps(index.worldSurfaceLoweringGaps, errors);
   for (const expectedGap of expectations.capabilityGaps) {
     if (!capabilityGaps.some(gap => capabilityGapText(gap).includes(expectedGap))) {
@@ -495,6 +498,15 @@ function validateIndex(index, directory, expectations, errors) {
       errors.push(`splitTargets:${expectation.targetId}:blocker:${expectation.blocker}:missing`);
     }
   }
+  for (const expectation of expectations.splitTargetBlockerRecords) {
+    const blocker = splitTargetBlockers.find(candidate =>
+      candidate.targetId === expectation.targetId &&
+      candidate.kind === expectation.kind &&
+      candidate.subject === expectation.subject);
+    if (!blocker) {
+      errors.push(`splitTargetBlockers:${expectation.targetId}:${expectation.kind}:${expectation.subject}:missing`);
+    }
+  }
   for (const expectation of expectations.splitTargetProofs) {
     const target = splitTargets.find(candidate => candidate.id === expectation.targetId);
     if (!target) {
@@ -610,6 +622,18 @@ function validateRuntimePluginProjectionGaps(gaps, errors) {
   }
 }
 
+function validateSplitTargetBlockers(blockers, errors) {
+  if (!Array.isArray(blockers)) {
+    errors.push("splitTargetBlockers:missing");
+    return;
+  }
+  for (const [index, blocker] of blockers.entries()) {
+    for (const field of ["targetId", "ownerRepo", "kind", "severity", "subject", "text"]) {
+      if (!blocker?.[field]) errors.push(`splitTargetBlockers:${index}:${field}:missing`);
+    }
+  }
+}
+
 function validateWorldSurfaceLoweringGaps(gaps, errors) {
   if (!Array.isArray(gaps)) {
     errors.push("worldSurfaceLoweringGaps:missing");
@@ -676,7 +700,7 @@ function validateSplitTargetRecords(splitTargets, errors) {
     for (const field of ["id", "ownerRepo", "status", "runtimeStatuses"]) {
       if (!target?.[field]) errors.push(`${label}:${field}:missing`);
     }
-    for (const field of ["runtimes", "requiredRuntimeStatuses", "requiredFeatures", "requiredPlugins", "proofs", "pendingProofs", "blockers"]) {
+    for (const field of ["runtimes", "requiredRuntimeStatuses", "requiredFeatures", "requiredPlugins", "proofs", "pendingProofs", "blockers", "blockerRecords"]) {
       if (!Array.isArray(target?.[field])) errors.push(`${label}:${field}:expected array`);
     }
   }
@@ -729,6 +753,7 @@ function parseArguments(args) {
     splitTargets: [],
     splitTargetStatuses: [],
     splitTargetBlockers: [],
+    splitTargetBlockerRecords: [],
     splitTargetProofs: [],
     capabilityMatrix: false,
     capabilityGaps: [],
@@ -770,6 +795,7 @@ function parseArguments(args) {
     ["--expect-runtime-lifecycle-field", expectations.runtimeLifecycleFields],
     ["--expect-split-target-status", expectations.splitTargetStatuses],
     ["--expect-split-target-blocker", expectations.splitTargetBlockers],
+    ["--expect-split-target-blocker-record", expectations.splitTargetBlockerRecords],
     ["--expect-split-target-proof", expectations.splitTargetProofs],
     ["--expect-capability-gap", expectations.capabilityGaps],
     ["--expect-runtime-plugin-gap", expectations.runtimePluginGaps],
@@ -848,6 +874,8 @@ function parseArguments(args) {
       target.push(parseSplitTargetExpectation(value, "status"));
     } else if (option === "--expect-split-target-blocker") {
       target.push(parseSplitTargetExpectation(value, "blocker"));
+    } else if (option === "--expect-split-target-blocker-record") {
+      target.push(parseSplitTargetBlockerRecordExpectation(value));
     } else if (option === "--expect-split-target-proof") {
       target.push(parseSplitTargetExpectation(value, "proof"));
     } else if (option === "--expect-world-lowering-gap") {
@@ -888,6 +916,19 @@ function parseRuntimePluginGapExpectation(value) {
     runtimeId: parts[0],
     pluginId: parts[1],
     ownerRepo: parts[2],
+  };
+}
+
+function parseSplitTargetBlockerRecordExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length < 3 || !parts[0] || !parts[1] || !parts.slice(2).join(":")) {
+    console.error(`Expected split target blocker record in <targetId:kind:subject> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    targetId: parts[0],
+    kind: parts[1],
+    subject: parts.slice(2).join(":"),
   };
 }
 

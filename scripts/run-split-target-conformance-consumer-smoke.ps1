@@ -42,6 +42,9 @@ try {
     --expect-split-target-proof "EveUnity:Unity lifecycle evidence is declared" `
     --expect-split-target-proof "EveUnity:EveUnity split handoff is machine-readable" `
     --expect-split-target-blocker "EveUnity:runtime:unity-scene:status:pending" `
+    --expect-split-target-blocker-record EveUnity:runtime-status:unity-scene `
+    --expect-split-target-blocker-record EveUnity:runtime-plugin-projection:unity-scene:sai.vn `
+    --expect-split-target-blocker-record "EveUnity:pending-proof:Unity scene runtime body exists outside Aetheria product code." `
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target-blocker "EveUnity:Unity batchmode EditMode runner" `
     --expect-split-target-blocker "EveUnity:Unity batchmode or editor capture artifact" `
@@ -50,11 +53,14 @@ try {
     --expect-split-target-status EveElectron:incubating `
     --expect-split-target-proof "EveElectron:EveElectron split handoff is machine-readable" `
     --expect-split-target-blocker "EveElectron:runtime:electron-shell:status:pending" `
+    --expect-split-target-blocker-record EveElectron:runtime-status:electron-shell `
+    --expect-split-target-blocker-record EveElectron:runtime-feature:electron-shell:providerAdvertisements `
     --expect-split-target-blocker "EveElectron:Electron shell runtime body exists outside Aetheria product code" `
     --expect-split-target EveTui `
     --expect-split-target-status EveTui:incubating `
     --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `
     --expect-split-target-blocker "EveTui:runtime:tui:status:pending" `
+    --expect-split-target-blocker-record EveTui:runtime-feature:tui:commandTransport `
     --expect-split-target-blocker "EveTui:TUI runtime body exists outside provider product code"
   if ($LASTEXITCODE -ne 0) {
     throw "Split target conformance consumer smoke failed with exit code $LASTEXITCODE"

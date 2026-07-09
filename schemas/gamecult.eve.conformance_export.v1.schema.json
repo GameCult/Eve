@@ -11,6 +11,7 @@
     "plugins",
     "providers",
     "runtimes",
+    "splitTargetBlockers",
     "splitTargets"
   ],
   "properties": {
@@ -142,6 +143,74 @@
           },
           "pluginFixtures": {
             "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "splitTargetBlockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "targetId",
+          "ownerRepo",
+          "kind",
+          "severity",
+          "subject",
+          "text"
+        ],
+        "properties": {
+          "targetId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeId": {
+            "type": "string"
+          },
+          "pluginId": {
+            "type": "string"
+          },
+          "feature": {
+            "type": "string"
+          },
+          "capability": {
+            "type": "string"
+          },
+          "proof": {
+            "type": "string"
+          },
+          "evidencePath": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "requiredStatuses": {
+            "type": "array"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": true
@@ -445,7 +514,8 @@
           "requiredPlugins",
           "proofs",
           "pendingProofs",
-          "blockers"
+          "blockers",
+          "blockerRecords"
         ],
         "properties": {
           "id": {
@@ -488,6 +558,9 @@
             "type": "array"
           },
           "blockers": {
+            "type": "array"
+          },
+          "blockerRecords": {
             "type": "array"
           }
         },

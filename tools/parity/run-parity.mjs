@@ -1349,23 +1349,50 @@ function evaluateSplitTargets(splitTargets, runtimeResults) {
     const proofs = target.proofs || [];
     const runtimeIds = target.runtimes || [];
     const blockers = [];
+    const blockerRecords = [];
     const runtimeStatuses = {};
+    const addBlocker = (text, record) => {
+      blockers.push(text);
+      blockerRecords.push({
+        targetId: target.id,
+        ownerRepo: target.ownerRepo || "",
+        severity: "blocker",
+        subject: record.subject || "",
+        ...record,
+        text,
+      });
+    };
 
     for (const runtimeId of runtimeIds) {
       const runtime = runtimeById.get(runtimeId);
       if (!runtime) {
-        blockers.push(`runtime:${runtimeId}:missing`);
+        addBlocker(`runtime:${runtimeId}:missing`, {
+          kind: "runtime-missing",
+          subject: runtimeId,
+          runtimeId,
+        });
         continue;
       }
 
       runtimeStatuses[runtimeId] = runtime.status;
       if (!requiredRuntimeStatuses.includes(runtime.status)) {
-        blockers.push(`runtime:${runtimeId}:status:${runtime.status}`);
+        addBlocker(`runtime:${runtimeId}:status:${runtime.status}`, {
+          kind: "runtime-status",
+          subject: runtimeId,
+          runtimeId,
+          status: runtime.status,
+          requiredStatuses: requiredRuntimeStatuses,
+        });
       }
 
       for (const feature of requiredFeatures) {
         if (!runtime.supportedFeatures.includes(feature)) {
-          blockers.push(`runtime:${runtimeId}:feature:${feature}`);
+          addBlocker(`runtime:${runtimeId}:feature:${feature}`, {
+            kind: "runtime-feature",
+            subject: `${runtimeId}:${feature}`,
+            runtimeId,
+            feature,
+          });
         }
       }
 
@@ -1373,18 +1400,35 @@ function evaluateSplitTargets(splitTargets, runtimeResults) {
       const unsupportedPlugins = new Map((runtime.unsupportedPlugins || []).map(plugin => [plugin.pluginId, plugin.reason || "unsupported"]));
       for (const requirement of requiredPlugins) {
         if (unsupportedPlugins.has(requirement.pluginId)) {
-          blockers.push(`runtime:${runtimeId}:unsupported-plugin:${requirement.pluginId}:${unsupportedPlugins.get(requirement.pluginId)}`);
+          addBlocker(`runtime:${runtimeId}:unsupported-plugin:${requirement.pluginId}:${unsupportedPlugins.get(requirement.pluginId)}`, {
+            kind: "runtime-plugin-projection",
+            subject: `${runtimeId}:${requirement.pluginId}`,
+            runtimeId,
+            pluginId: requirement.pluginId,
+            reason: unsupportedPlugins.get(requirement.pluginId),
+          });
           continue;
         }
         const capabilities = supportedPlugins.get(requirement.pluginId);
         if (!capabilities) {
-          blockers.push(`runtime:${runtimeId}:plugin:${requirement.pluginId}`);
+          addBlocker(`runtime:${runtimeId}:plugin:${requirement.pluginId}`, {
+            kind: "runtime-plugin-missing",
+            subject: `${runtimeId}:${requirement.pluginId}`,
+            runtimeId,
+            pluginId: requirement.pluginId,
+          });
           continue;
         }
 
         for (const capability of requirement.capabilities || []) {
           if (!capabilities.has(capability)) {
-            blockers.push(`runtime:${runtimeId}:plugin:${requirement.pluginId}:${capability}`);
+            addBlocker(`runtime:${runtimeId}:plugin:${requirement.pluginId}:${capability}`, {
+              kind: "runtime-plugin-capability",
+              subject: `${runtimeId}:${requirement.pluginId}:${capability}`,
+              runtimeId,
+              pluginId: requirement.pluginId,
+              capability,
+            });
           }
         }
       }
@@ -1393,15 +1437,32 @@ function evaluateSplitTargets(splitTargets, runtimeResults) {
     for (const proof of proofs) {
       const missingEvidence = (proof.evidencePaths || []).filter(candidate => !existsSync(path.join(repoRoot, candidate)));
       if (proof.status !== "passed") {
-        blockers.push(`proof:${proof.description || "unnamed"}:status:${proof.status || "missing"}`);
+        const description = proof.description || "unnamed";
+        addBlocker(`proof:${description}:status:${proof.status || "missing"}`, {
+          kind: "proof-status",
+          subject: description,
+          proof: description,
+          status: proof.status || "missing",
+        });
       }
       for (const evidencePath of missingEvidence) {
-        blockers.push(`proof:${proof.description || "unnamed"}:evidence:${evidencePath}:missing`);
+        const description = proof.description || "unnamed";
+        addBlocker(`proof:${description}:evidence:${evidencePath}:missing`, {
+          kind: "proof-evidence",
+          subject: `${description}:${evidencePath}`,
+          proof: description,
+          evidencePath,
+          status: "missing",
+        });
       }
     }
 
     for (const proof of target.pendingProofs || []) {
-      blockers.push(`proof:${proof}`);
+      addBlocker(`proof:${proof}`, {
+        kind: "pending-proof",
+        subject: proof,
+        proof,
+      });
     }
 
     return {
@@ -1418,6 +1479,7 @@ function evaluateSplitTargets(splitTargets, runtimeResults) {
       proofs,
       pendingProofs: target.pendingProofs || [],
       blockers,
+      blockerRecords,
     };
   });
 }
@@ -1609,6 +1671,7 @@ function buildConformanceExport(report) {
     capabilityMatrix: buildCapabilityMatrix(report),
     runtimePluginProjectionGaps: collectRuntimePluginProjectionGaps(report),
     worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
+    splitTargetBlockers: collectSplitTargetBlockers(report),
     capabilityGaps: collectCapabilityGaps(report),
     plugins: (report.plugins || []).map(plugin => ({
       pluginId: plugin.pluginId,
@@ -1882,6 +1945,10 @@ function collectRuntimePluginProjectionGaps(report) {
     }
   }
   return gaps;
+}
+
+function collectSplitTargetBlockers(report) {
+  return (report.splitTargets || []).flatMap(target => target.blockerRecords || []);
 }
 
 function resolveRuntimeProjectionOwnerRepo(runtime) {

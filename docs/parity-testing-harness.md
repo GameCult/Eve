@@ -144,8 +144,11 @@ plus release contract fields such as package name, artifact kind, tag pattern,
 and package root, plus Unity EditMode test runner contract fields such as
 runner script, package name, test assembly, and platform. It also asserts that
 web and Unity UI Toolkit claim their provider-advertised world-surface lowering
-targets. Split blockers stay machine-readable instead of hiding in handoff
-prose.
+targets. Split blockers are exported both as human-readable `blockers[]` and as
+typed `blockerRecords[]` / root `splitTargetBlockers[]` entries. Split-target
+consumers can assert blocker kind and subject with
+`--expect-split-target-blocker-record <targetId:kind:subject>` instead of
+scraping prose from handoff notes.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into

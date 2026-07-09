@@ -313,6 +313,11 @@ Recently cut:
   Electron plugin gaps as typed records, so missing Sai, Norn, or TeX projection
   support is owned by the runtime split target and does not imply those plugin
   semantics should move into Eve core or Aetheria product code.
+- Split target blockers are now exported as `splitTargetBlockers[]` and as
+  per-target `blockerRecords[]` with blocker kind, subject, owner, and source
+  text. The split-target consumer smoke asserts Unity scene status/plugin
+  blockers, Electron feature blockers, and TUI command-transport blockers
+  without scraping the human `blockers[]` strings.
 - EveUnity now has a pending Unity scene handoff at
   `runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json`.
   The active `unity-uitoolkit` runtime remains a semantic UI surface lowerer;
