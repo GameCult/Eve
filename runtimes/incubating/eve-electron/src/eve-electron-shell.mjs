@@ -116,16 +116,19 @@ function buildShellNode(component) {
   const source = objectValue(component);
   const children = Array.isArray(source.children) ? source.children.map(buildShellNode) : [];
   const embeddedDocuments = normalizeEmbeddedDocuments(source.embeddedDocuments);
+  const componentKind = firstString(source.kind);
+  const pluginProjection = buildPluginProjection(componentKind, source);
   return {
     id: firstString(source.id),
-    componentKind: firstString(source.kind),
-    shellElementKind: shellElementKind(firstString(source.kind)),
+    componentKind,
+    shellElementKind: shellElementKind(componentKind),
     props: objectValue(source.props),
     layout: objectValue(source.layout),
     style: objectValue(source.style),
     stateBindingCount: Array.isArray(source.stateBindings) ? source.stateBindings.length : 0,
     embeddedDocumentCount: embeddedDocuments.length,
     embeddedDocuments,
+    ...(pluginProjection ? { pluginProjection } : {}),
     children,
   };
 }
@@ -146,12 +149,62 @@ function normalizeEmbeddedDocuments(value) {
 
 function shellElementKind(componentKind) {
   if (!componentKind) return "empty";
+  if (componentKind === "vn.stage") return "sai-vn-stage-shell";
+  if (componentKind === "embed.norn") return "norn-graph-shell";
+  if (componentKind === "embed.tex") return "tex-math-shell";
   if (componentKind.startsWith("control.")) return "command-control";
   if (componentKind.startsWith("embed.")) return "plugin-placeholder";
   if (componentKind === "surface.slot") return "embedded-surface-slot";
   if (componentKind.startsWith("field.") || componentKind.startsWith("world.")) return "world-projection-node";
   if (componentKind.startsWith("text.") || componentKind === "text" || componentKind === "label") return "text";
   return "shell-node";
+}
+
+function buildPluginProjection(componentKind, component) {
+  if (componentKind === "vn.stage") {
+    return {
+      pluginId: "sai.vn",
+      projectionKind: "sai-vn-electron-stage-shell",
+      abiSchema: "gamecult.eve.plugin_abi.v1",
+      commandBoundary: "sidecar-advertised-plugin-abi",
+      capabilities: ["vn.stage", "story.choose", "story.continue", "story.jump"],
+      documentId: firstString(component.props?.storyId, component.id),
+      semanticOwner: "Sai",
+    };
+  }
+
+  if (componentKind === "embed.norn") {
+    return {
+      pluginId: "norn.graph",
+      projectionKind: "norn-graph-electron-overlay-shell",
+      abiSchema: "gamecult.eve.plugin_abi.v1",
+      commandBoundary: "sidecar-advertised-plugin-abi",
+      capabilities: ["embed.norn"],
+      documentId: firstString(component.props?.sourceUri, component.props?.documentId, component.id),
+      semanticOwner: "Norn",
+    };
+  }
+
+  if (componentKind === "embed.tex") {
+    return {
+      pluginId: "tex.math",
+      projectionKind: texProjectionKind(component),
+      abiSchema: "gamecult.eve.plugin_abi.v1",
+      commandBoundary: "sidecar-advertised-plugin-abi",
+      capabilities: ["embed.tex", "tex.inline", "tex.block"],
+      documentId: firstString(component.props?.sourceUri, component.props?.source, component.id),
+      semanticOwner: "EvePlugins",
+    };
+  }
+
+  return null;
+}
+
+function texProjectionKind(component) {
+  const display = firstString(component.props?.display, "inline");
+  if (display === "block") return "tex-math-electron-block-source-shell";
+  if (display === "page") return "tex-math-electron-page-source-shell";
+  return "tex-math-electron-inline-source-shell";
 }
 
 function normalizeWorldInteraction(value) {

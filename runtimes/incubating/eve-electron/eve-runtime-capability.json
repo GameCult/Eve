@@ -17,23 +17,38 @@
     "providerAdvertisements",
     "commandTransport",
     "surfaceTreeProjection",
-    "embeddedDocuments"
+    "embeddedDocuments",
+    "pluginProjection"
   ],
-  "supportedPlugins": [],
-  "unsupportedPlugins": [
+  "supportedPlugins": [
     {
       "pluginId": "sai.vn",
-      "reason": "Electron provider-shell skeleton exists, but no adapter exists for Sai sidecar-advertised VN projection in this runtime."
+      "capabilities": [
+        "vn.stage",
+        "story.choose",
+        "story.continue",
+        "story.jump"
+      ],
+      "projectionAdapter": "EveElectronShell.buildPluginProjection"
     },
     {
       "pluginId": "norn.graph",
-      "reason": "Electron provider-shell skeleton exists, but no adapter exists for Norn sidecar-advertised graph projection in this runtime."
+      "capabilities": [
+        "embed.norn"
+      ],
+      "projectionAdapter": "EveElectronShell.buildPluginProjection"
     },
     {
       "pluginId": "tex.math",
-      "reason": "Electron provider-shell skeleton exists, but no adapter exists for TeX sidecar-advertised math projection in this runtime."
+      "capabilities": [
+        "embed.tex",
+        "tex.inline",
+        "tex.block"
+      ],
+      "projectionAdapter": "EveElectronShell.buildPluginProjection"
     }
   ],
+  "unsupportedPlugins": [],
   "worldSurfaceLowering": [
     {
       "targetId": "electron-shell",
@@ -44,6 +59,7 @@
       "evidencePaths": [
         "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
         "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
+        "web/fixtures/sai-vn-surface.json",
         "web/fixtures/aetheria.provider-advertisement.json"
       ]
     }

@@ -24,9 +24,16 @@ if ($manifest.lifecycle.test.status -ne "provider-shell-contract-skeleton") {
   throw "Unexpected EveElectron provider shell status: $($manifest.lifecycle.test.status)"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "surfaceTreeProjection")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "surfaceTreeProjection", "pluginProjection")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveElectron provider shell missing supported feature: $feature"
+  }
+}
+
+foreach ($pluginId in @("sai.vn", "norn.graph", "tex.math")) {
+  $supported = @($manifest.supportedPlugins) | Where-Object { $_.pluginId -eq $pluginId } | Select-Object -First 1
+  if (-not $supported) {
+    throw "EveElectron provider shell missing supported plugin projection: $pluginId"
   }
 }
 
@@ -80,14 +87,14 @@ foreach ($relativePath in $expectedFiles) {
 }
 
 $shellSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-electron\src\eve-electron-shell.mjs") -Raw
-foreach ($symbol in @("EveElectronShell", "selectSurface", "lowerSurface", "createCommandIntent", "normalizeSurfaceDocument", "buildShellNode", "shellElementKind", "worldInteraction", "commandBoundary", "receiptSchema", "electron-shell")) {
+foreach ($symbol in @("EveElectronShell", "selectSurface", "lowerSurface", "createCommandIntent", "normalizeSurfaceDocument", "buildShellNode", "buildPluginProjection", "shellElementKind", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "worldInteraction", "commandBoundary", "receiptSchema", "electron-shell")) {
   if (-not $shellSource.Contains($symbol)) {
     throw "EveElectron provider shell source missing symbol: $symbol"
   }
 }
 
 $testSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-electron\test\eve-electron-shell.test.mjs") -Raw
-foreach ($symbol in @("selects the active advertised provider surface", "lowers provider surface trees into an Electron shell projection", "rejects surface documents that do not match the advertised target", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
+foreach ($symbol in @("selects the active advertised provider surface", "lowers provider surface trees into an Electron shell projection", "lowers Sai, Norn, and TeX sidecar plugin shells without owning semantics", "sai-vn-stage-shell", "norn-graph-shell", "tex-math-shell", "rejects surface documents that do not match the advertised target", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
   if (-not $testSource.Contains($symbol)) {
     throw "EveElectron provider shell test missing symbol: $symbol"
   }

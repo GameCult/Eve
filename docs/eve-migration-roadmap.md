@@ -392,8 +392,9 @@ Recently cut:
 - Runtime/plugin projection claims are now exported as root
   `runtimePluginProjectionCoverage[]` records. Runtime-owner smokes assert
   Unity UI Toolkit support for `sai.vn`, `norn.graph`, and `tex.math`, Unity
-  scene support for the same three plugin capabilities, and the pending
-  Electron unsupported Sai projection until its generic lowerer exists.
+  scene support for the same three plugin capabilities, and Electron shell
+  support for the same sidecar plugin projection shells without importing
+  plugin semantics.
 - Provider/runtime/plugin projection coverage is now exported as
   `providerRuntimePluginProjectionCoverage[]`. The runtime-owner smoke proves
   the Sai VN provider surface lowers fully in web, lowers in Unity UI Toolkit
@@ -402,10 +403,10 @@ Recently cut:
   impersonate required Sai VN, optional Norn graph, or optional TeX math
   projection.
 - Runtime/plugin projection gaps are now exported as
-  `runtimePluginProjectionGaps[]`. The runtime-owner smoke asserts Unity and
-  Electron plugin gaps as typed records, so missing Sai, Norn, or TeX projection
-  support is owned by the runtime split target and does not imply those plugin
-  semantics should move into Eve core or Aetheria product code.
+  `runtimePluginProjectionGaps[]`. The runtime-owner smoke asserts remaining
+  device-edge and TUI plugin gaps as typed records, so missing Sai, Norn, or TeX
+  projection support is owned by the runtime split target and does not imply
+  those plugin semantics should move into Eve core or Aetheria product code.
 - Split target blockers are now exported as `splitTargetBlockers[]` and as
   per-target `blockerRecords[]` with blocker kind, subject, owner, and source
   text. The split-target consumer smoke asserts Unity scene status/plugin
@@ -468,11 +469,11 @@ Recently cut:
 - EveElectron now has a pending split target and handoff at
   `runtimes/incubating/eve-electron/eveelectron-split-handoff.json`. It does
   claim a provider-agnostic Electron shell surface-tree projection and command
-  surface, but not packaged rendering, embedded document rendering, plugin
-  projection, or captured window artifacts. The handoff draws the line between
-  the generic shell and Aetheria's Starbridge RTS product client, and the
-  split-target consumer smoke keeps release, packaged rendering, embedded
-  document rendering, and capture artifact proofs visible as blockers.
+  surface with Sai, Norn, and TeX sidecar plugin projection shells, but not
+  packaged rendering or captured window artifacts. The handoff draws the line
+  between the generic shell and Aetheria's Starbridge RTS product client, and
+  the split-target consumer smoke keeps release, packaged rendering, and
+  capture artifact proofs visible as blockers.
 - EveElectron now has a direct split handoff smoke at
   `scripts/run-eveelectron-split-handoff-smoke.ps1`. The smoke verifies the
   current generic shell, command, and world-surface lowering paths, the observed
@@ -483,14 +484,15 @@ Recently cut:
   `runtimes/incubating/eve-electron/eve-runtime-capability.json` and a
   lifecycle smoke at `scripts/run-eveelectron-lifecycle-smoke.ps1`. The
   manifest declares provider advertisement consumption, command transport, and
-  surface-tree projection, claims `electron-shell` world/editor lowering, and
-  now carries executable release and capture request contracts. Release uses
+  surface-tree/plugin projection, claims `electron-shell` world/editor
+  lowering, and now carries executable release and capture request contracts.
+  Release uses
   `tools/eveelectron/eveelectron-release-contract.mjs` and
   `scripts/run-eveelectron-release-contract-smoke.ps1`; capture uses
   `tools/eveelectron/eveelectron-capture-contract.mjs` and
   `scripts/run-eveelectron-capture-contract-smoke.ps1`. The packaged Electron
-  app, packaged window rendering, plugin projection, and actual Electron window
-  capture artifacts remain pending EveElectron work.
+  app, packaged window rendering, and actual Electron window capture artifacts
+  remain pending EveElectron work.
 - Electron and TUI pending lifecycle details now live in their runtime
   capability manifests rather than being duplicated in
   `tools/parity/parity-manifest.json`. The parity ledger points at the
@@ -864,10 +866,11 @@ Recently cut:
 - The parity harness now emits an `EveConformance`-shaped export under
   `artifacts/conformance/latest`, with a top-level index and per-pack JSON
   files for core, plugin, provider, and runtime consumers.
-- Unity's plugin projection capability gap is now explicitly demoted. The UI
-  Toolkit runtime owns generic projection and command requests, while Sai, Norn,
-  and TeX semantics remain sidecar-plugin responsibilities. Unity only adds
-  projection adapters for capabilities a plugin advertises through Eve.
+- Unity and Electron plugin projection capability gaps are now explicitly
+  demoted. UI Toolkit, Unity scene, and Electron runtimes own generic projection
+  and command requests, while Sai, Norn, and TeX semantics remain sidecar-plugin
+  responsibilities. Runtimes only add projection shells for capabilities a
+  plugin advertises through Eve.
 - Flutter and Unity now have runtime command-transport smoke evidence in the
   parity report. Flutter emits `gamecult.eve.command.v1` intents from lowered
   controls, and Unity command requests now carry the same command schema.

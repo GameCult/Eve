@@ -15,7 +15,8 @@
       "currentPaths": [
         "runtimes/incubating/eve-electron/package.json",
         "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
-        "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs"
+        "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
+        "web/fixtures/sai-vn-surface.json"
       ],
       "observedProviderPaths": [
         "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\Electron",
@@ -55,6 +56,18 @@
       "replacementProof": "Electron claims provider-advertised world/editor surface targets with provider-agnostic surface-tree projection and command boundary evidence; packaged rendering and capture remain separate lifecycle proofs."
     },
     {
+      "id": "electron-plugin-projection",
+      "stage": "plugin-projection",
+      "currentPaths": [
+        "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+        "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
+        "runtimes/incubating/eve-electron/eve-runtime-capability.json",
+        "web/fixtures/sai-vn-surface.json"
+      ],
+      "destinationOwner": "EveElectron",
+      "replacementProof": "EveElectron owns shell projection metadata for Sai, Norn, and TeX sidecar-advertised components; Sai keeps story state, Norn keeps graph layout/state, and EvePlugins keeps TeX rendering semantics."
+    },
+    {
       "id": "electron-capture-lifecycle",
       "stage": "capture",
       "currentPaths": [
@@ -78,12 +91,15 @@
     "Aetheria RTS client modules as EveElectron runtime authority",
     "Aetheria Starbridge state as Electron shell truth",
     "provider-specific IPC contracts that bypass gamecult.eve.command.v1",
-    "plugin semantic internals",
+    "Sai story state, VN/Ink semantics, or story command interpretation as Electron shell authority",
+    "Norn graph layout, graph state, or command semantics as Electron shell authority",
+    "TeX parsing, typesetting, baseline metrics, or render-cache semantics as Electron shell authority",
     "renderer-local product state as daemon truth"
   ],
   "requiredExternalProofs": [
     "EveElectron publishes a runtime capability manifest with provider advertisement consumption and command transport.",
     "EveElectron owns a provider-shell contract skeleton that selects advertised provider surfaces, projects Eve surface trees, and emits gamecult.eve.command.v1 intents.",
+    "EveElectron projects Sai, Norn, and TeX sidecar plugin shells without importing plugin semantic internals.",
     "EveElectron lowers at least one generic Eve provider surface that is not Aetheria.",
     "EveElectron lowers Aetheria world/editor surfaces through provider advertisements without importing Aetheria internals.",
     "Aetheria keeps Starbridge-specific UI, assets, authored flows, and receipts in the Aetheria repo.",

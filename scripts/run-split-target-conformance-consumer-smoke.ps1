@@ -66,6 +66,7 @@ try {
     --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:current:exists:eve-electron-shell.mjs `
     --expect-split-handoff-move EveElectron:electron-shell:electron-command-transport:current:exists:eve-electron-shell.mjs `
     --expect-split-handoff-move EveElectron:electron-shell:electron-world-surface-lowering:current:exists:eve-electron-shell.mjs `
+    --expect-split-handoff-move EveElectron:electron-shell:electron-plugin-projection:current:exists:sai-vn-surface.json `
     --expect-split-handoff-move EveElectron:electron-shell:electron-capture-lifecycle:current:exists:eveelectron-capture-contract.mjs `
     --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:observed-provider:exists:Aetheria.Rts.Web/Electron `
     --expect-split-handoff-move EveElectron:electron-shell:electron-command-transport:observed-provider:exists:Aetheria.Rts.Web/Client/app.ts `

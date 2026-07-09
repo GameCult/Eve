@@ -39,13 +39,30 @@ if (-not $manifest.incubation.splitHandoff.manifestPath) {
   throw "EveElectron manifest missing split handoff path"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "surfaceTreeProjection", "embeddedDocuments")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "surfaceTreeProjection", "embeddedDocuments", "pluginProjection")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveElectron manifest missing provider-shell feature: $feature"
   }
 }
-if (@($manifest.supportedPlugins).Count -ne 0) {
-  throw "EveElectron must not claim plugin projection before runtime projection adapters for sidecar-advertised capabilities exist"
+
+$expectedPlugins = @{
+  "sai.vn" = @("vn.stage", "story.choose", "story.continue", "story.jump")
+  "norn.graph" = @("embed.norn")
+  "tex.math" = @("embed.tex", "tex.inline", "tex.block")
+}
+foreach ($pluginId in $expectedPlugins.Keys) {
+  $supported = @($manifest.supportedPlugins) | Where-Object { $_.pluginId -eq $pluginId } | Select-Object -First 1
+  if (-not $supported) {
+    throw "EveElectron manifest missing supported plugin declaration: $pluginId"
+  }
+  foreach ($capability in $expectedPlugins[$pluginId]) {
+    if (-not (@($supported.capabilities) -contains $capability)) {
+      throw "EveElectron supported plugin $pluginId missing capability: $capability"
+    }
+  }
+  if ($supported.projectionAdapter -ne "EveElectronShell.buildPluginProjection") {
+    throw "EveElectron supported plugin $pluginId has unexpected projection adapter: $($supported.projectionAdapter)"
+  }
 }
 
 $worldSurfaceLoweringClaims = @()
@@ -72,10 +89,10 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
   }
 }
 
-foreach ($pluginId in @("sai.vn", "norn.graph", "tex.math")) {
+foreach ($pluginId in $expectedPlugins.Keys) {
   $unsupported = @($manifest.unsupportedPlugins) | Where-Object { $_.pluginId -eq $pluginId } | Select-Object -First 1
-  if (-not $unsupported) {
-    throw "EveElectron manifest missing unsupported plugin declaration: $pluginId"
+  if ($unsupported) {
+    throw "EveElectron manifest must not report $pluginId unsupported while the shell projection is declared"
   }
 }
 

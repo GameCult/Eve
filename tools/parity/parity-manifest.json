@@ -738,23 +738,23 @@
       },
       "splitHandoffPath": "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
       "requiredFixtures": ["embedded-surface", "aetheria-world"],
-      "pluginFixtures": [],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "surfaceTreeProjection", "embeddedDocuments"],
-      "supportedPlugins": [],
-      "unsupportedPlugins": [
+      "pluginFixtures": ["sai-vn"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "surfaceTreeProjection", "embeddedDocuments", "pluginProjection"],
+      "supportedPlugins": [
         {
           "pluginId": "sai.vn",
-          "reason": "Electron provider-shell skeleton exists, but no adapter exists for Sai sidecar-advertised VN projection in this runtime."
+          "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
         },
         {
           "pluginId": "norn.graph",
-          "reason": "Electron provider-shell skeleton exists, but no adapter exists for Norn sidecar-advertised graph projection in this runtime."
+          "capabilities": ["embed.norn"]
         },
         {
           "pluginId": "tex.math",
-          "reason": "Electron provider-shell skeleton exists, but no adapter exists for TeX sidecar-advertised math projection in this runtime."
+          "capabilities": ["embed.tex", "tex.inline", "tex.block"]
         }
       ],
+      "unsupportedPlugins": [],
       "worldSurfaceLowering": [
         {
           "targetId": "electron-shell",
@@ -765,6 +765,7 @@
           "evidencePaths": [
             "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
             "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
+            "web/fixtures/sai-vn-surface.json",
             "web/fixtures/aetheria.provider-advertisement.json"
           ]
         }
@@ -787,11 +788,11 @@
       "expectedSourceSymbols": [
         {
           "path": "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
-          "contains": ["EveElectronShell", "selectSurface", "lowerSurface", "createCommandIntent", "normalizeSurfaceDocument", "buildShellNode", "normalizeEmbeddedDocuments", "embeddedDocuments", "shellElementKind", "worldInteraction", "commandBoundary", "receiptSchema", "electron-shell"]
+          "contains": ["EveElectronShell", "selectSurface", "lowerSurface", "createCommandIntent", "normalizeSurfaceDocument", "buildShellNode", "buildPluginProjection", "normalizeEmbeddedDocuments", "embeddedDocuments", "shellElementKind", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "worldInteraction", "commandBoundary", "receiptSchema", "electron-shell"]
         },
         {
           "path": "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
-          "contains": ["selects the active advertised provider surface", "lowers provider surface trees into an Electron shell projection", "embeddedDocuments", "norn.map", "rejects surface documents that do not match the advertised target", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "contains": ["selects the active advertised provider surface", "lowers provider surface trees into an Electron shell projection", "lowers Sai, Norn, and TeX sidecar plugin shells without owning semantics", "embeddedDocuments", "norn.map", "sai-vn-stage-shell", "norn-graph-shell", "tex-math-shell", "rejects surface documents that do not match the advertised target", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
         },
         {
           "path": "tools/eveelectron/eveelectron-capture-contract.mjs",

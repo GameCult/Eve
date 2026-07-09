@@ -64,7 +64,9 @@ test("lowers provider surface trees into an Electron shell projection", () => {
   assert.equal(projection.root.children[0].stateBindingCount, 1);
   assert.equal(projection.root.children[1].shellElementKind, "command-control");
   assert.equal(projection.root.children[1].props.command, "aetheria.daemon.commands");
-  assert.equal(projection.root.children[2].shellElementKind, "plugin-placeholder");
+  assert.equal(projection.root.children[2].shellElementKind, "norn-graph-shell");
+  assert.equal(projection.root.children[2].pluginProjection.pluginId, "norn.graph");
+  assert.equal(projection.root.children[2].pluginProjection.semanticOwner, "Norn");
   assert.equal(projection.root.children[2].embeddedDocumentCount, 1);
   assert.deepEqual(projection.root.children[2].embeddedDocuments, [
     {
@@ -74,6 +76,41 @@ test("lowers provider surface trees into an Electron shell projection", () => {
       presentationKind: "electron-overlay",
     },
   ]);
+});
+
+test("lowers Sai, Norn, and TeX sidecar plugin shells without owning semantics", () => {
+  const shell = new EveElectronShell();
+  const saiSurface = JSON.parse(readFileSync(path.join(repoRoot, "web/fixtures/sai-vn-surface.json"), "utf8"));
+  const projection = shell.lowerSurface(saiSurface, saiAdvertisement(), "sai.visual_novel.surface");
+
+  assert.deepEqual(validateSchemaSubset(electronProjectionSchema, projection), []);
+  assert.equal(projection.providerId, "gamecult.home.vn");
+  assert.equal(projection.surfaceId, "sai.visual_novel.surface");
+  assert.equal(projection.root.shellElementKind, "sai-vn-stage-shell");
+  assert.equal(projection.root.pluginProjection.pluginId, "sai.vn");
+  assert.equal(projection.root.pluginProjection.semanticOwner, "Sai");
+  assert.equal(projection.root.pluginProjection.commandBoundary, "sidecar-advertised-plugin-abi");
+  assert.deepEqual(projection.root.pluginProjection.capabilities, [
+    "vn.stage",
+    "story.choose",
+    "story.continue",
+    "story.jump",
+  ]);
+
+  const norn = findNode(projection.root, "sai.graph");
+  assert.equal(norn.shellElementKind, "norn-graph-shell");
+  assert.equal(norn.pluginProjection.pluginId, "norn.graph");
+  assert.equal(norn.pluginProjection.projectionKind, "norn-graph-electron-overlay-shell");
+  assert.equal(norn.pluginProjection.semanticOwner, "Norn");
+  assert.deepEqual(norn.pluginProjection.capabilities, ["embed.norn"]);
+
+  const tex = findNode(projection.root, "sai.tex.log-power");
+  assert.equal(tex.shellElementKind, "tex-math-shell");
+  assert.equal(tex.pluginProjection.pluginId, "tex.math");
+  assert.equal(tex.pluginProjection.projectionKind, "tex-math-electron-block-source-shell");
+  assert.equal(tex.pluginProjection.semanticOwner, "EvePlugins");
+  assert.equal(tex.pluginProjection.documentId, "\\\\mathrm{votes}(p)=1+\\\\lfloor\\\\log_b(1+p)\\\\rfloor");
+  assert.deepEqual(tex.pluginProjection.capabilities, ["embed.tex", "tex.inline", "tex.block"]);
 });
 
 test("rejects surface documents that do not match the advertised target", () => {
@@ -109,6 +146,26 @@ function advertisement() {
           commandBoundary: "aetheria.daemon.commands",
           receiptSchema: "aetheria.eve_command_acceptance_status.v1",
           ownership: "provider-owns-editor-state-assets-command-acceptance-and-receipts",
+        },
+      },
+    ],
+  };
+}
+
+function saiAdvertisement() {
+  return {
+    schema: "gamecult.eve.provider_advertisement.v1",
+    providerId: "gamecult.home.vn",
+    surfaces: [
+      {
+        surfaceId: "sai.visual_novel.surface",
+        transport: "local-json",
+        url: "web/fixtures/sai-vn-surface.json",
+        worldInteraction: {
+          projectionKind: "provider-authored-world-surface",
+          commandBoundary: "sai.vn.plugin.commands",
+          receiptSchema: "gamecult.eve.command_receipt.v1",
+          ownership: "provider-owns-story-state-plugin-sidecars-own-nested-semantics",
         },
       },
     ],
@@ -174,4 +231,13 @@ function surfaceDocument(surfaceId = "aetheria.daemon.game") {
     },
     commands: [],
   };
+}
+
+function findNode(root, id) {
+  if (root.id === id) return root;
+  for (const child of root.children || []) {
+    const found = findNode(child, id);
+    if (found) return found;
+  }
+  return null;
 }

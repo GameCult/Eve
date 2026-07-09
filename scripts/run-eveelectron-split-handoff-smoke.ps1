@@ -34,7 +34,7 @@ if ($handoff.runtimeId -ne "electron-shell") {
 }
 
 $moveSets = @($handoff.moveSets)
-foreach ($stage in @("runtime-body", "command", "world-surface-lowering", "capture")) {
+foreach ($stage in @("runtime-body", "command", "world-surface-lowering", "plugin-projection", "capture")) {
   $moveSet = $moveSets | Where-Object { $_.stage -eq $stage } | Select-Object -First 1
   if (-not $moveSet) {
     throw "EveElectron split handoff missing move set for stage: $stage"
@@ -77,6 +77,20 @@ if (@($captureMoveSet.currentPaths).Count -eq 0) {
   throw "EveElectron capture lifecycle move set must declare currentPaths"
 }
 
+$pluginMoveSet = $moveSets | Where-Object { $_.id -eq "electron-plugin-projection" } | Select-Object -First 1
+if (-not $pluginMoveSet) {
+  throw "EveElectron split handoff missing move set: electron-plugin-projection"
+}
+foreach ($relativePath in @(
+  "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+  "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
+  "web/fixtures/sai-vn-surface.json"
+)) {
+  if (-not (@($pluginMoveSet.currentPaths) -contains $relativePath)) {
+    throw "EveElectron plugin projection move set missing current path: $relativePath"
+  }
+}
+
 foreach ($contract in @(
   "gamecult.eve.surface.v1",
   "gamecult.eve.command.v1",
@@ -93,6 +107,16 @@ foreach ($contract in @(
 foreach ($proof in @($handoff.requiredExternalProofs)) {
   if (-not $proof) {
     throw "EveElectron split handoff contains an empty required external proof"
+  }
+}
+
+foreach ($forbiddenImport in @(
+  "Sai story state, VN/Ink semantics, or story command interpretation as Electron shell authority",
+  "Norn graph layout, graph state, or command semantics as Electron shell authority",
+  "TeX parsing, typesetting, baseline metrics, or render-cache semantics as Electron shell authority"
+)) {
+  if (-not (@($handoff.forbiddenImports) -contains $forbiddenImport)) {
+    throw "EveElectron split handoff missing forbidden import: $forbiddenImport"
   }
 }
 
