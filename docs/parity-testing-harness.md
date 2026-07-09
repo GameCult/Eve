@@ -146,6 +146,11 @@ Plugin ABI fixture operations are exported as `plugins[].abiOperationContracts`
 with `operation`, `input`, and `expect` blocks. Plugin owners can consume the
 operation-level contract for `describe`, `validate`, `project`, `lower`,
 `measure`, and `apply` without opening Eve-local fixture files.
+The same operation set is indexed as root `pluginAbiOperationCoverage[]` records
+with plugin id, owner repo, operation, status, fixture path, input keys, and
+expect keys. Plugin-owner smokes can assert contracted operations with
+`--expect-plugin-abi-operation-coverage <pluginId:operation:status:ownerRepo>`
+without walking nested plugin records.
 
 The runtime conformance pack is evidence-shaped, not fixture-shaped. Its
 `packs/runtime.json` document includes `runtimeTargets` so runtime repos can

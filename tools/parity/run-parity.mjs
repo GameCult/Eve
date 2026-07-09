@@ -1674,6 +1674,7 @@ function buildConformanceExport(report) {
     worldSurfaceLoweringCoverage: collectWorldSurfaceLoweringCoverage(report),
     worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
     splitTargetBlockers: collectSplitTargetBlockers(report),
+    pluginAbiOperationCoverage: collectPluginAbiOperationCoverage(report),
     capabilityGaps: collectCapabilityGaps(report),
     plugins: (report.plugins || []).map(plugin => ({
       pluginId: plugin.pluginId,
@@ -1947,6 +1948,36 @@ function collectRuntimePluginProjectionGaps(report) {
     }
   }
   return gaps;
+}
+
+function collectPluginAbiOperationCoverage(report) {
+  const requiredOperations = ["describe", "validate", "project", "lower", "measure", "apply"];
+  const coverage = [];
+  for (const plugin of report.plugins || []) {
+    const operations = new Map((plugin.abiOperationContracts || []).map(contract => [contract.operation, contract]));
+    for (const operation of requiredOperations) {
+      const contract = operations.get(operation);
+      const input = contract?.input || {};
+      const expect = contract?.expect || {};
+      coverage.push({
+        pluginId: plugin.pluginId,
+        ownerRepo: plugin.ownerRepo || "",
+        splitTarget: plugin.splitTarget || "",
+        status: contract ? "contracted" : "missing-contract",
+        operation,
+        abiFixturePath: plugin.abiFixturePath || "",
+        inputKeys: Object.keys(input).sort(),
+        expectKeys: Object.keys(expect).sort(),
+        projectionKind: expect.projectionKind || "",
+        loweringKind: expect.loweringKind || "",
+        measurementKind: expect.measurementKind || "",
+        commandEnvelope: expect.commandEnvelope || "",
+        receiptSchema: expect.receiptSchema || "",
+        preservesProviderAuthority: expect.preservesProviderAuthority === true,
+      });
+    }
+  }
+  return coverage;
 }
 
 function collectSplitTargetBlockers(report) {

@@ -43,12 +43,18 @@ node $consumerScript $consumerExport `
   --expect-plugin-operation sai.vn:lower `
   --expect-plugin-operation sai.vn:measure `
   --expect-plugin-operation sai.vn:apply `
+  --expect-plugin-abi-operation-coverage sai.vn:describe:contracted:Sai `
+  --expect-plugin-abi-operation-coverage sai.vn:lower:contracted:Sai `
+  --expect-plugin-abi-operation-coverage sai.vn:apply:contracted:Sai `
   --expect-plugin-operation norn.graph:describe `
   --expect-plugin-operation norn.graph:validate `
   --expect-plugin-operation norn.graph:project `
   --expect-plugin-operation norn.graph:lower `
   --expect-plugin-operation norn.graph:measure `
   --expect-plugin-operation norn.graph:apply `
+  --expect-plugin-abi-operation-coverage norn.graph:describe:contracted:Norn `
+  --expect-plugin-abi-operation-coverage norn.graph:lower:contracted:Norn `
+  --expect-plugin-abi-operation-coverage norn.graph:apply:contracted:Norn `
   --expect-plugin-capability sai.vn:vn.stage `
   --expect-plugin-capability sai.vn:story.choose `
   --expect-plugin-capability sai.vn:story.continue `

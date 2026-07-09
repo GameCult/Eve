@@ -11,6 +11,7 @@
     "plugins",
     "providers",
     "runtimes",
+    "pluginAbiOperationCoverage",
     "interactiveWorldSurfaces",
     "worldSurfaceLoweringCoverage",
     "splitTargetBlockers",
@@ -496,6 +497,72 @@
           },
           "capabilities": {
             "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "pluginAbiOperationCoverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "pluginId",
+          "ownerRepo",
+          "splitTarget",
+          "status",
+          "operation",
+          "abiFixturePath",
+          "inputKeys",
+          "expectKeys"
+        ],
+        "properties": {
+          "pluginId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "splitTarget": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "operation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "abiFixturePath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "inputKeys": {
+            "type": "array"
+          },
+          "expectKeys": {
+            "type": "array"
+          },
+          "projectionKind": {
+            "type": "string"
+          },
+          "loweringKind": {
+            "type": "string"
+          },
+          "measurementKind": {
+            "type": "string"
+          },
+          "commandEnvelope": {
+            "type": "string"
+          },
+          "receiptSchema": {
+            "type": "string"
+          },
+          "preservesProviderAuthority": {
+            "type": "boolean"
           }
         },
         "additionalProperties": true

@@ -313,6 +313,11 @@ Recently cut:
   `plugins[].abiOperationContracts`. Sai and Norn can consume operation-level
   `input` and `expect` contracts for `describe`, `validate`, `project`,
   `lower`, `measure`, and `apply` without reading Eve-local fixture files.
+- Plugin ABI operation coverage is now exported as root
+  `pluginAbiOperationCoverage[]` records. The plugin-owner smoke asserts Sai
+  and Norn `describe`, `lower`, and `apply` operations as `contracted`, so plugin
+  owners can consume the coverage ledger without walking Eve's nested plugin
+  records.
 - Runtime/plugin projection gaps are now exported as
   `runtimePluginProjectionGaps[]`. The runtime-owner smoke asserts Unity and
   Electron plugin gaps as typed records, so missing Sai, Norn, or TeX projection

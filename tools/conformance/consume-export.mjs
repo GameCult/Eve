@@ -29,6 +29,7 @@ if (!exportDirectory) {
     "  --expect-plugin-runtime-authority <pluginId:authority>",
     "  --expect-plugin-runtime-field <pluginId:field.path:value>",
     "  --expect-plugin-abi-field <pluginId:operation:field.path:value>",
+    "  --expect-plugin-abi-operation-coverage <pluginId:operation:status:ownerRepo>",
     "  --expect-plugin-handoff <pluginId>",
     "  --expect-provider-surface <providerId:surfaceId>",
     "  --expect-provider-surface-kind <providerId:surfaceId:surfaceKind>",
@@ -125,6 +126,7 @@ function validateIndex(index, directory, expectations, errors) {
   const providers = Array.isArray(index.providers) ? index.providers : [];
   const runtimes = mergeRuntimeRecords(Array.isArray(index.runtimes) ? index.runtimes : [], exportedRuntimeTargets);
   const splitTargets = Array.isArray(index.splitTargets) ? index.splitTargets : [];
+  const pluginAbiOperationCoverage = Array.isArray(index.pluginAbiOperationCoverage) ? index.pluginAbiOperationCoverage : [];
   const capabilityGaps = Array.isArray(index.capabilityGaps) ? index.capabilityGaps : [];
   const runtimePluginProjectionGaps = Array.isArray(index.runtimePluginProjectionGaps) ? index.runtimePluginProjectionGaps : [];
   const interactiveWorldSurfaces = Array.isArray(index.interactiveWorldSurfaces) ? index.interactiveWorldSurfaces : [];
@@ -133,6 +135,7 @@ function validateIndex(index, directory, expectations, errors) {
   const worldSurfaceLoweringGaps = Array.isArray(index.worldSurfaceLoweringGaps) ? index.worldSurfaceLoweringGaps : [];
 
   validatePluginRecords(plugins, errors);
+  validatePluginAbiOperationCoverage(index.pluginAbiOperationCoverage, errors);
   validateProviderRecords(providers, errors);
   validateRuntimeRecords(runtimes, errors);
   validateSplitTargetRecords(splitTargets, errors);
@@ -290,6 +293,21 @@ function validateIndex(index, directory, expectations, errors) {
     const actual = readNestedField(contract, expectation.fieldPath);
     if (actual !== expectation.value) {
       errors.push(`plugins:${expectation.pluginId}:abiOperation:${expectation.operation}.${expectation.fieldPath}:expected ${expectation.value} got ${actual || ""}`);
+    }
+  }
+  for (const expectation of expectations.pluginAbiOperationCoverage) {
+    const record = pluginAbiOperationCoverage.find(candidate =>
+      candidate.pluginId === expectation.pluginId &&
+      candidate.operation === expectation.operation);
+    if (!record) {
+      errors.push(`pluginAbiOperationCoverage:${expectation.pluginId}:${expectation.operation}:missing`);
+      continue;
+    }
+    if (record.status !== expectation.status) {
+      errors.push(`pluginAbiOperationCoverage:${expectation.pluginId}:${expectation.operation}:status:expected ${expectation.status} got ${record.status || ""}`);
+    }
+    if (record.ownerRepo !== expectation.ownerRepo) {
+      errors.push(`pluginAbiOperationCoverage:${expectation.pluginId}:${expectation.operation}:ownerRepo:expected ${expectation.ownerRepo} got ${record.ownerRepo || ""}`);
     }
   }
   for (const expectedPlugin of expectations.pluginHandoffs) {
@@ -725,6 +743,21 @@ function validatePluginRecords(plugins, errors) {
   }
 }
 
+function validatePluginAbiOperationCoverage(records, errors) {
+  if (!Array.isArray(records)) {
+    errors.push("pluginAbiOperationCoverage:missing");
+    return;
+  }
+  for (const [index, record] of records.entries()) {
+    for (const field of ["pluginId", "ownerRepo", "status", "operation", "abiFixturePath"]) {
+      if (!record?.[field]) errors.push(`pluginAbiOperationCoverage:${index}:${field}:missing`);
+    }
+    for (const field of ["inputKeys", "expectKeys"]) {
+      if (!Array.isArray(record?.[field])) errors.push(`pluginAbiOperationCoverage:${index}:${field}:expected array`);
+    }
+  }
+}
+
 function validateProviderRecords(providers, errors) {
   for (const provider of providers) {
     const label = `providers:${provider.providerId || "unknown"}`;
@@ -800,6 +833,7 @@ function parseArguments(args) {
     pluginRuntimeAuthorities: [],
     pluginRuntimeFields: [],
     pluginAbiFields: [],
+    pluginAbiOperationCoverage: [],
     pluginHandoffs: [],
     providers: [],
     providerSurfaces: [],
@@ -848,6 +882,7 @@ function parseArguments(args) {
     ["--expect-plugin-runtime-authority", expectations.pluginRuntimeAuthorities],
     ["--expect-plugin-runtime-field", expectations.pluginRuntimeFields],
     ["--expect-plugin-abi-field", expectations.pluginAbiFields],
+    ["--expect-plugin-abi-operation-coverage", expectations.pluginAbiOperationCoverage],
     ["--expect-plugin-handoff", expectations.pluginHandoffs],
     ["--expect-provider-surface", expectations.providerSurfaces],
     ["--expect-provider-surface-kind", expectations.providerSurfaceKinds],
@@ -910,6 +945,8 @@ function parseArguments(args) {
       target.push(parsePluginRuntimeFieldExpectation(value));
     } else if (option === "--expect-plugin-abi-field") {
       target.push(parsePluginAbiFieldExpectation(value));
+    } else if (option === "--expect-plugin-abi-operation-coverage") {
+      target.push(parsePluginAbiOperationCoverageExpectation(value));
     } else if (option === "--expect-plugin-handoff") {
       target.push(value);
     } else if (option === "--expect-provider-surface") {
@@ -1062,6 +1099,20 @@ function parsePluginAbiFieldExpectation(value) {
     operation: parts[1],
     fieldPath: parts[2],
     value: parts.slice(3).join(":"),
+  };
+}
+
+function parsePluginAbiOperationCoverageExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 4 || parts.some(part => !part)) {
+    console.error(`Expected plugin ABI operation coverage in <pluginId:operation:status:ownerRepo> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    pluginId: parts[0],
+    operation: parts[1],
+    status: parts[2],
+    ownerRepo: parts[3],
   };
 }
 
