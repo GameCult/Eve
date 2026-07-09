@@ -118,9 +118,13 @@ foreach ($symbol in @(
   "IEveUnitySceneProviderSurfaceDocumentSource",
   "IEveUnityPlayableWorldAssetManifestDocumentSource",
   "IEveUnitySceneCommandSink",
+  "IEveUnitySceneCommandReceiptSource",
   "IEveUnityProviderRefreshSource",
   "ManifestRef",
-  "AetheriaEveRuntimeUnityHooks.RequireControl"
+  "ReceiptAvailable",
+  "AetheriaEveRuntimeUnityHooks.RequireControl",
+  "ToReceipt(request, daemonEnvelope)",
+  "ToReceipt(request, envelope)"
 )) {
   if (-not $sceneBridge.Contains($symbol)) {
     throw "Aetheria Eve Unity scene bridge missing symbol: $symbol"
@@ -134,8 +138,10 @@ foreach ($symbol in @(
   "IEveUnitySceneProviderSurfaceDocumentSource",
   "IEveUnityPlayableWorldAssetManifestDocumentSource",
   "IEveUnitySceneCommandSink",
+  "IEveUnitySceneCommandReceiptSource",
   "IEveUnityProviderRefreshSource",
   "AetheriaEveUnitySceneProviderBridge",
+  "ReceiptAvailable",
   "stateFilePathOverride",
   "surfaceId",
   "runtimeId",

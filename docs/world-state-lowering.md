@@ -180,7 +180,12 @@ source, so the next presentation still comes from daemon-authored state.
 `EveUnityPlayableWorldRuntime` is the generic runtime composition entry point:
 it wires provider surface documents, provider asset manifest documents, command
 sink, optional receipt source, asset manifest cache, presenter, and scene sink
-into one Unity playable-world client without importing provider code.
+into one Unity playable-world client without importing provider code. The
+Aetheria provider bridge now implements the same receipt-source port: when the
+daemon accepts a surface command envelope or routes a fallback Eve command, it
+publishes an `EveUnitySceneCommandReceipt` through
+`IEveUnitySceneCommandReceiptSource` so the Unity client observes provider
+acceptance without mutating scene truth locally.
 `EveUnityPlayableWorldPresenter` maps the provider-authored entity rows and
 asset refs into scene operations through `IEveUnityPlayableWorldSceneSink` and
 `IEveUnityPlayableWorldAssetResolver`, including removal of entities that
@@ -203,11 +208,12 @@ names appear only as provider-authored data and command ids; the Unity client
 code does not import Aetheria runtime types, prefab classes, or apply movement
 locally.
 
-This is not yet the final playable client. The remaining cut is a live
-CultMesh/CultNet provider subscription adapter implementing those document and
-command ports, concrete CultMesh/CultCache readers for provider surface and
-asset manifest documents, and proof that daemon receipts plus provider
-documents drive the next rendered Unity frame rather than renderer-local state.
+This is not yet the final playable client. The Aetheria consumer bridge now
+feeds surface documents, asset manifest documents, command submission, and
+provider receipts into the generic Unity ports. The remaining cut is live
+CultMesh/CultNet subscription ownership for those same ports and proof that
+daemon receipts plus refreshed provider documents drive the next rendered Unity
+frame rather than renderer-local state.
 
 ## Non-Goals
 
