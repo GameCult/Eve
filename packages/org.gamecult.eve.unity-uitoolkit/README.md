@@ -37,7 +37,7 @@ The runtime capability manifest is
 `eve-runtime-capability.json`. Its lifecycle section records the current split
 evidence:
 
-- release: incubating UPM package identity and import surface;
+- release: typed UPM release request contract and incubating package identity;
 - test: package-owned EditMode tests run through Aetheria in Unity batchmode,
   plus Aetheria consumer-build smoke through Unity's generated project;
 - capture: typed capture request contract and pending Unity editor or
@@ -47,6 +47,11 @@ The release stage also declares the UPM release contract:
 `org.gamecult.eve.unity-uitoolkit` is released from this package root, reads
 its version from `package.json`, and uses tag pattern
 `eveunity-uitoolkit-v{version}` once the tag is cut from EveUnity.
+`tools/eveunity/eveunity-release-contract.mjs` builds a
+`gamecult.eve.runtime_release_request.v1` request from the runtime capability
+manifest and UPM package manifest. The request names the package version, tag,
+artifact path, dependency set, and target `GameCult/EveUnity` repository without
+pretending Eve has published the tagged release.
 
 The test stage declares the Unity EditMode runner contract: the current runner
 is `scripts/run-aetheria-unity-editmode-tests.ps1`, runs
@@ -93,6 +98,12 @@ graduate to `EveUnity`. The capture contract smoke is:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\run-eveunity-capture-contract-smoke.ps1
+```
+
+The release contract smoke is:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-eveunity-release-contract-smoke.ps1
 ```
 
 For Aetheria, the Unity evidence path is:

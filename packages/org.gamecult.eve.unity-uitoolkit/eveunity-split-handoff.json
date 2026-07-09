@@ -16,7 +16,10 @@
         "packages/org.gamecult.eve.unity-uitoolkit/package.json",
         "packages/org.gamecult.eve.unity-uitoolkit/README.md",
         "packages/org.gamecult.eve.unity-uitoolkit/Runtime",
-        "packages/org.gamecult.eve.unity-uitoolkit/Tests"
+        "packages/org.gamecult.eve.unity-uitoolkit/Tests",
+        "tools/eveunity/eveunity-release-contract.mjs",
+        "tools/eveunity/eveunity-release-contract.test.mjs",
+        "scripts/run-eveunity-release-contract-smoke.ps1"
       ],
       "destinationOwner": "EveUnity",
       "replacementProof": "Tagged UPM release cut from EveUnity rather than Eve incubation."

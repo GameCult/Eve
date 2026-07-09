@@ -469,11 +469,14 @@ Recently cut:
 - EveUnity release lifecycle now carries a structured UPM release contract.
   `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
   names the package root, version source, tag pattern, artifact kind, and
-  owner-side publish proof for `org.gamecult.eve.unity-uitoolkit`. The
-  lifecycle smoke validates that contract against the package manifest, parity
-  compares it against the ledger, and the runtime-owner consumer smoke asserts
-  the exported release fields without pretending the tagged EveUnity release
-  already exists.
+  owner-side publish proof for `org.gamecult.eve.unity-uitoolkit`.
+  `tools/eveunity/eveunity-release-contract.mjs` now builds a
+  `gamecult.eve.runtime_release_request.v1` request from the runtime capability
+  manifest and UPM package manifest, deriving the `eveunity-uitoolkit-v{version}`
+  tag, package dependency set, and UPM artifact path. The lifecycle smoke
+  validates that contract against the package manifest, parity compares it
+  against the ledger, and the runtime-owner consumer smoke asserts the exported
+  release fields without pretending the tagged EveUnity release already exists.
 - EveUnity capture lifecycle now carries a structured pending capture contract.
   `captureContract` names the Unity UI Toolkit runtime, capture kind, PNG
   artifact pattern, conformance attachment point, required Aetheria provider

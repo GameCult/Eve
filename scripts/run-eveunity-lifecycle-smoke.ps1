@@ -100,10 +100,16 @@ if ($releaseContract.packageName -ne "org.gamecult.eve.unity-uitoolkit") {
 if ($releaseContract.artifactKind -ne "upm-package") {
   throw "EveUnity release contract has unexpected artifact kind: $($releaseContract.artifactKind)"
 }
+if ($releaseContract.requestSchema -ne "gamecult.eve.runtime_release_request.v1") {
+  throw "EveUnity release contract has unexpected request schema: $($releaseContract.requestSchema)"
+}
 if (-not ($releaseContract.tagPattern -match "\{version\}")) {
   throw "EveUnity release contract tag pattern must include {version}: $($releaseContract.tagPattern)"
 }
-foreach ($pathProperty in @("packageRoot", "versionSource")) {
+if (-not ($releaseContract.artifactPattern -match "\{version\}")) {
+  throw "EveUnity release contract artifact pattern must include {version}: $($releaseContract.artifactPattern)"
+}
+foreach ($pathProperty in @("packageRoot", "versionSource", "requestBuilder")) {
   $relativePath = $releaseContract.$pathProperty
   if (-not $relativePath) {
     throw "EveUnity release contract missing $pathProperty"
@@ -116,6 +122,17 @@ foreach ($pathProperty in @("packageRoot", "versionSource")) {
 $packageManifest = Get-Content -LiteralPath (Join-Path $projectRoot $releaseContract.versionSource) -Raw | ConvertFrom-Json
 if ($packageManifest.name -ne $releaseContract.packageName) {
   throw "EveUnity release contract package name does not match package manifest: $($releaseContract.packageName) vs $($packageManifest.name)"
+}
+if (-not $packageManifest.version) {
+  throw "EveUnity release contract package manifest missing version"
+}
+if ($packageManifest.dependencies."org.gamecult.eve.surface" -ne "0.1.0") {
+  throw "EveUnity package manifest missing org.gamecult.eve.surface dependency"
+}
+
+& (Join-Path $projectRoot "scripts\run-eveunity-release-contract-smoke.ps1")
+if ($LASTEXITCODE -ne 0) {
+  throw "EveUnity release contract smoke failed with exit code $LASTEXITCODE"
 }
 
 $testContract = $manifest.lifecycle.test.testContract

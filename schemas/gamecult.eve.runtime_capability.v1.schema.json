@@ -236,6 +236,18 @@
                   "type": "string",
                   "minLength": 1
                 },
+                "requestSchema": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "requestBuilder": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "artifactPattern": {
+                  "type": "string",
+                  "minLength": 1
+                },
                 "publishProof": {
                   "type": "string",
                   "minLength": 1

@@ -1342,12 +1342,12 @@ function compareReleaseContract(expected, actual, label) {
   const errors = [];
   if (!expected) return errors;
   if (!actual) return [`${label}:missing`];
-  for (const key of ["ownerRepo", "packageName", "packageRoot", "versionSource", "tagPattern", "artifactKind", "publishProof"]) {
+  for (const key of ["ownerRepo", "packageName", "packageRoot", "versionSource", "tagPattern", "artifactKind", "requestSchema", "requestBuilder", "artifactPattern", "publishProof"]) {
     if ((expected[key] || "") !== (actual[key] || "")) {
       errors.push(`${label}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
     }
   }
-  for (const key of ["packageRoot", "versionSource"]) {
+  for (const key of ["packageRoot", "versionSource", "requestBuilder"]) {
     if (actual[key] && !existsSync(path.join(repoRoot, actual[key]))) {
       errors.push(`${label}.${key}:${actual[key]}:missing`);
     }

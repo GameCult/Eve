@@ -1334,11 +1334,17 @@
             "versionSource": "packages/org.gamecult.eve.unity-uitoolkit/package.json",
             "tagPattern": "eveunity-uitoolkit-v{version}",
             "artifactKind": "upm-package",
+            "requestSchema": "gamecult.eve.runtime_release_request.v1",
+            "requestBuilder": "tools/eveunity/eveunity-release-contract.mjs",
+            "artifactPattern": "artifacts/eveunity-uitoolkit-release/{version}/org.gamecult.eve.unity-uitoolkit-{version}.tgz",
             "publishProof": "Tagged UPM release is created from the EveUnity repo and references this package root."
           },
           "evidencePaths": [
             "packages/org.gamecult.eve.unity-uitoolkit/package.json",
             "packages/org.gamecult.eve.unity-uitoolkit/README.md",
+            "tools/eveunity/eveunity-release-contract.mjs",
+            "tools/eveunity/eveunity-release-contract.test.mjs",
+            "scripts/run-eveunity-release-contract-smoke.ps1",
             "scripts/run-aetheria-unity-package-smoke.ps1"
           ],
           "pendingProofs": [

@@ -354,7 +354,10 @@ The parity harness validates those lifecycle claims against
 `tools/parity/parity-manifest.json` and checks that declared evidence paths
 exist. The current lifecycle proof is deliberately split:
 
-- release: incubating UPM package identity and import surface exist in Eve;
+- release: `tools/eveunity/eveunity-release-contract.mjs` builds a typed
+  `gamecult.eve.runtime_release_request.v1` request from the runtime capability
+  manifest and UPM package manifest; the tagged EveUnity release remains a
+  split blocker;
 - test: package-owned EditMode tests run through Aetheria in Unity batchmode,
   and Aetheria can build the package through Unity's generated project;
 - capture: `tools/eveunity/eveunity-capture-contract.mjs` builds a typed
