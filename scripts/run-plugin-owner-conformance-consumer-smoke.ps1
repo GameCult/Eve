@@ -63,6 +63,8 @@ node $consumerScript $consumerExport `
   --expect-plugin-runtime-field sai.vn:sidecar.requestSchema:gamecult.eve.plugin_abi.request.v1 `
   --expect-plugin-runtime-field sai.vn:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
   --expect-plugin-runtime-field sai.vn:sidecar.stateAuthority:proposes-plugin-state-only-provider-accepts `
+  --expect-plugin-abi-field sai.vn:lower:expect.commandEnvelope:gamecult.eve.command.v1 `
+  --expect-plugin-abi-field sai.vn:apply:expect.receiptSchema:gamecult.eve.command_receipt.v1 `
   --expect-plugin-runtime norn.graph:executable-sidecar `
   --expect-plugin-runtime-transport norn.graph:cultmesh `
   --expect-plugin-runtime-authority norn.graph:no-provider-state-mutation `
@@ -70,7 +72,9 @@ node $consumerScript $consumerExport `
   --expect-plugin-runtime-field norn.graph:sidecar.protocol:cultmesh-rpc-with-stdio-dev-transport `
   --expect-plugin-runtime-field norn.graph:sidecar.requestSchema:gamecult.eve.plugin_abi.request.v1 `
   --expect-plugin-runtime-field norn.graph:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
-  --expect-plugin-runtime-field norn.graph:sidecar.stateAuthority:proposes-plugin-state-only-provider-accepts
+  --expect-plugin-runtime-field norn.graph:sidecar.stateAuthority:proposes-plugin-state-only-provider-accepts `
+  --expect-plugin-abi-field norn.graph:lower:expect.commandEnvelope:gamecult.eve.command.v1 `
+  --expect-plugin-abi-field norn.graph:apply:expect.receiptSchema:gamecult.eve.command_receipt.v1
 
 if ($LASTEXITCODE -ne 0) {
   throw "Plugin owner conformance consumer smoke failed with exit code $LASTEXITCODE"

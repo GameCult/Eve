@@ -206,6 +206,30 @@
           "abiOperations": {
             "type": "array"
           },
+          "abiOperationContracts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "operation",
+                "input",
+                "expect"
+              ],
+              "properties": {
+                "operation": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "input": {
+                  "type": "object"
+                },
+                "expect": {
+                  "type": "object"
+                }
+              },
+              "additionalProperties": true
+            }
+          },
           "runtimeBoundary": {
             "type": "object"
           },

@@ -26,6 +26,7 @@ if (!exportDirectory) {
     "  --expect-plugin-runtime-transport <pluginId:transport>",
     "  --expect-plugin-runtime-authority <pluginId:authority>",
     "  --expect-plugin-runtime-field <pluginId:field.path:value>",
+    "  --expect-plugin-abi-field <pluginId:operation:field.path:value>",
     "  --expect-plugin-handoff <pluginId>",
     "  --expect-provider-surface <providerId:surfaceId>",
     "  --expect-provider-surface-kind <providerId:surfaceId:surfaceKind>",
@@ -226,6 +227,23 @@ function validateIndex(index, directory, expectations, errors) {
     const actual = readNestedField(plugin.runtimeBoundary, expectation.fieldPath);
     if (actual !== expectation.value) {
       errors.push(`plugins:${expectation.pluginId}:runtime.${expectation.fieldPath}:expected ${expectation.value} got ${actual || ""}`);
+    }
+  }
+  for (const expectation of expectations.pluginAbiFields) {
+    const plugin = plugins.find(candidate => candidate.pluginId === expectation.pluginId);
+    if (!plugin) {
+      errors.push(`plugins:${expectation.pluginId}:missing`);
+      continue;
+    }
+    const contracts = Array.isArray(plugin.abiOperationContracts) ? plugin.abiOperationContracts : [];
+    const contract = contracts.find(candidate => candidate.operation === expectation.operation);
+    if (!contract) {
+      errors.push(`plugins:${expectation.pluginId}:abiOperation:${expectation.operation}:missing`);
+      continue;
+    }
+    const actual = readNestedField(contract, expectation.fieldPath);
+    if (actual !== expectation.value) {
+      errors.push(`plugins:${expectation.pluginId}:abiOperation:${expectation.operation}.${expectation.fieldPath}:expected ${expectation.value} got ${actual || ""}`);
     }
   }
   for (const expectedPlugin of expectations.pluginHandoffs) {
@@ -580,6 +598,18 @@ function validatePluginRecords(plugins, errors) {
     for (const field of ["capabilities", "abiOperations", "optionalPlugins"]) {
       if (!Array.isArray(plugin?.[field])) errors.push(`${label}:${field}:expected array`);
     }
+    if (!Array.isArray(plugin?.abiOperationContracts)) {
+      errors.push(`${label}:abiOperationContracts:expected array`);
+    }
+    for (const contract of plugin?.abiOperationContracts || []) {
+      if (!contract.operation) errors.push(`${label}:abiOperationContracts:operation:missing`);
+      if (!contract.input || typeof contract.input !== "object" || Array.isArray(contract.input)) {
+        errors.push(`${label}:abiOperationContracts:${contract.operation || "unknown"}:input:expected object`);
+      }
+      if (!contract.expect || typeof contract.expect !== "object" || Array.isArray(contract.expect)) {
+        errors.push(`${label}:abiOperationContracts:${contract.operation || "unknown"}:expect:expected object`);
+      }
+    }
   }
 }
 
@@ -642,6 +672,7 @@ function parseArguments(args) {
     pluginRuntimeTransports: [],
     pluginRuntimeAuthorities: [],
     pluginRuntimeFields: [],
+    pluginAbiFields: [],
     pluginHandoffs: [],
     providers: [],
     providerSurfaces: [],
@@ -685,6 +716,7 @@ function parseArguments(args) {
     ["--expect-plugin-runtime-transport", expectations.pluginRuntimeTransports],
     ["--expect-plugin-runtime-authority", expectations.pluginRuntimeAuthorities],
     ["--expect-plugin-runtime-field", expectations.pluginRuntimeFields],
+    ["--expect-plugin-abi-field", expectations.pluginAbiFields],
     ["--expect-plugin-handoff", expectations.pluginHandoffs],
     ["--expect-provider-surface", expectations.providerSurfaces],
     ["--expect-provider-surface-kind", expectations.providerSurfaceKinds],
@@ -741,6 +773,8 @@ function parseArguments(args) {
       target.push(parsePluginExpectation(value, "authority"));
     } else if (option === "--expect-plugin-runtime-field") {
       target.push(parsePluginRuntimeFieldExpectation(value));
+    } else if (option === "--expect-plugin-abi-field") {
+      target.push(parsePluginAbiFieldExpectation(value));
     } else if (option === "--expect-plugin-handoff") {
       target.push(value);
     } else if (option === "--expect-provider-surface") {
@@ -829,6 +863,20 @@ function parsePluginRuntimeFieldExpectation(value) {
     pluginId: parts[0],
     fieldPath: parts[1],
     value: parts.slice(2).join(":"),
+  };
+}
+
+function parsePluginAbiFieldExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length < 4 || !parts[0] || !parts[1] || !parts[2] || !parts.slice(3).join(":")) {
+    console.error(`Expected plugin ABI field in <pluginId:operation:field.path:value> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    pluginId: parts[0],
+    operation: parts[1],
+    fieldPath: parts[2],
+    value: parts.slice(3).join(":"),
   };
 }
 

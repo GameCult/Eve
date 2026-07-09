@@ -123,6 +123,10 @@ Plugin handoff paths are exported as `plugins[].handoffPath` for owner repos
 such as Sai and Norn. These paths are incubation evidence for where plugin
 manifest, advertisement, ABI fixture, and conformance ownership must move; they
 are not plugin runtime state.
+Plugin ABI fixture operations are exported as `plugins[].abiOperationContracts`
+with `operation`, `input`, and `expect` blocks. Plugin owners can consume the
+operation-level contract for `describe`, `validate`, `project`, `lower`,
+`measure`, and `apply` without opening Eve-local fixture files.
 
 The runtime conformance pack is evidence-shaped, not fixture-shaped. Its
 `packs/runtime.json` document includes `runtimeTargets` so runtime repos can

@@ -449,6 +449,7 @@ async function evaluatePlugin(plugin, fixtureResults) {
   const runtimeBoundary = await readPluginRuntimeBoundary(plugin);
   const runtimeBoundaryErrors = validatePluginRuntimeBoundary(plugin, runtimeBoundary);
   const abiOperations = await readPluginAbiOperations(plugin.abiFixturePath);
+  const abiOperationContracts = await readPluginAbiOperationContracts(plugin.abiFixturePath);
   const abiErrors = await validatePluginAbiFixture(plugin);
   const status = missingPaths.length
     ? "missing-body"
@@ -487,6 +488,7 @@ async function evaluatePlugin(plugin, fixtureResults) {
     abiFixturePath: plugin.abiFixturePath || "",
     handoffPath: plugin.handoffPath || "",
     abiOperations,
+    abiOperationContracts,
     advertisementSchemaPath: plugin.advertisementSchemaPath || "",
     advertisementPath: plugin.advertisementPath || "",
     schemaErrors,
@@ -507,6 +509,23 @@ async function readPluginAbiOperations(abiFixturePath) {
       .map(operation => operation.operation)
       .filter(Boolean)
       .sort();
+  } catch {
+    return [];
+  }
+}
+
+async function readPluginAbiOperationContracts(abiFixturePath) {
+  if (!abiFixturePath) return [];
+  try {
+    const abiFixture = await readJsonDocument(abiFixturePath);
+    return (abiFixture.operations || [])
+      .filter(operation => operation.operation)
+      .map(operation => ({
+        operation: operation.operation,
+        input: operation.input || {},
+        expect: operation.expect || {},
+      }))
+      .sort((left, right) => left.operation.localeCompare(right.operation));
   } catch {
     return [];
   }
@@ -1602,6 +1621,7 @@ function buildConformanceExport(report) {
       handoffExportPath: makeHandoffExportPath("plugin", plugin.pluginId, plugin.handoffPath),
       abiFixturePath: plugin.abiFixturePath,
       abiOperations: plugin.abiOperations || [],
+      abiOperationContracts: plugin.abiOperationContracts || [],
       runtimeBoundary: plugin.runtimeBoundary,
       optionalPlugins: plugin.optionalPlugins || [],
       capabilities: plugin.capabilities,

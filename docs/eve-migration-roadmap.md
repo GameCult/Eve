@@ -304,6 +304,10 @@ Recently cut:
   can rely on exported ids, owners, statuses, split targets, manifest or
   advertisement paths, feature/plugin arrays, and blocker/proof arrays instead
   of treating those sections as untyped bags.
+- Plugin ABI fixture operations are now exported as
+  `plugins[].abiOperationContracts`. Sai and Norn can consume operation-level
+  `input` and `expect` contracts for `describe`, `validate`, `project`,
+  `lower`, `measure`, and `apply` without reading Eve-local fixture files.
 - EveUnity now has a pending Unity scene handoff at
   `runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json`.
   The active `unity-uitoolkit` runtime remains a semantic UI surface lowerer;
