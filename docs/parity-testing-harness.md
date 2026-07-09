@@ -337,8 +337,9 @@ EveUnity includes both the active `unity-uitoolkit` package proof
 and the pending `unity-scene` runtime boundary; UI Toolkit support is not
 treated as full Unity scene/world lowering. The `unity-scene` runtime now claims
 a narrow scene graph command surface, preserves embedded document slot identity,
-and exposes a typed capture request contract, while actual scene capture,
-release, and plugin projection adapters remain explicit blockers.
+and exposes a typed capture request contract plus a schema-backed JSON scene
+projection artifact, while actual scene/frame PNG capture and release remain
+explicit blockers.
 
 The Flutter widget smoke also exercises `EveProviderCatalog` and
 `EveProviderPicker` against a conformance-export-shaped provider list. That is
@@ -410,6 +411,14 @@ lowers the Aetheria world surface through `EveElectronShell` into
 `gamecult.eve.electron_shell_projection.v1` and writes
 `artifacts/eveelectron-capture/latest/electron-shell-projection.json`. The
 remaining blocker is packaged Electron window capture.
+
+Unity scene semantic capture evidence follows the same rule without pretending
+it is a rendered Unity frame. `tools/eveunity/eveunity-scene-capture-artifact.mjs`
+lowers the Aetheria world surface into `gamecult.eve.unity_scene_projection.v1`
+and writes `artifacts/eveunity-scene-capture/latest/unity-scene-projection.json`.
+It records scene graph projection, embedded slots, and sidecar plugin projection
+metadata. The remaining blocker is Unity screenshot or frame-capture PNG
+production from EveUnity.
 
 EveUnity split handoff evidence:
 

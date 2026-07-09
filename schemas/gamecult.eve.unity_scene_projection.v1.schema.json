@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.unity_scene_projection.v1",
+  "title": "Eve Unity Scene Projection",
+  "type": "object",
+  "required": [
+    "type",
+    "schema",
+    "runtimeId",
+    "providerId",
+    "surfaceId",
+    "projectionKind",
+    "commandBoundary",
+    "receiptSchema",
+    "ownership",
+    "root"
+  ],
+  "properties": {
+    "type": {
+      "const": "unity-scene-projection"
+    },
+    "schema": {
+      "const": "gamecult.eve.unity_scene_projection.v1"
+    },
+    "runtimeId": {
+      "const": "unity-scene"
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surfaceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "projectionKind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "commandBoundary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "receiptSchema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownership": {
+      "type": "string",
+      "minLength": 1
+    },
+    "root": {
+      "type": "object",
+      "required": [
+        "id",
+        "componentKind",
+        "sceneObjectKind",
+        "stateBindingCount",
+        "embeddedDocumentCount",
+        "children"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "componentKind": {
+          "type": "string"
+        },
+        "sceneObjectKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "props": {
+          "type": "object"
+        },
+        "layout": {
+          "type": "object"
+        },
+        "style": {
+          "type": "object"
+        },
+        "stateBindingCount": {
+          "type": "number"
+        },
+        "embeddedDocumentCount": {
+          "type": "number"
+        },
+        "embeddedDocuments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "slotId",
+              "documentId"
+            ],
+            "properties": {
+              "slotId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "schemaId": {
+                "type": "string"
+              },
+              "presentationKind": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "pluginProjection": {
+          "type": "object"
+        },
+        "children": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

@@ -30,6 +30,7 @@
     "gamecult.eve.provider_handoff.v1": "schemas/gamecult.eve.provider_handoff.v1.schema.json",
     "gamecult.eve.conformance_handoff.v1": "schemas/gamecult.eve.conformance_handoff.v1.schema.json",
     "gamecult.eve.electron_shell_projection.v1": "schemas/gamecult.eve.electron_shell_projection.v1.schema.json",
+    "gamecult.eve.unity_scene_projection.v1": "schemas/gamecult.eve.unity_scene_projection.v1.schema.json",
     "gamecult.eve.tui_grid.v1": "schemas/gamecult.eve.tui_grid.v1.schema.json"
   },
   "conformancePacks": [
@@ -630,7 +631,7 @@
         "Unity batchmode EditMode runner is owned by EveUnity rather than Eve incubation.",
         "Unity batchmode or editor capture artifact is attached to the runtime conformance report.",
         "Unity scene runtime body graduates to EveUnity outside Aetheria product code.",
-        "Unity scene screenshot or frame-capture artifact is attached to the runtime conformance report."
+        "Unity scene screenshot or frame-capture PNG artifact is attached to the runtime conformance report."
       ]
     },
     {
@@ -1023,10 +1024,13 @@
         "scripts/run-eveunity-scene-release-contract-smoke.ps1",
         "scripts/run-eveunity-scene-provider-shell-smoke.ps1",
         "scripts/run-eveunity-scene-capture-contract-smoke.ps1",
+        "scripts/run-eveunity-scene-capture-smoke.ps1",
         "tools/eveunity/eveunity-release-contract.mjs",
         "tools/eveunity/eveunity-release-contract.test.mjs",
         "tools/eveunity/eveunity-capture-contract.mjs",
-        "tools/eveunity/eveunity-capture-contract.test.mjs"
+        "tools/eveunity/eveunity-capture-contract.test.mjs",
+        "tools/eveunity/eveunity-scene-capture-artifact.mjs",
+        "tools/eveunity/eveunity-scene-capture-artifact.test.mjs"
       ],
       "expectedSourceSymbols": [
         {
@@ -1054,13 +1058,33 @@
           "contains": ["builds Unity scene capture request from provider advertisement", "unity-scene", "artifacts/eveunity-scene-capture/smoke/unity-scene.png"]
         },
         {
+          "path": "tools/eveunity/eveunity-scene-capture-artifact.mjs",
+          "contains": ["buildUnitySceneCaptureArtifact", "buildUnitySceneProjection", "gamecult.eve.unity_scene_projection.v1", "unity-scene-projection-json", "writeUnitySceneCaptureArtifact", "request-output"]
+        },
+        {
+          "path": "tools/eveunity/eveunity-scene-capture-artifact.test.mjs",
+          "contains": ["builds Unity scene projection capture artifact", "keeps Sai, Norn, and TeX semantics in sidecar plugin projections", "gamecult.eve.unity_scene_projection.v1", "unity-scene-projection-json"]
+        },
+        {
           "path": "tools/eveunity/eveunity-release-contract.test.mjs",
           "contains": ["builds EveUnity scene UPM release request from package manifest", "eveunity-scene-v0.1.0", "artifacts/eveunity-scene-release/0.1.0/org.gamecult.eve.unity-scene-0.1.0.tgz"]
         }
       ],
       "capture": {
-        "status": "missing",
-        "note": "Unity scene capture is a split blocker until EveUnity attaches provider-agnostic scene frame artifacts."
+        "status": "json-projection",
+        "note": "Unity scene attaches a provider-advertisement-backed gamecult.eve.unity_scene_projection.v1 JSON projection artifact; Unity screenshot or frame-capture PNG remains an EveUnity split blocker.",
+        "artifacts": [
+          {
+            "kind": "json-projection",
+            "schema": "gamecult.eve.unity_scene_projection.v1",
+            "path": "artifacts/eveunity-scene-capture/latest/unity-scene-projection.json",
+            "runtimeId": "unity-scene",
+            "providerId": "aetheria",
+            "surfaceId": "aetheria.daemon.game",
+            "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
+            "requestPath": "artifacts/eveunity-scene-capture/latest/capture-request.json"
+          }
+        ]
       }
     },
     {

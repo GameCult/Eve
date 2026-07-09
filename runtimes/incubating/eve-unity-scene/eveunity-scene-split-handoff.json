@@ -92,10 +92,13 @@
       "currentPaths": [
         "tools/eveunity/eveunity-capture-contract.mjs",
         "tools/eveunity/eveunity-capture-contract.test.mjs",
-        "scripts/run-eveunity-scene-capture-contract-smoke.ps1"
+        "tools/eveunity/eveunity-scene-capture-artifact.mjs",
+        "tools/eveunity/eveunity-scene-capture-artifact.test.mjs",
+        "scripts/run-eveunity-scene-capture-contract-smoke.ps1",
+        "scripts/run-eveunity-scene-capture-smoke.ps1"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "EveUnity builds a provider-advertisement-backed Unity scene capture request now; the split is not complete until EveUnity attaches Unity scene screenshot or frame-capture artifacts to conformance output for at least one provider-authored world surface."
+      "replacementProof": "EveUnity builds a provider-advertisement-backed Unity scene capture request and deterministic gamecult.eve.unity_scene_projection.v1 JSON projection artifact now; the split is not complete until EveUnity attaches Unity scene screenshot or frame-capture PNG artifacts to conformance output for at least one provider-authored world surface."
     }
   ],
   "contractInputs": [
@@ -125,6 +128,6 @@
     "EveUnity lowers at least one non-Aetheria provider-authored world surface into Unity scene objects.",
     "EveUnity lowers Aetheria's game world surface through provider advertisements without importing Aetheria internals.",
     "Unity scene input emits gamecult.eve.command.v1 intents and renders provider receipts.",
-    "Unity scene screenshot or frame-capture artifacts are attached to conformance output."
+    "Unity scene screenshot or frame-capture PNG artifacts are attached to conformance output."
   ]
 }

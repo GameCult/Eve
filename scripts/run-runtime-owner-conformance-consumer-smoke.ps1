@@ -46,6 +46,7 @@ node $consumerScript $consumerExport `
   --expect-schema gamecult.eve.runtime_lifecycle.v1 `
   --expect-schema gamecult.eve.runtime_split_handoff.v1 `
   --expect-schema gamecult.eve.electron_shell_projection.v1 `
+  --expect-schema gamecult.eve.unity_scene_projection.v1 `
   --expect-schema gamecult.eve.tui_grid.v1 `
   --expect-schema gamecult.eve.web_layout_probe.v1 `
   --expect-runtime-status web:active `
@@ -132,7 +133,8 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-status linux-flutter:ssh-golden `
   --expect-runtime-capture-status android-flutter:adb-png `
   --expect-runtime-capture-status unity-uitoolkit:semantic `
-  --expect-runtime-capture-status unity-scene:missing `
+  --expect-runtime-capture-status unity-scene:json-projection `
+  --expect-runtime-capture-artifact unity-scene:json-projection:gamecult.eve.unity_scene_projection.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-status electron-shell:json-projection `
   --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-status tui:json-grid `
@@ -180,7 +182,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-status unity-scene:capture:pending-unity-scene-capture `
   --expect-runtime-lifecycle-pending "unity-scene:release:Unity scene package release" `
   --expect-runtime-lifecycle-pending "unity-scene:test:Unity scene provider-advertisement smoke" `
-  --expect-runtime-lifecycle-pending "unity-scene:capture:Unity scene screenshot or frame-capture artifact" `
+  --expect-runtime-lifecycle-pending "unity-scene:capture:Unity scene screenshot or frame-capture PNG artifact" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.packageName:org.gamecult.eve.unity-scene" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactKind:upm-package" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.tagPattern:eveunity-scene-v{version}" `

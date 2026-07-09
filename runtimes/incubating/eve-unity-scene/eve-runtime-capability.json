@@ -155,20 +155,35 @@
         "requiredProvider": "aetheria",
         "requiredSurface": "aetheria.daemon.game",
         "authority": "Capture observes Unity scene projection only; provider state, command acceptance, and receipts stay provider-owned.",
-        "publishProof": "Unity scene screenshot or frame-capture artifact is attached to the runtime conformance report from EveUnity."
+        "publishProof": "Unity scene screenshot or frame-capture PNG artifact is attached to the runtime conformance report from EveUnity."
       },
       "evidencePaths": [
         "tools/eveunity/eveunity-capture-contract.mjs",
         "tools/eveunity/eveunity-capture-contract.test.mjs",
-        "scripts/run-eveunity-scene-capture-contract-smoke.ps1"
+        "tools/eveunity/eveunity-scene-capture-artifact.mjs",
+        "tools/eveunity/eveunity-scene-capture-artifact.test.mjs",
+        "scripts/run-eveunity-scene-capture-contract-smoke.ps1",
+        "scripts/run-eveunity-scene-capture-smoke.ps1"
       ],
       "pendingProofs": [
-        "Unity scene screenshot or frame-capture artifact is attached to the runtime conformance report."
+        "Unity scene screenshot or frame-capture PNG artifact is attached to the runtime conformance report."
       ]
     }
   },
   "capture": {
-    "status": "missing",
-    "note": "Unity scene capture is a split blocker until EveUnity attaches provider-agnostic scene frame artifacts."
+    "status": "json-projection",
+    "note": "Unity scene attaches a provider-advertisement-backed gamecult.eve.unity_scene_projection.v1 JSON projection artifact; Unity screenshot or frame-capture PNG remains an EveUnity split blocker.",
+    "artifacts": [
+      {
+        "kind": "json-projection",
+        "schema": "gamecult.eve.unity_scene_projection.v1",
+        "path": "artifacts/eveunity-scene-capture/latest/unity-scene-projection.json",
+        "runtimeId": "unity-scene",
+        "providerId": "aetheria",
+        "surfaceId": "aetheria.daemon.game",
+        "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
+        "requestPath": "artifacts/eveunity-scene-capture/latest/capture-request.json"
+      }
+    ]
   }
 }

@@ -571,6 +571,15 @@ Recently cut:
   `scripts/run-eveunity-capture-contract-smoke.ps1` proves that request path
   without pretending a Unity PNG has been captured. The actual capture artifact
   remains a split blocker for EveUnity.
+- Unity scene capture now has the same semantic artifact boundary as Electron
+  without pretending it is a rendered Unity frame. `tools/eveunity/eveunity-scene-capture-artifact.mjs`
+  lowers `web/fixtures/aetheria-world-surface.json` into
+  `gamecult.eve.unity_scene_projection.v1`, writes
+  `artifacts/eveunity-scene-capture/latest/unity-scene-projection.json`, and
+  exports it as `runtime.captureArtifacts[]`. The builder also proves Sai,
+  Norn, and TeX remain sidecar plugin projections when a visual-novel surface
+  is lowered. The remaining EveUnity blocker is an owner-repo Unity screenshot
+  or frame-capture PNG, not absence of semantic scene projection evidence.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria
