@@ -1,0 +1,56 @@
+{
+  "schema": "gamecult.eve.runtime_lifecycle.v1",
+  "splitTarget": "EveFlutter",
+  "ownerRepo": "EveFlutter",
+  "currentHostRepo": "Eve",
+  "status": "incubating",
+  "runtimes": [
+    "windows-flutter",
+    "linux-flutter",
+    "android-flutter"
+  ],
+  "release": {
+    "ownerRepo": "EveFlutter",
+    "status": "incubating-flutter-app",
+    "evidencePaths": [
+      "flutter/eve_parity/pubspec.yaml",
+      "flutter/eve_parity/README.md"
+    ],
+    "pendingProofs": [
+      "Tagged EveFlutter release is cut from EveFlutter rather than Eve incubation."
+    ]
+  },
+  "test": {
+    "ownerRepo": "EveFlutter",
+    "status": "dart-analyze-and-widget-smoke",
+    "commands": [
+      "tools/deps/flutter/bin/cache/dart-sdk/bin/dart.exe analyze lib test",
+      "powershell -ExecutionPolicy Bypass -File scripts/run-eveflutter-conformance-consumer-smoke.ps1"
+    ],
+    "evidencePaths": [
+      "flutter/eve_parity/lib/main.dart",
+      "flutter/eve_parity/test/parity_smoke_test.dart",
+      "scripts/run-eveflutter-conformance-consumer-smoke.ps1"
+    ],
+    "pendingProofs": [
+      "Flutter test runner is owned by EveFlutter rather than Eve incubation."
+    ]
+  },
+  "capture": {
+    "ownerRepo": "EveFlutter",
+    "status": "windows-linux-android-capture-smokes",
+    "evidencePaths": [
+      "scripts/capture-flutter-parity.ps1",
+      "scripts/capture-linux-flutter-parity.ps1",
+      "scripts/capture-android-flutter-parity.ps1"
+    ],
+    "pendingProofs": [
+      "Flutter capture runners are owned by EveFlutter rather than Eve incubation."
+    ]
+  },
+  "remainingSplitBlockers": [
+    "Tagged EveFlutter release is cut from EveFlutter rather than Eve incubation.",
+    "Flutter test runner is owned by EveFlutter rather than Eve incubation.",
+    "Flutter capture runners are owned by EveFlutter rather than Eve incubation."
+  ]
+}

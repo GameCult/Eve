@@ -21,3 +21,16 @@ powershell -ExecutionPolicy Bypass -File .\scripts\capture-flutter-parity.ps1 -T
 
 Linux capture requires running the same harness on a Linux host. The Windows
 host must not pretend to be a Linux renderer.
+
+Split lifecycle evidence lives in `eveflutter-lifecycle.json`. From the
+repository root, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-eveflutter-lifecycle-smoke.ps1
+```
+
+That smoke validates the lifecycle document, checks release/test/capture
+evidence paths, runs the Dart analyzer through the bundled Dart SDK, and consumes
+the exported conformance pack from inside `flutter/eve_parity`. The document is
+incubation evidence only: tagged release, test runner ownership, and capture
+runner ownership still graduate to the `EveFlutter` repo.

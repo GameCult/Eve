@@ -458,10 +458,21 @@
             "tools/conformance/consume-export.mjs",
             "tools/parity/run-parity.mjs"
           ]
+        },
+        {
+          "description": "Flutter lifecycle evidence is declared and smoke-checked for EveFlutter incubation.",
+          "status": "passed",
+          "evidencePaths": [
+            "flutter/eve_parity/eveflutter-lifecycle.json",
+            "scripts/run-eveflutter-lifecycle-smoke.ps1",
+            "scripts/capture-flutter-parity.ps1",
+            "scripts/capture-linux-flutter-parity.ps1",
+            "scripts/capture-android-flutter-parity.ps1"
+          ]
         }
       ],
       "pendingProofs": [
-        "Flutter build, release, and capture lifecycle can run from EveFlutter."
+        "Tagged EveFlutter release, test runner, and capture runners are owned by EveFlutter rather than Eve incubation."
       ]
     },
     {

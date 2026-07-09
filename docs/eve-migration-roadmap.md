@@ -280,6 +280,14 @@ Exit criteria:
 
 Recently cut:
 
+- EveFlutter now has explicit lifecycle incubation evidence at
+  `flutter/eve_parity/eveflutter-lifecycle.json` and a smoke runner at
+  `scripts/run-eveflutter-lifecycle-smoke.ps1`. The smoke validates the
+  lifecycle document, checks release/test/capture evidence paths, runs Dart
+  analysis from the bundled SDK, and consumes the exported conformance pack from
+  inside `flutter/eve_parity`. The split-readiness blocker is now narrower:
+  tagged release, test runner ownership, and capture runner ownership must move
+  to `EveFlutter`, rather than pretending the lifecycle shape is still unknown.
 - EveFlutter now has a provider-catalog picker primitive. `EveProviderCatalog`
   parses conformance-export provider entries, including Sai/Norn/TeX plugin
   requirements, and `EveProviderPicker` selects those provider ids without
