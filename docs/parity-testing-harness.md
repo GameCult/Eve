@@ -328,6 +328,12 @@ a narrow provider-advertised surface-tree command surface and exposes a typed
 capture request contract plus a schema-backed JSON shell projection artifact.
 It preserves embedded document slot identity in the generic shell projection,
 while packaged rendering and actual window PNG capture remain blockers.
+EveUnity's UI Toolkit handoff does the same for Aetheria's Unity consumer
+boundary: Aetheria's Unity `Packages/manifest.json`, generated
+`GameCult.Eve.UnityUIToolkit.csproj`, assets root, daemon catalog client, and
+Unity smoke are exported as `observed-provider` paths. That proves a real game
+consumes the generic EveUnity package/contract while keeping product state,
+assets, generated projects, scenes, and receipts in Aetheria.
 EveTui is now an active incubating runtime: it claims a lossy
 provider-advertised terminal-grid command surface, preserves embedded document
 slot identity in the grid artifact, projects Sai/Norn/TeX fallback shells, and

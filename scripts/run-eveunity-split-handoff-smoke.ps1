@@ -80,6 +80,43 @@ foreach ($stage in $expectedStages) {
   }
 }
 
+$consumerBoundary = $moveSets | Where-Object { $_.id -eq "aetheria-unity-consumer-boundary" } | Select-Object -First 1
+if (-not $consumerBoundary) {
+  throw "EveUnity split handoff missing Aetheria Unity consumer-boundary move set"
+}
+if ($consumerBoundary.stage -ne "provider-consumer") {
+  throw "Aetheria Unity consumer-boundary move set has unexpected stage: $($consumerBoundary.stage)"
+}
+if ($consumerBoundary.destinationOwner -ne "EveUnity") {
+  throw "Aetheria Unity consumer-boundary has unexpected destination owner: $($consumerBoundary.destinationOwner)"
+}
+if (-not $consumerBoundary.replacementProof) {
+  throw "Aetheria Unity consumer-boundary missing replacement proof"
+}
+foreach ($relativePath in @($consumerBoundary.currentPaths)) {
+  $absolutePath = Join-Path $projectRoot $relativePath
+  if (-not (Test-Path -LiteralPath $absolutePath)) {
+    throw "Aetheria Unity consumer-boundary references missing current path: $relativePath"
+  }
+}
+foreach ($providerPath in @($consumerBoundary.observedProviderPaths)) {
+  if (-not ([System.IO.Path]::IsPathRooted($providerPath))) {
+    throw "Aetheria Unity observed provider path must be absolute: $providerPath"
+  }
+  if (-not (Test-Path -LiteralPath $providerPath)) {
+    throw "Aetheria Unity observed provider path is missing: $providerPath"
+  }
+}
+foreach ($requiredObservedPath in @(
+  "E:\Projects\Aetheria\Packages\manifest.json",
+  "E:\Projects\Aetheria\GameCult.Eve.UnityUIToolkit.csproj",
+  "E:\Projects\Aetheria\Assets"
+)) {
+  if (-not (@($consumerBoundary.observedProviderPaths) -contains $requiredObservedPath)) {
+    throw "Aetheria Unity consumer-boundary missing required observed provider path: $requiredObservedPath"
+  }
+}
+
 foreach ($contract in @(
   "gamecult.eve.surface.v1",
   "gamecult.eve.command.v1",

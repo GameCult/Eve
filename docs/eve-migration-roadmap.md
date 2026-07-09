@@ -195,9 +195,10 @@ Work:
 - Move `tex.math` to EvePlugins when TeX source, macro, baseline, cached render,
   and fallback fixtures are stable.
 - Treat nested plugin placement as composition, not custody. A Sai surface may
-  deploy with nested Norn or TeX surfaces when those plugin sidecars are
-  available, but Norn and TeX remain independent plugin owners with their own
-  ABI manifests, capability claims, and conformance packs.
+  deploy with nested Norn or TeX surfaces when those independent plugin
+  sidecars are available, but Sai does not depend on them for VN authority and
+  does not own their graph or math semantics. Norn and TeX keep their own ABI
+  manifests, capability claims, and conformance packs.
 
 Exit criteria:
 
@@ -207,6 +208,9 @@ Exit criteria:
 - Unsupported required plugin capabilities appear as visible gaps.
 - Optional nested plugin gaps degrade the nested surface; they do not transfer
   graph, math, or renderer semantics into the parent plugin.
+- A provider may mark a nested plugin slot as optional or required for a
+  specific surface, but that availability policy is provider composition, not
+  Sai ownership of Norn or TeX.
 
 ## Phase 4: Graduate Runtime Bodies
 
@@ -840,6 +844,15 @@ Recently cut:
   UI Toolkit packages by file reference, checks the generated
   `GameCult.Eve.UnityUIToolkit.csproj` includes all current runtime files, and
   builds the package through Aetheria's Unity-generated project.
+- The EveUnity UI Toolkit split handoff now records Aetheria's Unity consumer
+  boundary as `observed-provider` evidence. The handoff names Aetheria's
+  package manifest, generated Unity project, assets root, daemon catalog
+  client, and Unity smoke as provider-owned pressure sources that prove a real
+  game consumes EveUnity without making those Aetheria paths EveUnity source.
+  `scripts/run-eveunity-split-handoff-smoke.ps1`,
+  `scripts/run-split-target-conformance-consumer-smoke.ps1`, and
+  `scripts/run-aetheria-conformance-consumer-smoke.ps1` assert that boundary
+  from the manifest/export.
 - Unity UI Toolkit now has a first-party `norn.graph` projection-adapter proof
   for `embed.norn`. `NornGraphUiToolkitProjectionAdapter` owns the native
   embedded graph shell and graph command emission path, while the Norn sidecar
@@ -874,8 +887,10 @@ Recently cut:
   Eve's parity manifest or dirtying the Aetheria worktree.
 - The Aetheria consumer smoke now also asserts frontend extraction boundaries:
   web, Unity UI Toolkit, Unity scene, and Electron shell are covered generic
-  lowerings, while the observed Aetheria Electron shell/client paths remain
-  split-handoff evidence to replace with a provider-agnostic EveElectron body.
+  lowerings. Observed Aetheria Unity and Electron product paths remain
+  provider-owned split-handoff evidence to replace with provider-agnostic
+  EveUnity/EveElectron bodies where runtime code still lives in the wrong
+  place.
 - The parity harness now runs a conformance consumer smoke against a copied
   `artifacts/conformance/latest` layout, proving the export can be consumed
   through `index.json` and `packs/*.json` without reading Eve's parity manifest.

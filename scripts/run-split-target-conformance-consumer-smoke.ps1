@@ -53,6 +53,9 @@ try {
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-tex-plugin-projection:current:exists:TeXMathUnitySceneProjectionAdapter.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-capture-lifecycle:current:exists:eveunity-capture-contract.mjs `
+    --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:Packages/manifest.json `
+    --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:GameCult.Eve.UnityUIToolkit.csproj `
+    --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:Aetheria.State.Unity/AetheriaRuntimeCatalogClient.cs `
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target-blocker "EveUnity:Unity batchmode EditMode runner" `
     --expect-split-target-blocker "EveUnity:Unity batchmode or editor capture artifact" `

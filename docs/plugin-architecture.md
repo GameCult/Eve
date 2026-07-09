@@ -459,6 +459,11 @@ Sai surface deploys with nested Norn or TeX, Sai composes the slots and keeps VN
 stage authority; Norn and TeX still publish, validate, lower, and receive
 commands through their own plugin contracts.
 
+Nested availability is a composition fact, not a Sai dependency story. A Sai
+surface can be deployed with a nested Norn or TeX surface only when that other
+plugin is available or when the provider deliberately accepts degraded nested
+fallback behavior.
+
 Norn plugin responsibilities:
 
 - define `embed.norn` semantics;
