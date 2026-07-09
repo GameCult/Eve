@@ -609,10 +609,13 @@ Recently cut:
   `world.entity3d`, asset-manifest, input-profile, camera, movement, focus, and
   target command affordances; `EveUnitySceneSurfaceLowerer` exposes them as a
   `PlayableWorld` projection, and the JSON capture artifact exports the same
-  `playableWorld` shape under `gamecult.eve.unity_scene_projection.v1`. The
-  next blocker is the live generic Unity client loop: subscribe to the Aetheria
-  daemon surface over CultMesh/CultNet, instantiate the projected world, emit
-  `gamecult.eve.command.v1` input, and wait for provider receipts/next frames.
+  `playableWorld` shape under `gamecult.eve.unity_scene_projection.v1`.
+  `EveUnitySceneClientSession` now consumes provider surface snapshots and emits
+  movement/focus/target/action intents through the advertised command boundary,
+  so the Unity client boundary is generic before it learns live transport. The
+  next blocker is the live generic Unity player loop: feed that session from
+  CultMesh/CultNet, instantiate the projected world in Unity, and wait for
+  provider receipts/next frames rather than renderer-local simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria

@@ -152,21 +152,23 @@ Toolkit, Unity scene, Electron shell, and TUI lowerers are lowering targets;
 Aetheria remains the owner of world state, assets, command acceptance, and
 receipts.
 
-The Unity scene lowerer now has a first playable-world extraction proof. The
-fixture carries a generic `world.scene3d` node with a daemon state pointer,
-asset manifest ref, third-person input/camera profile, movement/focus/target
-command names, `world.entity3d` rows, and a `field.vector3d` volume field. The
-Unity scene runtime lowers that into `playableWorld` projection evidence:
-entity ids, kinds, labels, positions, radii, asset refs, controllability, and
-command affordances. Aetheria-specific names appear only as provider-authored
-data and command ids; the Unity client code does not import Aetheria runtime
-types or apply movement locally.
+The Unity scene lowerer now has a playable-world extraction and client-session
+proof. The fixture carries a generic `world.scene3d` node with a daemon state
+pointer, asset manifest ref, third-person input/camera profile,
+movement/focus/target command names, `world.entity3d` rows, and a
+`field.vector3d` volume field. The Unity scene runtime lowers that into
+`playableWorld` projection evidence: entity ids, kinds, labels, positions,
+radii, asset refs, controllability, and command affordances. The generic
+`EveUnitySceneClientSession` consumes provider surface snapshots and emits
+`gamecult.eve.command.v1` intents through the advertised command boundary.
+Aetheria-specific names appear only as provider-authored data and command ids;
+the Unity client code does not import Aetheria runtime types or apply movement
+locally.
 
-This is not yet the final playable client. The remaining cut is a generic
-EveUnity scene client that subscribes to the live Aetheria daemon surface over
-CultMesh/CultNet, instantiates the projected world in a Unity player, emits
-input as `gamecult.eve.command.v1`, and proves daemon receipts drive the next
-frame rather than renderer-local state.
+This is not yet the final playable client. The remaining cut is a live
+CultMesh/CultNet provider subscription adapter feeding `EveUnitySceneClientSession`,
+Unity player instantiation of the projected world, and proof that daemon
+receipts drive the next frame rather than renderer-local state.
 
 ## Non-Goals
 

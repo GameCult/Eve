@@ -477,9 +477,13 @@ and writes `artifacts/eveunity-scene-capture/latest/unity-scene-projection.json`
 It records scene graph projection, embedded slots, sidecar plugin projection
 metadata, and a `playableWorld` extraction for generic `world.scene3d` /
 `world.entity3d` ARPG data: state pointer, asset manifest, camera/input profile,
-entity transforms, asset refs, and daemon command affordances. The remaining
-blocker is a live generic Unity client loop and Unity screenshot or
-frame-capture PNG production from EveUnity.
+entity transforms, asset refs, and daemon command affordances. The Unity scene
+runtime also declares `providerSurfaceSession` and carries
+`EveUnitySceneClientSession`, a provider-snapshot boundary that lowers the
+active surface and emits `gamecult.eve.command.v1` intents without Aetheria
+types. The remaining blocker is the live CultMesh/CultNet subscription adapter,
+Unity player instantiation, and Unity screenshot or frame-capture PNG
+production from EveUnity.
 
 Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
 Each record joins runtime status, capture owner, lifecycle capture contract,

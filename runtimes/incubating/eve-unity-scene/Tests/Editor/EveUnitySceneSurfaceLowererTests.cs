@@ -95,6 +95,43 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes()
+        {
+            var session = new EveUnitySceneClientSession();
+            var projection = session.Connect(new EveUnitySceneProviderSurfaceSnapshot(
+                PlayableArpgDocument(),
+                Advertisement("aetheria.daemon.game"),
+                "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                42));
+
+            Assert.That(session.ActiveSourcePointer, Is.EqualTo("cultmesh://aetheria/eve/surfaces/aetheria.daemon.game"));
+            Assert.That(session.ActiveProjection, Is.SameAs(projection));
+            Assert.That(projection.ProviderId, Is.EqualTo("aetheria"));
+            Assert.That(projection.PlayableWorld, Is.Not.Null);
+            Assert.That(projection.PlayableWorld!.InputProfile, Is.EqualTo("arpg-third-person"));
+            Assert.That(projection.PlayableWorld.EntityCount, Is.EqualTo(3));
+
+            var moveIntent = session.CreateMoveIntent(
+                "player-vanguard",
+                12f,
+                0f,
+                8f,
+                DateTimeOffset.Parse("2026-07-09T00:00:00Z"));
+
+            Assert.That(moveIntent.Schema, Is.EqualTo(EveSurfaceCommandRequest.SchemaId));
+            Assert.That(moveIntent.ProviderId, Is.EqualTo("aetheria"));
+            Assert.That(moveIntent.SurfaceId, Is.EqualTo("aetheria.daemon.game"));
+            Assert.That(moveIntent.ClientId, Is.EqualTo("unity-scene"));
+            Assert.That(moveIntent.Command, Is.EqualTo("aetheria.daemon.commands"));
+            Assert.That(moveIntent.CommandBoundary, Is.EqualTo("aetheria.daemon.commands"));
+            Assert.That(moveIntent.ReceiptSchema, Is.EqualTo("aetheria.eve_command_acceptance_status.v1"));
+
+            var focusIntent = session.CreateFocusIntent("anchor-station");
+            Assert.That(focusIntent.Command, Is.EqualTo("aetheria.daemon.commands"));
+            Assert.That(focusIntent.CommandBoundary, Is.EqualTo("aetheria.daemon.commands"));
+        }
+
+        [Test]
         public void SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState()
         {
             var lowerer = new EveUnitySceneSurfaceLowerer();
