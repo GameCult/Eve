@@ -63,6 +63,26 @@ namespace GameCult.Eve.UnityScene
                 issuedAt);
         }
 
+        public EveSurfaceCommandRequest CreateMoveVectorIntent(
+            string entityId,
+            float directionX,
+            float directionY,
+            float scalarValue = 1f,
+            DateTimeOffset? issuedAt = null)
+        {
+            var playableWorld = RequirePlayableWorld();
+            return CreatePlayableWorldIntent(
+                playableWorld.MovementCommand,
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["entityId"] = entityId ?? "",
+                    ["directionX"] = FormatFloat(directionX),
+                    ["directionY"] = FormatFloat(directionY),
+                    ["scalarValue"] = FormatFloat(scalarValue)
+                },
+                issuedAt);
+        }
+
         public EveSurfaceCommandRequest CreateFocusIntent(
             string entityId,
             DateTimeOffset? issuedAt = null)
@@ -167,6 +187,11 @@ namespace GameCult.Eve.UnityScene
                 x.ToString("R", CultureInfo.InvariantCulture),
                 y.ToString("R", CultureInfo.InvariantCulture),
                 z.ToString("R", CultureInfo.InvariantCulture));
+        }
+
+        private static string FormatFloat(float value)
+        {
+            return value.ToString("R", CultureInfo.InvariantCulture);
         }
     }
 

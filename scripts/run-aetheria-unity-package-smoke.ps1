@@ -17,6 +17,7 @@ $aetheriaEveRuntimeAsmdef = Join-Path $AetheriaRoot "Packages\org.gamecult.aethe
 $aetheriaSceneBridge = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\AetheriaEveUnitySceneProviderBridge.cs"
 $aetheriaSceneProviderComponent = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\AetheriaEveUnitySceneProviderComponent.cs"
 $aetheriaGameSurfaceBuilder = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonGameSurfaceBuilder.cs"
+$aetheriaDaemonOperationsClient = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonOperationsClient.cs"
 if (-not (Test-Path $manifestPath)) {
   throw "Aetheria Unity package manifest not found: $manifestPath"
 }
@@ -40,6 +41,9 @@ if (-not (Test-Path $aetheriaSceneProviderComponent)) {
 }
 if (-not (Test-Path $aetheriaGameSurfaceBuilder)) {
   throw "Aetheria daemon game surface builder not found: $aetheriaGameSurfaceBuilder"
+}
+if (-not (Test-Path $aetheriaDaemonOperationsClient)) {
+  throw "Aetheria daemon operations client not found: $aetheriaDaemonOperationsClient"
 }
 
 $manifest = Get-Content -Raw -LiteralPath $manifestPath
@@ -124,11 +128,32 @@ foreach ($symbol in @(
   '"world.entity3d"',
   '"movementCommand"',
   '"assetManifest"',
+  '"arpg.pointer-keyboard.v1"',
+  '"arpg.orbital-follow.v1"',
+  'SetMoveVector',
   '"prefab.entity.ship"',
   '"prefab.entity.station"'
 )) {
   if (-not $gameSurfaceBuilder.Contains($symbol)) {
     throw "Aetheria daemon game surface is not publishing playable world symbol: $symbol"
+  }
+}
+
+$daemonOperationsClient = Get-Content -Raw -LiteralPath $aetheriaDaemonOperationsClient
+foreach ($symbol in @(
+  "TrySubmitSurfaceCommand",
+  "SetMoveVector",
+  '"directionX"',
+  '"directionY"',
+  '"scalarValue"',
+  "SetTarget",
+  '"targetEntityId"',
+  "FireWeaponGroup",
+  '"weaponGroup"',
+  '"actionId"'
+)) {
+  if (-not $daemonOperationsClient.Contains($symbol)) {
+    throw "Aetheria daemon surface command adapter is not consuming playable world command payload symbol: $symbol"
   }
 }
 

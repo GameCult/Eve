@@ -65,6 +65,16 @@ namespace GameCult.Eve.UnityScene
             return _connection.SubmitMoveIntent(entityId, targetX, targetY, targetZ, issuedAt);
         }
 
+        public EveSurfaceCommandRequest SubmitMoveVectorIntent(
+            string entityId,
+            float directionX,
+            float directionY,
+            float scalarValue = 1f,
+            DateTimeOffset? issuedAt = null)
+        {
+            return _connection.SubmitMoveVectorIntent(entityId, directionX, directionY, scalarValue, issuedAt);
+        }
+
         public EveSurfaceCommandRequest SubmitFocusIntent(
             string entityId,
             DateTimeOffset? issuedAt = null)

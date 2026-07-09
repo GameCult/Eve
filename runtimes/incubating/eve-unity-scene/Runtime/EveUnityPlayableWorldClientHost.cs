@@ -32,6 +32,8 @@ namespace GameCult.Eve.UnityScene
 
         public long ActiveVersion => Runtime?.ActiveVersion ?? 0;
 
+        public Transform SceneRoot => sceneRoot == null ? transform : sceneRoot;
+
         public void Configure(
             Transform? sceneRoot,
             MonoBehaviour providerSurfaceDocuments,
@@ -54,7 +56,7 @@ namespace GameCult.Eve.UnityScene
             RefreshProviderSources();
 
             Runtime = EveUnityPlayableWorldRuntime.CreateForGameObjectScene(
-                sceneRoot == null ? transform : sceneRoot,
+                SceneRoot,
                 Required<IEveUnitySceneProviderSurfaceDocumentSource>(
                     providerSurfaceDocuments,
                     nameof(providerSurfaceDocuments)),
@@ -85,6 +87,16 @@ namespace GameCult.Eve.UnityScene
             DateTimeOffset? issuedAt = null)
         {
             return RequireRuntime().SubmitMoveIntent(entityId, targetX, targetY, targetZ, issuedAt);
+        }
+
+        public EveSurfaceCommandRequest SubmitMoveVectorIntent(
+            string entityId,
+            float directionX,
+            float directionY,
+            float scalarValue = 1f,
+            DateTimeOffset? issuedAt = null)
+        {
+            return RequireRuntime().SubmitMoveVectorIntent(entityId, directionX, directionY, scalarValue, issuedAt);
         }
 
         public EveSurfaceCommandRequest SubmitFocusIntent(

@@ -130,6 +130,22 @@ namespace GameCult.Eve.UnityScene.Tests
             var focusIntent = session.CreateFocusIntent("anchor-station");
             Assert.That(focusIntent.Command, Is.EqualTo("aetheria.daemon.commands"));
             Assert.That(focusIntent.CommandBoundary, Is.EqualTo("aetheria.daemon.commands"));
+
+            var moveVectorIntent = session.CreateMoveVectorIntent(
+                "player-vanguard",
+                0.25f,
+                0.75f,
+                0.8f,
+                DateTimeOffset.Parse("2026-07-09T00:00:01Z"));
+
+            Assert.That(moveVectorIntent.ProviderId, Is.EqualTo("aetheria"));
+            Assert.That(moveVectorIntent.SurfaceId, Is.EqualTo("aetheria.daemon.game"));
+            Assert.That(moveVectorIntent.Command, Is.EqualTo("aetheria.daemon.commands"));
+            Assert.That(moveVectorIntent.Payload.GetString("commandId"), Is.EqualTo("aetheria.daemon.move_intent"));
+            Assert.That(moveVectorIntent.Payload.GetString("entityId"), Is.EqualTo("player-vanguard"));
+            Assert.That(moveVectorIntent.Payload.GetString("directionX"), Is.EqualTo("0.25"));
+            Assert.That(moveVectorIntent.Payload.GetString("directionY"), Is.EqualTo("0.75"));
+            Assert.That(moveVectorIntent.Payload.GetString("scalarValue"), Is.EqualTo("0.8"));
         }
 
         [Test]
@@ -379,6 +395,142 @@ namespace GameCult.Eve.UnityScene.Tests
             }
             finally
             {
+                UnityEngine.Object.DestroyImmediate(hostObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void PlayableWorldClientHostSubmitsProviderOwnedMoveVector()
+        {
+            var rootObject = new GameObject("generic-eve-world-root");
+            var hostObject = new GameObject("generic-eve-client");
+            hostObject.SetActive(false);
+
+            try
+            {
+                var provider = hostObject.AddComponent<FakePlayableWorldProviderComponent>();
+                provider.Set(
+                    new EveUnitySceneProviderSurfaceDocument(
+                        PlayableArpgDocument(),
+                        Advertisement("aetheria.daemon.game"),
+                        "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                        1),
+                    new EveUnityPlayableWorldAssetManifestDocument(
+                        "cultmesh://aetheria/assets/manifest",
+                        Array.Empty<EveUnityPlayableWorldAssetManifestDocumentEntry>(),
+                        "aetheria"));
+
+                var host = hostObject.AddComponent<EveUnityPlayableWorldClientHost>();
+                host.Configure(rootObject.transform, provider, provider, provider, provider);
+                host.Connect();
+
+                var moveVector = host.SubmitMoveVectorIntent("player-vanguard", 0.6f, -0.8f, 1f);
+
+                Assert.That(provider.Submitted.Count, Is.EqualTo(1));
+                Assert.That(provider.Submitted[0], Is.SameAs(moveVector));
+                Assert.That(moveVector.CommandBoundary, Is.EqualTo("aetheria.daemon.commands"));
+                Assert.That(moveVector.Payload.GetString("commandId"), Is.EqualTo("aetheria.daemon.move_intent"));
+                Assert.That(moveVector.Payload.GetString("entityId"), Is.EqualTo("player-vanguard"));
+                Assert.That(moveVector.Payload.GetString("directionX"), Is.EqualTo("0.6"));
+                Assert.That(moveVector.Payload.GetString("directionY"), Is.EqualTo("-0.8"));
+                Assert.That(moveVector.Payload.GetString("scalarValue"), Is.EqualTo("1"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(hostObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void PlayableWorldInputDriverBuildsCameraRelativeMoveVectorWithoutProviderTypes()
+        {
+            var rootObject = new GameObject("generic-eve-world-root");
+            var hostObject = new GameObject("generic-eve-client");
+            var cameraObject = new GameObject("generic-eve-camera");
+            hostObject.SetActive(false);
+
+            try
+            {
+                cameraObject.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+                var provider = hostObject.AddComponent<FakePlayableWorldProviderComponent>();
+                provider.Set(
+                    new EveUnitySceneProviderSurfaceDocument(
+                        PlayableArpgDocument(),
+                        Advertisement("aetheria.daemon.game"),
+                        "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                        1),
+                    new EveUnityPlayableWorldAssetManifestDocument(
+                        "cultmesh://aetheria/assets/manifest",
+                        Array.Empty<EveUnityPlayableWorldAssetManifestDocumentEntry>(),
+                        "aetheria"));
+
+                var host = hostObject.AddComponent<EveUnityPlayableWorldClientHost>();
+                host.Configure(rootObject.transform, provider, provider, provider, provider);
+                host.Connect();
+
+                var driver = hostObject.AddComponent<EveUnityPlayableWorldInputDriver>();
+                driver.Host = host;
+                driver.CameraTransform = cameraObject.transform;
+                var request = driver.SubmitMoveVectorInput(0f, 1f);
+
+                Assert.That(request, Is.Not.Null);
+                Assert.That(provider.Submitted.Count, Is.EqualTo(1));
+                Assert.That(request!.Payload.GetString("commandId"), Is.EqualTo("aetheria.daemon.move_intent"));
+                Assert.That(request.Payload.GetDouble("directionX", 0), Is.EqualTo(1f).Within(0.0001f));
+                Assert.That(request.Payload.GetDouble("directionY", 0), Is.EqualTo(0f).Within(0.0001f));
+                Assert.That(request.Payload.GetDouble("scalarValue", 0), Is.EqualTo(1f).Within(0.0001f));
+
+                var movement = EveUnityPlayableWorldMoveVector.FromCameraRelativeInput(1f, 1f, null);
+                Assert.That(movement.HasInput, Is.True);
+                Assert.That(movement.ScalarValue, Is.EqualTo(1f).Within(0.0001f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(cameraObject);
+                UnityEngine.Object.DestroyImmediate(hostObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
+        }
+
+        [Test]
+        public void PlayableWorldCameraRigFollowsAdvertisedPlayerEntityWithoutProviderTypes()
+        {
+            var rootObject = new GameObject("generic-eve-world-root");
+            var hostObject = new GameObject("generic-eve-client");
+            var cameraObject = new GameObject("generic-eve-camera");
+            hostObject.SetActive(false);
+
+            try
+            {
+                var provider = hostObject.AddComponent<FakePlayableWorldProviderComponent>();
+                provider.Set(
+                    new EveUnitySceneProviderSurfaceDocument(
+                        PlayableArpgDocument(),
+                        Advertisement("aetheria.daemon.game"),
+                        "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                        1),
+                    new EveUnityPlayableWorldAssetManifestDocument(
+                        "cultmesh://aetheria/assets/manifest",
+                        Array.Empty<EveUnityPlayableWorldAssetManifestDocumentEntry>(),
+                        "aetheria"));
+
+                var host = hostObject.AddComponent<EveUnityPlayableWorldClientHost>();
+                host.Configure(rootObject.transform, provider, provider, provider, provider);
+                host.Connect();
+
+                var rig = hostObject.AddComponent<EveUnityPlayableWorldCameraRig>();
+                rig.Host = host;
+                rig.CameraTransform = cameraObject.transform;
+
+                Assert.That(rig.ApplyRig(0f), Is.True);
+                Assert.That(cameraObject.transform.position.y, Is.GreaterThan(0f));
+                Assert.That(Vector3.Distance(cameraObject.transform.position, Vector3.zero), Is.GreaterThan(1f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(cameraObject);
                 UnityEngine.Object.DestroyImmediate(hostObject);
                 UnityEngine.Object.DestroyImmediate(rootObject);
             }

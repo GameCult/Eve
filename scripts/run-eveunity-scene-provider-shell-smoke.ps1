@@ -54,7 +54,7 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
   }
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "playableWorldClientHost", "sceneGraphProjection", "playableWorldProjection", "playableWorldRuntimeHost", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "providerAssetManifestSource")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "playableWorldClientHost", "playableWorldInputDriver", "playableWorldCameraRig", "sceneGraphProjection", "playableWorldProjection", "playableWorldRuntimeHost", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "providerAssetManifestSource")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveUnity scene provider shell missing supported feature: $feature"
   }
@@ -69,6 +69,8 @@ $expectedFiles = @(
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldLiveClient.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldRuntime.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldClientHost.cs",
+  "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldInputDriver.cs",
+  "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldCameraRig.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnityProviderRefreshSource.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldPresenter.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnityGameObjectPlayableWorldSceneSink.cs",
@@ -95,35 +97,35 @@ foreach ($symbol in @("EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfa
 }
 
 $clientSessionSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneClientSession.cs") -Raw
-foreach ($symbol in @("EveUnitySceneClientSession", "EveUnitySceneProviderSurfaceSnapshot", "ActiveVersion", "Connect", "ApplySnapshot", "CreateMoveIntent", "CreateFocusIntent", "CreateTargetIntent", "CreateActionIntent", "CreatePlayableWorldIntent", "commandId", "targetPosition", "unity-scene")) {
+foreach ($symbol in @("EveUnitySceneClientSession", "EveUnitySceneProviderSurfaceSnapshot", "ActiveVersion", "Connect", "ApplySnapshot", "CreateMoveIntent", "CreateMoveVectorIntent", "CreateFocusIntent", "CreateTargetIntent", "CreateActionIntent", "CreatePlayableWorldIntent", "commandId", "targetPosition", "directionX", "directionY", "scalarValue", "unity-scene")) {
   if (-not $clientSessionSource.Contains($symbol)) {
     throw "EveUnity scene client session missing symbol: $symbol"
   }
 }
 
 $providerConnectionSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneProviderConnection.cs") -Raw
-foreach ($symbol in @("IEveUnitySceneProviderSurfaceSource", "IEveUnitySceneCommandSink", "IEveUnitySceneProviderSurfaceDocumentSource", "EveUnitySceneProviderSurfaceDocument", "EveUnitySceneProviderSurfaceDocumentSource", "ToSnapshot", "DocumentAvailable", "EveUnitySceneProviderConnection", "SnapshotAvailable", "CurrentSnapshot", "Connect", "Refresh", "SubmitMoveIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "Disconnect")) {
+foreach ($symbol in @("IEveUnitySceneProviderSurfaceSource", "IEveUnitySceneCommandSink", "IEveUnitySceneProviderSurfaceDocumentSource", "EveUnitySceneProviderSurfaceDocument", "EveUnitySceneProviderSurfaceDocumentSource", "ToSnapshot", "DocumentAvailable", "EveUnitySceneProviderConnection", "SnapshotAvailable", "CurrentSnapshot", "Connect", "Refresh", "SubmitMoveIntent", "SubmitMoveVectorIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "Disconnect")) {
   if (-not $providerConnectionSource.Contains($symbol)) {
     throw "EveUnity scene provider connection missing symbol: $symbol"
   }
 }
 
 $liveClientSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldLiveClient.cs") -Raw
-foreach ($symbol in @("EveUnityPlayableWorldLiveClient", "IEveUnitySceneCommandReceiptSource", "EveUnitySceneCommandReceipt", "EveUnitySceneProviderConnection", "EveUnityPlayableWorldPresenter", "ActiveWorld", "LastPresentation", "LastReceipt", "ReceiptAvailable", "Connect", "Refresh", "SubmitMoveIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "ProjectionUpdated", "ShouldRefreshProviderSurface", "IsProviderOwned", "Disconnect")) {
+foreach ($symbol in @("EveUnityPlayableWorldLiveClient", "IEveUnitySceneCommandReceiptSource", "EveUnitySceneCommandReceipt", "EveUnitySceneProviderConnection", "EveUnityPlayableWorldPresenter", "ActiveWorld", "LastPresentation", "LastReceipt", "ReceiptAvailable", "Connect", "Refresh", "SubmitMoveIntent", "SubmitMoveVectorIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "ProjectionUpdated", "ShouldRefreshProviderSurface", "IsProviderOwned", "Disconnect")) {
   if (-not $liveClientSource.Contains($symbol)) {
     throw "EveUnity playable world live client missing symbol: $symbol"
   }
 }
 
 $runtimeHostSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldRuntime.cs") -Raw
-foreach ($symbol in @("EveUnityPlayableWorldRuntime", "CreateForGameObjectScene", "EveUnityLivePlayableWorldAssetProvider", "IEveUnitySceneProviderSurfaceDocumentSource", "IEveUnitySceneCommandSink", "IEveUnityPlayableWorldAssetManifestDocumentSource", "IEveUnitySceneCommandReceiptSource", "EveUnityPlayableWorldAssetManifestCache", "AssetManifests", "ActiveWorld", "SubmitMoveIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "Connect", "Refresh", "Disconnect")) {
+foreach ($symbol in @("EveUnityPlayableWorldRuntime", "CreateForGameObjectScene", "EveUnityLivePlayableWorldAssetProvider", "IEveUnitySceneProviderSurfaceDocumentSource", "IEveUnitySceneCommandSink", "IEveUnityPlayableWorldAssetManifestDocumentSource", "IEveUnitySceneCommandReceiptSource", "EveUnityPlayableWorldAssetManifestCache", "AssetManifests", "ActiveWorld", "SubmitMoveIntent", "SubmitMoveVectorIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "Connect", "Refresh", "Disconnect")) {
   if (-not $runtimeHostSource.Contains($symbol)) {
     throw "EveUnity playable world runtime host missing symbol: $symbol"
   }
 }
 
 $clientHostSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldClientHost.cs") -Raw
-foreach ($symbol in @("EveUnityPlayableWorldClientHost", "MonoBehaviour", "providerSurfaceDocuments", "IEveUnitySceneProviderSurfaceDocumentSource", "IEveUnitySceneCommandSink", "IEveUnityPlayableWorldAssetManifestDocumentSource", "IEveUnitySceneCommandReceiptSource", "IEveUnityGameObjectAssetProvider", "IEveUnityProviderRefreshSource", "Configure", "CreateForGameObjectScene", "Connect", "Refresh", "SubmitMoveIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "Disconnect")) {
+foreach ($symbol in @("EveUnityPlayableWorldClientHost", "MonoBehaviour", "providerSurfaceDocuments", "IEveUnitySceneProviderSurfaceDocumentSource", "IEveUnitySceneCommandSink", "IEveUnityPlayableWorldAssetManifestDocumentSource", "IEveUnitySceneCommandReceiptSource", "IEveUnityGameObjectAssetProvider", "IEveUnityProviderRefreshSource", "Configure", "CreateForGameObjectScene", "Connect", "Refresh", "SceneRoot", "SubmitMoveIntent", "SubmitMoveVectorIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "Disconnect")) {
   if (-not $clientHostSource.Contains($symbol)) {
     throw "EveUnity playable world client host missing symbol: $symbol"
   }
@@ -137,6 +139,26 @@ foreach ($symbol in @("IEveUnityProviderRefreshSource", "Refresh")) {
   if (-not $refreshSource.Contains($symbol)) {
     throw "EveUnity provider refresh source missing symbol: $symbol"
   }
+}
+
+$inputDriverSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldInputDriver.cs") -Raw
+foreach ($symbol in @("EveUnityPlayableWorldInputDriver", "EveUnityPlayableWorldMoveVector", "FromCameraRelativeInput", "SubmitMoveVectorInput", "SubmitPrimaryAction", "Input.GetAxisRaw", "Input.GetButtonDown", "directionX", "directionY", "scalarValue", "SubmitMoveVectorIntent")) {
+  if (-not $inputDriverSource.Contains($symbol)) {
+    throw "EveUnity playable world input driver missing symbol: $symbol"
+  }
+}
+if ($inputDriverSource.Contains("Aetheria")) {
+  throw "EveUnity playable world input driver must remain provider-agnostic and cannot reference Aetheria"
+}
+
+$cameraRigSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldCameraRig.cs") -Raw
+foreach ($symbol in @("EveUnityPlayableWorldCameraRig", "ApplyRig", "arpg.orbital-follow.v1", "EveUnityPlayableWorldEntityMarker", "SceneRoot", "LookAt")) {
+  if (-not $cameraRigSource.Contains($symbol)) {
+    throw "EveUnity playable world camera rig missing symbol: $symbol"
+  }
+}
+if ($cameraRigSource.Contains("Aetheria")) {
+  throw "EveUnity playable world camera rig must remain provider-agnostic and cannot reference Aetheria"
 }
 
 $playableWorldPresenterSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldPresenter.cs") -Raw
@@ -182,7 +204,7 @@ foreach ($symbol in @("TeXMathUnitySceneProjectionAdapter", "tex.math", "embed.t
 }
 
 $testSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Tests\Editor\EveUnitySceneSurfaceLowererTests.cs") -Raw
-foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "ProviderSurfaceDocumentSourceFeedsPlayableClientWithoutAetheriaTypes", "PlayableWorldRuntimeComposesProviderDocumentsAssetsReceiptsAndSceneSink", "PlayableWorldClientHostMountsInterfaceProviderWithoutProviderTypes", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "AssetManifestDocumentSourceFeedsCacheWithoutChangingSceneLowering", "FakeProviderSurfaceSource", "FakeProviderSurfaceDocumentSource", "FakeCommandReceiptSource", "FakeAssetManifestSource", "FakeAssetManifestDocumentSource", "FakeCommandSink", "FakePlayableWorldSceneSink", "FakePlayableWorldProviderComponent", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "pending", "reconciled", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
+foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "ProviderSurfaceDocumentSourceFeedsPlayableClientWithoutAetheriaTypes", "PlayableWorldRuntimeComposesProviderDocumentsAssetsReceiptsAndSceneSink", "PlayableWorldClientHostMountsInterfaceProviderWithoutProviderTypes", "PlayableWorldClientHostSubmitsProviderOwnedMoveVector", "PlayableWorldInputDriverBuildsCameraRelativeMoveVectorWithoutProviderTypes", "PlayableWorldCameraRigFollowsAdvertisedPlayerEntityWithoutProviderTypes", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "AssetManifestDocumentSourceFeedsCacheWithoutChangingSceneLowering", "FakeProviderSurfaceSource", "FakeProviderSurfaceDocumentSource", "FakeCommandReceiptSource", "FakeAssetManifestSource", "FakeAssetManifestDocumentSource", "FakeCommandSink", "FakePlayableWorldSceneSink", "FakePlayableWorldProviderComponent", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "pending", "reconciled", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
   if (-not $testSource.Contains($symbol)) {
     throw "EveUnity scene provider shell tests missing symbol: $symbol"
   }
