@@ -718,8 +718,11 @@ Recently cut:
   `scripts/run-aetheria-provider-handoff-smoke.ps1`. The handoff names the
   advertisement, interactive world fixture, provider scenario, contract inputs,
   forbidden imports, and external proofs that must move to Aetheria. The
-  conformance export carries the handoff path, and the Aetheria consumer smoke
-  asserts it so provider ownership does not depend on Eve's parity manifest.
+  conformance export carries the handoff path and
+  `providerHandoffMoveCoverage[]`, and the Aetheria consumer smoke asserts
+  provider advertisement, interactive world surface, conformance fixture, and
+  scenario move records so provider ownership does not depend on Eve's source
+  layout or parity manifest.
 - EveUnity now has a machine-readable split handoff at
   `packages/org.gamecult.eve.unity-uitoolkit/eveunity-split-handoff.json` and
   a verifier at `scripts/run-eveunity-split-handoff-smoke.ps1`. The handoff

@@ -180,6 +180,12 @@ Plugin handoff move/source coverage is exported as
 target, handoff move set, destination owner, replacement proof, and current
 source path status. Consumer smokes can assert them with
 `--expect-plugin-handoff-move <pluginId:moveSetId:pathKind:status:path-substring>`.
+Provider handoff move/source coverage is exported as
+`providerHandoffMoveCoverage[]`. Each record joins provider id, owner repo,
+handoff move set, destination owner, replacement proof, and current source path
+status. Provider repos such as Aetheria can assert them with
+`--expect-provider-handoff-move <providerId:moveSetId:pathKind:status:path-substring>`
+without depending on Eve's source layout.
 Plugin ABI fixture operations are exported as `plugins[].abiOperationContracts`
 with `operation`, `input`, and `expect` blocks. Plugin owners can consume the
 operation-level contract for `describe`, `validate`, `project`, `lower`,

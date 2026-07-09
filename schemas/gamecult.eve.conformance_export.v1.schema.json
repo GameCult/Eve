@@ -23,6 +23,7 @@
     "splitTargetBlockers",
     "splitHandoffMoveCoverage",
     "pluginHandoffMoveCoverage",
+    "providerHandoffMoveCoverage",
     "splitTargets"
   ],
   "properties": {
@@ -939,6 +940,75 @@
             "minLength": 1
           },
           "splitTarget": {
+            "type": "string",
+            "minLength": 1
+          },
+          "handoffPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "handoffExportPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "moveSetId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "destinationOwner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "replacementProof": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pathKind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sourcePath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pathExists": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "providerHandoffMoveCoverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "providerId",
+          "providerOwnerRepo",
+          "handoffPath",
+          "handoffExportPath",
+          "moveSetId",
+          "destinationOwner",
+          "replacementProof",
+          "pathKind",
+          "sourcePath",
+          "status",
+          "severity"
+        ],
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "providerOwnerRepo": {
             "type": "string",
             "minLength": 1
           },

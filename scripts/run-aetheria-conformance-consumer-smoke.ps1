@@ -102,7 +102,12 @@ try {
     --expect-provider-receipt-state aetheria:accepted `
     --expect-provider-receipt-state aetheria:pending `
     --expect-provider-receipt-state aetheria:reconciled `
-    --expect-provider-handoff aetheria
+    --expect-provider-handoff aetheria `
+    --expect-provider-handoff-move aetheria:provider-advertisement:current:exists:aetheria.provider-advertisement.json `
+    --expect-provider-handoff-move aetheria:interactive-world-surface:current:exists:aetheria-world-surface.json `
+    --expect-provider-handoff-move aetheria:interactive-world-surface:current:exists:aetheria-world-surface.conformance.json `
+    --expect-provider-handoff-move aetheria:provider-scenario:current:exists:aetheria-world-scenario.json `
+    --expect-provider-handoff-move aetheria:provider-scenario:current:exists:run-aetheria-conformance-consumer-smoke.ps1
   if ($LASTEXITCODE -ne 0) {
     throw "Aetheria conformance consumer smoke failed with exit code $LASTEXITCODE"
   }
