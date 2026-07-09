@@ -47,6 +47,7 @@ $expectedMoveSets = @{
   "unity-scene-world-surface-lowering" = "world-surface-lowering"
   "unity-scene-sai-plugin-projection" = "plugin-projection"
   "unity-scene-norn-plugin-projection" = "plugin-projection"
+  "unity-scene-tex-plugin-projection" = "plugin-projection"
   "unity-scene-command-transport" = "command"
   "unity-scene-capture-lifecycle" = "capture"
 }
@@ -67,7 +68,7 @@ foreach ($id in $expectedMoveSets.Keys) {
   }
   $currentPaths = if ($null -eq $moveSet.currentPaths) { @() } else { @($moveSet.currentPaths) }
   $observedProviderPaths = if ($null -eq $moveSet.observedProviderPaths) { @() } else { @($moveSet.observedProviderPaths) }
-  if ($id -in @("unity-scene-runtime-body", "unity-scene-world-surface-lowering", "unity-scene-sai-plugin-projection", "unity-scene-norn-plugin-projection", "unity-scene-command-transport", "unity-scene-capture-lifecycle")) {
+  if ($id -in @("unity-scene-runtime-body", "unity-scene-world-surface-lowering", "unity-scene-sai-plugin-projection", "unity-scene-norn-plugin-projection", "unity-scene-tex-plugin-projection", "unity-scene-command-transport", "unity-scene-capture-lifecycle")) {
     if ($currentPaths.Count -eq 0) {
       throw "EveUnity scene split handoff move set $id must name current Eve incubation paths"
     }
@@ -102,7 +103,8 @@ foreach ($forbiddenImport in @(
   "renderer-local world simulation as provider truth",
   "product assets bundled as Eve runtime contract",
   "Sai story state, VN/Ink semantics, or story command interpretation as Unity scene runtime authority",
-  "Norn graph layout, graph state, or command semantics as Unity scene runtime authority"
+  "Norn graph layout, graph state, or command semantics as Unity scene runtime authority",
+  "TeX parsing, typesetting, baseline metrics, or render-cache semantics as Unity scene runtime authority"
 )) {
   if (-not (@($handoff.forbiddenImports) -contains $forbiddenImport)) {
     throw "EveUnity scene split handoff missing forbidden import: $forbiddenImport"
@@ -117,6 +119,11 @@ if (-not (@($saiProjectionMoveSet.currentPaths) -contains "runtimes/incubating/e
 $nornProjectionMoveSet = $moveSets | Where-Object { $_.id -eq "unity-scene-norn-plugin-projection" } | Select-Object -First 1
 if (-not (@($nornProjectionMoveSet.currentPaths) -contains "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs")) {
   throw "EveUnity scene split handoff Norn projection move set must include the scene adapter path"
+}
+
+$texProjectionMoveSet = $moveSets | Where-Object { $_.id -eq "unity-scene-tex-plugin-projection" } | Select-Object -First 1
+if (-not (@($texProjectionMoveSet.currentPaths) -contains "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs")) {
+  throw "EveUnity scene split handoff TeX projection move set must include the scene adapter path"
 }
 
 foreach ($proof in @($handoff.requiredExternalProofs)) {

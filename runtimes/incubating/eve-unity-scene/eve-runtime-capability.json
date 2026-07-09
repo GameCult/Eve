@@ -36,14 +36,19 @@
         "embed.norn"
       ],
       "projectionAdapter": "NornGraphUnitySceneProjectionAdapter"
-    }
-  ],
-  "unsupportedPlugins": [
+    },
     {
       "pluginId": "tex.math",
-      "reason": "Unity scene graph projection exists, but no scene-space or UI overlay adapter exists for TeX sidecar-advertised math projection in this runtime."
+      "capabilities": [
+        "embed.tex",
+        "tex.inline",
+        "tex.block",
+        "tex.scene-placement"
+      ],
+      "projectionAdapter": "TeXMathUnitySceneProjectionAdapter"
     }
   ],
+  "unsupportedPlugins": [],
   "worldSurfaceLowering": [
     {
       "targetId": "unity-scene",
@@ -55,6 +60,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
         "web/fixtures/aetheria.provider-advertisement.json"
       ]
@@ -89,6 +95,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
         "scripts/run-eveunity-scene-split-handoff-smoke.ps1",
         "scripts/run-eveunity-scene-release-contract-smoke.ps1",
@@ -120,6 +127,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/GameCult.Eve.UnityScene.Tests.asmdef",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
         "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",

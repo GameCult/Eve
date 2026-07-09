@@ -88,6 +88,16 @@ namespace GameCult.Eve.UnityScene.Tests
             Assert.That(choice.PluginProjection.ProjectionKind, Is.EqualTo("sai-vn-scene-story-command-shell"));
             Assert.That(choice.PluginProjection.Command, Is.EqualTo("story.choose"));
             Assert.That(choice.PluginProjection.SemanticOwner, Is.EqualTo("Sai"));
+
+            var tex = projection.Root.Children[2];
+            Assert.That(tex.SceneObjectKind, Is.EqualTo("tex-math-scene-projection"));
+            Assert.That(tex.PluginProjection, Is.Not.Null);
+            Assert.That(tex.PluginProjection!.PluginId, Is.EqualTo("tex.math"));
+            Assert.That(tex.PluginProjection.ProjectionKind, Is.EqualTo("tex-math-scene-block-fallback-shell"));
+            Assert.That(tex.PluginProjection.Capabilities, Does.Contain("embed.tex"));
+            Assert.That(tex.PluginProjection.Capabilities, Does.Contain("tex.scene-placement"));
+            Assert.That(tex.PluginProjection.DocumentId, Is.EqualTo("\\\\mathrm{votes}(p)=1+\\\\lfloor\\\\log_b(1+p)\\\\rfloor"));
+            Assert.That(tex.PluginProjection.SemanticOwner, Is.EqualTo("EvePlugins"));
         }
 
         [Test]
@@ -217,7 +227,18 @@ namespace GameCult.Eve.UnityScene.Tests
                                             ["targetPath"] = "eve"
                                         },
                                         Array.Empty<EveSurfaceComponent>())
-                                })
+                                }),
+                            new EveSurfaceComponent(
+                                "sai.tex.log-power",
+                                "embed.tex",
+                                new Dictionary<string, string>(StringComparer.Ordinal)
+                                {
+                                    ["label"] = "Bifrost voting weight",
+                                    ["source"] = "\\\\mathrm{votes}(p)=1+\\\\lfloor\\\\log_b(1+p)\\\\rfloor",
+                                    ["format"] = "latex",
+                                    ["display"] = "block"
+                                },
+                                Array.Empty<EveSurfaceComponent>())
                         }),
                     Array.Empty<EveStyleToken>()),
                 new[]

@@ -52,7 +52,8 @@ foreach ($plugin in $manifest.supportedPlugins) {
 }
 foreach ($claim in @(
   @{ pluginId = "sai.vn"; capabilities = @("vn.stage", "story.choose", "story.continue", "story.jump") },
-  @{ pluginId = "norn.graph"; capabilities = @("embed.norn") }
+  @{ pluginId = "norn.graph"; capabilities = @("embed.norn") },
+  @{ pluginId = "tex.math"; capabilities = @("embed.tex", "tex.inline", "tex.block") }
 )) {
   if (-not $pluginClaims.ContainsKey($claim.pluginId)) {
     throw "EveUnity manifest missing plugin claim: $($claim.pluginId)"

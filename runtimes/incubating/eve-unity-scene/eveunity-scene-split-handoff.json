@@ -18,6 +18,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/GameCult.Eve.UnityScene.Tests.asmdef",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs"
       ],
@@ -31,6 +32,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
@@ -60,6 +62,18 @@
       ],
       "destinationOwner": "EveUnity",
       "replacementProof": "EveUnity owns only the Unity scene projection adapter for Norn's sidecar-advertised embed.norn capability; Norn keeps graph layout, graph state, and graph command semantics."
+    },
+    {
+      "id": "unity-scene-tex-plugin-projection",
+      "stage": "plugin-projection",
+      "currentPaths": [
+        "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
+        "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
+      ],
+      "destinationOwner": "EveUnity",
+      "replacementProof": "EveUnity owns only the Unity scene projection shell for TeX's sidecar-advertised embed.tex capability; EvePlugins keeps TeX parsing, typesetting, baseline metrics, and render-cache semantics."
     },
     {
       "id": "unity-scene-command-transport",
@@ -98,7 +112,8 @@
     "renderer-local world simulation as provider truth",
     "product assets bundled as Eve runtime contract",
     "Sai story state, VN/Ink semantics, or story command interpretation as Unity scene runtime authority",
-    "Norn graph layout, graph state, or command semantics as Unity scene runtime authority"
+    "Norn graph layout, graph state, or command semantics as Unity scene runtime authority",
+    "TeX parsing, typesetting, baseline metrics, or render-cache semantics as Unity scene runtime authority"
   ],
   "requiredExternalProofs": [
     "EveUnity publishes a Unity scene runtime capability manifest.",
@@ -106,6 +121,7 @@
     "EveUnity owns the provider-agnostic scene graph lowerer outside Eve incubation.",
     "EveUnity owns the Unity scene Sai projection adapter outside Eve incubation without importing Sai story state or VN/Ink internals.",
     "EveUnity owns the Unity scene Norn projection adapter outside Eve incubation without importing Norn implementation state.",
+    "EveUnity owns the Unity scene TeX projection adapter outside Eve incubation without importing TeX implementation state.",
     "EveUnity lowers at least one non-Aetheria provider-authored world surface into Unity scene objects.",
     "EveUnity lowers Aetheria's game world surface through provider advertisements without importing Aetheria internals.",
     "Unity scene input emits gamecult.eve.command.v1 intents and renders provider receipts.",

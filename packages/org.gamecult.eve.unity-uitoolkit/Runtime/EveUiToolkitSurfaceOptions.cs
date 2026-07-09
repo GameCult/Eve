@@ -19,7 +19,8 @@ namespace GameCult.Eve.UnityUIToolkit
             PluginProjectionAdapters = pluginProjectionAdapters ?? new IEveUiToolkitPluginProjectionAdapter[]
             {
                 new SaiVisualNovelUiToolkitProjectionAdapter(),
-                new NornGraphUiToolkitProjectionAdapter()
+                new NornGraphUiToolkitProjectionAdapter(),
+                new TeXMathUiToolkitProjectionAdapter()
             };
         }
 

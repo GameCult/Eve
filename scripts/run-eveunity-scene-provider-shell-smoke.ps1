@@ -66,6 +66,7 @@ $expectedFiles = @(
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneSurfaceLowerer.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\SaiVisualNovelUnitySceneProjectionAdapter.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\NornGraphUnitySceneProjectionAdapter.cs",
+  "runtimes\incubating\eve-unity-scene\Runtime\TeXMathUnitySceneProjectionAdapter.cs",
   "runtimes\incubating\eve-unity-scene\Tests\Editor\GameCult.Eve.UnityScene.Tests.asmdef",
   "runtimes\incubating\eve-unity-scene\Tests\Editor\EveUnitySceneSurfaceLowererTests.cs"
 )
@@ -78,7 +79,7 @@ foreach ($relativePath in $expectedFiles) {
 }
 
 $lowererSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneSurfaceLowerer.cs") -Raw
-foreach ($symbol in @("EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "BuildPluginProjection", "SaiVisualNovelUnitySceneProjectionAdapter", "EveUnityScenePluginProjection", "EveUnitySceneNode", "SceneObjectKind", "unity-scene")) {
+foreach ($symbol in @("EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "BuildPluginProjection", "SaiVisualNovelUnitySceneProjectionAdapter", "TeXMathUnitySceneProjectionAdapter", "EveUnityScenePluginProjection", "EveUnitySceneNode", "SceneObjectKind", "unity-scene")) {
   if (-not $lowererSource.Contains($symbol)) {
     throw "EveUnity scene provider shell lowerer missing symbol: $symbol"
   }
@@ -98,8 +99,15 @@ foreach ($symbol in @("NornGraphUnitySceneProjectionAdapter", "norn.graph", "emb
   }
 }
 
+$texAdapterSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\TeXMathUnitySceneProjectionAdapter.cs") -Raw
+foreach ($symbol in @("TeXMathUnitySceneProjectionAdapter", "tex.math", "embed.tex", "tex.scene-placement", "gamecult.eve.plugin_abi.v1", "sidecar-advertised-plugin-abi", "EvePlugins")) {
+  if (-not $texAdapterSource.Contains($symbol)) {
+    throw "EveUnity scene TeX projection adapter missing symbol: $symbol"
+  }
+}
+
 $testSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Tests\Editor\EveUnitySceneSurfaceLowererTests.cs") -Raw
-foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "sai-vn-scene-stage", "norn-graph-scene-projection", "sai.vn", "norn.graph", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
+foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
   if (-not $testSource.Contains($symbol)) {
     throw "EveUnity scene provider shell tests missing symbol: $symbol"
   }

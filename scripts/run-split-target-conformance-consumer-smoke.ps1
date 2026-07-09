@@ -50,6 +50,7 @@ try {
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-world-surface-lowering:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-sai-plugin-projection:current:exists:SaiVisualNovelUnitySceneProjectionAdapter.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-norn-plugin-projection:current:exists:NornGraphUnitySceneProjectionAdapter.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-tex-plugin-projection:current:exists:TeXMathUnitySceneProjectionAdapter.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-capture-lifecycle:current:exists:eveunity-capture-contract.mjs `
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `

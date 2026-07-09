@@ -11,6 +11,7 @@ namespace GameCult.Eve.UnityScene
     {
         private static readonly SaiVisualNovelUnitySceneProjectionAdapter SaiVisualNovelAdapter = new SaiVisualNovelUnitySceneProjectionAdapter();
         private static readonly NornGraphUnitySceneProjectionAdapter NornGraphAdapter = new NornGraphUnitySceneProjectionAdapter();
+        private static readonly TeXMathUnitySceneProjectionAdapter TeXMathAdapter = new TeXMathUnitySceneProjectionAdapter();
 
         public EveUnitySceneProjection Lower(
             EveSurfaceDocument document,
@@ -98,6 +99,8 @@ namespace GameCult.Eve.UnityScene
                 return SaiVisualNovelAdapter.Project(component);
             if (NornGraphAdapter.CanProject(component))
                 return NornGraphAdapter.Project(component);
+            if (TeXMathAdapter.CanProject(component))
+                return TeXMathAdapter.Project(component);
             return null;
         }
 
@@ -131,6 +134,8 @@ namespace GameCult.Eve.UnityScene
                 return "command-control";
             if (string.Equals(componentKind, "embed.norn", StringComparison.Ordinal))
                 return "norn-graph-scene-projection";
+            if (string.Equals(componentKind, "embed.tex", StringComparison.Ordinal))
+                return "tex-math-scene-projection";
             if (componentKind.StartsWith("embed.", StringComparison.Ordinal))
                 return "plugin-placeholder";
             if (string.Equals(componentKind, "surface.slot", StringComparison.Ordinal))

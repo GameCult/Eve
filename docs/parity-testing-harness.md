@@ -31,8 +31,9 @@ manifests. Web uses `web/eve-runtime-capability.json` to make the browser oracle
 explicit: it consumes provider advertisements, lowers provider-owned surfaces,
 emits `gamecult.eve.command.v1` intents, and records Chrome headless capture
 evidence without becoming provider truth. Unity UI Toolkit uses the same path
-for its `sai.vn` and `norn.graph` plugin projection adapter proofs while
-leaving `tex.math` as explicit unsupported plugin semantics.
+for its `sai.vn`, `norn.graph`, and `tex.math` plugin projection adapter proofs
+while leaving Sai, Norn, and TeX semantic authority in their independent
+sidecar plugin owners.
 
 ## Run
 

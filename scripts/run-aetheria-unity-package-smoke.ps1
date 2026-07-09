@@ -38,7 +38,8 @@ $requiredCompileItems = @(
   "Runtime\EveUiToolkitSurfaceLowerer.cs",
   "Runtime\IEveUiToolkitPluginProjectionAdapter.cs",
   "Runtime\SaiVisualNovelUiToolkitProjectionAdapter.cs",
-  "Runtime\NornGraphUiToolkitProjectionAdapter.cs"
+  "Runtime\NornGraphUiToolkitProjectionAdapter.cs",
+  "Runtime\TeXMathUiToolkitProjectionAdapter.cs"
 )
 foreach ($compileItem in $requiredCompileItems) {
   $expected = Join-Path $eveRoot "packages\org.gamecult.eve.unity-uitoolkit\$compileItem"

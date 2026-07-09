@@ -33,14 +33,18 @@
         "embed.norn"
       ],
       "projectionAdapter": "NornGraphUiToolkitProjectionAdapter"
-    }
-  ],
-  "unsupportedPlugins": [
+    },
     {
       "pluginId": "tex.math",
-      "reason": "Unity UI Toolkit currently preserves embed.tex as generic Eve structure; no adapter exists for the TeX sidecar-advertised projection in this runtime."
+      "capabilities": [
+        "embed.tex",
+        "tex.inline",
+        "tex.block"
+      ],
+      "projectionAdapter": "TeXMathUiToolkitProjectionAdapter"
     }
   ],
+  "unsupportedPlugins": [],
   "commandTransport": {
     "schema": "gamecult.eve.command.v1",
     "emitter": "EveUiToolkitSurfaceLowerer.EmitCommand",
@@ -55,6 +59,7 @@
       "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
       "evidencePaths": [
         "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs",
+        "packages/org.gamecult.eve.unity-uitoolkit/Runtime/TeXMathUiToolkitProjectionAdapter.cs",
         "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/EveUiToolkitSurfaceLowererTests.cs",
         "web/fixtures/aetheria.provider-advertisement.json"
       ]

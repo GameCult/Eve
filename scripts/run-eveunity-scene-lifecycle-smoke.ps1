@@ -44,8 +44,8 @@ foreach ($feature in @("providerAdvertisements", "commandTransport", "sceneGraph
     throw "EveUnity scene manifest missing provider-shell feature: $feature"
   }
 }
-if (@($manifest.supportedPlugins).Count -ne 2) {
-  throw "EveUnity scene must claim exactly two plugin projection adapters"
+if (@($manifest.supportedPlugins).Count -ne 3) {
+  throw "EveUnity scene must claim exactly three plugin projection adapters"
 }
 $saiProjection = @($manifest.supportedPlugins) | Where-Object { $_.pluginId -eq "sai.vn" } | Select-Object -First 1
 if (-not $saiProjection) {
@@ -68,6 +68,18 @@ if ($nornProjection.projectionAdapter -ne "NornGraphUnitySceneProjectionAdapter"
 }
 if (-not (@($nornProjection.capabilities) -contains "embed.norn")) {
   throw "EveUnity scene Norn projection adapter must claim embed.norn"
+}
+$texProjection = @($manifest.supportedPlugins) | Where-Object { $_.pluginId -eq "tex.math" } | Select-Object -First 1
+if (-not $texProjection) {
+  throw "EveUnity scene manifest missing supported TeX projection adapter"
+}
+if ($texProjection.projectionAdapter -ne "TeXMathUnitySceneProjectionAdapter") {
+  throw "Unexpected EveUnity scene TeX projection adapter: $($texProjection.projectionAdapter)"
+}
+foreach ($capability in @("embed.tex", "tex.inline", "tex.block", "tex.scene-placement")) {
+  if (-not (@($texProjection.capabilities) -contains $capability)) {
+    throw "EveUnity scene TeX projection adapter must claim $capability"
+  }
 }
 $worldSurfaceLoweringClaims = @()
 if ($null -ne $manifest.worldSurfaceLowering) {
@@ -93,17 +105,14 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
   }
 }
 
-foreach ($pluginId in @("tex.math")) {
-  $unsupported = @($manifest.unsupportedPlugins) | Where-Object { $_.pluginId -eq $pluginId } | Select-Object -First 1
-  if (-not $unsupported) {
-    throw "EveUnity scene manifest missing unsupported plugin declaration: $pluginId"
-  }
-}
 if (@($manifest.unsupportedPlugins) | Where-Object { $_.pluginId -eq "sai.vn" } | Select-Object -First 1) {
   throw "EveUnity scene must not report sai.vn unsupported while the projection adapter is declared"
 }
 if (@($manifest.unsupportedPlugins) | Where-Object { $_.pluginId -eq "norn.graph" } | Select-Object -First 1) {
   throw "EveUnity scene must not report norn.graph unsupported while the projection adapter is declared"
+}
+if (@($manifest.unsupportedPlugins) | Where-Object { $_.pluginId -eq "tex.math" } | Select-Object -First 1) {
+  throw "EveUnity scene must not report tex.math unsupported while the projection adapter is declared"
 }
 
 if ($manifest.commandTransport.schema -ne "gamecult.eve.command.v1") {

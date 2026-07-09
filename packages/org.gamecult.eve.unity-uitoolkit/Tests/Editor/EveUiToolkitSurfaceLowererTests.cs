@@ -12,12 +12,13 @@ namespace GameCult.Eve.UnityUIToolkit.Tests
     public sealed class EveUiToolkitSurfaceLowererTests
     {
         [Test]
-        public void DefaultOptionsExposeSaiAndNornProjectionAdapters()
+        public void DefaultOptionsExposeSaiNornAndTeXProjectionAdapters()
         {
             var options = EveUiToolkitSurfaceOptions.Default;
 
             Assert.That(options.FindPluginProjectionAdapter(Component("stage", "vn.stage"))?.PluginId, Is.EqualTo("sai.vn"));
             Assert.That(options.FindPluginProjectionAdapter(Component("graph", "embed.norn"))?.PluginId, Is.EqualTo("norn.graph"));
+            Assert.That(options.FindPluginProjectionAdapter(Component("math", "embed.tex"))?.PluginId, Is.EqualTo("tex.math"));
         }
 
         [Test]
@@ -56,6 +57,27 @@ namespace GameCult.Eve.UnityUIToolkit.Tests
             Assert.That(root.ClassListContains("eve-plugin-projection"), Is.True);
             Assert.That(root.ClassListContains("eve-plugin-norn-graph"), Is.True);
             Assert.That(root.ClassListContains("norn-graph"), Is.True);
+        }
+
+        [Test]
+        public void TeXMathLowersThroughRuntimeProjectionAdapterAsSourceFallback()
+        {
+            var document = Document(Component(
+                "math",
+                "embed.tex",
+                new Dictionary<string, string>
+                {
+                    ["label"] = "Bifrost voting weight",
+                    ["source"] = "\\\\mathrm{votes}(p)=1+\\\\lfloor\\\\log_b(1+p)\\\\rfloor",
+                    ["display"] = "block"
+                }));
+
+            var root = new EveUiToolkitSurfaceLowerer().Lower(document);
+
+            Assert.That(root.ClassListContains("eve-plugin-projection"), Is.True);
+            Assert.That(root.ClassListContains("eve-plugin-tex-math"), Is.True);
+            Assert.That(root.ClassListContains("tex-math"), Is.True);
+            Assert.That(root.ClassListContains("tex-display-block"), Is.True);
         }
 
         [Test]

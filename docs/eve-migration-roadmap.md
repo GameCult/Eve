@@ -391,15 +391,16 @@ Recently cut:
   are available, but Sai does not own their graph or math semantics.
 - Runtime/plugin projection claims are now exported as root
   `runtimePluginProjectionCoverage[]` records. Runtime-owner smokes assert
-  Unity UI Toolkit support for `sai.vn` and `norn.graph`, Unity scene support
-  for `sai.vn` and `norn.graph`, the declared TeX gaps, and the pending
+  Unity UI Toolkit support for `sai.vn`, `norn.graph`, and `tex.math`, Unity
+  scene support for the same three plugin capabilities, and the pending
   Electron unsupported Sai projection until its generic lowerer exists.
 - Provider/runtime/plugin projection coverage is now exported as
   `providerRuntimePluginProjectionCoverage[]`. The runtime-owner smoke proves
   the Sai VN provider surface lowers fully in web, lowers in Unity UI Toolkit
-  with Norn support and TeX as a degraded optional nested plugin, and does not
-  let UIKit's generic embedded-document path impersonate required Sai VN or
-  optional Norn graph projection.
+  with optional independent Norn and TeX nested plugin projection when those
+  plugins are available, and does not let UIKit's generic embedded-document path
+  impersonate required Sai VN, optional Norn graph, or optional TeX math
+  projection.
 - Runtime/plugin projection gaps are now exported as
   `runtimePluginProjectionGaps[]`. The runtime-owner smoke asserts Unity and
   Electron plugin gaps as typed records, so missing Sai, Norn, or TeX projection
@@ -430,16 +431,16 @@ Recently cut:
   `scripts/run-eveunity-scene-capture-contract-smoke.ps1`, while the actual
   Unity scene PNG/frame artifact remains pending. The scene graph now preserves
   embedded document slot identity for resolver-backed child surfaces without
-  owning the nested plugin semantics. Sai and Norn scene projection adapters now
-  exist; TeX stays unsupported until a scene-space or UI overlay adapter exists
-  in the Unity scene runtime.
+  owning the nested plugin semantics. Sai, Norn, and TeX scene projection
+  adapters now exist as runtime-owned shells; TeX parsing, typesetting,
+  baseline metrics, and render-cache semantics remain plugin-owned.
 - Unity scene now has a direct split handoff smoke at
   `scripts/run-eveunity-scene-split-handoff-smoke.ps1`. The smoke verifies the
   scene runtime's current source paths for runtime body, scene graph lowering,
-  Sai/Norn plugin projection, and command transport, does not treat Aetheria
-  product paths, Sai story state, or Norn implementation state as generic
-  runtime source, names the required Eve contracts, and keeps capture as an
-  external proof until EveUnity owns it.
+  Sai/Norn/TeX plugin projection, and command transport, does not treat
+  Aetheria product paths, Sai story state, Norn implementation state, or TeX
+  implementation state as generic runtime source, names the required Eve
+  contracts, and keeps capture as an external proof until EveUnity owns it.
 - Runtime split handoff documents now have a catalog-backed schema,
   `gamecult.eve.runtime_split_handoff.v1`. EveConformance exports that schema
   so runtime owner repos can consume split target, move set, contract input,
@@ -843,9 +844,11 @@ Recently cut:
   `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`. The
   parity harness validates that manifest against
   `gamecult.eve.runtime_capability.v1`, cross-checks supported features,
-  supported Sai and Norn plugin declarations, the unsupported TeX declaration,
-  command transport schema, and incubation metadata, then exports the manifest
-  path and validation errors through the conformance report.
+  supported Sai, Norn, and TeX plugin projection declarations, command transport
+  schema, and incubation metadata, then exports the manifest path and validation
+  errors through the conformance report. Unity owns source-fallback projection
+  shells only; TeX parsing, typesetting, baseline metrics, and cached render
+  semantics remain EvePlugins-owned.
 - Aetheria now consumes the exported conformance pack from its own working
   directory through `scripts/run-aetheria-conformance-consumer-smoke.ps1`. The
   smoke asserts the provider pack, `aetheria-world` fixture, `aetheria`
