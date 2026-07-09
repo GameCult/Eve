@@ -705,6 +705,11 @@ Recently cut:
   provider advertisement. The parity harness validates advertised surfaces,
   command boundary consumption, command intents, and provider-owned receipt
   states without importing Aetheria internals into Eve.
+- Aetheria's provider scenario now covers both `aetheria.daemon.game` and
+  `aetheria.daemon.editor` as provider-owned interactive world surfaces. The
+  Aetheria consumer smoke asserts editor ownership and the pending TUI lowering
+  gap from the exported contract instead of letting editor support hide behind
+  the game-surface scenario.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
   project, lower, measure, and apply behavior. The parity harness validates
   those fixtures against plugin manifests, so Eve proves the ABI shape without
