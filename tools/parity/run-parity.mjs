@@ -1356,6 +1356,7 @@ function buildConformanceExport(report) {
     conformanceHandoffExportPath: makeHandoffExportPath("conformance", "EveConformance", report.repoStrategy.conformanceHandoffPath || ""),
     packs,
     capabilityMatrix: buildCapabilityMatrix(report),
+    capabilityGaps: collectCapabilityGaps(report),
     plugins: (report.plugins || []).map(plugin => ({
       pluginId: plugin.pluginId,
       status: plugin.status,
@@ -1462,6 +1463,7 @@ function buildCapabilityMatrix(report) {
     schema: "gamecult.eve.capability_matrix.v1",
     generatedAt: report.generatedAt,
     summary: report.summary || {},
+    capabilityGapCount: collectCapabilityGaps(report).length,
     handoffs: {
       conformance: report.repoStrategy.conformanceHandoffPath ? 1 : 0,
       plugins: plugins.filter(plugin => plugin.handoffExportPath).length,
@@ -1474,6 +1476,117 @@ function buildCapabilityMatrix(report) {
     runtimes,
     splitTargets,
   };
+}
+
+function collectCapabilityGaps(report) {
+  const gaps = [];
+  const addGap = ({ kind, ownerRepo, subjectId, gap, severity = "gap", detail = "" }) => {
+    if (!kind || !subjectId || !gap) return;
+    gaps.push({
+      kind,
+      ownerRepo: ownerRepo || "",
+      subjectId,
+      gap,
+      severity,
+      detail,
+    });
+  };
+
+  for (const plugin of report.plugins || []) {
+    for (const error of [
+      ...(plugin.missingPaths || []).map(id => `path:${id}`),
+      ...(plugin.missingRequiredFixtures || []).map(id => `fixture:${id}`),
+      ...(plugin.missingIncubationFields || []).map(id => `metadata:${id}`),
+      ...(plugin.schemaErrors || []).map(id => `schema:${id}`),
+      ...(plugin.advertisementErrors || []).map(id => `advertisement:${id}`),
+      ...(plugin.abiErrors || []).map(id => `abi:${id}`),
+    ]) {
+      addGap({
+        kind: "plugin",
+        ownerRepo: plugin.ownerRepo,
+        subjectId: plugin.pluginId,
+        gap: error,
+        severity: "blocker",
+      });
+    }
+  }
+
+  for (const provider of report.providers || []) {
+    for (const error of [
+      ...(provider.missingPaths || []).map(id => `path:${id}`),
+      ...(provider.missingRequiredFixtures || []).map(id => `fixture:${id}`),
+      ...(provider.missingIncubationFields || []).map(id => `metadata:${id}`),
+      ...(provider.advertisementErrors || []).map(id => `advertisement:${id}`),
+      ...(provider.scenarioErrors || []).map(id => `scenario:${id}`),
+      ...(provider.missingSchemas || []).map(id => `schema:${id}`),
+      ...(provider.missingSurfaces || []).map(id => `surface:${id}`),
+      ...(provider.missingCommands || []).map(id => `command:${id}`),
+      ...(provider.pluginRequirementErrors || []).map(id => `plugin:${id}`),
+    ]) {
+      addGap({
+        kind: "provider",
+        ownerRepo: provider.ownerRepo,
+        subjectId: provider.providerId,
+        gap: error,
+        severity: "blocker",
+      });
+    }
+  }
+
+  for (const runtime of report.runtimes || []) {
+    if (runtime.capture?.status === "missing") {
+      addGap({
+        kind: "runtime",
+        ownerRepo: runtime.ownerRepo,
+        subjectId: runtime.id,
+        gap: "capture:missing",
+        severity: runtime.kind === "active" ? "blocker" : "activation-blocker",
+      });
+    }
+    for (const error of [
+      ...(runtime.missingPaths || []).map(id => `path:${id}`),
+      ...(runtime.missingExternalPaths || []).map(id => `external:${id}`),
+      ...(runtime.missingSourceSymbols || []).map(id => `source:${id}`),
+      ...(runtime.missingExternalSourceSymbols || []).map(id => `external-source:${id}`),
+      ...(runtime.missingRequiredFixtures || []).map(id => `fixture:${id}`),
+      ...(runtime.missingRequiredFeatures || []).map(id => `feature:${id}`),
+      ...(runtime.commandTransportSmokeErrors || []).map(id => `command-smoke:${id}`),
+      ...(runtime.capabilityManifestErrors || []).map(id => `runtime-capability:${id}`),
+      ...(runtime.localProviderCatalogErrors || []).map(id => `local-provider-catalog:${id}`),
+      ...(runtime.pluginCapabilityGaps || []).map(id => `plugin-capability:${id}`),
+    ]) {
+      addGap({
+        kind: "runtime",
+        ownerRepo: runtime.ownerRepo,
+        subjectId: runtime.id,
+        gap: error,
+        severity: "blocker",
+      });
+    }
+    for (const note of runtime.unsupportedPluginNotes || []) {
+      addGap({
+        kind: "runtime",
+        ownerRepo: runtime.ownerRepo,
+        subjectId: runtime.id,
+        gap: `unsupported-plugin:${note}`,
+        severity: "declared-gap",
+      });
+    }
+  }
+
+  for (const target of report.splitTargets || []) {
+    for (const blocker of target.blockers || []) {
+      addGap({
+        kind: "split-target",
+        ownerRepo: target.ownerRepo,
+        subjectId: target.id,
+        gap: blocker,
+        severity: "blocker",
+      });
+    }
+  }
+
+  return gaps;
 }
 
 async function writeConformanceExport(conformanceExport, directory) {
@@ -1536,6 +1649,7 @@ function renderConformanceExportMarkdown(conformanceExport) {
     `Boundary rule: ${conformanceExport.boundaryRule || "not declared"}`,
     `Conformance handoff: ${conformanceExport.conformanceHandoffExportPath || conformanceExport.conformanceHandoffPath || "not declared"}`,
     `Capability matrix: ${conformanceExport.capabilityMatrix?.schema || "not declared"}`,
+    `Capability gaps: ${(conformanceExport.capabilityGaps || []).length}`,
     "",
     "## Packs",
     "",

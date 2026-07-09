@@ -280,6 +280,13 @@ Exit criteria:
 
 Recently cut:
 
+- Conformance export now carries first-class `capabilityGaps[]` records derived
+  from plugin errors, provider advertisement/scenario errors, runtime missing
+  evidence, declared unsupported plugin projection, capture gaps, and split
+  blockers. The generic consumer can assert named gaps with
+  `--expect-capability-gap`; the default smoke now proves Direct2D capture and
+  EveUnity release ownership remain visible blockers instead of hiding in
+  Markdown prose.
 - Conformance export now carries a first-class
   `gamecult.eve.capability_matrix.v1` projection. The matrix summarizes pack
   health, plugin ABI/capability claims, provider surfaces/commands/receipts,

@@ -96,6 +96,11 @@ surfaces/commands/receipts, runtime feature/capture/command coverage, split
 readiness, and handoff counts. This is derived evidence for consumers, not a
 new source of truth.
 
+Capability gaps are exported as `capabilityGaps[]`. They are derived from
+missing plugin/provider/runtime evidence, declared unsupported plugin
+projection, capture gaps, and split blockers. Consumer smokes can assert named
+gap substrings with `--expect-capability-gap`.
+
 The conformance export includes runtime `capabilityManifestPath` and
 `capabilityManifestErrors` fields so external consumers can distinguish a
 generic projection runtime from a runtime that can project plugin-declared

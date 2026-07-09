@@ -30,7 +30,11 @@ Copy-Item -LiteralPath $sourceExport -Destination $consumerExport -Recurse
 
 Push-Location $projectRoot
 try {
-  node .\tools\conformance\consume-export.mjs $consumerExport --expect-capability-matrix --expect-conformance-handoff
+  node .\tools\conformance\consume-export.mjs $consumerExport `
+    --expect-capability-matrix `
+    --expect-capability-gap runtime:Fensalir:direct2d:capture:missing `
+    --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release" `
+    --expect-conformance-handoff
   if ($LASTEXITCODE -ne 0) {
     throw "Conformance consumer smoke failed with exit code $LASTEXITCODE"
   }

@@ -66,6 +66,35 @@
       },
       "additionalProperties": true
     },
+    "capabilityGaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "subjectId", "gap", "severity"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "gap": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "plugins": {
       "type": "array"
     },

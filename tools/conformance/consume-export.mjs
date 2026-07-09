@@ -17,6 +17,7 @@ if (!exportDirectory) {
     "  --expect-scenario <id>",
     "  --expect-split-target <id>",
     "  --expect-capability-matrix",
+    "  --expect-capability-gap <substring>",
     "  --expect-conformance-handoff",
     "  --expect-plugin-operation <pluginId:operation>",
     "  --expect-plugin-capability <pluginId:capability>",
@@ -107,6 +108,7 @@ function validateIndex(index, directory, expectations, errors) {
   const providers = Array.isArray(index.providers) ? index.providers : [];
   const runtimes = mergeRuntimeRecords(Array.isArray(index.runtimes) ? index.runtimes : [], exportedRuntimeTargets);
   const splitTargets = Array.isArray(index.splitTargets) ? index.splitTargets : [];
+  const capabilityGaps = Array.isArray(index.capabilityGaps) ? index.capabilityGaps : [];
 
   if (expectations.conformanceHandoff && !index.conformanceHandoffPath) {
     errors.push("conformanceHandoffPath:missing");
@@ -116,6 +118,12 @@ function validateIndex(index, directory, expectations, errors) {
   }
   if (expectations.capabilityMatrix) {
     validateCapabilityMatrix(index.capabilityMatrix, packs, plugins, providers, runtimes, splitTargets, errors);
+  }
+  validateCapabilityGaps(index.capabilityGaps, errors);
+  for (const expectedGap of expectations.capabilityGaps) {
+    if (!capabilityGaps.some(gap => capabilityGapText(gap).includes(expectedGap))) {
+      errors.push(`capabilityGaps:${expectedGap}:missing`);
+    }
   }
 
   for (const expectedFixture of expectations.fixtures) {
@@ -368,6 +376,29 @@ function validateCapabilityMatrix(matrix, packs, plugins, providers, runtimes, s
   }
 }
 
+function validateCapabilityGaps(gaps, errors) {
+  if (!Array.isArray(gaps)) {
+    errors.push("capabilityGaps:missing");
+    return;
+  }
+  for (const [index, gap] of gaps.entries()) {
+    for (const field of ["kind", "subjectId", "gap", "severity"]) {
+      if (!gap?.[field]) errors.push(`capabilityGaps:${index}:${field}:missing`);
+    }
+  }
+}
+
+function capabilityGapText(gap) {
+  return [
+    gap.kind,
+    gap.ownerRepo,
+    gap.subjectId,
+    gap.gap,
+    gap.severity,
+    gap.detail,
+  ].filter(Boolean).join(":");
+}
+
 function parseArguments(args) {
   const exportPath = args[0] ? path.resolve(args[0]) : "";
   const expectations = {
@@ -394,6 +425,7 @@ function parseArguments(args) {
     splitTargetBlockers: [],
     splitTargetProofs: [],
     capabilityMatrix: false,
+    capabilityGaps: [],
     conformanceHandoff: false,
   };
   const optionTargets = new Map([
@@ -419,6 +451,7 @@ function parseArguments(args) {
     ["--expect-split-target-status", expectations.splitTargetStatuses],
     ["--expect-split-target-blocker", expectations.splitTargetBlockers],
     ["--expect-split-target-proof", expectations.splitTargetProofs],
+    ["--expect-capability-gap", expectations.capabilityGaps],
   ]);
 
   for (let index = 1; index < args.length; index += 1) {
