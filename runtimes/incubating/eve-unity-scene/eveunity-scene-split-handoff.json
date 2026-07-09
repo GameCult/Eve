@@ -12,7 +12,13 @@
     {
       "id": "unity-scene-runtime-body",
       "stage": "runtime-body",
-      "currentPaths": [],
+      "currentPaths": [
+        "runtimes/incubating/eve-unity-scene/package.json",
+        "runtimes/incubating/eve-unity-scene/Runtime/GameCult.Eve.UnityScene.asmdef",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Tests/Editor/GameCult.Eve.UnityScene.Tests.asmdef",
+        "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs"
+      ],
       "destinationOwner": "EveUnity",
       "replacementProof": "EveUnity hosts a provider-agnostic Unity scene lowerer that consumes provider advertisements and world surfaces without importing Aetheria runtime internals."
     },
@@ -54,6 +60,7 @@
   ],
   "requiredExternalProofs": [
     "EveUnity publishes a Unity scene runtime capability manifest.",
+    "EveUnity owns a provider-shell contract skeleton that consumes advertised worldInteraction boundaries without importing Aetheria internals.",
     "EveUnity claims the unity-scene world-surface lowering target only after a real provider-agnostic scene lowerer exists.",
     "EveUnity lowers at least one non-Aetheria provider-authored world surface into Unity scene objects.",
     "EveUnity lowers Aetheria's game world surface through provider advertisements without importing Aetheria internals.",

@@ -593,13 +593,23 @@
             "scripts/run-eveunity-scene-lifecycle-smoke.ps1",
             "scripts/run-eveunity-scene-provider-shell-smoke.ps1"
           ]
+        },
+        {
+          "description": "Unity scene provider-shell skeleton exists without claiming full world-surface lowering.",
+          "status": "passed",
+          "evidencePaths": [
+            "runtimes/incubating/eve-unity-scene/package.json",
+            "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+            "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
+            "scripts/run-eveunity-scene-provider-shell-smoke.ps1"
+          ]
         }
       ],
       "pendingProofs": [
         "Tagged UPM release is cut from EveUnity rather than Eve incubation.",
         "Unity batchmode EditMode runner is owned by EveUnity rather than Eve incubation.",
         "Unity batchmode or editor capture artifact is attached to the runtime conformance report.",
-        "Unity scene runtime body exists outside Aetheria product code.",
+        "Unity scene runtime body graduates to EveUnity outside Aetheria product code.",
         "Unity scene claims provider-advertised unity-scene world-surface lowering with real scene capture evidence."
       ]
     },
@@ -780,7 +790,7 @@
       "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
       "requiredFixtures": ["aetheria-world"],
       "pluginFixtures": [],
-      "supportedFeatures": [],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport"],
       "supportedPlugins": [],
       "unsupportedPlugins": [
         {
@@ -797,10 +807,25 @@
         }
       ],
       "expectedPaths": [
+        "runtimes/incubating/eve-unity-scene/package.json",
+        "runtimes/incubating/eve-unity-scene/Runtime/GameCult.Eve.UnityScene.asmdef",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Tests/Editor/GameCult.Eve.UnityScene.Tests.asmdef",
+        "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json",
         "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
         "scripts/run-eveunity-scene-lifecycle-smoke.ps1",
         "scripts/run-eveunity-scene-provider-shell-smoke.ps1"
+      ],
+      "expectedSourceSymbols": [
+        {
+          "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+          "contains": ["EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "unity-scene"]
+        },
+        {
+          "path": "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
+          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+        }
       ],
       "capture": {
         "status": "missing",

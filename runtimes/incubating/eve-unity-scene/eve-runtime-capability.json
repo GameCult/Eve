@@ -13,7 +13,10 @@
       "smokeCommand": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-eveunity-scene-split-handoff-smoke.ps1"
     }
   },
-  "supportedFeatures": [],
+  "supportedFeatures": [
+    "providerAdvertisements",
+    "commandTransport"
+  ],
   "supportedPlugins": [],
   "unsupportedPlugins": [
     {
@@ -31,7 +34,7 @@
   ],
   "commandTransport": {
     "schema": "gamecult.eve.command.v1",
-    "status": "pending-runtime-body",
+    "status": "provider-shell-contract-skeleton",
     "emitter": "EveUnitySceneSurfaceLowerer.EmitCommand",
     "clientId": "unity-scene",
     "authority": "Unity scene input emits command intents through provider-advertised command boundaries; providers accept, deny, and publish receipts."
@@ -50,6 +53,9 @@
         "publishProof": "Tagged Unity scene package release is created from the EveUnity repo and references the provider-agnostic scene package root."
       },
       "evidencePaths": [
+        "runtimes/incubating/eve-unity-scene/package.json",
+        "runtimes/incubating/eve-unity-scene/Runtime/GameCult.Eve.UnityScene.asmdef",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
         "scripts/run-eveunity-scene-split-handoff-smoke.ps1"
       ],
@@ -59,25 +65,31 @@
     },
     "test": {
       "ownerRepo": "EveUnity",
-      "status": "pending-provider-advertisement-scene-smoke",
+      "status": "provider-shell-contract-skeleton",
       "testContract": {
         "ownerRepo": "EveUnity",
         "runnerKind": "unity-scene-provider-shell-smoke",
         "runnerScript": "scripts/run-eveunity-scene-provider-shell-smoke.ps1",
         "consumerProject": "E:\\Projects\\Aetheria",
         "packageName": "org.gamecult.eve.unity-scene",
-        "testAssembly": "EveUnity.Scene.ProviderShell",
-        "testPlatform": "UnityScene",
+        "testAssembly": "GameCult.Eve.UnityScene.Tests",
+        "testPlatform": "EditMode contract skeleton",
         "resultsArtifact": "artifacts/eveunity-scene-provider-shell/{stamp}/provider-shell-results.json",
         "logArtifact": "artifacts/eveunity-scene-provider-shell/{stamp}/provider-shell.log",
         "manifestMutation": "None; the scene lowerer consumes provider advertisements and must not mutate provider product manifests."
       },
       "evidencePaths": [
+        "runtimes/incubating/eve-unity-scene/package.json",
+        "runtimes/incubating/eve-unity-scene/Runtime/GameCult.Eve.UnityScene.asmdef",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Tests/Editor/GameCult.Eve.UnityScene.Tests.asmdef",
+        "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
         "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
-        "scripts/run-eveunity-scene-split-handoff-smoke.ps1"
+        "scripts/run-eveunity-scene-split-handoff-smoke.ps1",
+        "scripts/run-eveunity-scene-provider-shell-smoke.ps1"
       ],
       "pendingProofs": [
-        "Unity scene provider-advertisement smoke runs from EveUnity without importing Aetheria source layout."
+        "Unity scene provider-advertisement smoke runs from EveUnity with real Unity scene/frame objects and no Aetheria imports."
       ]
     },
     "capture": {

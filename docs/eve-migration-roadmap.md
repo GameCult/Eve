@@ -326,6 +326,11 @@ Recently cut:
   active surface advertisement instead of the provider's first advertised
   surface. This keeps Aetheria game/editor command boundaries from collapsing
   inside the generic web reference.
+- Unity scene now has a provider-shell contract skeleton under
+  `runtimes/incubating/eve-unity-scene`. The skeleton consumes an advertised
+  `worldInteraction` boundary, creates `gamecult.eve.command.v1` requests with
+  command boundary and receipt schema fields, and has a runnable smoke without
+  claiming full `unity-scene` world lowering or capture evidence.
 - The conformance export carries `splitHandoffMoveCoverage[]`, joining runtime
   split handoff move sets to source path status. EveElectron now exposes the
   existing Aetheria `Aetheria.Rts.Web/Electron` and command transport paths as

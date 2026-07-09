@@ -53,6 +53,8 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature web:providerAdvertisements `
   --expect-runtime-feature windows-flutter:embeddedDocuments `
   --expect-runtime-feature unity-uitoolkit:embeddedDocuments `
+  --expect-runtime-feature unity-scene:providerAdvertisements `
+  --expect-runtime-feature unity-scene:commandTransport `
   --expect-runtime-feature direct2d:embeddedDocuments `
   --expect-runtime-world-target web:web-reference `
   --expect-runtime-world-field web:web-reference:supportLevel:reference-dom-canvas-command-boundary `
@@ -114,7 +116,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredProvider:aetheria" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-status unity-scene:release:pending-unity-scene-package `
-  --expect-runtime-lifecycle-status unity-scene:test:pending-provider-advertisement-scene-smoke `
+  --expect-runtime-lifecycle-status unity-scene:test:provider-shell-contract-skeleton `
   --expect-runtime-lifecycle-status unity-scene:capture:pending-unity-scene-capture `
   --expect-runtime-lifecycle-pending "unity-scene:release:Unity scene package release" `
   --expect-runtime-lifecycle-pending "unity-scene:test:Unity scene provider-advertisement smoke" `

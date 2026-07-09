@@ -279,7 +279,9 @@ namespace GameCult.Eve.Surface
             CultMeshOperationInvocationDescriptor operation,
             CultMeshOperationPayload payload,
             DateTimeOffset issuedAt,
-            string clientId)
+            string clientId,
+            string commandBoundary = "",
+            string receiptSchema = "")
         {
             ProviderId = providerId;
             SurfaceId = surfaceId;
@@ -287,6 +289,8 @@ namespace GameCult.Eve.Surface
             Payload = payload ?? CultMeshOperationPayload.Empty;
             IssuedAt = issuedAt;
             ClientId = clientId;
+            CommandBoundary = commandBoundary ?? "";
+            ReceiptSchema = receiptSchema ?? "";
         }
 
         public string Schema => SchemaId;
@@ -304,5 +308,9 @@ namespace GameCult.Eve.Surface
         public DateTimeOffset IssuedAt { get; }
 
         public string ClientId { get; }
+
+        public string CommandBoundary { get; }
+
+        public string ReceiptSchema { get; }
     }
 }

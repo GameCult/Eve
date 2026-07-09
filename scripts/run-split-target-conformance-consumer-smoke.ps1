@@ -46,13 +46,13 @@ try {
     --expect-split-target-blocker "EveUnity:runtime:unity-scene:status:pending" `
     --expect-split-target-blocker-record EveUnity:runtime-status:unity-scene `
     --expect-split-target-blocker-record EveUnity:runtime-plugin-projection:unity-scene:sai.vn `
-    --expect-split-target-blocker-record "EveUnity:pending-proof:Unity scene runtime body exists outside Aetheria product code." `
-    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:replacement-required:no-source-paths:none `
+    --expect-split-target-blocker-record "EveUnity:pending-proof:Unity scene runtime body graduates to EveUnity outside Aetheria product code." `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:replacement-required:no-source-paths:none `
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target-blocker "EveUnity:Unity batchmode EditMode runner" `
     --expect-split-target-blocker "EveUnity:Unity batchmode or editor capture artifact" `
-    --expect-split-target-blocker "EveUnity:Unity scene runtime body exists outside Aetheria product code" `
+    --expect-split-target-blocker "EveUnity:Unity scene runtime body graduates to EveUnity outside Aetheria product code" `
     --expect-split-target EveElectron `
     --expect-split-target-status EveElectron:incubating `
     --expect-split-target-proof "EveElectron:EveElectron split handoff is machine-readable" `

@@ -39,8 +39,10 @@ if ($manifest.incubation.splitHandoff.manifestPath -ne "runtimes/incubating/eve-
   throw "EveUnity scene manifest missing split handoff path"
 }
 
-if (@($manifest.supportedFeatures).Count -ne 0) {
-  throw "EveUnity scene must not claim supported runtime features before the generic scene lowerer exists"
+foreach ($feature in @("providerAdvertisements", "commandTransport")) {
+  if (-not (@($manifest.supportedFeatures) -contains $feature)) {
+    throw "EveUnity scene manifest missing provider-shell feature: $feature"
+  }
 }
 if (@($manifest.supportedPlugins).Count -ne 0) {
   throw "EveUnity scene must not claim plugin projection before the generic scene lowerer exists"
@@ -60,7 +62,7 @@ foreach ($pluginId in @("sai.vn", "norn.graph", "tex.math")) {
 if ($manifest.commandTransport.schema -ne "gamecult.eve.command.v1") {
   throw "Unexpected EveUnity scene command schema: $($manifest.commandTransport.schema)"
 }
-if ($manifest.commandTransport.status -ne "pending-runtime-body") {
+if ($manifest.commandTransport.status -ne "provider-shell-contract-skeleton") {
   throw "Unexpected EveUnity scene command transport status: $($manifest.commandTransport.status)"
 }
 
@@ -126,5 +128,6 @@ if ($captureContract.runtimeId -ne "unity-scene") {
 }
 
 & (Join-Path $projectRoot "scripts\run-eveunity-scene-split-handoff-smoke.ps1")
+& (Join-Path $projectRoot "scripts\run-eveunity-scene-provider-shell-smoke.ps1")
 
 Write-Host "EveUnity scene lifecycle smoke passed: $absoluteManifestPath"
