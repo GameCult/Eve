@@ -186,6 +186,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "tui:test:testContract.runnerKind:terminal-provider-shell-smoke" `
   --expect-runtime-lifecycle-field "tui:test:testContract.runnerScript:scripts/run-evetui-provider-shell-smoke.ps1" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.captureKind:terminal-transcript-or-cell-grid" `
+  --expect-runtime-lifecycle-field "tui:capture:captureContract.targetId:tui" `
+  --expect-runtime-lifecycle-field "tui:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `
+  --expect-runtime-lifecycle-field "tui:capture:captureContract.requestBuilder:tools/evetui/evetui-capture-contract.mjs" `
+  --expect-runtime-lifecycle-field "tui:capture:captureContract.advertisementPath:web/fixtures/aetheria.provider-advertisement.json" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.requiredSurface:aetheria.daemon.game"
 
 if ($LASTEXITCODE -ne 0) {

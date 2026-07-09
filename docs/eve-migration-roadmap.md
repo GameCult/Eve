@@ -457,8 +457,11 @@ Recently cut:
   lifecycle smoke at `scripts/run-evetui-lifecycle-smoke.ps1`. The manifest
   declares provider advertisement consumption, command transport, terminal-grid
   summary, terminal-grid lowering, and the `tui` world/editor lowering claim;
-  it still keeps plugin projection, terminal package release, and
-  transcript/cell-grid capture contracts pending.
+  it now carries an executable terminal capture request contract through
+  `tools/evetui/evetui-capture-contract.mjs` and
+  `scripts/run-evetui-capture-contract-smoke.ps1`. Plugin projection, terminal
+  package release, and actual transcript/cell-grid capture artifacts remain
+  pending.
 - Aetheria interactive world surfaces now carry a structured provider-owned
   `worldInteraction` contract. The provider advertisement names projection
   kind, provider state schemas, daemon command boundary, receipt schema,
@@ -517,6 +520,17 @@ Recently cut:
   `scripts/run-eveunity-scene-capture-contract-smoke.ps1` proves the request
   without pretending a Unity scene frame has been captured. The actual frame or
   screenshot artifact remains a split blocker for EveUnity.
+- EveTui capture lifecycle now carries a structured pending capture request
+  contract for terminal artifacts. `captureContract` names the TUI runtime,
+  transcript/cell-grid capture kind, ANSI transcript or JSON grid artifact kind,
+  conformance attachment point, required Aetheria provider surface, request
+  schema, request builder, advertisement input, and authority rule.
+  `tools/evetui/evetui-capture-contract.mjs` builds a
+  `gamecult.eve.runtime_capture_request.v1` request from the runtime capability
+  manifest and provider advertisement, and
+  `scripts/run-evetui-capture-contract-smoke.ps1` proves that request path
+  without pretending a durable terminal transcript has been captured. The
+  actual transcript or cell-grid artifact remains a split blocker for EveTui.
 - Runtime-owner conformance consumption now asserts EveUnity lifecycle stage
   evidence directly. The generic consumer supports
   `--expect-runtime-lifecycle-status` and

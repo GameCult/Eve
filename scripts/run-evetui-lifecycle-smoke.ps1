@@ -135,13 +135,33 @@ foreach ($pathProperty in @("runnerScript", "consumerProject")) {
 }
 
 $captureContract = $manifest.lifecycle.capture.captureContract
-foreach ($field in @("ownerRepo", "runtimeId", "captureKind", "artifactKind", "artifactPattern", "conformanceAttachment", "requiredProvider", "requiredSurface", "authority", "publishProof")) {
+foreach ($field in @("ownerRepo", "runtimeId", "targetId", "requestSchema", "requestBuilder", "advertisementPath", "captureKind", "artifactKind", "artifactPattern", "conformanceAttachment", "requiredProvider", "requiredSurface", "authority", "publishProof")) {
   if (-not $captureContract.$field) {
     throw "EveTui capture contract missing $field"
+  }
+}
+if ($captureContract.runtimeId -ne "tui") {
+  throw "EveTui capture contract has unexpected runtime: $($captureContract.runtimeId)"
+}
+if ($captureContract.targetId -ne "tui") {
+  throw "EveTui capture contract has unexpected target: $($captureContract.targetId)"
+}
+if ($captureContract.requestSchema -ne "gamecult.eve.runtime_capture_request.v1") {
+  throw "EveTui capture contract has unexpected request schema: $($captureContract.requestSchema)"
+}
+if ($captureContract.captureKind -ne "terminal-transcript-or-cell-grid") {
+  throw "EveTui capture contract has unexpected capture kind: $($captureContract.captureKind)"
+}
+foreach ($pathProperty in @("requestBuilder", "advertisementPath")) {
+  $relativePath = $captureContract.$pathProperty
+  $absolutePath = Join-Path $projectRoot $relativePath
+  if (-not (Test-Path -LiteralPath $absolutePath)) {
+    throw "EveTui capture contract $pathProperty does not exist: $relativePath"
   }
 }
 
 & (Join-Path $projectRoot "scripts\run-evetui-split-handoff-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-evetui-provider-shell-smoke.ps1")
+& (Join-Path $projectRoot "scripts\run-evetui-capture-contract-smoke.ps1")
 
 Write-Host "EveTui lifecycle smoke passed: $absoluteManifestPath"

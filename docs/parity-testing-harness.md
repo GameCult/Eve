@@ -307,9 +307,10 @@ a narrow provider-advertised surface-tree command surface and exposes a typed
 capture request contract, while packaged rendering, embedded document
 rendering, actual window capture, and plugin projection remain blockers.
 EveTui is also intentionally pending: it now claims a lossy
-provider-advertised terminal-grid command surface, while transcript/cell-grid
-capture, embedded document rendering, plugin projection, and repo graduation
-remain blockers. EveUnity includes both the active `unity-uitoolkit` package proof
+provider-advertised terminal-grid command surface and exposes a typed terminal
+capture request contract, while actual transcript/cell-grid capture, embedded
+document rendering, plugin projection, and repo graduation remain blockers.
+EveUnity includes both the active `unity-uitoolkit` package proof
 and the pending `unity-scene` runtime boundary; UI Toolkit support is not
 treated as full Unity scene/world lowering. The `unity-scene` runtime now claims
 a narrow scene graph command surface and exposes a typed capture request

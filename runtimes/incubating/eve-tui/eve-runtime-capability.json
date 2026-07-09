@@ -112,6 +112,10 @@
       "captureContract": {
         "ownerRepo": "EveTui",
         "runtimeId": "tui",
+        "targetId": "tui",
+        "requestSchema": "gamecult.eve.runtime_capture_request.v1",
+        "requestBuilder": "tools/evetui/evetui-capture-contract.mjs",
+        "advertisementPath": "web/fixtures/aetheria.provider-advertisement.json",
         "captureKind": "terminal-transcript-or-cell-grid",
         "artifactKind": "ansi-transcript-or-json-grid",
         "artifactPattern": "artifacts/evetui-capture/{stamp}/tui-transcript.ansi",
@@ -121,7 +125,11 @@
         "authority": "Capture observes terminal projection only; provider state, command acceptance, and receipts stay provider-owned.",
         "publishProof": "Terminal transcript or cell-grid capture artifact is attached to the runtime conformance report from EveTui."
       },
-      "evidencePaths": [],
+      "evidencePaths": [
+        "tools/evetui/evetui-capture-contract.mjs",
+        "tools/evetui/evetui-capture-contract.test.mjs",
+        "scripts/run-evetui-capture-contract-smoke.ps1"
+      ],
       "pendingProofs": [
         "TUI terminal transcript or cell-grid capture artifact is attached to the runtime conformance report."
       ]

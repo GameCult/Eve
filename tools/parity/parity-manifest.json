@@ -840,7 +840,10 @@
         "runtimes/incubating/eve-tui/eve-runtime-capability.json",
         "scripts/run-evetui-split-handoff-smoke.ps1",
         "scripts/run-evetui-lifecycle-smoke.ps1",
-        "scripts/run-evetui-provider-shell-smoke.ps1"
+        "scripts/run-evetui-provider-shell-smoke.ps1",
+        "scripts/run-evetui-capture-contract-smoke.ps1",
+        "tools/evetui/evetui-capture-contract.mjs",
+        "tools/evetui/evetui-capture-contract.test.mjs"
       ],
       "expectedSourceSymbols": [
         {
@@ -850,6 +853,14 @@
         {
           "path": "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
           "contains": ["selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "lowers provider surface trees into a terminal grid", "rejects surface documents that do not match the advertised TUI target", "aetheria.daemon.commands"]
+        },
+        {
+          "path": "tools/evetui/evetui-capture-contract.mjs",
+          "contains": ["buildTuiCaptureRequest", "gamecult.eve.runtime_capture_request.v1", "ansi-transcript-or-json-grid", "loweringTargets", "writeCaptureRequest"]
+        },
+        {
+          "path": "tools/evetui/evetui-capture-contract.test.mjs",
+          "contains": ["builds TUI capture request from provider advertisement", "rejects capture request when the surface does not advertise TUI", "artifacts/evetui-capture/smoke/tui-transcript.ansi"]
         }
       ],
       "capture": {
