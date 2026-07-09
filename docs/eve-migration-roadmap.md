@@ -825,6 +825,13 @@ Recently cut:
   TeX ABI fixtures must name those same schemas, and parity fails if a sidecar
   advertises a request/response schema that is missing from the contract
   catalog.
+- Plugin sidecar receipt schema names are now backed by Eve contract
+  documents. `gamecult.eve.command_receipt.v1` is the generic command receipt
+  envelope for provider-owned acceptance/reconciliation, while
+  `gamecult.eve.plugin_receipt.v1` is the plugin-runtime diagnostic/proposed
+  state receipt envelope. Plugin ABI fixtures must match the sidecar-advertised
+  receipt schema, and parity fails if that schema is missing from the contract
+  catalog.
 - Runtime release/capture request schema names are now backed by Eve contract
   documents. `gamecult.eve.runtime_release_request.v1` and
   `gamecult.eve.runtime_capture_request.v1` live under `schemas/`; runtime

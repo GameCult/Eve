@@ -604,7 +604,12 @@ function validatePluginRuntimeBoundary(plugin, runtimeBoundary) {
   errors.push(...missingMembers(expectedRuntime.authority || [], runtimeBoundary.advertisementAuthority || [], "runtime.advertisementAuthority"));
   errors.push(...comparePluginSidecar(expectedRuntime.sidecar || {}, runtimeBoundary.sidecar || {}, "runtime.sidecar"));
   errors.push(...comparePluginSidecar(runtimeBoundary.sidecar || {}, runtimeBoundary.advertisementSidecar || {}, "runtime.advertisementSidecar"));
-  for (const schemaId of [runtimeBoundary.sidecar?.requestSchema, runtimeBoundary.sidecar?.responseSchema].filter(Boolean)) {
+  for (const schemaId of [
+    runtimeBoundary.sidecar?.requestSchema,
+    runtimeBoundary.sidecar?.responseSchema,
+    runtimeBoundary.sidecar?.commandEnvelope,
+    runtimeBoundary.sidecar?.receiptSchema,
+  ].filter(Boolean)) {
     if (!manifest.schemas?.[schemaId]) {
       errors.push(`runtime.sidecar.schemaCatalog:${schemaId}:missing`);
     }
@@ -937,7 +942,8 @@ async function validatePluginAbiFixture(plugin) {
     if (abiFixture.responseSchema !== pluginManifest.runtime?.sidecar?.responseSchema) {
       errors.push(`${plugin.abiFixturePath}:responseSchema:expected ${pluginManifest.runtime?.sidecar?.responseSchema || ""} got ${abiFixture.responseSchema || ""}`);
     }
-    for (const schemaId of [abiFixture.requestSchema, abiFixture.responseSchema].filter(Boolean)) {
+    const sidecarReceiptSchema = pluginManifest.runtime?.sidecar?.receiptSchema || "";
+    for (const schemaId of [abiFixture.requestSchema, abiFixture.responseSchema, sidecarReceiptSchema].filter(Boolean)) {
       if (!manifest.schemas?.[schemaId]) {
         errors.push(`${plugin.abiFixturePath}:schemaCatalog:${schemaId}:missing`);
       }
@@ -985,6 +991,9 @@ async function validatePluginAbiFixture(plugin) {
     if (measure.preservesProviderAuthority !== true) errors.push(`${plugin.abiFixturePath}:measure.preservesProviderAuthority:expected true`);
 
     const apply = operations.get("apply")?.expect || {};
+    if (apply.receiptSchema !== sidecarReceiptSchema) {
+      errors.push(`${plugin.abiFixturePath}:apply.receiptSchema:expected ${sidecarReceiptSchema} got ${apply.receiptSchema || ""}`);
+    }
     if (manifestCommands.length) {
       const commandEffects = apply.commandEffects || {};
       for (const command of manifestCommands) {

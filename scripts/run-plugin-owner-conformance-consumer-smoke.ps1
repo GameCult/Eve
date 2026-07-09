@@ -37,6 +37,8 @@ node $consumerScript $consumerExport `
   --expect-schema gamecult.eve.plugin_abi_fixture.v1 `
   --expect-schema gamecult.eve.plugin_abi.request.v1 `
   --expect-schema gamecult.eve.plugin_abi.response.v1 `
+  --expect-schema gamecult.eve.command_receipt.v1 `
+  --expect-schema gamecult.eve.plugin_receipt.v1 `
   --expect-fixture sai-vn `
   --expect-plugin sai.vn `
   --expect-plugin norn.graph `

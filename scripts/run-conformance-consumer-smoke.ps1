@@ -33,6 +33,8 @@ try {
   node .\tools\conformance\consume-export.mjs $consumerExport `
     --expect-capability-matrix `
     --expect-schema gamecult.eve.conformance_export.v1 `
+    --expect-schema gamecult.eve.command_receipt.v1 `
+    --expect-schema gamecult.eve.plugin_receipt.v1 `
     --expect-schema gamecult.eve.plugin_abi.request.v1 `
     --expect-schema gamecult.eve.plugin_abi.response.v1 `
     --expect-schema gamecult.eve.runtime_release_request.v1 `

@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.command_receipt.v1",
+  "title": "Eve Command Receipt",
+  "type": "object",
+  "required": [
+    "schema",
+    "receiptId",
+    "command",
+    "state",
+    "ownerRepo",
+    "authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.command_receipt.v1"
+    },
+    "receiptId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "commandId": {
+      "type": "string"
+    },
+    "command": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "accepted",
+        "denied",
+        "pending",
+        "reconciled"
+      ]
+    },
+    "ownerRepo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority": {
+      "type": "string",
+      "minLength": 1
+    },
+    "providerId": {
+      "type": "string"
+    },
+    "surfaceId": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "issuedAtUtc": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}
