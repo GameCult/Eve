@@ -1,0 +1,114 @@
+{
+  "type": "surface-state",
+  "schema": "gamecult.eve.surface.v1",
+  "providerId": "eve.world-smoke",
+  "providerKind": "contract.fixture",
+  "title": "Generic Interactive World Smoke",
+  "version": 1,
+  "updatedAtUtc": "2026-07-09T00:00:00Z",
+  "surface": {
+    "id": "eve.world-smoke.surface",
+    "root": {
+      "id": "eve.world-smoke.root",
+      "kind": "surface",
+      "props": {},
+      "children": [
+        {
+          "id": "eve.world-smoke.summary",
+          "kind": "card",
+          "props": {
+            "title": "World Contract Control"
+          },
+          "children": [
+            {
+              "id": "eve.world-smoke.summary.text",
+              "kind": "text",
+              "props": {
+                "text": "A tiny provider-owned world surface used to prove generic runtime lowering without Aetheria product state."
+              },
+              "children": []
+            },
+            {
+              "id": "eve.world-smoke.tick",
+              "kind": "metric",
+              "props": {
+                "label": "Tick",
+                "bind": "eve.world-smoke.frame",
+                "value": "42"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "eve.world-smoke.field",
+          "kind": "field.surface2d",
+          "props": {
+            "label": "Contract Field",
+            "bind": "eve.world-smoke.field",
+            "fieldId": "eve.world-smoke.contract-field",
+            "fieldKind": "scalar2d",
+            "bounds": "-128,-128,128,128",
+            "bodies": "Beacon:0:0:90;Probe:48:-32:24",
+            "objects": "beacon:0:0;probe:48:-32",
+            "sampleCount": "16",
+            "visualizer": "points"
+          },
+          "children": []
+        },
+        {
+          "id": "eve.world-smoke.commands",
+          "kind": "card",
+          "props": {
+            "title": "Command Boundary"
+          },
+          "children": [
+            {
+              "id": "eve.world-smoke.command.focus",
+              "kind": "control.button",
+              "props": {
+                "label": "Focus Beacon",
+                "command": "eve.world-smoke.commands",
+                "commandId": "eve.world-smoke.focus",
+                "action": {
+                  "target": "eve.world-smoke.commands",
+                  "operation": "focus_object",
+                  "objectId": "Beacon"
+                }
+              },
+              "children": []
+            },
+            {
+              "id": "eve.world-smoke.authority",
+              "kind": "text",
+              "props": {
+                "text": "The provider owns accepted state and receipts; runtimes only lower this command surface."
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "styles": {
+      "tokens": {
+        "colorBackground": "#11161A",
+        "colorPanel": "#263238",
+        "colorText": "#EEF4F1",
+        "colorMuted": "#9FB0AA",
+        "colorAccent": "#7DC7B8",
+        "fontBody": "Inter",
+        "fontTitle": "Inter"
+      }
+    }
+  },
+  "commands": [
+    {
+      "command": "eve.world-smoke.commands",
+      "schema": "gamecult.eve.command.v1",
+      "transport": "cultmesh",
+      "authority": "eve.world-smoke.provider",
+      "result": "accepted-denied-or-reconciled"
+    }
+  ]
+}

@@ -20,6 +20,12 @@ try {
     -OutputPath "artifacts\web-reference-layout-probe\latest\sai-vn.json" `
     -Port 8893 `
     -SkipBuild
+  & (Join-Path $PSScriptRoot "run-web-reference-layout-probe-smoke.ps1") `
+    -ProviderId "eve.world-smoke" `
+    -FixtureId "eve-world-smoke" `
+    -OutputPath "artifacts\web-reference-layout-probe\latest\eve-world-smoke.json" `
+    -Port 8894 `
+    -SkipBuild
   & (Join-Path $PSScriptRoot "run-eveunity-uitoolkit-capture-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1")
   node .\tools\parity\run-parity.mjs

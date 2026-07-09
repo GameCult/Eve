@@ -52,16 +52,27 @@ try {
     --expect-capability-gap runtime:Fensalir:direct2d:capture:missing `
     --expect-local-provider-catalog web:valid:local-provider-catalog.json `
     --expect-local-provider-catalog-provider web:aetheria `
+    --expect-local-provider-catalog-provider web:eve.world-smoke `
     --expect-local-provider-catalog-provider web:repixelizer `
     --expect-local-provider-catalog-provider web:gamecult.home.vn `
     --expect-local-provider-catalog-advertisement web:aetheria.provider-advertisement.json `
+    --expect-local-provider-catalog-advertisement web:eve-world-smoke.provider-advertisement.json `
     --expect-local-provider-catalog-advertisement web:repixelizer.provider-advertisement.json `
     --expect-local-provider-catalog-advertisement web:sai-vn.provider-advertisement.json `
+    --expect-interactive-world-surface eve.world-smoke:eve.world-smoke.surface:web-reference:Eve `
+    --expect-interactive-world-surface eve.world-smoke:eve.world-smoke.surface:unity-scene:Eve `
+    --expect-interactive-world-surface eve.world-smoke:eve.world-smoke.surface:electron-shell:Eve `
+    --expect-interactive-world-surface eve.world-smoke:eve.world-smoke.surface:tui:Eve `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:web-reference:claimed:Eve:web `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-scene:claimed:EveUnity:unity-scene `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:electron-shell:claimed:EveElectron:electron-shell `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:tui:claimed:EveTui:tui `
+    --expect-world-lowering-coverage eve.world-smoke:eve.world-smoke.surface:web-reference:claimed:Eve:web `
+    --expect-world-lowering-coverage eve.world-smoke:eve.world-smoke.surface:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `
+    --expect-world-lowering-coverage eve.world-smoke:eve.world-smoke.surface:unity-scene:claimed:EveUnity:unity-scene `
+    --expect-world-lowering-coverage eve.world-smoke:eve.world-smoke.surface:electron-shell:claimed:EveElectron:electron-shell `
+    --expect-world-lowering-coverage eve.world-smoke:eve.world-smoke.surface:tui:claimed:EveTui:tui `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.editor:electron-shell:claimed:EveElectron:electron-shell `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.editor:tui:claimed:EveTui:tui `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.game:web-reference:covered:Eve:web `
@@ -69,6 +80,11 @@ try {
     --expect-command-boundary-coverage aetheria:aetheria.daemon.game:unity-scene:covered:EveUnity:unity-scene `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.game:electron-shell:covered:EveElectron:electron-shell `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.game:tui:covered:EveTui:tui `
+    --expect-command-boundary-coverage eve.world-smoke:eve.world-smoke.surface:web-reference:covered:Eve:web `
+    --expect-command-boundary-coverage eve.world-smoke:eve.world-smoke.surface:unity-uitoolkit:covered:EveUnity:unity-uitoolkit `
+    --expect-command-boundary-coverage eve.world-smoke:eve.world-smoke.surface:unity-scene:covered:EveUnity:unity-scene `
+    --expect-command-boundary-coverage eve.world-smoke:eve.world-smoke.surface:electron-shell:covered:EveElectron:electron-shell `
+    --expect-command-boundary-coverage eve.world-smoke:eve.world-smoke.surface:tui:covered:EveTui:tui `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:electron-shell:covered:EveElectron:electron-shell `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:tui:covered:EveTui:tui `
     --expect-screenshot-metric web:embedded-surface:structure:pass `
@@ -78,6 +94,10 @@ try {
     --expect-screenshot-metric web:sai-vn:structure:pass `
     --expect-screenshot-metric web:sai-vn:color-tokens:pass `
     --expect-screenshot-metric web:sai-vn:bounding-boxes:pass `
+    --expect-screenshot-metric web:eve-world-smoke:structure:pass `
+    --expect-screenshot-metric web:eve-world-smoke:color-tokens:pass `
+    --expect-screenshot-metric web:eve-world-smoke:text-presence:pass `
+    --expect-screenshot-metric web:eve-world-smoke:bounding-boxes:pass `
     --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
     --expect-runtime-capture-probe unity-uitoolkit:semantic-artifact-present-capture-pending:png:EveUnity `
     --expect-runtime-capture-probe unity-scene:semantic-artifact-present-capture-pending:png:EveUnity `

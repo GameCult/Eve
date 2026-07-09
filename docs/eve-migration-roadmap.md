@@ -994,6 +994,14 @@ Recently cut:
   incubation resolution, and the EveUnity split handoff requirement. The
   runtime capability schema, parity comparator, lifecycle smoke, and
   runtime-owner conformance smoke all verify that boundary.
+- Eve now has a non-Aetheria interactive world control fixture at
+  `web/fixtures/eve-world-smoke-surface.json` with an advertisement at
+  `web/fixtures/eve-world-smoke.provider-advertisement.json`. The local
+  provider catalog, web advertisement merge test, web layout probe, generic
+  conformance consumer, and runtime-owner consumer all assert that
+  `web-reference`, `unity-uitoolkit`, `unity-scene`, `electron-shell`, and
+  `tui` lower the same provider-owned world/command boundary without importing
+  Aetheria product state.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
   project, lower, measure, and apply behavior. The parity harness validates
   those fixtures against plugin manifests, so Eve proves the ABI shape without

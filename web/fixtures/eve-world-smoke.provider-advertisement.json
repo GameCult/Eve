@@ -1,0 +1,63 @@
+{
+  "schema": "gamecult.eve.provider_advertisement.v1",
+  "providerId": "eve.world-smoke",
+  "serviceId": "eve.world-smoke.service",
+  "verseId": "eve.local",
+  "rootVerse": "eve",
+  "canonicalService": "eve.world-smoke",
+  "locatedService": "eve.local",
+  "cultMeshAddress": "cultmesh://eve.local/eve/providers/eve.world-smoke",
+  "title": "Generic Interactive World Smoke",
+  "kind": "contract.fixture",
+  "updatedAtUtc": "2026-07-09T00:00:00Z",
+  "freshness": {
+    "state": "fixture",
+    "lastSeenAtUtc": "2026-07-09T00:00:00Z",
+    "maxAgeMs": 15000
+  },
+  "schemas": [
+    "eve.world_smoke.frame.v1",
+    "eve.world_smoke.command_receipt.v1",
+    "gamecult.eve.surface.v1",
+    "gamecult.eve.command.v1"
+  ],
+  "witnesses": [
+    {
+      "kind": "fixture",
+      "ref": "web/fixtures/eve-world-smoke-surface.json",
+      "summary": "Minimal provider-owned interactive world surface used as a non-Aetheria runtime lowering control."
+    }
+  ],
+  "surfaces": [
+    {
+      "schema": "gamecult.eve.surface.v1",
+      "surfaceId": "eve.world-smoke.surface",
+      "key": "eve:surface:eve.world-smoke.surface",
+      "transport": "cultmesh-record",
+      "status": "available",
+      "audience": "runtime-owner",
+      "mode": "interactive",
+      "surfaceKind": "interactive-world",
+      "interactionModel": "provider-command-receipts",
+      "worldInteraction": {
+        "projectionKind": "provider-authored-world-surface",
+        "stateSchemas": [
+          "eve.world_smoke.frame.v1"
+        ],
+        "commandBoundary": "eve.world-smoke.commands",
+        "receiptSchema": "eve.world_smoke.command_receipt.v1",
+        "loweringTargets": ["web-reference", "unity-uitoolkit", "unity-scene", "electron-shell", "tui"],
+        "ownership": "provider-owns-world-state-and-command-receipts"
+      },
+      "summary": "Tiny contract fixture for proving runtime world-surface lowering without product-specific provider state."
+    }
+  ],
+  "commands": [
+    {
+      "command": "eve.world-smoke.commands",
+      "schema": "gamecult.eve.command.v1",
+      "transport": "cultmesh",
+      "summary": "Fixture command boundary for provider-owned world command intents."
+    }
+  ]
+}

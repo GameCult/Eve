@@ -1,0 +1,19 @@
+{
+  "schema": "gamecult.eve.conformance_fixture.v1",
+  "fixtureId": "eve-world-smoke",
+  "title": "Generic Interactive World Smoke",
+  "pack": "core",
+  "ownerRepo": "Eve",
+  "surface": {
+    "transport": "local-json",
+    "path": "web/fixtures/eve-world-smoke-surface.json"
+  },
+  "purpose": "Proves interactive-world lowering is provider-agnostic and does not require Aetheria product state.",
+  "exitCriteria": "Stays in Eve core as the minimal control fixture for provider-owned world surface contracts.",
+  "asserts": [
+    "interactive-world surface shape",
+    "provider-owned command boundary",
+    "field.surface2d projection",
+    "generic runtime lowering target coverage"
+  ]
+}

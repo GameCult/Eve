@@ -16,6 +16,19 @@
       ]
     },
     {
+      "providerId": "eve.world-smoke",
+      "title": "Generic Interactive World Smoke",
+      "kind": "contract.fixture",
+      "advertisement": "./fixtures/eve-world-smoke.provider-advertisement.json",
+      "surfaces": [
+        {
+          "transport": "local-json",
+          "surfaceId": "eve.world-smoke.surface",
+          "url": "./fixtures/eve-world-smoke-surface.json"
+        }
+      ]
+    },
+    {
       "providerId": "repixelizer",
       "title": "Repixelizer",
       "kind": "service.product",

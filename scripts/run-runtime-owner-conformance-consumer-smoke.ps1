@@ -93,6 +93,16 @@ node $consumerScript $consumerExport `
   --expect-runtime-world-target tui:tui `
   --expect-runtime-world-field tui:tui:supportLevel:terminal-grid-command-surface `
   --expect-runtime-world-field tui:tui:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
+  --expect-world-lowering-coverage eve.world-smoke:eve.world-smoke.surface:web-reference:claimed:Eve:web `
+  --expect-world-lowering-coverage eve.world-smoke:eve.world-smoke.surface:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `
+  --expect-world-lowering-coverage eve.world-smoke:eve.world-smoke.surface:unity-scene:claimed:EveUnity:unity-scene `
+  --expect-world-lowering-coverage eve.world-smoke:eve.world-smoke.surface:electron-shell:claimed:EveElectron:electron-shell `
+  --expect-world-lowering-coverage eve.world-smoke:eve.world-smoke.surface:tui:claimed:EveTui:tui `
+  --expect-command-boundary-coverage eve.world-smoke:eve.world-smoke.surface:web-reference:covered:Eve:web `
+  --expect-command-boundary-coverage eve.world-smoke:eve.world-smoke.surface:unity-uitoolkit:covered:EveUnity:unity-uitoolkit `
+  --expect-command-boundary-coverage eve.world-smoke:eve.world-smoke.surface:unity-scene:covered:EveUnity:unity-scene `
+  --expect-command-boundary-coverage eve.world-smoke:eve.world-smoke.surface:electron-shell:covered:EveElectron:electron-shell `
+  --expect-command-boundary-coverage eve.world-smoke:eve.world-smoke.surface:tui:covered:EveTui:tui `
   --expect-runtime-plugin-projection unity-uitoolkit:sai.vn:supported:EveUnity `
   --expect-runtime-plugin-projection unity-uitoolkit:norn.graph:supported:EveUnity `
   --expect-runtime-plugin-projection unity-uitoolkit:tex.math:supported:EveUnity `
@@ -153,6 +163,10 @@ node $consumerScript $consumerExport `
   --expect-screenshot-metric web:sai-vn:structure:pass `
   --expect-screenshot-metric web:sai-vn:color-tokens:pass `
   --expect-screenshot-metric web:sai-vn:bounding-boxes:pass `
+  --expect-screenshot-metric web:eve-world-smoke:structure:pass `
+  --expect-screenshot-metric web:eve-world-smoke:color-tokens:pass `
+  --expect-screenshot-metric web:eve-world-smoke:text-presence:pass `
+  --expect-screenshot-metric web:eve-world-smoke:bounding-boxes:pass `
   --expect-screenshot-metric unity-scene:aetheria-world:bounding-boxes:pending-capture `
   --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
   --expect-screenshot-metric tui:aetheria-world:bounding-boxes:terminal-grid-capture `

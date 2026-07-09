@@ -5,6 +5,7 @@ import { findProviderCatalogEntry, mergeProviderAdvertisement } from "./provider
 
 const catalog = JSON.parse(readFileSync(new URL("./local-provider-catalog.json", import.meta.url), "utf8"));
 const aetheriaAdvertisement = JSON.parse(readFileSync(new URL("./fixtures/aetheria.provider-advertisement.json", import.meta.url), "utf8"));
+const worldSmokeAdvertisement = JSON.parse(readFileSync(new URL("./fixtures/eve-world-smoke.provider-advertisement.json", import.meta.url), "utf8"));
 const saiAdvertisement = JSON.parse(readFileSync(new URL("./fixtures/sai-vn.provider-advertisement.json", import.meta.url), "utf8"));
 
 test("merges local fixture transport with advertised Aetheria world interaction", () => {
@@ -19,6 +20,20 @@ test("merges local fixture transport with advertised Aetheria world interaction"
   assert.equal(surface.worldInteraction.commandBoundary, "aetheria.daemon.commands");
   assert.equal(surface.worldInteraction.receiptSchema, "aetheria.eve_command_acceptance_status.v1");
   assert.equal(provider.localAdvertisement.providerId, "aetheria");
+});
+
+test("merges generic world fixture transport with advertised world interaction", () => {
+  const catalogProvider = findProviderCatalogEntry(catalog, "eve.world-smoke");
+  const provider = mergeProviderAdvertisement(catalogProvider, worldSmokeAdvertisement);
+  const surface = provider.surfaces.find(candidate => candidate.surfaceId === "eve.world-smoke.surface");
+
+  assert.equal(surface.transport, "local-json");
+  assert.equal(surface.url, "./fixtures/eve-world-smoke-surface.json");
+  assert.equal(surface.surfaceKind, "interactive-world");
+  assert.equal(surface.worldInteraction.projectionKind, "provider-authored-world-surface");
+  assert.equal(surface.worldInteraction.commandBoundary, "eve.world-smoke.commands");
+  assert.equal(surface.worldInteraction.receiptSchema, "eve.world_smoke.command_receipt.v1");
+  assert.deepEqual(surface.worldInteraction.loweringTargets, ["web-reference", "unity-uitoolkit", "unity-scene", "electron-shell", "tui"]);
 });
 
 test("preserves Sai required and optional nested plugin requirements from advertisement", () => {
