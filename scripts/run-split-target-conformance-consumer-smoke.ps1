@@ -85,6 +85,8 @@ try {
     --expect-split-target-status EveTui:incubating `
     --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `
     --expect-split-target-proof "EveTui:EveTui lifecycle contract is machine-readable" `
+    --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:aetheria:aetheria.daemon.game `
+    --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:eve.world-smoke:eve.world-smoke.surface `
     --expect-split-handoff-move EveTui:tui:tui-runtime-body:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-world-surface-lowering:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-command-transport:current:exists:eve-tui-shell.mjs `

@@ -700,6 +700,10 @@ Recently cut:
   `runtime.captureArtifacts[]` for both Aetheria and `eve.world-smoke`, so the
   Aetheria RTS web client remains provider pressure while the generic Electron
   shell proof stays runtime-owned.
+- EveTui split-target consumption now follows the same rule. `tui` must export
+  `runtime.captureArtifacts[]` for both Aetheria and `eve.world-smoke`, proving
+  the compact terminal-grid lowerer is a provider-agnostic runtime client while
+  package release and owner-repo capture production remain explicit blockers.
 - Conformance export now carries first-class `capabilityGaps[]` records derived
   from plugin errors, provider advertisement/scenario errors, runtime missing
   evidence, declared unsupported plugin projection, capture gaps, and split

@@ -369,8 +369,10 @@ Aetheria-only proof.
 EveTui is now an active incubating runtime: it claims a lossy
 provider-advertised terminal-grid command surface, preserves embedded document
 slot identity in the grid artifact, projects Sai/Norn/TeX fallback shells, and
-attaches a typed JSON grid capture. Repo/package graduation and owner-repo
-capture production remain blockers.
+attaches a typed JSON grid capture. The split-target smoke asserts both
+Aetheria and `eve.world-smoke` `runtime.captureArtifacts[]` for `tui`, so the
+terminal-grid proof stays generic instead of becoming Aetheria-only evidence.
+Repo/package graduation and owner-repo capture production remain blockers.
 EveUnity includes both the active `unity-uitoolkit` package proof
 and the pending `unity-scene` runtime boundary; UI Toolkit support is not
 treated as full Unity scene/world lowering. The `unity-scene` runtime now claims
