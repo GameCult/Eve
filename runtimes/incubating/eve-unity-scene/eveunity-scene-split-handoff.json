@@ -19,6 +19,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs",
@@ -38,6 +39,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/GameCult.Eve.UnityScene.Tests.asmdef",
         "tools/eveunity/eveunity-release-contract.mjs",
         "tools/eveunity/eveunity-release-contract.test.mjs",
@@ -57,6 +59,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs",
@@ -64,7 +67,7 @@
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, provider snapshot session, playable-world scene presentation, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
+      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, provider snapshot session, playable-world scene presentation, Unity GameObject scene sink, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
     },
     {
       "id": "unity-scene-sai-plugin-projection",
@@ -154,6 +157,7 @@
     "EveUnity owns a provider-snapshot Unity scene client session that lowers Aetheria's surface and emits command intents without importing Aetheria project code.",
     "EveUnity owns provider surface source and command sink ports that a live CultMesh/CultNet adapter can implement without changing scene lowering.",
     "EveUnity owns a playable-world presenter that maps provider-authored entity rows and asset refs into Unity scene operations without importing Aetheria entity or prefab classes.",
+    "EveUnity owns a generic Unity GameObject scene sink and asset-provider hook for playable-world rows without importing Aetheria entity or prefab classes.",
     "EveUnity owns the provider-agnostic playable-world scene lowerer outside Eve incubation.",
     "EveUnity owns the Unity scene Sai projection adapter outside Eve incubation without importing Sai story state or VN/Ink internals.",
     "EveUnity owns the Unity scene Norn projection adapter outside Eve incubation without importing Norn implementation state.",

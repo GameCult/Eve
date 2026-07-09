@@ -54,7 +54,7 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
   }
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "sceneGraphProjection", "playableWorldProjection", "playableWorldScenePresentation")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "sceneGraphProjection", "playableWorldProjection", "playableWorldScenePresentation", "unityGameObjectSceneSink")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveUnity scene provider shell missing supported feature: $feature"
   }
@@ -67,6 +67,7 @@ $expectedFiles = @(
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneClientSession.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneProviderConnection.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldPresenter.cs",
+  "runtimes\incubating\eve-unity-scene\Runtime\EveUnityGameObjectPlayableWorldSceneSink.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\SaiVisualNovelUnitySceneProjectionAdapter.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\NornGraphUnitySceneProjectionAdapter.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\TeXMathUnitySceneProjectionAdapter.cs",
@@ -106,6 +107,13 @@ $playableWorldPresenterSource = Get-Content -LiteralPath (Join-Path $projectRoot
 foreach ($symbol in @("IEveUnityPlayableWorldSceneSink", "IEveUnityPlayableWorldAssetResolver", "EveUnityPlayableWorldPresenter", "EveUnityPlayableWorldAssetBinding", "EveUnityPlayableWorldPresentation", "EveUnityAssetRefResolver", "ConfigureWorld", "UpsertEntity", "RemoveEntity", "provider-asset-ref", "unity-generated-placeholder")) {
   if (-not $playableWorldPresenterSource.Contains($symbol)) {
     throw "EveUnity playable world presenter missing symbol: $symbol"
+  }
+}
+
+$gameObjectSceneSinkSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnityGameObjectPlayableWorldSceneSink.cs") -Raw
+foreach ($symbol in @("EveUnityGameObjectPlayableWorldSceneSink", "IEveUnityGameObjectAssetProvider", "EveUnityResourcesAssetProvider", "EveUnityPlayableWorldEntityMarker", "GameObject", "Transform", "Resources.Load", "PrimitiveType.Capsule", "DestroyImmediate", "localPosition", "localRotation")) {
+  if (-not $gameObjectSceneSinkSource.Contains($symbol)) {
+    throw "EveUnity GameObject playable world scene sink missing symbol: $symbol"
   }
 }
 

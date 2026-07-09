@@ -487,9 +487,13 @@ types. It also declares `providerSurfaceSource` through
 runtime-owned port to implement. The runtime now also declares
 `playableWorldScenePresentation`: `EveUnityPlayableWorldPresenter` maps
 provider-authored entity rows and asset refs into scene sink operations while
-removing entities absent from later provider snapshots. The remaining blocker is
-that live adapter, Unity `GameObject`/prefab-backed scene sink and asset
-resolver, and Unity screenshot or frame-capture PNG production from EveUnity.
+removing entities absent from later provider snapshots. The runtime now also
+declares `unityGameObjectSceneSink`: `EveUnityGameObjectPlayableWorldSceneSink`
+creates or updates generic `GameObject` instances, attaches
+`EveUnityPlayableWorldEntityMarker`, and resolves prefabs through a swappable
+asset-provider hook. The remaining blocker is the live adapter, provider asset
+resolution against CultMesh/CultCache manifests, and Unity screenshot or
+frame-capture PNG production from EveUnity.
 
 Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
 Each record joins runtime status, capture owner, lifecycle capture contract,

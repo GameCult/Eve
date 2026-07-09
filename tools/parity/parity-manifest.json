@@ -1040,7 +1040,7 @@
       "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
       "requiredFixtures": ["aetheria-world", "eve-world-smoke"],
       "pluginFixtures": ["sai-vn"],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "sceneGraphProjection", "playableWorldProjection", "playableWorldScenePresentation", "embeddedDocuments"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "sceneGraphProjection", "playableWorldProjection", "playableWorldScenePresentation", "unityGameObjectSceneSink", "embeddedDocuments"],
       "supportedPlugins": [
         {
           "pluginId": "sai.vn",
@@ -1071,6 +1071,7 @@
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
+            "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs",
@@ -1087,6 +1088,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs",
@@ -1125,6 +1127,10 @@
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
           "contains": ["IEveUnityPlayableWorldSceneSink", "IEveUnityPlayableWorldAssetResolver", "EveUnityPlayableWorldPresenter", "EveUnityPlayableWorldAssetBinding", "EveUnityPlayableWorldPresentation", "EveUnityAssetRefResolver", "ConfigureWorld", "UpsertEntity", "RemoveEntity", "provider-asset-ref", "unity-generated-placeholder"]
+        },
+        {
+          "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
+          "contains": ["EveUnityGameObjectPlayableWorldSceneSink", "IEveUnityGameObjectAssetProvider", "EveUnityResourcesAssetProvider", "EveUnityPlayableWorldEntityMarker", "GameObject", "Transform", "Resources.Load", "PrimitiveType.Capsule", "DestroyImmediate", "localPosition", "localRotation"]
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",

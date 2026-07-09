@@ -69,6 +69,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature unity-scene:sceneGraphProjection `
   --expect-runtime-feature unity-scene:playableWorldProjection `
   --expect-runtime-feature unity-scene:playableWorldScenePresentation `
+  --expect-runtime-feature unity-scene:unityGameObjectSceneSink `
   --expect-runtime-feature electron-shell:providerAdvertisements `
   --expect-runtime-feature electron-shell:commandTransport `
   --expect-runtime-feature electron-shell:surfaceTreeProjection `

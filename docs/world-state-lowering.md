@@ -167,14 +167,18 @@ while `IEveUnitySceneCommandSink` receives command envelopes.
 `EveUnityPlayableWorldPresenter` maps the provider-authored entity rows and
 asset refs into scene operations through `IEveUnityPlayableWorldSceneSink` and
 `IEveUnityPlayableWorldAssetResolver`, including removal of entities that
-disappear from later provider snapshots. Aetheria-specific names appear only as
+disappear from later provider snapshots. `EveUnityGameObjectPlayableWorldSceneSink`
+is the first Unity-native implementation: it creates or updates generic
+`GameObject` instances, applies transforms/radii, attaches an
+`EveUnityPlayableWorldEntityMarker`, and resolves provider asset refs through an
+`IEveUnityGameObjectAssetProvider` hook. Aetheria-specific names appear only as
 provider-authored data and command ids; the Unity client code does not import
 Aetheria runtime types, prefab classes, or apply movement locally.
 
 This is not yet the final playable client. The remaining cut is a live
 CultMesh/CultNet provider subscription adapter implementing those source/sink
-ports, Unity `GameObject`/prefab-backed implementations of the scene sink and
-asset resolver, and proof that daemon receipts drive the next frame rather than
+ports, provider asset resolution against CultMesh/CultCache manifests, and proof
+that daemon receipts drive the next rendered Unity frame rather than
 renderer-local state.
 
 ## Non-Goals

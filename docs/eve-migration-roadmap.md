@@ -617,11 +617,14 @@ Recently cut:
   `EveUnityPlayableWorldPresenter` now maps provider-authored entity rows and
   asset refs into scene sink operations, including removal of entities absent
   from later provider snapshots, without importing Aetheria entity/prefab
-  classes. The Unity client boundary is generic before it learns live transport.
+  classes. `EveUnityGameObjectPlayableWorldSceneSink` now provides the first
+  Unity-native sink body: generic `GameObject` creation/update/removal,
+  transform/radius application, entity markers, and a swappable asset-provider
+  hook. The Unity client boundary is generic before it learns live transport.
   The next blocker is the live generic Unity player loop: implement that
-  CultMesh/CultNet adapter, provide Unity `GameObject`/prefab-backed scene sink
-  and asset resolver implementations, and wait for provider receipts/next frames
-  rather than renderer-local simulation.
+  CultMesh/CultNet adapter, resolve provider assets through CultMesh/CultCache
+  manifests, and wait for provider receipts/next frames rather than
+  renderer-local simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria
