@@ -725,6 +725,7 @@ function collectProviderPluginRequirements(advertisement) {
         surfaceId: surface.surfaceId || "",
         pluginId: requirement.pluginId || "",
         versionRange: requirement.versionRange || "",
+        availability: requirement.availability || "required",
         requiredCapabilities: requirement.requiredCapabilities || [],
         optionalCapabilities: requirement.optionalCapabilities || [],
       });
@@ -775,8 +776,9 @@ function validateProviderPluginRequirements(provider, requirements, pluginResult
   const pluginById = new Map((pluginResults || []).map(plugin => [plugin.pluginId, plugin]));
   for (const requirement of requirements) {
     const plugin = pluginById.get(requirement.pluginId);
+    const optional = requirement.availability && requirement.availability !== "required";
     if (!plugin) {
-      errors.push(`${provider.advertisementPath}:${requirement.surfaceId}:plugin:${requirement.pluginId}:missing`);
+      if (!optional) errors.push(`${provider.advertisementPath}:${requirement.surfaceId}:plugin:${requirement.pluginId}:missing`);
       continue;
     }
     if (plugin.status !== "incubating" && plugin.status !== "external-owner-planned") {
@@ -1669,6 +1671,7 @@ function buildConformanceExport(report) {
     conformanceHandoffExportPath: makeHandoffExportPath("conformance", "EveConformance", report.repoStrategy.conformanceHandoffPath || ""),
     packs,
     capabilityMatrix: buildCapabilityMatrix(report),
+    runtimePluginProjectionCoverage: collectRuntimePluginProjectionCoverage(report),
     runtimePluginProjectionGaps: collectRuntimePluginProjectionGaps(report),
     interactiveWorldSurfaces: collectInteractiveWorldSurfaces(report),
     worldSurfaceLoweringCoverage: collectWorldSurfaceLoweringCoverage(report),
@@ -1953,6 +1956,53 @@ function collectRuntimePluginProjectionGaps(report) {
   return gaps;
 }
 
+function collectRuntimePluginProjectionCoverage(report) {
+  const pluginById = new Map((report.plugins || []).map(plugin => [plugin.pluginId, plugin]));
+  const coverage = [];
+  for (const runtime of report.runtimes || []) {
+    for (const plugin of runtime.supportedPlugins || []) {
+      if (!plugin.pluginId) continue;
+      const pluginRecord = pluginById.get(plugin.pluginId);
+      coverage.push({
+        runtimeId: runtime.id,
+        runtimeStatus: runtime.status || "",
+        runtimeOwnerRepo: resolveRuntimeProjectionOwnerRepo(runtime),
+        splitTarget: runtime.splitTarget || "",
+        pluginId: plugin.pluginId,
+        pluginOwnerRepo: pluginRecord?.ownerRepo || "",
+        pluginStatus: pluginRecord?.status || "",
+        status: "supported",
+        severity: "ok",
+        capabilities: plugin.capabilities || [],
+        reason: "",
+        requiredFixtures: runtime.requiredFixtures || [],
+        pluginFixtures: runtime.pluginFixtures || [],
+      });
+    }
+    for (const plugin of runtime.unsupportedPlugins || []) {
+      if (!plugin.pluginId) continue;
+      const pluginRecord = pluginById.get(plugin.pluginId);
+      coverage.push({
+        runtimeId: runtime.id,
+        runtimeStatus: runtime.status || "",
+        runtimeOwnerRepo: resolveRuntimeProjectionOwnerRepo(runtime),
+        splitTarget: runtime.splitTarget || "",
+        pluginId: plugin.pluginId,
+        pluginOwnerRepo: pluginRecord?.ownerRepo || "",
+        pluginStatus: pluginRecord?.status || "",
+        status: "unsupported",
+        severity: "declared-gap",
+        capabilities: [],
+        reason: plugin.reason || "unsupported",
+        requiredFixtures: runtime.requiredFixtures || [],
+        pluginFixtures: runtime.pluginFixtures || [],
+      });
+    }
+  }
+  return coverage.sort((left, right) =>
+    `${left.runtimeId}:${left.pluginId}:${left.status}`.localeCompare(`${right.runtimeId}:${right.pluginId}:${right.status}`));
+}
+
 function collectPluginAbiOperationCoverage(report) {
   const requiredOperations = ["describe", "validate", "project", "lower", "measure", "apply"];
   const coverage = [];
@@ -1992,6 +2042,9 @@ function collectProviderPluginRequirementCoverage(report) {
       const pluginCapabilities = new Set(plugin?.capabilities || []);
       const missingRequiredCapabilities = (requirement.requiredCapabilities || [])
         .filter(capability => !pluginCapabilities.has(capability));
+      const missingOptionalCapabilities = (requirement.optionalCapabilities || [])
+        .filter(capability => plugin && !pluginCapabilities.has(capability));
+      const optional = requirement.availability && requirement.availability !== "required";
       coverage.push({
         providerId: provider.providerId,
         providerOwnerRepo: provider.ownerRepo || "",
@@ -2000,14 +2053,16 @@ function collectProviderPluginRequirementCoverage(report) {
         pluginOwnerRepo: plugin?.ownerRepo || "",
         pluginStatus: plugin?.status || "missing",
         versionRange: requirement.versionRange || "",
+        availability: requirement.availability || "required",
         status: !plugin
-          ? "missing-plugin"
+          ? optional ? "optional-missing-plugin" : "missing-plugin"
           : missingRequiredCapabilities.length
-            ? "missing-capability"
-            : "satisfied",
+            ? optional ? "optional-missing-capability" : "missing-capability"
+            : optional ? "optional-satisfied" : "satisfied",
         requiredCapabilities: requirement.requiredCapabilities || [],
         optionalCapabilities: requirement.optionalCapabilities || [],
         missingRequiredCapabilities,
+        missingOptionalCapabilities,
       });
     }
   }

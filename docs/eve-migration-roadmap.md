@@ -331,10 +331,16 @@ Recently cut:
   owners can consume the coverage ledger without walking Eve's nested plugin
   records.
 - Provider/plugin requirement coverage is now exported as root
-  `providerPluginRequirementCoverage[]` records. The plugin-owner smoke asserts
-  the Sai VN provider surface requirements for `sai.vn`, `norn.graph`, and
-  `tex.math` as satisfied by their owning plugin repos, keeping provider
-  requirements separate from runtime projection support.
+  `providerPluginRequirementCoverage[]` records with availability. The
+  plugin-owner smoke asserts `sai.vn` as the required VN plugin and
+  `norn.graph` / `tex.math` as `optional-satisfied` nested plugins owned by
+  Norn and EvePlugins. A Sai surface can embed Norn or TeX when those plugins
+  are available, but Sai does not own their graph or math semantics.
+- Runtime/plugin projection claims are now exported as root
+  `runtimePluginProjectionCoverage[]` records. Runtime-owner smokes assert
+  Unity UI Toolkit support for `sai.vn` and `norn.graph`, its declared TeX gap,
+  and the pending Unity scene/Electron unsupported Sai projection until their
+  generic lowerers exist.
 - Runtime/plugin projection gaps are now exported as
   `runtimePluginProjectionGaps[]`. The runtime-owner smoke asserts Unity and
   Electron plugin gaps as typed records, so missing Sai, Norn, or TeX projection

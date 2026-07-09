@@ -84,10 +84,14 @@ Required top-level meanings:
   and ownership rule. Runtimes use it to decide how to lower the surface and
   where command intents must return; they do not gain authority over world
   state because they can render it.
-- `surfaces[].requiresPlugins`: sidecar plugin capabilities required to render
-  or interact with that surface. Runtimes compare these requirements with their
-  local projection support and report visible capability gaps; they must not
-  import provider or plugin internals to recover missing semantics.
+- `surfaces[].requiresPlugins`: sidecar plugin capabilities used by the
+  surface. Entries may be `availability: required` or
+  `availability: optional-nested`. Required entries gate full surface
+  interaction. Optional nested entries, such as a Sai-authored scene slotting in
+  Norn or TeX, degrade when unavailable; they do not make the parent plugin own
+  the nested plugin's semantics. Runtimes compare these entries with local
+  projection support and report visible capability gaps; they must not import
+  provider or plugin internals to recover missing semantics.
 - `commands`: command boundaries the provider accepts.
 - `routes`: transport, store, or compatibility routes used to reach the
   semantic address. WebSocket and HTTP routes live here when they still exist.

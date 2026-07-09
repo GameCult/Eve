@@ -316,19 +316,23 @@ Recommended discovery path:
 
 1. A plugin publishes a plugin advertisement through CultMesh/Odin or ships a
    local package manifest.
-2. A provider advertisement names the plugins its surfaces require.
+2. A provider advertisement names the plugins its surfaces require and the
+   optional nested plugins it can use when available.
 3. Odin indexes providers and plugins separately.
 4. A renderer asks Odin for the provider surface and the required plugin
    manifests.
 5. The renderer checks local plugin support.
 6. Unsupported required plugin capability becomes a visible capability gap.
-7. Optional unsupported capability becomes a visible degraded lowering.
+7. Unsupported optional nested plugin capability becomes a visible degraded
+   lowering, not a claim that the parent plugin owns that nested semantic.
 
 Eve's parity harness validates this boundary directly: provider-advertised
 `surfaces[].requiresPlugins[]` entries must name known plugin manifests, and
-each `requiredCapabilities` item must be claimed by that plugin manifest. This
-keeps plugin requirements in the provider advertisement instead of hiding them
-in runtime lowerers or fixture-only metadata.
+each `requiredCapabilities` item must be claimed by that plugin manifest. Entries
+with `availability: optional-nested` are reported separately so a Sai surface can
+embed Norn or TeX when those plugins are available without making them Sai
+dependencies. This keeps plugin requirements in the provider advertisement
+instead of hiding them in runtime lowerers or fixture-only metadata.
 
 Provider advertisement sketch:
 
@@ -344,9 +348,19 @@ Provider advertisement sketch:
         {
           "pluginId": "sai.vn",
           "versionRange": "^0.1.0",
+          "availability": "required",
           "requiredCapabilities": [
             "vn.stage",
             "story.choose"
+          ]
+        },
+        {
+          "pluginId": "norn.graph",
+          "versionRange": "^0.1.0",
+          "availability": "optional-nested",
+          "requiredCapabilities": [],
+          "optionalCapabilities": [
+            "embed.norn"
           ]
         }
       ]

@@ -201,6 +201,10 @@
                 "versionRange": {
                   "type": "string"
                 },
+                "availability": {
+                  "type": "string",
+                  "enum": ["required", "optional", "optional-nested"]
+                },
                 "requiredCapabilities": {
                   "type": "array",
                   "items": {

@@ -44,11 +44,12 @@
       "status": "available",
       "audience": "player",
       "mode": "interactive",
-      "summary": "Visual novel surface requiring sidecar plugin capabilities for VN stage, Norn graph embedding, and TeX embedding.",
+      "summary": "Visual novel surface requiring Sai VN semantics, with optional independently-owned Norn graph and TeX nested surfaces when those plugins are available.",
       "requiresPlugins": [
         {
           "pluginId": "sai.vn",
           "versionRange": "^0.1.0",
+          "availability": "required",
           "requiredCapabilities": [
             "vn.stage",
             "story.choose",
@@ -59,14 +60,18 @@
         {
           "pluginId": "norn.graph",
           "versionRange": "^0.1.0",
-          "requiredCapabilities": [
+          "availability": "optional-nested",
+          "requiredCapabilities": [],
+          "optionalCapabilities": [
             "embed.norn"
           ]
         },
         {
           "pluginId": "tex.math",
           "versionRange": "^0.1.0",
-          "requiredCapabilities": [
+          "availability": "optional-nested",
+          "requiredCapabilities": [],
+          "optionalCapabilities": [
             "embed.tex"
           ]
         }

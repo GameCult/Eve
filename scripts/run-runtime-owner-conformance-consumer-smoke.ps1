@@ -54,6 +54,11 @@ node $consumerScript $consumerExport `
   --expect-runtime-world-target unity-uitoolkit:unity-uitoolkit `
   --expect-runtime-world-field unity-uitoolkit:unity-uitoolkit:supportLevel:ui-toolkit-semantic-command-surface `
   --expect-runtime-world-field unity-uitoolkit:unity-uitoolkit:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
+  --expect-runtime-plugin-projection unity-uitoolkit:sai.vn:supported:EveUnity `
+  --expect-runtime-plugin-projection unity-uitoolkit:norn.graph:supported:EveUnity `
+  --expect-runtime-plugin-projection unity-uitoolkit:tex.math:unsupported:EveUnity `
+  --expect-runtime-plugin-projection unity-scene:sai.vn:unsupported:EveUnity `
+  --expect-runtime-plugin-projection electron-shell:sai.vn:unsupported:EveElectron `
   --expect-runtime-plugin-gap unity-uitoolkit:tex.math:EveUnity `
   --expect-runtime-plugin-gap unity-scene:sai.vn:EveUnity `
   --expect-runtime-plugin-gap unity-scene:norn.graph:EveUnity `

@@ -18,6 +18,7 @@ if (!exportDirectory) {
     "  --expect-split-target <id>",
     "  --expect-capability-matrix",
     "  --expect-capability-gap <substring>",
+    "  --expect-runtime-plugin-projection <runtimeId:pluginId:status:ownerRepo>",
     "  --expect-runtime-plugin-gap <runtimeId:pluginId:ownerRepo>",
     "  --expect-world-lowering-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>",
     "  --expect-command-boundary-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>",
@@ -132,6 +133,7 @@ function validateIndex(index, directory, expectations, errors) {
   const pluginAbiOperationCoverage = Array.isArray(index.pluginAbiOperationCoverage) ? index.pluginAbiOperationCoverage : [];
   const providerPluginRequirementCoverage = Array.isArray(index.providerPluginRequirementCoverage) ? index.providerPluginRequirementCoverage : [];
   const capabilityGaps = Array.isArray(index.capabilityGaps) ? index.capabilityGaps : [];
+  const runtimePluginProjectionCoverage = Array.isArray(index.runtimePluginProjectionCoverage) ? index.runtimePluginProjectionCoverage : [];
   const runtimePluginProjectionGaps = Array.isArray(index.runtimePluginProjectionGaps) ? index.runtimePluginProjectionGaps : [];
   const interactiveWorldSurfaces = Array.isArray(index.interactiveWorldSurfaces) ? index.interactiveWorldSurfaces : [];
   const worldSurfaceLoweringCoverage = Array.isArray(index.worldSurfaceLoweringCoverage) ? index.worldSurfaceLoweringCoverage : [];
@@ -158,6 +160,7 @@ function validateIndex(index, directory, expectations, errors) {
     validateCapabilityMatrix(index.capabilityMatrix, packs, plugins, providers, runtimes, splitTargets, errors);
   }
   validateCapabilityGaps(index.capabilityGaps, errors);
+  validateRuntimePluginProjectionCoverage(index.runtimePluginProjectionCoverage, errors);
   validateRuntimePluginProjectionGaps(index.runtimePluginProjectionGaps, errors);
   validateSplitTargetBlockers(index.splitTargetBlockers, errors);
   validateSplitHandoffMoveCoverage(index.splitHandoffMoveCoverage, errors);
@@ -167,6 +170,21 @@ function validateIndex(index, directory, expectations, errors) {
   for (const expectedGap of expectations.capabilityGaps) {
     if (!capabilityGaps.some(gap => capabilityGapText(gap).includes(expectedGap))) {
       errors.push(`capabilityGaps:${expectedGap}:missing`);
+    }
+  }
+  for (const expectation of expectations.runtimePluginProjectionCoverage) {
+    const record = runtimePluginProjectionCoverage.find(candidate =>
+      candidate.runtimeId === expectation.runtimeId &&
+      candidate.pluginId === expectation.pluginId);
+    if (!record) {
+      errors.push(`runtimePluginProjectionCoverage:${expectation.runtimeId}:${expectation.pluginId}:missing`);
+      continue;
+    }
+    if (record.status !== expectation.status) {
+      errors.push(`runtimePluginProjectionCoverage:${expectation.runtimeId}:${expectation.pluginId}:status:expected ${expectation.status} got ${record.status || ""}`);
+    }
+    if (record.runtimeOwnerRepo !== expectation.ownerRepo) {
+      errors.push(`runtimePluginProjectionCoverage:${expectation.runtimeId}:${expectation.pluginId}:runtimeOwnerRepo:expected ${expectation.ownerRepo} got ${record.runtimeOwnerRepo || ""}`);
     }
   }
   for (const expectation of expectations.runtimePluginGaps) {
@@ -724,6 +742,27 @@ function validateCapabilityGaps(gaps, errors) {
   }
 }
 
+function validateRuntimePluginProjectionCoverage(records, errors) {
+  if (!Array.isArray(records)) {
+    errors.push("runtimePluginProjectionCoverage:missing");
+    return;
+  }
+  for (const [index, record] of records.entries()) {
+    for (const field of ["runtimeId", "runtimeStatus", "runtimeOwnerRepo", "pluginId", "pluginOwnerRepo", "status", "severity"]) {
+      if (!record?.[field]) errors.push(`runtimePluginProjectionCoverage:${index}:${field}:missing`);
+    }
+    for (const field of ["capabilities", "requiredFixtures", "pluginFixtures"]) {
+      if (!Array.isArray(record?.[field])) errors.push(`runtimePluginProjectionCoverage:${index}:${field}:expected array`);
+    }
+    if (record?.status === "supported" && !record.capabilities.length) {
+      errors.push(`runtimePluginProjectionCoverage:${index}:capabilities:missing`);
+    }
+    if (record?.status === "unsupported" && !record.reason) {
+      errors.push(`runtimePluginProjectionCoverage:${index}:reason:missing`);
+    }
+  }
+}
+
 function validateRuntimePluginProjectionGaps(gaps, errors) {
   if (!Array.isArray(gaps)) {
     errors.push("runtimePluginProjectionGaps:missing");
@@ -862,10 +901,10 @@ function validateProviderPluginRequirementCoverage(records, errors) {
     return;
   }
   for (const [index, record] of records.entries()) {
-    for (const field of ["providerId", "providerOwnerRepo", "surfaceId", "pluginId", "pluginStatus", "status"]) {
+    for (const field of ["providerId", "providerOwnerRepo", "surfaceId", "pluginId", "pluginStatus", "availability", "status"]) {
       if (!record?.[field]) errors.push(`providerPluginRequirementCoverage:${index}:${field}:missing`);
     }
-    for (const field of ["requiredCapabilities", "optionalCapabilities", "missingRequiredCapabilities"]) {
+    for (const field of ["requiredCapabilities", "optionalCapabilities", "missingRequiredCapabilities", "missingOptionalCapabilities"]) {
       if (!Array.isArray(record?.[field])) errors.push(`providerPluginRequirementCoverage:${index}:${field}:expected array`);
     }
   }
@@ -965,6 +1004,7 @@ function parseArguments(args) {
     splitTargetProofs: [],
     capabilityMatrix: false,
     capabilityGaps: [],
+    runtimePluginProjectionCoverage: [],
     runtimePluginGaps: [],
     worldLoweringCoverage: [],
     commandBoundaryCoverage: [],
@@ -1012,6 +1052,7 @@ function parseArguments(args) {
     ["--expect-split-handoff-move", expectations.splitHandoffMoves],
     ["--expect-split-target-proof", expectations.splitTargetProofs],
     ["--expect-capability-gap", expectations.capabilityGaps],
+    ["--expect-runtime-plugin-projection", expectations.runtimePluginProjectionCoverage],
     ["--expect-runtime-plugin-gap", expectations.runtimePluginGaps],
     ["--expect-world-lowering-coverage", expectations.worldLoweringCoverage],
     ["--expect-command-boundary-coverage", expectations.commandBoundaryCoverage],
@@ -1110,6 +1151,8 @@ function parseArguments(args) {
       target.push(parseCommandBoundaryCoverageExpectation(value));
     } else if (option === "--expect-runtime-plugin-gap") {
       target.push(parseRuntimePluginGapExpectation(value));
+    } else if (option === "--expect-runtime-plugin-projection") {
+      target.push(parseRuntimePluginProjectionCoverageExpectation(value));
     } else {
       target.push(value);
     }
@@ -1176,6 +1219,20 @@ function parseRuntimePluginGapExpectation(value) {
     runtimeId: parts[0],
     pluginId: parts[1],
     ownerRepo: parts[2],
+  };
+}
+
+function parseRuntimePluginProjectionCoverageExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 4 || parts.some(part => !part)) {
+    console.error(`Expected runtime plugin projection coverage in <runtimeId:pluginId:status:ownerRepo> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    pluginId: parts[1],
+    status: parts[2],
+    ownerRepo: parts[3],
   };
 }
 
