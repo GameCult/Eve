@@ -27,7 +27,43 @@ try {
     -Port 8894 `
     -SkipBuild
   & (Join-Path $PSScriptRoot "run-eveunity-uitoolkit-capture-smoke.ps1")
+  & (Join-Path $PSScriptRoot "run-eveunity-uitoolkit-capture-smoke.ps1") `
+    -AdvertisementPath "web\fixtures\eve-world-smoke.provider-advertisement.json" `
+    -SurfacePath "web\fixtures\eve-world-smoke-surface.json" `
+    -OutputPath "artifacts\eveunity-uitoolkit-capture\latest\eve-world-smoke-unity-uitoolkit-projection.json" `
+    -RequestOutputPath "artifacts\eveunity-uitoolkit-capture\latest\eve-world-smoke-capture-request.json" `
+    -ExpectedProviderId "eve.world-smoke" `
+    -ExpectedSurfaceId "eve.world-smoke.surface" `
+    -ExpectedCommandBoundary "eve.world-smoke.commands" `
+    -ExpectedReceiptSchema "eve.world_smoke.command_receipt.v1"
+  & (Join-Path $PSScriptRoot "run-eveunity-scene-capture-smoke.ps1") `
+    -AdvertisementPath "web\fixtures\eve-world-smoke.provider-advertisement.json" `
+    -SurfacePath "web\fixtures\eve-world-smoke-surface.json" `
+    -OutputPath "artifacts\eveunity-scene-capture\latest\eve-world-smoke-unity-scene-projection.json" `
+    -RequestOutputPath "artifacts\eveunity-scene-capture\latest\eve-world-smoke-capture-request.json" `
+    -ExpectedProviderId "eve.world-smoke" `
+    -ExpectedSurfaceId "eve.world-smoke.surface" `
+    -ExpectedCommandBoundary "eve.world-smoke.commands" `
+    -ExpectedReceiptSchema "eve.world_smoke.command_receipt.v1"
+  & (Join-Path $PSScriptRoot "run-eveelectron-capture-smoke.ps1") `
+    -AdvertisementPath "web\fixtures\eve-world-smoke.provider-advertisement.json" `
+    -SurfacePath "web\fixtures\eve-world-smoke-surface.json" `
+    -OutputPath "artifacts\eveelectron-capture\latest\eve-world-smoke-electron-shell-projection.json" `
+    -RequestOutputPath "artifacts\eveelectron-capture\latest\eve-world-smoke-capture-request.json" `
+    -ExpectedProviderId "eve.world-smoke" `
+    -ExpectedSurfaceId "eve.world-smoke.surface" `
+    -ExpectedCommandBoundary "eve.world-smoke.commands" `
+    -ExpectedReceiptSchema "eve.world_smoke.command_receipt.v1"
   & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1")
+  & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1") `
+    -AdvertisementPath "web\fixtures\eve-world-smoke.provider-advertisement.json" `
+    -SurfacePath "web\fixtures\eve-world-smoke-surface.json" `
+    -OutputPath "artifacts\evetui-capture\latest\eve-world-smoke-tui-grid.json" `
+    -RequestOutputPath "artifacts\evetui-capture\latest\eve-world-smoke-capture-request.json" `
+    -ExpectedProviderId "eve.world-smoke" `
+    -ExpectedSurfaceId "eve.world-smoke.surface" `
+    -ExpectedCommandBoundary "eve.world-smoke.commands" `
+    -ExpectedReceiptSchema "eve.world_smoke.command_receipt.v1"
   node .\tools\parity\run-parity.mjs
   & (Join-Path $PSScriptRoot "run-eveconformance-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-plugin-handoff-smoke.ps1")

@@ -65,7 +65,8 @@
         "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
         "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
         "web/fixtures/sai-vn-surface.json",
-        "web/fixtures/aetheria.provider-advertisement.json"
+        "web/fixtures/aetheria.provider-advertisement.json",
+        "web/fixtures/eve-world-smoke.provider-advertisement.json"
       ]
     }
   ],
@@ -148,6 +149,13 @@
         "conformanceAttachment": "runtime.captureArtifacts[]",
         "requiredProvider": "aetheria",
         "requiredSurface": "aetheria.daemon.game",
+        "additionalProviderSurfaces": [
+          {
+            "providerId": "eve.world-smoke",
+            "surfaceId": "eve.world-smoke.surface",
+            "purpose": "Generic non-product interactive-world capture control."
+          }
+        ],
         "authority": "Capture observes terminal projection only; provider state, command acceptance, and receipts stay provider-owned.",
         "publishProof": "Terminal cell-grid JSON capture artifact is attached to the runtime conformance report from EveTui."
       },

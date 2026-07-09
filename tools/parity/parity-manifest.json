@@ -785,7 +785,7 @@
         "manifestPath": "runtimes/incubating/eve-electron/eve-runtime-capability.json"
       },
       "splitHandoffPath": "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
-      "requiredFixtures": ["embedded-surface", "aetheria-world"],
+      "requiredFixtures": ["embedded-surface", "aetheria-world", "eve-world-smoke"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["providerAdvertisements", "commandTransport", "surfaceTreeProjection", "embeddedDocuments", "pluginProjection"],
       "supportedPlugins": [
@@ -814,7 +814,8 @@
             "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
             "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
             "web/fixtures/sai-vn-surface.json",
-            "web/fixtures/aetheria.provider-advertisement.json"
+            "web/fixtures/aetheria.provider-advertisement.json",
+            "web/fixtures/eve-world-smoke.provider-advertisement.json"
           ]
         }
       ],
@@ -851,7 +852,7 @@
         },
         {
           "path": "tools/eveelectron/eveelectron-capture-contract.test.mjs",
-          "contains": ["builds Electron shell capture request from provider advertisement", "rejects capture request when the surface does not advertise Electron shell", "electron-shell", "aetheria.daemon.commands"]
+          "contains": ["builds Electron shell capture request from provider advertisement", "builds Electron shell capture request from a declared generic world provider", "rejects capture request when the surface does not advertise Electron shell", "electron-shell", "aetheria.daemon.commands", "eve.world-smoke.commands"]
         },
         {
           "path": "tools/eveelectron/eveelectron-capture-artifact.mjs",
@@ -859,7 +860,7 @@
         },
         {
           "path": "tools/eveelectron/eveelectron-capture-artifact.test.mjs",
-          "contains": ["builds Electron shell projection capture artifact", "gamecult.eve.electron_shell_projection.v1", "electron-shell-projection-json"]
+          "contains": ["builds Electron shell projection capture artifact", "builds Electron shell projection capture artifact from a generic world provider", "gamecult.eve.electron_shell_projection.v1", "electron-shell-projection-json", "eve.world-smoke.commands"]
         },
         {
           "path": "tools/eveelectron/eveelectron-release-contract.mjs",
@@ -883,6 +884,16 @@
             "surfaceId": "aetheria.daemon.game",
             "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
             "requestPath": "artifacts/eveelectron-capture/latest/capture-request.json"
+          },
+          {
+            "kind": "json-projection",
+            "schema": "gamecult.eve.electron_shell_projection.v1",
+            "path": "artifacts/eveelectron-capture/latest/eve-world-smoke-electron-shell-projection.json",
+            "runtimeId": "electron-shell",
+            "providerId": "eve.world-smoke",
+            "surfaceId": "eve.world-smoke.surface",
+            "sourceSurfacePath": "web/fixtures/eve-world-smoke-surface.json",
+            "requestPath": "artifacts/eveelectron-capture/latest/eve-world-smoke-capture-request.json"
           }
         ]
       }
@@ -900,7 +911,7 @@
         "manifestPath": "runtimes/incubating/eve-tui/eve-runtime-capability.json"
       },
       "splitHandoffPath": "runtimes/incubating/eve-tui/evetui-split-handoff.json",
-      "requiredFixtures": ["embedded-surface", "aetheria-world"],
+      "requiredFixtures": ["embedded-surface", "aetheria-world", "eve-world-smoke"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering", "embeddedDocuments", "pluginProjection"],
       "supportedPlugins": [
@@ -930,7 +941,8 @@
             "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
             "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
             "web/fixtures/sai-vn-surface.json",
-            "web/fixtures/aetheria.provider-advertisement.json"
+            "web/fixtures/aetheria.provider-advertisement.json",
+            "web/fixtures/eve-world-smoke.provider-advertisement.json"
           ]
         }
       ],
@@ -968,7 +980,7 @@
         },
         {
           "path": "tools/evetui/evetui-capture-contract.test.mjs",
-          "contains": ["builds TUI capture request from provider advertisement", "rejects capture request when the surface does not advertise TUI", "artifacts/evetui-capture/smoke/tui-grid.json"]
+          "contains": ["builds TUI capture request from provider advertisement", "builds TUI capture request from a declared generic world provider", "rejects capture request when the surface does not advertise TUI", "artifacts/evetui-capture/smoke/tui-grid.json", "eve.world-smoke.commands"]
         },
         {
           "path": "tools/evetui/evetui-capture-artifact.mjs",
@@ -976,7 +988,7 @@
         },
         {
           "path": "tools/evetui/evetui-capture-artifact.test.mjs",
-          "contains": ["builds TUI JSON grid capture artifact", "gamecult.eve.tui_grid.v1", "artifacts/evetui-capture/smoke/tui-grid.json"]
+          "contains": ["builds TUI JSON grid capture artifact", "builds TUI JSON grid capture artifact from a generic world provider", "gamecult.eve.tui_grid.v1", "artifacts/evetui-capture/smoke/tui-grid.json", "eve.world-smoke.commands"]
         },
         {
           "path": "tools/evetui/evetui-release-contract.mjs",
@@ -999,6 +1011,15 @@
             "surfaceId": "aetheria.daemon.game",
             "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
             "requestPath": "artifacts/evetui-capture/latest/capture-request.json"
+          },
+          {
+            "kind": "json-grid",
+            "schema": "gamecult.eve.tui_grid.v1",
+            "path": "artifacts/evetui-capture/latest/eve-world-smoke-tui-grid.json",
+            "providerId": "eve.world-smoke",
+            "surfaceId": "eve.world-smoke.surface",
+            "sourceSurfacePath": "web/fixtures/eve-world-smoke-surface.json",
+            "requestPath": "artifacts/evetui-capture/latest/eve-world-smoke-capture-request.json"
           }
         ]
       }
@@ -1016,7 +1037,7 @@
         "manifestPath": "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       },
       "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
-      "requiredFixtures": ["aetheria-world"],
+      "requiredFixtures": ["aetheria-world", "eve-world-smoke"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["providerAdvertisements", "commandTransport", "sceneGraphProjection", "embeddedDocuments"],
       "supportedPlugins": [
@@ -1050,7 +1071,8 @@
             "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/TeXMathUnitySceneProjectionAdapter.cs",
             "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
-            "web/fixtures/aetheria.provider-advertisement.json"
+            "web/fixtures/aetheria.provider-advertisement.json",
+            "web/fixtures/eve-world-smoke.provider-advertisement.json"
           ]
         }
       ],
@@ -1100,7 +1122,7 @@
         },
         {
           "path": "tools/eveunity/eveunity-capture-contract.test.mjs",
-          "contains": ["builds Unity scene capture request from provider advertisement", "unity-scene", "artifacts/eveunity-scene-capture/smoke/unity-scene.png"]
+          "contains": ["builds Unity scene capture request from provider advertisement", "builds Unity UI Toolkit capture request from a declared generic world provider", "builds Unity scene capture request from a declared generic world provider", "unity-scene", "artifacts/eveunity-scene-capture/smoke/unity-scene.png", "eve.world-smoke.commands"]
         },
         {
           "path": "tools/eveunity/eveunity-scene-capture-artifact.mjs",
@@ -1108,7 +1130,7 @@
         },
         {
           "path": "tools/eveunity/eveunity-scene-capture-artifact.test.mjs",
-          "contains": ["builds Unity scene projection capture artifact", "marks Sai required and Norn TeX optional sidecar plugin projections", "gamecult.eve.unity_scene_projection.v1", "unity-scene-projection-json", "optional-nested"]
+          "contains": ["builds Unity scene projection capture artifact", "builds Unity scene capture artifact for a generic world provider", "marks Sai required and Norn TeX optional sidecar plugin projections", "gamecult.eve.unity_scene_projection.v1", "unity-scene-projection-json", "optional-nested", "eve.world-smoke.commands"]
         },
         {
           "path": "tools/eveunity/eveunity-release-contract.test.mjs",
@@ -1128,6 +1150,16 @@
             "surfaceId": "aetheria.daemon.game",
             "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
             "requestPath": "artifacts/eveunity-scene-capture/latest/capture-request.json"
+          },
+          {
+            "kind": "json-projection",
+            "schema": "gamecult.eve.unity_scene_projection.v1",
+            "path": "artifacts/eveunity-scene-capture/latest/eve-world-smoke-unity-scene-projection.json",
+            "runtimeId": "unity-scene",
+            "providerId": "eve.world-smoke",
+            "surfaceId": "eve.world-smoke.surface",
+            "sourceSurfacePath": "web/fixtures/eve-world-smoke-surface.json",
+            "requestPath": "artifacts/eveunity-scene-capture/latest/eve-world-smoke-capture-request.json"
           }
         ]
       }
@@ -1521,7 +1553,7 @@
         "schemaPath": "schemas/gamecult.eve.runtime_capability.v1.schema.json",
         "manifestPath": "packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json"
       },
-      "requiredFixtures": ["embedded-surface"],
+      "requiredFixtures": ["embedded-surface", "eve-world-smoke"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["embeddedDocuments"],
       "supportedPlugins": [
@@ -1549,7 +1581,8 @@
           "evidencePaths": [
             "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs",
             "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/EveUiToolkitSurfaceLowererTests.cs",
-            "web/fixtures/aetheria.provider-advertisement.json"
+            "web/fixtures/aetheria.provider-advertisement.json",
+            "web/fixtures/eve-world-smoke.provider-advertisement.json"
           ]
         }
       ],
@@ -1599,7 +1632,7 @@
         },
         {
           "path": "tools/eveunity/eveunity-uitoolkit-capture-artifact.test.mjs",
-          "contains": ["builds Unity UI Toolkit projection capture artifact", "marks Sai required and Norn TeX optional sidecar plugin UI projections", "gamecult.eve.unity_uitoolkit_projection.v1", "unity-uitoolkit-projection-json", "optional-nested"]
+          "contains": ["builds Unity UI Toolkit projection capture artifact", "builds Unity UI Toolkit capture artifact for a generic world provider", "marks Sai required and Norn TeX optional sidecar plugin UI projections", "gamecult.eve.unity_uitoolkit_projection.v1", "unity-uitoolkit-projection-json", "optional-nested", "eve.world-smoke.commands"]
         }
       ],
       "commandTransportSmoke": {
@@ -1751,6 +1784,13 @@
             "conformanceAttachment": "runtime.captureArtifacts[]",
             "requiredProvider": "aetheria",
             "requiredSurface": "aetheria.daemon.game",
+            "additionalProviderSurfaces": [
+              {
+                "providerId": "eve.world-smoke",
+                "surfaceId": "eve.world-smoke.surface",
+                "purpose": "Generic non-product interactive-world capture control."
+              }
+            ],
             "authority": "Capture observes runtime projection only; provider state, command acceptance, and receipts stay provider-owned.",
             "publishProof": "Unity editor or batchmode capture artifact is attached to the runtime conformance report from EveUnity."
           },
@@ -1781,6 +1821,16 @@
             "surfaceId": "aetheria.daemon.game",
             "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
             "requestPath": "artifacts/eveunity-uitoolkit-capture/latest/capture-request.json"
+          },
+          {
+            "kind": "json-projection",
+            "schema": "gamecult.eve.unity_uitoolkit_projection.v1",
+            "path": "artifacts/eveunity-uitoolkit-capture/latest/eve-world-smoke-unity-uitoolkit-projection.json",
+            "runtimeId": "unity-uitoolkit",
+            "providerId": "eve.world-smoke",
+            "surfaceId": "eve.world-smoke.surface",
+            "sourceSurfacePath": "web/fixtures/eve-world-smoke-surface.json",
+            "requestPath": "artifacts/eveunity-uitoolkit-capture/latest/eve-world-smoke-capture-request.json"
           }
         ]
       }

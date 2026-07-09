@@ -21,16 +21,17 @@ export function buildElectronCaptureRequest({
     throw new Error("capability manifest is missing lifecycle.capture.captureContract");
   }
 
-  if (advertisement.providerId !== captureContract.requiredProvider) {
+  const captureSurface = selectCaptureSurface(captureContract, advertisement.providerId);
+  if (!captureSurface) {
     throw new Error(
-      `capture provider mismatch: expected ${captureContract.requiredProvider} got ${advertisement.providerId || "missing"}`,
+      `capture provider mismatch: expected ${captureProviderList(captureContract)} got ${advertisement.providerId || "missing"}`,
     );
   }
 
   const targetId = captureContract.targetId || captureContract.runtimeId;
-  const surface = (advertisement.surfaces || []).find(candidate => candidate.surfaceId === captureContract.requiredSurface);
+  const surface = (advertisement.surfaces || []).find(candidate => candidate.surfaceId === captureSurface.surfaceId);
   if (!surface) {
-    throw new Error(`capture surface not advertised: ${captureContract.requiredSurface}`);
+    throw new Error(`capture surface not advertised: ${captureSurface.surfaceId}`);
   }
 
   const loweringTargets = surface.worldInteraction?.loweringTargets || [];
@@ -76,6 +77,30 @@ function replaceStamp(pattern, stamp) {
     throw new Error(`capture artifact pattern must include {stamp}: ${pattern || "missing"}`);
   }
   return pattern.replace("{stamp}", stamp);
+}
+
+function selectCaptureSurface(captureContract, providerId) {
+  return captureSurfaceClaims(captureContract).find(claim => claim.providerId === providerId) || null;
+}
+
+function captureProviderList(captureContract) {
+  return captureSurfaceClaims(captureContract).map(claim => claim.providerId).filter(Boolean).join(", ") || "missing";
+}
+
+function captureSurfaceClaims(captureContract) {
+  return [
+    {
+      providerId: captureContract.requiredProvider || "",
+      surfaceId: captureContract.requiredSurface || "",
+    },
+    ...(Array.isArray(captureContract.additionalProviderSurfaces) ? captureContract.additionalProviderSurfaces : []),
+  ]
+    .filter(claim => claim && typeof claim === "object")
+    .map(claim => ({
+      providerId: String(claim.providerId || ""),
+      surfaceId: String(claim.surfaceId || ""),
+    }))
+    .filter(claim => claim.providerId && claim.surfaceId);
 }
 
 function parseArgs(argv) {

@@ -1540,7 +1540,17 @@ function compareCaptureContract(expected, actual, label) {
   if (actual.requestSchema && !manifest.schemas?.[actual.requestSchema]) {
     errors.push(`${label}.requestSchema:${actual.requestSchema}:missing-schema-catalog-entry`);
   }
+  const expectedAdditionalSurfaces = captureSurfaceClaimKeys(expected.additionalProviderSurfaces || []);
+  const actualAdditionalSurfaces = captureSurfaceClaimKeys(actual.additionalProviderSurfaces || []);
+  errors.push(...missingMembers(expectedAdditionalSurfaces, actualAdditionalSurfaces, `${label}.additionalProviderSurfaces`));
   return errors;
+}
+
+function captureSurfaceClaimKeys(claims) {
+  return (Array.isArray(claims) ? claims : [])
+    .filter(claim => claim && typeof claim === "object")
+    .map(claim => `${claim.providerId || ""}:${claim.surfaceId || ""}`)
+    .filter(claim => claim !== ":");
 }
 
 function compareTestContract(expected, actual, label) {
@@ -2660,6 +2670,7 @@ function buildRuntimeCaptureProbeRecord(runtime) {
     conformanceAttachment: contract.conformanceAttachment || "",
     requiredProvider: contract.requiredProvider || "",
     requiredSurface: contract.requiredSurface || "",
+    additionalProviderSurfaces: contract.additionalProviderSurfaces || [],
     authority: contract.authority || "",
     currentArtifactKind,
     currentArtifactSchema: artifact.schema || "",

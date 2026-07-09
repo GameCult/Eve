@@ -4,7 +4,11 @@ param(
   [string] $SurfacePath = "web\fixtures\aetheria-world-surface.json",
   [string] $OutputPath = "artifacts\eveelectron-capture\latest\electron-shell-projection.json",
   [string] $RequestOutputPath = "artifacts\eveelectron-capture\latest\capture-request.json",
-  [string] $Stamp = "latest"
+  [string] $Stamp = "latest",
+  [string] $ExpectedProviderId = "aetheria",
+  [string] $ExpectedSurfaceId = "aetheria.daemon.game",
+  [string] $ExpectedCommandBoundary = "aetheria.daemon.commands",
+  [string] $ExpectedReceiptSchema = "aetheria.eve_command_acceptance_status.v1"
 )
 
 $ErrorActionPreference = "Stop"
@@ -55,10 +59,10 @@ $projection = Get-Content -LiteralPath $absoluteOutputPath -Raw | ConvertFrom-Js
 foreach ($expectation in @(
   @{ field = "schema"; value = "gamecult.eve.electron_shell_projection.v1" },
   @{ field = "runtimeId"; value = "electron-shell" },
-  @{ field = "providerId"; value = "aetheria" },
-  @{ field = "surfaceId"; value = "aetheria.daemon.game" },
-  @{ field = "commandBoundary"; value = "aetheria.daemon.commands" },
-  @{ field = "receiptSchema"; value = "aetheria.eve_command_acceptance_status.v1" },
+  @{ field = "providerId"; value = $ExpectedProviderId },
+  @{ field = "surfaceId"; value = $ExpectedSurfaceId },
+  @{ field = "commandBoundary"; value = $ExpectedCommandBoundary },
+  @{ field = "receiptSchema"; value = $ExpectedReceiptSchema },
   @{ field = "artifactKind"; value = "json-projection" },
   @{ field = "captureKind"; value = "electron-shell-projection-json" }
 )) {

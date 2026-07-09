@@ -1007,6 +1007,12 @@ Recently cut:
   accepted and denied command receipts through
   `eve.world_smoke.command_receipt.v1`, so replay proof is no longer only an
   Aetheria product concern.
+- Runtime semantic capture now uses the same generic world control. UI Toolkit,
+  Unity scene, Electron shell, and TUI capture contracts keep Aetheria as the
+  primary pressure fixture while declaring `eve.world-smoke` as an additional
+  accepted provider surface. The parity harness emits separate
+  `eve-world-smoke` JSON projection/grid artifacts for those runtimes, and the
+  runtime-owner conformance smoke asserts them from the exported pack.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
   project, lower, measure, and apply behavior. The parity harness validates
   those fixtures against plugin manifests, so Eve proves the ABI shape without

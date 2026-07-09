@@ -4,7 +4,11 @@ param(
   [string] $SurfacePath = "web\fixtures\aetheria-world-surface.json",
   [string] $OutputPath = "artifacts\evetui-capture\latest\tui-grid.json",
   [string] $RequestOutputPath = "artifacts\evetui-capture\latest\capture-request.json",
-  [string] $Stamp = "latest"
+  [string] $Stamp = "latest",
+  [string] $ExpectedProviderId = "aetheria",
+  [string] $ExpectedSurfaceId = "aetheria.daemon.game",
+  [string] $ExpectedCommandBoundary = "aetheria.daemon.commands",
+  [string] $ExpectedReceiptSchema = "aetheria.eve_command_acceptance_status.v1"
 )
 
 $ErrorActionPreference = "Stop"
@@ -55,10 +59,10 @@ $grid = Get-Content -LiteralPath $absoluteOutputPath -Raw | ConvertFrom-Json
 foreach ($expectation in @(
   @{ field = "schema"; value = "gamecult.eve.tui_grid.v1" },
   @{ field = "runtimeId"; value = "tui" },
-  @{ field = "providerId"; value = "aetheria" },
-  @{ field = "surfaceId"; value = "aetheria.daemon.game" },
-  @{ field = "commandBoundary"; value = "aetheria.daemon.commands" },
-  @{ field = "receiptSchema"; value = "aetheria.eve_command_acceptance_status.v1" },
+  @{ field = "providerId"; value = $ExpectedProviderId },
+  @{ field = "surfaceId"; value = $ExpectedSurfaceId },
+  @{ field = "commandBoundary"; value = $ExpectedCommandBoundary },
+  @{ field = "receiptSchema"; value = $ExpectedReceiptSchema },
   @{ field = "artifactKind"; value = "json-grid" },
   @{ field = "captureKind"; value = "terminal-cell-grid" }
 )) {

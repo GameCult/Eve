@@ -8,6 +8,8 @@ const unityUiToolkitProjectionSchema = JSON.parse(readFileSync(new URL("../../sc
 const aetheriaAdvertisement = JSON.parse(readFileSync(new URL("../../web/fixtures/aetheria.provider-advertisement.json", import.meta.url), "utf8"));
 const capabilityManifest = JSON.parse(readFileSync(new URL("../../packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json", import.meta.url), "utf8"));
 const aetheriaSurfaceDocument = JSON.parse(readFileSync(new URL("../../web/fixtures/aetheria-world-surface.json", import.meta.url), "utf8"));
+const worldSmokeAdvertisement = JSON.parse(readFileSync(new URL("../../web/fixtures/eve-world-smoke.provider-advertisement.json", import.meta.url), "utf8"));
+const worldSmokeSurfaceDocument = JSON.parse(readFileSync(new URL("../../web/fixtures/eve-world-smoke-surface.json", import.meta.url), "utf8"));
 const saiAdvertisement = JSON.parse(readFileSync(new URL("../../web/fixtures/sai-vn.provider-advertisement.json", import.meta.url), "utf8"));
 const saiSurfaceDocument = JSON.parse(readFileSync(new URL("../../web/fixtures/sai-vn-surface.json", import.meta.url), "utf8"));
 
@@ -34,6 +36,25 @@ test("builds Unity UI Toolkit projection capture artifact from provider advertis
   assert.equal(projection.root.id, "aetheria.daemon.game.root");
   assert.equal(projection.root.visualElementKind, "VisualElement");
   assert.deepEqual(projection.root.classNames.slice(0, 2), ["eve-component", "eve-kind-surface"]);
+});
+
+test("builds Unity UI Toolkit capture artifact for a generic world provider", () => {
+  const { projection } = buildUnityUiToolkitCaptureArtifact({
+    advertisement: worldSmokeAdvertisement,
+    capabilityManifest,
+    surfaceDocument: worldSmokeSurfaceDocument,
+    advertisementPath: "web/fixtures/eve-world-smoke.provider-advertisement.json",
+    capabilityManifestPath: "packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json",
+    stamp: "smoke",
+  });
+
+  assert.deepEqual(validateSchemaSubset(unityUiToolkitProjectionSchema, projection), []);
+  assert.equal(projection.providerId, "eve.world-smoke");
+  assert.equal(projection.surfaceId, "eve.world-smoke.surface");
+  assert.equal(projection.commandBoundary, "eve.world-smoke.commands");
+  assert.equal(projection.receiptSchema, "eve.world_smoke.command_receipt.v1");
+  assert.equal(projection.root.id, "eve.world-smoke.root");
+  assert.equal(projection.root.children[1].visualElementKind, "VisualElement");
 });
 
 test("marks Sai required and Norn TeX optional sidecar plugin UI projections", () => {

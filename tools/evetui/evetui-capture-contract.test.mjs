@@ -4,6 +4,7 @@ import test from "node:test";
 import { buildTuiCaptureRequest } from "./evetui-capture-contract.mjs";
 
 const advertisement = JSON.parse(readFileSync(new URL("../../web/fixtures/aetheria.provider-advertisement.json", import.meta.url), "utf8"));
+const worldSmokeAdvertisement = JSON.parse(readFileSync(new URL("../../web/fixtures/eve-world-smoke.provider-advertisement.json", import.meta.url), "utf8"));
 const capabilityManifest = JSON.parse(readFileSync(new URL("../../runtimes/incubating/eve-tui/eve-runtime-capability.json", import.meta.url), "utf8"));
 
 test("builds TUI capture request from provider advertisement", () => {
@@ -28,6 +29,22 @@ test("builds TUI capture request from provider advertisement", () => {
   assert.equal(request.artifactKind, "json-grid");
   assert.equal(request.artifactPath, "artifacts/evetui-capture/smoke/tui-grid.json");
   assert.match(request.authority, /provider state/);
+});
+
+test("builds TUI capture request from a declared generic world provider", () => {
+  const request = buildTuiCaptureRequest({
+    advertisement: worldSmokeAdvertisement,
+    capabilityManifest,
+    advertisementPath: "web/fixtures/eve-world-smoke.provider-advertisement.json",
+    capabilityManifestPath: "runtimes/incubating/eve-tui/eve-runtime-capability.json",
+    stamp: "smoke",
+  });
+
+  assert.equal(request.runtimeId, "tui");
+  assert.equal(request.providerId, "eve.world-smoke");
+  assert.equal(request.surfaceId, "eve.world-smoke.surface");
+  assert.equal(request.commandBoundary, "eve.world-smoke.commands");
+  assert.equal(request.receiptSchema, "eve.world_smoke.command_receipt.v1");
 });
 
 test("rejects capture request when the surface does not advertise TUI", () => {

@@ -60,7 +60,8 @@
         "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
         "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
         "web/fixtures/sai-vn-surface.json",
-        "web/fixtures/aetheria.provider-advertisement.json"
+        "web/fixtures/aetheria.provider-advertisement.json",
+        "web/fixtures/eve-world-smoke.provider-advertisement.json"
       ]
     }
   ],
@@ -143,6 +144,13 @@
         "conformanceAttachment": "runtime.captureArtifacts[]",
         "requiredProvider": "aetheria",
         "requiredSurface": "aetheria.daemon.game",
+        "additionalProviderSurfaces": [
+          {
+            "providerId": "eve.world-smoke",
+            "surfaceId": "eve.world-smoke.surface",
+            "purpose": "Generic non-product interactive-world capture control."
+          }
+        ],
         "authority": "Capture observes Electron projection only; provider state, command acceptance, and receipts stay provider-owned.",
         "publishProof": "Electron window capture artifact is attached to the runtime conformance report from EveElectron."
       },
