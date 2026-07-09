@@ -4,6 +4,16 @@
   "ownerService": "sai",
   "version": "0.1.0-incubating",
   "manifestAddress": "file://plugins/incubating/sai-vn.plugin.json",
+  "runtime": {
+    "invocationModel": "executable-sidecar",
+    "contract": "gamecult.eve.plugin_abi.v1",
+    "transports": ["cultmesh", "stdio"],
+    "authority": [
+      "renderer-independent",
+      "no-provider-state-mutation",
+      "provider-accepts-or-denies-commands"
+    ]
+  },
   "schemas": [
     "sai.vn.story_session.v1",
     "sai.vn.visual_manifest.v1"

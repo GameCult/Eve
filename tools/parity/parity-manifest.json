@@ -372,6 +372,12 @@
       "graduationTrigger": "Split when VN/Ink semantics, story command fixtures, and ABI project/apply/validate cases are stable.",
       "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"],
       "optionalPlugins": ["norn.graph", "tex.math"],
+      "expectedRuntime": {
+        "invocationModel": "executable-sidecar",
+        "contract": "gamecult.eve.plugin_abi.v1",
+        "transports": ["cultmesh", "stdio"],
+        "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"]
+      },
       "requiredFixtures": ["sai-vn"],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
       "manifestPath": "plugins/incubating/sai-vn.plugin.json",
@@ -396,6 +402,12 @@
       "splitTarget": "Norn/eve-plugin-graph",
       "graduationTrigger": "Split when embed.norn graph layout, interaction, fallback, and conformance fixtures are stable.",
       "capabilities": ["embed.norn", "graph.node.activate"],
+      "expectedRuntime": {
+        "invocationModel": "executable-sidecar",
+        "contract": "gamecult.eve.plugin_abi.v1",
+        "transports": ["cultmesh", "stdio"],
+        "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"]
+      },
       "requiredFixtures": ["sai-vn"],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
       "manifestPath": "plugins/incubating/norn-graph.plugin.json",
@@ -420,6 +432,12 @@
       "splitTarget": "EvePlugins/eve-plugin-tex",
       "graduationTrigger": "Split when TeX source, macro, baseline, cached render, and fallback fixtures are stable.",
       "capabilities": ["embed.tex", "tex.inline", "tex.block"],
+      "expectedRuntime": {
+        "invocationModel": "executable-sidecar",
+        "contract": "gamecult.eve.plugin_abi.v1",
+        "transports": ["cultmesh", "stdio"],
+        "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"]
+      },
       "requiredFixtures": ["sai-vn"],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
       "manifestPath": "plugins/incubating/tex-math.plugin.json",

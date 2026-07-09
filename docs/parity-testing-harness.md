@@ -156,8 +156,12 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-plugin-handoff-smoke.ps1
 
 That script validates the Sai and Norn handoff manifests against their plugin
 manifests, advertisements, ABI fixtures, move-set paths, contract inputs, and
-external proofs. The plugin-owner conformance smoke also asserts those handoff
-paths from the conformance export.
+external proofs. It also checks that the manifest and advertisement agree on
+the runtime-independent executable sidecar boundary: `gamecult.eve.plugin_abi.v1`,
+CultMesh/stdio transport, renderer independence, no provider-state mutation,
+and provider-owned command acceptance. The plugin-owner conformance smoke also
+asserts those handoff paths and runtime boundary claims from the conformance
+export.
 
 Aetheria provider handoff smoke:
 

@@ -9,6 +9,7 @@
     "ownerService",
     "version",
     "manifestAddress",
+    "runtime",
     "schemas",
     "componentKinds",
     "commands",
@@ -33,6 +34,40 @@
     "manifestAddress": {
       "type": "string",
       "minLength": 1
+    },
+    "runtime": {
+      "type": "object",
+      "required": [
+        "invocationModel",
+        "contract",
+        "transports",
+        "authority"
+      ],
+      "properties": {
+        "invocationModel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contract": {
+          "type": "string",
+          "minLength": 1
+        },
+        "transports": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "authority": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": true
     },
     "schemas": {
       "type": "array",

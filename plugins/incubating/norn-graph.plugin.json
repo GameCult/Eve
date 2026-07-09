@@ -24,6 +24,16 @@
       "effect": "focus-graph"
     }
   ],
+  "runtime": {
+    "invocationModel": "executable-sidecar",
+    "contract": "gamecult.eve.plugin_abi.v1",
+    "transports": ["cultmesh", "stdio"],
+    "authority": [
+      "renderer-independent",
+      "no-provider-state-mutation",
+      "provider-accepts-or-denies-commands"
+    ]
+  },
   "stateSchemas": [
     "norn.graph.document.v1",
     "norn.graph.layout_request.v1",

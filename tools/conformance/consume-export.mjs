@@ -21,6 +21,9 @@ if (!exportDirectory) {
     "  --expect-conformance-handoff",
     "  --expect-plugin-operation <pluginId:operation>",
     "  --expect-plugin-capability <pluginId:capability>",
+    "  --expect-plugin-runtime <pluginId:invocationModel>",
+    "  --expect-plugin-runtime-transport <pluginId:transport>",
+    "  --expect-plugin-runtime-authority <pluginId:authority>",
     "  --expect-plugin-handoff <pluginId>",
     "  --expect-provider-surface <providerId:surfaceId>",
     "  --expect-provider-surface-kind <providerId:surfaceId:surfaceKind>",
@@ -151,6 +154,36 @@ function validateIndex(index, directory, expectations, errors) {
     }
     if (!Array.isArray(plugin.capabilities) || !plugin.capabilities.includes(expectation.capability)) {
       errors.push(`plugins:${expectation.pluginId}:capability:${expectation.capability}:missing`);
+    }
+  }
+  for (const expectation of expectations.pluginRuntimes) {
+    const plugin = plugins.find(candidate => candidate.pluginId === expectation.pluginId);
+    if (!plugin) {
+      errors.push(`plugins:${expectation.pluginId}:missing`);
+      continue;
+    }
+    if (plugin.runtimeBoundary?.invocationModel !== expectation.invocationModel) {
+      errors.push(`plugins:${expectation.pluginId}:runtime:expected ${expectation.invocationModel} got ${plugin.runtimeBoundary?.invocationModel || ""}`);
+    }
+  }
+  for (const expectation of expectations.pluginRuntimeTransports) {
+    const plugin = plugins.find(candidate => candidate.pluginId === expectation.pluginId);
+    if (!plugin) {
+      errors.push(`plugins:${expectation.pluginId}:missing`);
+      continue;
+    }
+    if (!Array.isArray(plugin.runtimeBoundary?.transports) || !plugin.runtimeBoundary.transports.includes(expectation.transport)) {
+      errors.push(`plugins:${expectation.pluginId}:runtime.transport:${expectation.transport}:missing`);
+    }
+  }
+  for (const expectation of expectations.pluginRuntimeAuthorities) {
+    const plugin = plugins.find(candidate => candidate.pluginId === expectation.pluginId);
+    if (!plugin) {
+      errors.push(`plugins:${expectation.pluginId}:missing`);
+      continue;
+    }
+    if (!Array.isArray(plugin.runtimeBoundary?.authority) || !plugin.runtimeBoundary.authority.includes(expectation.authority)) {
+      errors.push(`plugins:${expectation.pluginId}:runtime.authority:${expectation.authority}:missing`);
     }
   }
   for (const expectedPlugin of expectations.pluginHandoffs) {
@@ -422,6 +455,9 @@ function parseArguments(args) {
     plugins: [],
     pluginOperations: [],
     pluginCapabilities: [],
+    pluginRuntimes: [],
+    pluginRuntimeTransports: [],
+    pluginRuntimeAuthorities: [],
     pluginHandoffs: [],
     providers: [],
     providerSurfaces: [],
@@ -454,6 +490,9 @@ function parseArguments(args) {
     ["--expect-split-target", expectations.splitTargets],
     ["--expect-plugin-operation", expectations.pluginOperations],
     ["--expect-plugin-capability", expectations.pluginCapabilities],
+    ["--expect-plugin-runtime", expectations.pluginRuntimes],
+    ["--expect-plugin-runtime-transport", expectations.pluginRuntimeTransports],
+    ["--expect-plugin-runtime-authority", expectations.pluginRuntimeAuthorities],
     ["--expect-plugin-handoff", expectations.pluginHandoffs],
     ["--expect-provider-surface", expectations.providerSurfaces],
     ["--expect-provider-surface-kind", expectations.providerSurfaceKinds],
@@ -495,6 +534,12 @@ function parseArguments(args) {
       target.push(parsePluginExpectation(value, "operation"));
     } else if (option === "--expect-plugin-capability") {
       target.push(parsePluginExpectation(value, "capability"));
+    } else if (option === "--expect-plugin-runtime") {
+      target.push(parsePluginExpectation(value, "invocationModel"));
+    } else if (option === "--expect-plugin-runtime-transport") {
+      target.push(parsePluginExpectation(value, "transport"));
+    } else if (option === "--expect-plugin-runtime-authority") {
+      target.push(parsePluginExpectation(value, "authority"));
     } else if (option === "--expect-plugin-handoff") {
       target.push(value);
     } else if (option === "--expect-provider-surface") {

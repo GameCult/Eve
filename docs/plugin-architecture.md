@@ -114,6 +114,14 @@ not by importing plugin internals directly. A plugin implementation may use a
 same-language library internally, but that is an implementation detail behind
 the executable plugin boundary.
 
+Plugin manifests and advertisements declare a `runtime` block. Its normal
+incubating shape is `invocationModel: executable-sidecar`,
+`contract: gamecult.eve.plugin_abi.v1`, CultMesh plus stdio transports, and
+authority limits such as `renderer-independent`, `no-provider-state-mutation`,
+and `provider-accepts-or-denies-commands`. Runtimes consume that advertisement
+as a capability boundary. A Unity or web projection adapter may render an
+advertised capability; it does not become the plugin runtime.
+
 The ownership rule is semantic, not packaging ceremony: the plugin owns the
 capability and representation shape, while providers own live state and
 renderer clients own projection.

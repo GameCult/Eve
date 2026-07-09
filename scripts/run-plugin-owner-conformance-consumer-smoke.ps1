@@ -54,7 +54,13 @@ node $consumerScript $consumerExport `
   --expect-plugin-capability sai.vn:story.continue `
   --expect-plugin-capability sai.vn:story.jump `
   --expect-plugin-capability norn.graph:embed.norn `
-  --expect-plugin-capability norn.graph:graph.node.activate
+  --expect-plugin-capability norn.graph:graph.node.activate `
+  --expect-plugin-runtime sai.vn:executable-sidecar `
+  --expect-plugin-runtime-transport sai.vn:cultmesh `
+  --expect-plugin-runtime-authority sai.vn:no-provider-state-mutation `
+  --expect-plugin-runtime norn.graph:executable-sidecar `
+  --expect-plugin-runtime-transport norn.graph:cultmesh `
+  --expect-plugin-runtime-authority norn.graph:no-provider-state-mutation
 
 if ($LASTEXITCODE -ne 0) {
   throw "Plugin owner conformance consumer smoke failed with exit code $LASTEXITCODE"

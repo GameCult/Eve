@@ -65,6 +65,31 @@ foreach ($handoffPath in $HandoffPaths) {
   if ($manifest.incubation.splitTarget -ne $handoff.splitTarget) {
     throw "Plugin handoff $($handoff.pluginId) split target does not match manifest: $($manifest.incubation.splitTarget)"
   }
+  if ($manifest.runtime.invocationModel -ne "executable-sidecar") {
+    throw "Plugin handoff $($handoff.pluginId) runtime is not executable-sidecar: $($manifest.runtime.invocationModel)"
+  }
+  if ($manifest.runtime.contract -ne "gamecult.eve.plugin_abi.v1") {
+    throw "Plugin handoff $($handoff.pluginId) runtime contract is not gamecult.eve.plugin_abi.v1: $($manifest.runtime.contract)"
+  }
+  if ($advertisement.runtime.invocationModel -ne $manifest.runtime.invocationModel) {
+    throw "Plugin handoff $($handoff.pluginId) advertisement runtime does not match manifest runtime: $($advertisement.runtime.invocationModel)"
+  }
+  foreach ($transport in @("cultmesh", "stdio")) {
+    if (-not (@($manifest.runtime.transports) -contains $transport)) {
+      throw "Plugin handoff $($handoff.pluginId) manifest runtime missing transport: $transport"
+    }
+    if (-not (@($advertisement.runtime.transports) -contains $transport)) {
+      throw "Plugin handoff $($handoff.pluginId) advertisement runtime missing transport: $transport"
+    }
+  }
+  foreach ($authority in @("renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands")) {
+    if (-not (@($manifest.runtime.authority) -contains $authority)) {
+      throw "Plugin handoff $($handoff.pluginId) manifest runtime missing authority: $authority"
+    }
+    if (-not (@($advertisement.runtime.authority) -contains $authority)) {
+      throw "Plugin handoff $($handoff.pluginId) advertisement runtime missing authority: $authority"
+    }
+  }
 
   $operations = @($abiFixture.operations | ForEach-Object { $_.operation })
   foreach ($operation in @("describe", "validate", "project", "lower", "measure", "apply")) {

@@ -443,6 +443,8 @@ async function evaluatePlugin(plugin, fixtureResults) {
     schema: "gamecult.eve.plugin_advertisement.v1",
     pluginId: plugin.pluginId,
   });
+  const runtimeBoundary = await readPluginRuntimeBoundary(plugin);
+  const runtimeBoundaryErrors = validatePluginRuntimeBoundary(plugin, runtimeBoundary);
   const abiOperations = await readPluginAbiOperations(plugin.abiFixturePath);
   const abiErrors = await validatePluginAbiFixture(plugin);
   const status = missingPaths.length
@@ -455,7 +457,9 @@ async function evaluatePlugin(plugin, fixtureResults) {
           ? "invalid-plugin-manifest"
           : advertisementErrors.length
             ? "invalid-plugin-advertisement"
-            : abiErrors.length
+            : runtimeBoundaryErrors.length
+              ? "invalid-plugin-runtime-boundary"
+              : abiErrors.length
               ? "invalid-plugin-abi-fixture"
               : plugin.kind === "incubating"
                 ? "incubating"
@@ -471,6 +475,8 @@ async function evaluatePlugin(plugin, fixtureResults) {
     splitTarget: plugin.splitTarget || "",
     capabilities: plugin.capabilities || [],
     optionalPlugins: plugin.optionalPlugins || [],
+    runtimeBoundary,
+    runtimeBoundaryErrors,
     requiredFixtures,
     missingRequiredFixtures,
     schemaPath: plugin.schemaPath || "",
@@ -501,6 +507,60 @@ async function readPluginAbiOperations(abiFixturePath) {
   } catch {
     return [];
   }
+}
+
+async function readPluginRuntimeBoundary(plugin) {
+  try {
+    const manifestDocument = await readJsonDocument(plugin.manifestPath);
+    const advertisementDocument = await readJsonDocument(plugin.advertisementPath);
+    return {
+      invocationModel: manifestDocument.runtime?.invocationModel || "",
+      contract: manifestDocument.runtime?.contract || "",
+      transports: manifestDocument.runtime?.transports || [],
+      authority: manifestDocument.runtime?.authority || [],
+      advertisementInvocationModel: advertisementDocument.runtime?.invocationModel || "",
+      advertisementContract: advertisementDocument.runtime?.contract || "",
+      advertisementTransports: advertisementDocument.runtime?.transports || [],
+      advertisementAuthority: advertisementDocument.runtime?.authority || [],
+    };
+  } catch {
+    return {
+      invocationModel: "",
+      contract: "",
+      transports: [],
+      authority: [],
+      advertisementInvocationModel: "",
+      advertisementContract: "",
+      advertisementTransports: [],
+      advertisementAuthority: [],
+    };
+  }
+}
+
+function validatePluginRuntimeBoundary(plugin, runtimeBoundary) {
+  const errors = [];
+  const expectedRuntime = plugin.expectedRuntime || {};
+  if (!runtimeBoundary.invocationModel) errors.push("runtime.invocationModel:missing");
+  if (!runtimeBoundary.contract) errors.push("runtime.contract:missing");
+  if (!runtimeBoundary.transports?.length) errors.push("runtime.transports:missing");
+  if (!runtimeBoundary.authority?.length) errors.push("runtime.authority:missing");
+  if (runtimeBoundary.invocationModel !== runtimeBoundary.advertisementInvocationModel) {
+    errors.push(`runtime.invocationModel:advertisement:expected ${runtimeBoundary.invocationModel} got ${runtimeBoundary.advertisementInvocationModel}`);
+  }
+  if (runtimeBoundary.contract !== runtimeBoundary.advertisementContract) {
+    errors.push(`runtime.contract:advertisement:expected ${runtimeBoundary.contract} got ${runtimeBoundary.advertisementContract}`);
+  }
+  if (expectedRuntime.invocationModel && runtimeBoundary.invocationModel !== expectedRuntime.invocationModel) {
+    errors.push(`runtime.invocationModel:expected ${expectedRuntime.invocationModel} got ${runtimeBoundary.invocationModel}`);
+  }
+  if (expectedRuntime.contract && runtimeBoundary.contract !== expectedRuntime.contract) {
+    errors.push(`runtime.contract:expected ${expectedRuntime.contract} got ${runtimeBoundary.contract}`);
+  }
+  errors.push(...missingMembers(expectedRuntime.transports || [], runtimeBoundary.transports || [], "runtime.transports"));
+  errors.push(...missingMembers(expectedRuntime.transports || [], runtimeBoundary.advertisementTransports || [], "runtime.advertisementTransports"));
+  errors.push(...missingMembers(expectedRuntime.authority || [], runtimeBoundary.authority || [], "runtime.authority"));
+  errors.push(...missingMembers(expectedRuntime.authority || [], runtimeBoundary.advertisementAuthority || [], "runtime.advertisementAuthority"));
+  return errors;
 }
 
 async function evaluateFixtureMetadata(fixture) {
@@ -1399,6 +1459,7 @@ function buildConformanceExport(report) {
       handoffExportPath: makeHandoffExportPath("plugin", plugin.pluginId, plugin.handoffPath),
       abiFixturePath: plugin.abiFixturePath,
       abiOperations: plugin.abiOperations || [],
+      runtimeBoundary: plugin.runtimeBoundary,
       optionalPlugins: plugin.optionalPlugins || [],
       capabilities: plugin.capabilities,
     })),
@@ -1531,6 +1592,7 @@ function collectCapabilityGaps(report) {
       ...(plugin.missingIncubationFields || []).map(id => `metadata:${id}`),
       ...(plugin.schemaErrors || []).map(id => `schema:${id}`),
       ...(plugin.advertisementErrors || []).map(id => `advertisement:${id}`),
+      ...(plugin.runtimeBoundaryErrors || []).map(id => `runtime-boundary:${id}`),
       ...(plugin.abiErrors || []).map(id => `abi:${id}`),
     ]) {
       addGap({
@@ -1793,6 +1855,7 @@ function renderMarkdown(report) {
       ...plugin.missingIncubationFields.map(id => `metadata:${id}`),
       ...plugin.schemaErrors.map(id => `schema:${id}`),
       ...plugin.advertisementErrors.map(id => `advertisement:${id}`),
+      ...plugin.runtimeBoundaryErrors.map(id => `runtime-boundary:${id}`),
       ...plugin.abiErrors.map(id => `abi:${id}`),
     ].join(", ");
     lines.push(`| ${plugin.title || plugin.pluginId} | ${plugin.status} | ${plugin.ownerRepo} | ${(plugin.abiOperations || []).join(", ")} | ${plugin.abiFixturePath || ""} | ${plugin.capabilities.join(", ")} | ${missing} |`);

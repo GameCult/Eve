@@ -13,6 +13,16 @@
     "embed.tex"
   ],
   "commands": [],
+  "runtime": {
+    "invocationModel": "executable-sidecar",
+    "contract": "gamecult.eve.plugin_abi.v1",
+    "transports": ["cultmesh", "stdio"],
+    "authority": [
+      "renderer-independent",
+      "no-provider-state-mutation",
+      "provider-accepts-or-denies-commands"
+    ]
+  },
   "stateSchemas": [
     "tex.math.source.v1",
     "tex.math.render_request.v1",

@@ -280,6 +280,13 @@ Exit criteria:
 
 Recently cut:
 
+- Plugin manifests and advertisements now carry a runtime-independent sidecar
+  ABI boundary. Sai, Norn, and TeX declare `invocationModel:
+  executable-sidecar`, `gamecult.eve.plugin_abi.v1`, CultMesh/stdio transports,
+  renderer independence, no provider-state mutation, and provider-owned command
+  acceptance. The parity harness validates manifest/advertisement agreement,
+  exports the runtime boundary, and the plugin-owner consumer smoke asserts the
+  Sai/Norn sidecar contract from the conformance pack.
 - Conformance export now carries first-class `capabilityGaps[]` records derived
   from plugin errors, provider advertisement/scenario errors, runtime missing
   evidence, declared unsupported plugin projection, capture gaps, and split
