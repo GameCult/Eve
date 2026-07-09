@@ -1,0 +1,108 @@
+{
+  "schema": "gamecult.eve.runtime_capability.v1",
+  "runtimeId": "tui",
+  "title": "Compact TUI",
+  "owner": "EveTui",
+  "incubation": {
+    "ownerRepo": "EveTui",
+    "currentHostRepo": "Eve",
+    "splitTarget": "EveTui",
+    "graduationTrigger": "Split when TUI has a provider-agnostic terminal/grid lowerer, provider advertisement consumption, command transport, terminal capability manifest, and transcript/cell-grid capture evidence.",
+    "splitHandoff": {
+      "manifestPath": "runtimes/incubating/eve-tui/evetui-split-handoff.json",
+      "smokeCommand": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-evetui-split-handoff-smoke.ps1"
+    }
+  },
+  "supportedFeatures": [],
+  "supportedPlugins": [],
+  "unsupportedPlugins": [
+    {
+      "pluginId": "sai.vn",
+      "reason": "TUI has no generic runtime body yet; Sai projection must be a declared lossy terminal projection once EveTui exists."
+    },
+    {
+      "pluginId": "norn.graph",
+      "reason": "TUI has no generic runtime body yet; Norn graph projection needs explicit text/grid fallback semantics once EveTui exists."
+    },
+    {
+      "pluginId": "tex.math",
+      "reason": "TUI has no generic runtime body yet; TeX projection needs explicit text/grid fallback semantics once EveTui exists."
+    }
+  ],
+  "commandTransport": {
+    "schema": "gamecult.eve.command.v1",
+    "status": "pending-runtime-body",
+    "emitter": "EveTui.EmitCommand",
+    "clientId": "tui",
+    "authority": "TUI emits command intents through provider-advertised command boundaries; providers accept, deny, and publish receipts."
+  },
+  "lifecycle": {
+    "release": {
+      "ownerRepo": "EveTui",
+      "status": "pending-tui-package",
+      "releaseContract": {
+        "ownerRepo": "EveTui",
+        "packageName": "eve-tui",
+        "packageRoot": "runtimes/incubating/eve-tui",
+        "versionSource": "runtimes/incubating/eve-tui/eve-runtime-capability.json",
+        "tagPattern": "evetui-v{version}",
+        "artifactKind": "terminal-runtime",
+        "publishProof": "Terminal runtime release is created from the EveTui repo and references the provider-agnostic TUI package root."
+      },
+      "evidencePaths": [
+        "runtimes/incubating/eve-tui/evetui-split-handoff.json",
+        "scripts/run-evetui-split-handoff-smoke.ps1"
+      ],
+      "pendingProofs": [
+        "TUI package release is cut from EveTui rather than Eve incubation."
+      ]
+    },
+    "test": {
+      "ownerRepo": "EveTui",
+      "status": "pending-provider-advertisement-tui-smoke",
+      "testContract": {
+        "ownerRepo": "EveTui",
+        "runnerKind": "terminal-provider-shell-smoke",
+        "runnerScript": "scripts/run-evetui-provider-shell-smoke.ps1",
+        "consumerProject": "E:\\Projects\\Aetheria",
+        "packageName": "eve-tui",
+        "testAssembly": "EveTui.ProviderShell",
+        "testPlatform": "Terminal",
+        "resultsArtifact": "artifacts/evetui-provider-shell/{stamp}/provider-shell-results.json",
+        "logArtifact": "artifacts/evetui-provider-shell/{stamp}/provider-shell.log",
+        "manifestMutation": "None; the TUI consumes provider advertisements and must not mutate provider product manifests."
+      },
+      "evidencePaths": [
+        "runtimes/incubating/eve-tui/evetui-split-handoff.json",
+        "scripts/run-evetui-split-handoff-smoke.ps1"
+      ],
+      "pendingProofs": [
+        "TUI provider-advertisement shell smoke runs from EveTui without importing provider source layout."
+      ]
+    },
+    "capture": {
+      "ownerRepo": "EveTui",
+      "status": "pending-terminal-capture",
+      "captureContract": {
+        "ownerRepo": "EveTui",
+        "runtimeId": "tui",
+        "captureKind": "terminal-transcript-or-cell-grid",
+        "artifactKind": "ansi-transcript-or-json-grid",
+        "artifactPattern": "artifacts/evetui-capture/{stamp}/tui-transcript.ansi",
+        "conformanceAttachment": "runtime.captureArtifacts[]",
+        "requiredProvider": "aetheria",
+        "requiredSurface": "aetheria.daemon.game",
+        "authority": "Capture observes terminal projection only; provider state, command acceptance, and receipts stay provider-owned.",
+        "publishProof": "Terminal transcript or cell-grid capture artifact is attached to the runtime conformance report from EveTui."
+      },
+      "evidencePaths": [],
+      "pendingProofs": [
+        "TUI terminal transcript or cell-grid capture artifact is attached to the runtime conformance report."
+      ]
+    }
+  },
+  "capture": {
+    "status": "missing",
+    "note": "TUI transcript or cell-grid capture is a split blocker until EveTui owns a provider-agnostic lowerer."
+  }
+}

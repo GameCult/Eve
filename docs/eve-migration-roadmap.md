@@ -401,6 +401,13 @@ Recently cut:
   provider-owned TUI surfaces, and the split-target consumer smoke keeps the
   missing runtime body, provider-advertisement consumption, command transport,
   transcript/cell-grid capture, and `tui` lowering proof visible as blockers.
+- EveTui now has a direct split handoff smoke at
+  `scripts/run-evetui-split-handoff-smoke.ps1`, a pending runtime capability
+  manifest at `runtimes/incubating/eve-tui/eve-runtime-capability.json`, and a
+  lifecycle smoke at `scripts/run-evetui-lifecycle-smoke.ps1`. The manifest
+  declares no supported runtime features or plugin projection yet; it only
+  types the pending command boundary, terminal package release,
+  provider-advertisement TUI smoke, and transcript/cell-grid capture contracts.
 - Aetheria interactive world surfaces now carry a structured provider-owned
   `worldInteraction` contract. The provider advertisement names projection
   kind, provider state schemas, daemon command boundary, receipt schema,

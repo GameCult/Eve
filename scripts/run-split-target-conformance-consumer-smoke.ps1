@@ -65,6 +65,7 @@ try {
     --expect-split-target EveTui `
     --expect-split-target-status EveTui:incubating `
     --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `
+    --expect-split-target-proof "EveTui:EveTui lifecycle contract is machine-readable" `
     --expect-split-target-blocker "EveTui:runtime:tui:status:pending" `
     --expect-split-target-blocker-record EveTui:runtime-feature:tui:commandTransport `
     --expect-split-target-blocker "EveTui:TUI runtime body exists outside provider product code"
