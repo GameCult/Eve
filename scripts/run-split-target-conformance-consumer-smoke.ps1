@@ -48,7 +48,12 @@ try {
     --expect-split-target-status EveElectron:incubating `
     --expect-split-target-proof "EveElectron:EveElectron split handoff is machine-readable" `
     --expect-split-target-blocker "EveElectron:runtime:electron-shell:status:pending" `
-    --expect-split-target-blocker "EveElectron:Electron shell runtime body exists outside Aetheria product code"
+    --expect-split-target-blocker "EveElectron:Electron shell runtime body exists outside Aetheria product code" `
+    --expect-split-target EveTui `
+    --expect-split-target-status EveTui:incubating `
+    --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `
+    --expect-split-target-blocker "EveTui:runtime:tui:status:pending" `
+    --expect-split-target-blocker "EveTui:TUI runtime body exists outside provider product code"
   if ($LASTEXITCODE -ne 0) {
     throw "Split target conformance consumer smoke failed with exit code $LASTEXITCODE"
   }

@@ -607,6 +607,34 @@
         "Electron emits gamecult.eve.command.v1 through provider command boundaries.",
         "Electron capture artifacts are attached to conformance output."
       ]
+    },
+    {
+      "id": "EveTui",
+      "ownerRepo": "EveTui",
+      "repoRole": "runtime-target",
+      "status": "pending",
+      "runtimes": ["tui"],
+      "requiredRuntimeStatuses": ["active"],
+      "requiredFeatures": ["providerAdvertisements", "embeddedDocuments", "commandTransport"],
+      "requiredPlugins": [],
+      "proofs": [
+        {
+          "description": "EveTui split handoff is machine-readable.",
+          "status": "passed",
+          "evidencePaths": [
+            "runtimes/incubating/eve-tui/evetui-split-handoff.json",
+            "docs/eve-migration-roadmap.md",
+            "docs/parity-testing-harness.md"
+          ]
+        }
+      ],
+      "pendingProofs": [
+        "TUI runtime body exists outside provider product code.",
+        "TUI consumes provider advertisements without provider source-layout knowledge.",
+        "TUI claims provider-advertised tui world-surface lowering with real transcript evidence.",
+        "TUI emits gamecult.eve.command.v1 through provider command boundaries.",
+        "TUI terminal transcript or cell-grid captures are attached to conformance output."
+      ]
     }
   ],
   "runtimes": [
@@ -643,6 +671,41 @@
       "capture": {
         "status": "missing",
         "note": "Electron capture is a split blocker until EveElectron owns a provider-agnostic shell."
+      }
+    },
+    {
+      "id": "tui",
+      "title": "Compact TUI",
+      "kind": "pending",
+      "ownerRepo": "EveTui",
+      "repoRole": "runtime-target",
+      "splitTarget": "EveTui",
+      "graduationTrigger": "Split when TUI has a provider-agnostic terminal/grid lowerer, provider advertisement consumption, command transport, terminal capability manifest, and transcript/cell-grid capture evidence.",
+      "splitHandoffPath": "runtimes/incubating/eve-tui/evetui-split-handoff.json",
+      "requiredFixtures": ["embedded-surface", "aetheria-world"],
+      "pluginFixtures": [],
+      "supportedFeatures": [],
+      "supportedPlugins": [],
+      "unsupportedPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "reason": "TUI has no generic runtime body yet; Sai projection must be a declared lossy terminal projection once EveTui exists."
+        },
+        {
+          "pluginId": "norn.graph",
+          "reason": "TUI has no generic runtime body yet; Norn graph projection needs explicit text/grid fallback semantics once EveTui exists."
+        },
+        {
+          "pluginId": "tex.math",
+          "reason": "TUI has no generic runtime body yet; TeX projection needs explicit text/grid fallback semantics once EveTui exists."
+        }
+      ],
+      "expectedPaths": [
+        "runtimes/incubating/eve-tui/evetui-split-handoff.json"
+      ],
+      "capture": {
+        "status": "missing",
+        "note": "TUI transcript or cell-grid capture is a split blocker until EveTui owns a provider-agnostic lowerer."
       }
     },
     {

@@ -297,6 +297,13 @@ Recently cut:
   client, and the split-target consumer smoke keeps the missing shell,
   provider-advertisement consumption, command transport, and capture proofs
   visible as blockers.
+- EveTui now has a pending split target and handoff at
+  `runtimes/incubating/eve-tui/evetui-split-handoff.json`. It does not claim
+  the advertised `tui` world-surface lowering target yet. The handoff draws the
+  line between a future provider-agnostic terminal/grid lowerer and
+  provider-owned TUI surfaces, and the split-target consumer smoke keeps the
+  missing runtime body, provider-advertisement consumption, command transport,
+  transcript/cell-grid capture, and `tui` lowering proof visible as blockers.
 - Aetheria interactive world surfaces now carry a structured provider-owned
   `worldInteraction` contract. The provider advertisement names projection
   kind, provider state schemas, daemon command boundary, receipt schema,

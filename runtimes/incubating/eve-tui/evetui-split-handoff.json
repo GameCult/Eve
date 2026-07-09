@@ -1,0 +1,64 @@
+{
+  "schema": "gamecult.eve.runtime_split_handoff.v1",
+  "splitTarget": "EveTui",
+  "ownerRepo": "EveTui",
+  "currentHostRepo": "Eve",
+  "runtimeId": "tui",
+  "packageName": "eve-tui",
+  "sourcePackageRoot": "runtimes/incubating/eve-tui",
+  "destinationPackageRoot": "packages/eve-tui",
+  "authorityBoundary": "EveTui owns compact terminal/grid projection, keyboard command input, dense state inspection, terminal capability manifests, capture transcripts, and TUI-specific style/token lowering. Providers such as Aetheria own live state, authored TUI surfaces, command authorization, receipts, and product-specific flows. Eve keeps the GUI/TUI surface contracts, command descriptors, provider advertisements, plugin advertisements, and conformance export contracts.",
+  "moveSets": [
+    {
+      "id": "tui-runtime-body",
+      "stage": "runtime-body",
+      "currentPaths": [],
+      "destinationOwner": "EveTui",
+      "replacementProof": "EveTui hosts a provider-agnostic TUI lowerer that consumes provider advertisements and Eve surface documents without importing provider internals."
+    },
+    {
+      "id": "tui-world-surface-lowering",
+      "stage": "world-surface-lowering",
+      "currentPaths": [],
+      "destinationOwner": "EveTui",
+      "replacementProof": "EveTui claims the provider-advertised tui world-surface lowering target with explicit support level, lossiness, command boundary, and transcript evidence."
+    },
+    {
+      "id": "tui-command-transport",
+      "stage": "command",
+      "currentPaths": [],
+      "destinationOwner": "EveTui",
+      "replacementProof": "TUI actions emit gamecult.eve.command.v1 intents through provider-advertised command boundaries and render provider receipts instead of mutating local state."
+    },
+    {
+      "id": "tui-capture-lifecycle",
+      "stage": "capture",
+      "currentPaths": [],
+      "destinationOwner": "EveTui",
+      "replacementProof": "EveTui attaches deterministic terminal transcript or cell-grid capture artifacts to conformance output."
+    }
+  ],
+  "contractInputs": [
+    "gamecult.eve.surface.v1",
+    "gamecult.eve.command.v1",
+    "gamecult.eve.provider_advertisement.v1",
+    "gamecult.eve.plugin_advertisement.v1",
+    "gamecult.eve.plugin.v1",
+    "gamecult.eve.conformance_export.v1"
+  ],
+  "forbiddenImports": [
+    "provider internals as TUI runtime authority",
+    "renderer-local product state as provider truth",
+    "terminal-only command routes that bypass gamecult.eve.command.v1",
+    "plugin semantic internals",
+    "lossy text summaries pretending to be provider state"
+  ],
+  "requiredExternalProofs": [
+    "EveTui publishes a runtime capability manifest with terminal/grid capabilities.",
+    "EveTui claims the tui world-surface lowering target only after a real provider-agnostic lowerer exists.",
+    "EveTui consumes at least one non-Aetheria provider advertisement.",
+    "EveTui consumes Aetheria's agent-facing TUI surface through provider advertisements without importing Aetheria internals.",
+    "EveTui emits gamecult.eve.command.v1 intents and renders provider receipts.",
+    "EveTui attaches terminal transcript or cell-grid capture artifacts to conformance output."
+  ]
+}
