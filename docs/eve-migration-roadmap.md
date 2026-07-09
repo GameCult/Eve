@@ -280,6 +280,13 @@ Exit criteria:
 
 Recently cut:
 
+- EveFlutter now has a conformance consumer smoke at
+  `scripts/run-eveflutter-conformance-consumer-smoke.ps1`. It runs from
+  `flutter/eve_parity`, consumes the exported conformance pack, and asserts the
+  runtime pack, Sai provider fixture, Flutter runtimes, and `EveFlutter` split
+  target without reading Eve's parity manifest. The split-readiness report now
+  records that as a passed proof instead of leaving it as a permanent pending
+  blocker.
 - Fensalir now has a recorded runtime-pack
   `gamecult.eve.surface.v1` adapter fixture at
   `web/fixtures/fensalir-direct2d-surface.json`. The browser local catalog uses

@@ -440,10 +440,20 @@
           "capabilities": ["embed.tex"]
         }
       ],
+      "proofs": [
+        {
+          "description": "Conformance pack can be consumed without depending on Eve's local harness layout.",
+          "status": "passed",
+          "evidencePaths": [
+            "scripts/run-eveflutter-conformance-consumer-smoke.ps1",
+            "tools/conformance/consume-export.mjs",
+            "tools/parity/run-parity.mjs"
+          ]
+        }
+      ],
       "pendingProofs": [
         "Provider picker consumes provider advertisements without Eve source-layout knowledge.",
-        "Flutter build, release, and capture lifecycle can run from EveFlutter.",
-        "Conformance pack can be consumed without depending on Eve's local harness layout."
+        "Flutter build, release, and capture lifecycle can run from EveFlutter."
       ]
     },
     {

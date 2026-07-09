@@ -110,6 +110,16 @@ and `aetheria-world-command-replay` scenario. Generated copies remain under
 Eve's `artifacts/aetheria-conformance-consumer-smoke` so the provider worktree
 does not become dirty merely by proving the boundary.
 
+EveFlutter consumer smoke:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-eveflutter-conformance-consumer-smoke.ps1
+```
+
+That script runs the export consumer from `flutter/eve_parity` and asserts the
+runtime pack, Sai provider fixture, Flutter runtime targets, and `EveFlutter`
+split target without reading `tools/parity/parity-manifest.json`.
+
 Aetheria Unity package consumer smoke:
 
 ```powershell

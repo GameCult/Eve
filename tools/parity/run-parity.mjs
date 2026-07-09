@@ -1080,6 +1080,7 @@ function evaluateSplitTargets(splitTargets, runtimeResults) {
     const requiredRuntimeStatuses = target.requiredRuntimeStatuses || ["active"];
     const requiredFeatures = target.requiredFeatures || [];
     const requiredPlugins = target.requiredPlugins || [];
+    const proofs = target.proofs || [];
     const runtimeIds = target.runtimes || [];
     const blockers = [];
     const runtimeStatuses = {};
@@ -1123,6 +1124,16 @@ function evaluateSplitTargets(splitTargets, runtimeResults) {
       }
     }
 
+    for (const proof of proofs) {
+      const missingEvidence = (proof.evidencePaths || []).filter(candidate => !existsSync(path.join(repoRoot, candidate)));
+      if (proof.status !== "passed") {
+        blockers.push(`proof:${proof.description || "unnamed"}:status:${proof.status || "missing"}`);
+      }
+      for (const evidencePath of missingEvidence) {
+        blockers.push(`proof:${proof.description || "unnamed"}:evidence:${evidencePath}:missing`);
+      }
+    }
+
     for (const proof of target.pendingProofs || []) {
       blockers.push(`proof:${proof}`);
     }
@@ -1138,6 +1149,7 @@ function evaluateSplitTargets(splitTargets, runtimeResults) {
       requiredRuntimeStatuses,
       requiredFeatures,
       requiredPlugins,
+      proofs,
       pendingProofs: target.pendingProofs || [],
       blockers,
     };
@@ -1529,6 +1541,13 @@ function renderMarkdown(report) {
   for (const target of report.splitTargets) {
     const runtimes = target.runtimes.map(runtimeId => `${runtimeId}:${target.runtimeStatuses[runtimeId] || "missing"}`).join(", ");
     lines.push(`| ${target.id} | ${target.status} | ${target.ownerRepo} | ${runtimes} | ${target.blockers.join("<br>")} |`);
+  }
+
+  lines.push("", "## Split Proofs", "", "| Target | Proof | Status | Evidence |", "| --- | --- | --- | --- |");
+  for (const target of report.splitTargets) {
+    for (const proof of target.proofs || []) {
+      lines.push(`| ${target.id} | ${proof.description || ""} | ${proof.status || ""} | ${(proof.evidencePaths || []).join("<br>")} |`);
+    }
   }
 
   lines.push("", "## Runtime Notes", "");
