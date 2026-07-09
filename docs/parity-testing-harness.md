@@ -151,6 +151,13 @@ with plugin id, owner repo, operation, status, fixture path, input keys, and
 expect keys. Plugin-owner smokes can assert contracted operations with
 `--expect-plugin-abi-operation-coverage <pluginId:operation:status:ownerRepo>`
 without walking nested plugin records.
+Provider-advertised plugin requirements are indexed as root
+`providerPluginRequirementCoverage[]` records. These join provider id, surface
+id, plugin id, plugin owner, plugin status, required capabilities, and missing
+capabilities so provider and plugin owners can consume requirement coverage
+without reconstructing the provider/plugin join. Consumer smokes can assert
+them with
+`--expect-provider-plugin-requirement <providerId:surfaceId:pluginId:status:pluginOwnerRepo>`.
 
 The runtime conformance pack is evidence-shaped, not fixture-shaped. Its
 `packs/runtime.json` document includes `runtimeTargets` so runtime repos can

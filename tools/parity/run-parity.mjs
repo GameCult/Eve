@@ -1675,6 +1675,7 @@ function buildConformanceExport(report) {
     worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
     splitTargetBlockers: collectSplitTargetBlockers(report),
     pluginAbiOperationCoverage: collectPluginAbiOperationCoverage(report),
+    providerPluginRequirementCoverage: collectProviderPluginRequirementCoverage(report),
     capabilityGaps: collectCapabilityGaps(report),
     plugins: (report.plugins || []).map(plugin => ({
       pluginId: plugin.pluginId,
@@ -1974,6 +1975,37 @@ function collectPluginAbiOperationCoverage(report) {
         commandEnvelope: expect.commandEnvelope || "",
         receiptSchema: expect.receiptSchema || "",
         preservesProviderAuthority: expect.preservesProviderAuthority === true,
+      });
+    }
+  }
+  return coverage;
+}
+
+function collectProviderPluginRequirementCoverage(report) {
+  const pluginById = new Map((report.plugins || []).map(plugin => [plugin.pluginId, plugin]));
+  const coverage = [];
+  for (const provider of report.providers || []) {
+    for (const requirement of provider.pluginRequirements || []) {
+      const plugin = pluginById.get(requirement.pluginId);
+      const pluginCapabilities = new Set(plugin?.capabilities || []);
+      const missingRequiredCapabilities = (requirement.requiredCapabilities || [])
+        .filter(capability => !pluginCapabilities.has(capability));
+      coverage.push({
+        providerId: provider.providerId,
+        providerOwnerRepo: provider.ownerRepo || "",
+        surfaceId: requirement.surfaceId || "",
+        pluginId: requirement.pluginId || "",
+        pluginOwnerRepo: plugin?.ownerRepo || "",
+        pluginStatus: plugin?.status || "missing",
+        versionRange: requirement.versionRange || "",
+        status: !plugin
+          ? "missing-plugin"
+          : missingRequiredCapabilities.length
+            ? "missing-capability"
+            : "satisfied",
+        requiredCapabilities: requirement.requiredCapabilities || [],
+        optionalCapabilities: requirement.optionalCapabilities || [],
+        missingRequiredCapabilities,
       });
     }
   }

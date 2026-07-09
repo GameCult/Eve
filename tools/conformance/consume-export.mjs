@@ -35,6 +35,7 @@ if (!exportDirectory) {
     "  --expect-provider-surface-kind <providerId:surfaceId:surfaceKind>",
     "  --expect-provider-surface-field <providerId:surfaceId:field.path:value>",
     "  --expect-interactive-world-surface <providerId:surfaceId:targetId:ownerRepo>",
+    "  --expect-provider-plugin-requirement <providerId:surfaceId:pluginId:status:pluginOwnerRepo>",
     "  --expect-provider-command <providerId:command>",
     "  --expect-provider-receipt-state <providerId:state>",
     "  --expect-provider-handoff <providerId>",
@@ -127,6 +128,7 @@ function validateIndex(index, directory, expectations, errors) {
   const runtimes = mergeRuntimeRecords(Array.isArray(index.runtimes) ? index.runtimes : [], exportedRuntimeTargets);
   const splitTargets = Array.isArray(index.splitTargets) ? index.splitTargets : [];
   const pluginAbiOperationCoverage = Array.isArray(index.pluginAbiOperationCoverage) ? index.pluginAbiOperationCoverage : [];
+  const providerPluginRequirementCoverage = Array.isArray(index.providerPluginRequirementCoverage) ? index.providerPluginRequirementCoverage : [];
   const capabilityGaps = Array.isArray(index.capabilityGaps) ? index.capabilityGaps : [];
   const runtimePluginProjectionGaps = Array.isArray(index.runtimePluginProjectionGaps) ? index.runtimePluginProjectionGaps : [];
   const interactiveWorldSurfaces = Array.isArray(index.interactiveWorldSurfaces) ? index.interactiveWorldSurfaces : [];
@@ -137,6 +139,7 @@ function validateIndex(index, directory, expectations, errors) {
   validatePluginRecords(plugins, errors);
   validatePluginAbiOperationCoverage(index.pluginAbiOperationCoverage, errors);
   validateProviderRecords(providers, errors);
+  validateProviderPluginRequirementCoverage(index.providerPluginRequirementCoverage, errors);
   validateRuntimeRecords(runtimes, errors);
   validateSplitTargetRecords(splitTargets, errors);
   validateInteractiveWorldSurfaces(index.interactiveWorldSurfaces, errors);
@@ -381,6 +384,22 @@ function validateIndex(index, directory, expectations, errors) {
     }
     for (const field of ["projectionKind", "commandBoundary", "receiptSchema", "ownership"]) {
       if (!surface[field]) errors.push(`interactiveWorldSurfaces:${expectation.providerId}:${expectation.surfaceId}:${field}:missing`);
+    }
+  }
+  for (const expectation of expectations.providerPluginRequirements) {
+    const requirement = providerPluginRequirementCoverage.find(candidate =>
+      candidate.providerId === expectation.providerId &&
+      candidate.surfaceId === expectation.surfaceId &&
+      candidate.pluginId === expectation.pluginId);
+    if (!requirement) {
+      errors.push(`providerPluginRequirementCoverage:${expectation.providerId}:${expectation.surfaceId}:${expectation.pluginId}:missing`);
+      continue;
+    }
+    if (requirement.status !== expectation.status) {
+      errors.push(`providerPluginRequirementCoverage:${expectation.providerId}:${expectation.surfaceId}:${expectation.pluginId}:status:expected ${expectation.status} got ${requirement.status || ""}`);
+    }
+    if (requirement.pluginOwnerRepo !== expectation.pluginOwnerRepo) {
+      errors.push(`providerPluginRequirementCoverage:${expectation.providerId}:${expectation.surfaceId}:${expectation.pluginId}:pluginOwnerRepo:expected ${expectation.pluginOwnerRepo} got ${requirement.pluginOwnerRepo || ""}`);
     }
   }
   for (const expectation of expectations.providerCommands) {
@@ -770,6 +789,21 @@ function validateProviderRecords(providers, errors) {
   }
 }
 
+function validateProviderPluginRequirementCoverage(records, errors) {
+  if (!Array.isArray(records)) {
+    errors.push("providerPluginRequirementCoverage:missing");
+    return;
+  }
+  for (const [index, record] of records.entries()) {
+    for (const field of ["providerId", "providerOwnerRepo", "surfaceId", "pluginId", "pluginStatus", "status"]) {
+      if (!record?.[field]) errors.push(`providerPluginRequirementCoverage:${index}:${field}:missing`);
+    }
+    for (const field of ["requiredCapabilities", "optionalCapabilities", "missingRequiredCapabilities"]) {
+      if (!Array.isArray(record?.[field])) errors.push(`providerPluginRequirementCoverage:${index}:${field}:expected array`);
+    }
+  }
+}
+
 function validateInteractiveWorldSurfaces(surfaces, errors) {
   if (!Array.isArray(surfaces)) {
     errors.push("interactiveWorldSurfaces:missing");
@@ -840,6 +874,7 @@ function parseArguments(args) {
     providerSurfaceKinds: [],
     providerSurfaceFields: [],
     interactiveWorldSurfaces: [],
+    providerPluginRequirements: [],
     providerCommands: [],
     providerReceiptStates: [],
     providerHandoffs: [],
@@ -888,6 +923,7 @@ function parseArguments(args) {
     ["--expect-provider-surface-kind", expectations.providerSurfaceKinds],
     ["--expect-provider-surface-field", expectations.providerSurfaceFields],
     ["--expect-interactive-world-surface", expectations.interactiveWorldSurfaces],
+    ["--expect-provider-plugin-requirement", expectations.providerPluginRequirements],
     ["--expect-provider-command", expectations.providerCommands],
     ["--expect-provider-receipt-state", expectations.providerReceiptStates],
     ["--expect-provider-handoff", expectations.providerHandoffs],
@@ -957,6 +993,8 @@ function parseArguments(args) {
       target.push(parseProviderSurfaceFieldExpectation(value));
     } else if (option === "--expect-interactive-world-surface") {
       target.push(parseInteractiveWorldSurfaceExpectation(value));
+    } else if (option === "--expect-provider-plugin-requirement") {
+      target.push(parseProviderPluginRequirementExpectation(value));
     } else if (option === "--expect-provider-command") {
       target.push(parseProviderExpectation(value, "command"));
     } else if (option === "--expect-provider-receipt-state") {
@@ -1141,6 +1179,21 @@ function parseInteractiveWorldSurfaceExpectation(value) {
     surfaceId: parts[1],
     targetId: parts[2],
     ownerRepo: parts[3],
+  };
+}
+
+function parseProviderPluginRequirementExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 5 || parts.some(part => !part)) {
+    console.error(`Expected provider plugin requirement in <providerId:surfaceId:pluginId:status:pluginOwnerRepo> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    providerId: parts[0],
+    surfaceId: parts[1],
+    pluginId: parts[2],
+    status: parts[3],
+    pluginOwnerRepo: parts[4],
   };
 }
 

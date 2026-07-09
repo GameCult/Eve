@@ -12,6 +12,7 @@
     "providers",
     "runtimes",
     "pluginAbiOperationCoverage",
+    "providerPluginRequirementCoverage",
     "interactiveWorldSurfaces",
     "worldSurfaceLoweringCoverage",
     "splitTargetBlockers",
@@ -626,6 +627,67 @@
             "type": "array"
           },
           "pluginRequirements": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "providerPluginRequirementCoverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "providerId",
+          "providerOwnerRepo",
+          "surfaceId",
+          "pluginId",
+          "pluginOwnerRepo",
+          "pluginStatus",
+          "versionRange",
+          "status",
+          "requiredCapabilities",
+          "optionalCapabilities",
+          "missingRequiredCapabilities"
+        ],
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "providerOwnerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pluginId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pluginOwnerRepo": {
+            "type": "string"
+          },
+          "pluginStatus": {
+            "type": "string",
+            "minLength": 1
+          },
+          "versionRange": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requiredCapabilities": {
+            "type": "array"
+          },
+          "optionalCapabilities": {
+            "type": "array"
+          },
+          "missingRequiredCapabilities": {
             "type": "array"
           }
         },
