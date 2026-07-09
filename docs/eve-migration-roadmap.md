@@ -280,6 +280,14 @@ Exit criteria:
 
 Recently cut:
 
+- The web reference now publishes a runtime capability manifest at
+  `web/eve-runtime-capability.json`, and the parity harness validates it through
+  the same runtime capability path as Unity. Web remains Eve's behavior oracle,
+  not an EveWeb split target, unless it gains independent deployment lifecycle.
+  Its manifest explicitly claims provider advertisement consumption,
+  embedded-document lowering, state bindings, style tokens, authority witnesses,
+  plugin projection support, command intent emission, and Chrome headless
+  capture evidence.
 - Unity UI Toolkit now declares runtime lifecycle evidence in
   `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`. The
   parity harness validates release, test, and capture lifecycle claims against

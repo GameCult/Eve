@@ -440,12 +440,16 @@
       "kind": "active",
       "ownerRepo": "Eve",
       "repoRole": "core",
-      "splitTarget": "EveWeb only if browser reference gains independent platform lifecycle",
+      "splitTarget": "Eve",
       "graduationTrigger": "Stay in Eve while it is the behavior oracle; split only if it becomes a deployable runtime product.",
+      "capabilityManifest": {
+        "schemaPath": "schemas/gamecult.eve.runtime_capability.v1.schema.json",
+        "manifestPath": "web/eve-runtime-capability.json"
+      },
       "semanticHarness": true,
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
-      "supportedFeatures": ["embeddedDocuments"],
+      "supportedFeatures": ["embeddedDocuments", "providerAdvertisements", "stateBindings", "styleTokens", "authorityWitnesses"],
       "supportedPlugins": [
         {
           "pluginId": "sai.vn",
@@ -462,10 +466,62 @@
       ],
       "expectedSourceSymbols": [
         {
+          "path": "web/surface.js",
+          "contains": ["loadProviderAdvertisement", "aetheria.provider-advertisement.json", "publishCommandIntent", "browser.reference"]
+        },
+        {
           "path": "packages/eve-browser-lowering/src/index.ts",
           "contains": ["surface.slot", "embeddedDocuments", "cultui-embedded-slot", "createEveCommandIntent", "resolveComponentCommandId"]
         }
       ],
+      "commandTransportSmoke": {
+        "schema": "gamecult.eve.command.v1",
+        "expectedPaths": ["packages/eve-browser-lowering/src/index.ts", "web/surface.js"],
+        "expectedSourceSymbols": [
+          {
+            "path": "packages/eve-browser-lowering/src/index.ts",
+            "contains": ["EveCommandIntent", "createEveCommandIntent", "schema: \"gamecult.eve.command.v1\"", "clientId"]
+          },
+          {
+            "path": "web/surface.js",
+            "contains": ["publishCommandIntent", "/hermodr/commands/eve", "createEveCommandIntent", "browser.reference"]
+          }
+        ]
+      },
+      "lifecycle": {
+        "release": {
+          "ownerRepo": "Eve",
+          "status": "reference-oracle-in-core",
+          "evidencePaths": [
+            "web/index.html",
+            "web/surface.js",
+            "packages/eve-browser-lowering/src/index.ts"
+          ],
+          "pendingProofs": [
+            "Split to EveWeb only if the browser reference gains independent deployment and release lifecycle."
+          ]
+        },
+        "test": {
+          "ownerRepo": "Eve",
+          "status": "node-tests-and-parity-harness",
+          "evidencePaths": [
+            "web/eve-dsl.test.mjs",
+            "tools/parity/parity-manifest.json",
+            "scripts/run-parity-harness.ps1"
+          ],
+          "pendingProofs": []
+        },
+        "capture": {
+          "ownerRepo": "Eve",
+          "status": "chrome-headless",
+          "evidencePaths": [
+            "scripts/capture-web-reference.ps1",
+            "scripts/run-parity-smoke.ps1",
+            "tools/parity/render-contact-sheet.py"
+          ],
+          "pendingProofs": []
+        }
+      },
       "capture": {
         "status": "chrome-headless",
         "note": "Chrome headless captures phone, tablet, and desktop PNGs through the provider query parameter."

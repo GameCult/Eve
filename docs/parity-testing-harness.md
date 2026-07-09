@@ -26,9 +26,13 @@ transport schema, and incubation metadata. The central parity manifest may
 coordinate split-readiness, but the runtime body must publish the capability
 claim it expects other repos to consume.
 
-Unity UI Toolkit currently uses this path for its `sai.vn` and `norn.graph`
-plugin projection adapter proofs while leaving `tex.math` as explicit unsupported plugin
-semantics.
+The web reference and Unity UI Toolkit both publish runtime capability
+manifests. Web uses `web/eve-runtime-capability.json` to make the browser oracle
+explicit: it consumes provider advertisements, lowers provider-owned surfaces,
+emits `gamecult.eve.command.v1` intents, and records Chrome headless capture
+evidence without becoming provider truth. Unity UI Toolkit uses the same path
+for its `sai.vn` and `norn.graph` plugin projection adapter proofs while
+leaving `tex.math` as explicit unsupported plugin semantics.
 
 ## Run
 

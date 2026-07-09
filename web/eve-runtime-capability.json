@@ -1,0 +1,90 @@
+{
+  "schema": "gamecult.eve.runtime_capability.v1",
+  "runtimeId": "web",
+  "title": "Web Reference",
+  "owner": "Eve",
+  "incubation": {
+    "ownerRepo": "Eve",
+    "currentHostRepo": "Eve",
+    "splitTarget": "Eve",
+    "graduationTrigger": "Stay in Eve while it is the behavior oracle; split only if it becomes a deployable runtime product."
+  },
+  "supportedFeatures": [
+    "embeddedDocuments",
+    "providerAdvertisements",
+    "stateBindings",
+    "styleTokens",
+    "authorityWitnesses"
+  ],
+  "supportedPlugins": [
+    {
+      "pluginId": "sai.vn",
+      "capabilities": [
+        "vn.stage",
+        "story.choose",
+        "story.continue",
+        "story.jump"
+      ],
+      "projection": "packages/eve-browser-lowering/src/index.ts"
+    },
+    {
+      "pluginId": "norn.graph",
+      "capabilities": [
+        "embed.norn"
+      ],
+      "projection": "packages/eve-browser-lowering/src/index.ts"
+    },
+    {
+      "pluginId": "tex.math",
+      "capabilities": [
+        "embed.tex"
+      ],
+      "projection": "packages/eve-browser-lowering/src/index.ts"
+    }
+  ],
+  "unsupportedPlugins": [],
+  "commandTransport": {
+    "schema": "gamecult.eve.command.v1",
+    "emitter": "createEveCommandIntent",
+    "clientId": "browser.reference"
+  },
+  "lifecycle": {
+    "release": {
+      "ownerRepo": "Eve",
+      "status": "reference-oracle-in-core",
+      "evidencePaths": [
+        "web/index.html",
+        "web/surface.js",
+        "packages/eve-browser-lowering/src/index.ts"
+      ],
+      "pendingProofs": [
+        "Split to EveWeb only if the browser reference gains independent deployment and release lifecycle."
+      ]
+    },
+    "test": {
+      "ownerRepo": "Eve",
+      "status": "node-tests-and-parity-harness",
+      "command": "node --test web/eve-dsl.test.mjs && powershell -ExecutionPolicy Bypass -File .\\scripts\\run-parity-harness.ps1",
+      "evidencePaths": [
+        "web/eve-dsl.test.mjs",
+        "tools/parity/parity-manifest.json",
+        "scripts/run-parity-harness.ps1"
+      ],
+      "pendingProofs": []
+    },
+    "capture": {
+      "ownerRepo": "Eve",
+      "status": "chrome-headless",
+      "evidencePaths": [
+        "scripts/capture-web-reference.ps1",
+        "scripts/run-parity-smoke.ps1",
+        "tools/parity/render-contact-sheet.py"
+      ],
+      "pendingProofs": []
+    }
+  },
+  "capture": {
+    "status": "chrome-headless",
+    "note": "Browser reference captures phone, tablet, and desktop PNGs through provider query parameters while preserving provider-owned truth."
+  }
+}
