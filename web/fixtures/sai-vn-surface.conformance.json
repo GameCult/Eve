@@ -15,10 +15,13 @@
     "embed.norn component",
     "embed.tex component",
     "story command descriptors",
-    "plugin capability requirements"
+    "required Sai plugin capability",
+    "optional nested plugin composition"
   ],
   "requiredPlugins": [
-    "sai.vn",
+    "sai.vn"
+  ],
+  "optionalNestedPlugins": [
     "norn.graph",
     "tex.math"
   ],

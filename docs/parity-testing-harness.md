@@ -145,9 +145,11 @@ reference probe provider source layout.
 Declared runtime/plugin projection gaps are exported as
 `runtimePluginProjectionGaps[]`. These records carry runtime id, runtime owner,
 split target, plugin id, reason, severity, and fixture lists so EveUnity,
-EveElectron, Sai, Norn, and TeX owners can distinguish "runtime cannot project
-this plugin yet" from "plugin semantics belong in Eve core." Consumer smokes can
-assert them with `--expect-runtime-plugin-gap <runtimeId:pluginId:ownerRepo>`.
+EveElectron, Sai, Norn, and TeX owners can distinguish "this projection runtime
+cannot project the plugin yet" from "plugin semantics belong in Eve core."
+Device-edge dashboard proofs that do not claim plugin projection are not listed
+as failed plugin clients. Consumer smokes can assert real projection gaps with
+`--expect-runtime-plugin-gap <runtimeId:pluginId:ownerRepo>`.
 The same claims are exported as `runtimePluginProjectionCoverage[]`, including
 positive `supported` projection adapters and declared `unsupported` gaps. This
 lets runtime and plugin owners consume one ledger for "Unity UI Toolkit has
@@ -510,7 +512,9 @@ The harness tracks every target runtime:
   `android/app/src/main/java/org/gamecult/eve/MainActivity.kt` renders
   `surface.slot` with a content description containing the embedded slot
   identity, and `node tools/parity/run-parity.mjs` reports
-  `embeddedDocuments` support for `android-kotlin`.
+  `embeddedDocuments` support for `android-kotlin`. It does not consume plugin
+  fixtures until EveAndroid grows a plugin projection adapter; Android Flutter
+  is the Android-side plugin projection acceptance target.
 - Rust / CultMesh: typed document runtime rather than a CultUI renderer.
   Required nested-surface evidence: `cargo test -p cultnet-rs
   rust_preserves_cultui_embedded_surface_slots_through_typed_document_sync`

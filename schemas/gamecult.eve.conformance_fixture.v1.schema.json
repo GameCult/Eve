@@ -71,6 +71,13 @@
         "minLength": 1
       }
     },
+    "optionalNestedPlugins": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
     "splitTarget": {
       "type": "string"
     }

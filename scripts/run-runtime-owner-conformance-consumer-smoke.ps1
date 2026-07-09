@@ -105,6 +105,9 @@ node $consumerScript $consumerExport `
   --expect-runtime-plugin-projection tui:tex.math:supported:EveTui `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:web:sai.vn:supported:Eve `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:web:tex.math:optional-supported:Eve `
+  --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:android-flutter:sai.vn:supported:EveFlutter `
+  --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:android-flutter:norn.graph:optional-supported:EveFlutter `
+  --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:android-flutter:tex.math:optional-supported:EveFlutter `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:unity-uitoolkit:sai.vn:supported:EveUnity `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:unity-uitoolkit:norn.graph:optional-supported:EveUnity `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:unity-uitoolkit:tex.math:optional-supported:EveUnity `
@@ -117,8 +120,6 @@ node $consumerScript $consumerExport `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:tui:sai.vn:supported:EveTui `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:tui:norn.graph:optional-supported:EveTui `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:tui:tex.math:optional-supported:EveTui `
-  --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:ios-uikit:sai.vn:unsupported-runtime-projection:EveIOS `
-  --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:ios-uikit:norn.graph:optional-unsupported-runtime-projection:EveIOS `
   --expect-runtime-handoff unity-uitoolkit `
   --expect-runtime-command-schema web:gamecult.eve.command.v1 `
   --expect-runtime-command-schema windows-flutter:gamecult.eve.command.v1 `

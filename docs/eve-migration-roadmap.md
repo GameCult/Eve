@@ -398,15 +398,15 @@ Recently cut:
 - Provider/runtime/plugin projection coverage is now exported as
   `providerRuntimePluginProjectionCoverage[]`. The runtime-owner smoke proves
   the Sai VN provider surface lowers fully in web, lowers in Unity UI Toolkit
-  with optional independent Norn and TeX nested plugin projection when those
-  plugins are available, and does not let UIKit's generic embedded-document path
-  impersonate required Sai VN, optional Norn graph, or optional TeX math
-  projection.
+  and Android Flutter with optional independent Norn and TeX nested plugin
+  projection when those plugins are available, and does not let UIKit's generic
+  embedded-document path impersonate required Sai VN, optional Norn graph, or
+  optional TeX math projection.
 - Runtime/plugin projection gaps are now exported as
-  `runtimePluginProjectionGaps[]`. The runtime-owner smoke asserts remaining
-  device-edge plugin gaps as typed records, so missing Sai, Norn, or TeX
-  projection support is owned by the runtime split target and does not imply
-  those plugin semantics should move into Eve core or Aetheria product code.
+  `runtimePluginProjectionGaps[]`. Device-edge runtimes no longer consume the
+  Sai fixture as failed projection clients; missing Sai, Norn, or TeX support is
+  recorded only on runtimes that actually claim plugin projection work, so plugin
+  semantics do not drift into Eve core or Aetheria product code.
 - Split target blockers are now exported as `splitTargetBlockers[]` and as
   per-target `blockerRecords[]` with blocker kind, subject, owner, and source
   text. The split-target consumer smoke asserts Unity scene status/plugin
@@ -761,12 +761,11 @@ Recently cut:
   the parity harness validates embedded-slot preservation, command descriptors,
   runtime authority witnesses, and style tokens. Direct2D capture and
   runtime-owned command smoke remain the activation blockers.
-- UIKit and Kotlin device-edge runtimes now declare unsupported plugin
-  projection explicitly for separate Sai, Norn, and TeX capabilities. They
-  remain generic embedded-document and device-edge proofs; plugin projection
-  authority belongs to EveFlutter, EveUnity, or future runtime-specific
-  projection adapters instead of being reported as unexplained active capability
-  gaps.
+- UIKit and Kotlin device-edge runtimes no longer consume the Sai plugin fixture
+  as projection acceptance targets. They remain generic embedded-document and
+  device-edge proofs; plugin projection authority belongs to EveFlutter,
+  EveUnity, EveElectron, EveTui, or future runtime-specific adapters when those
+  bodies earn the claim.
 - The web reference no longer hardcodes the local provider list in
   `web/surface.js`. It loads `web/local-provider-catalog.json`, then opens
   advertisement-backed entries for Aetheria, Repixelizer, and Sai through the

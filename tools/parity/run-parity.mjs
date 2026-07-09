@@ -235,6 +235,7 @@ async function evaluateFixture(fixture) {
     ownerRepo: fixture.ownerRepo || "",
     surface: fixture.surface || {},
     requiredPlugins: fixture.requiredPlugins || [],
+    optionalNestedPlugins: fixture.optionalNestedPlugins || [],
     status: checks.every(check => check.pass) ? "pass" : "fail",
     durationMs: Date.now() - startedAt,
     providerId: state.providerId,
@@ -1899,6 +1900,7 @@ function buildConformanceExport(report) {
         exitCriteria: fixture.metadata?.exitCriteria || "",
         asserts: fixture.metadata?.asserts || [],
         requiredPlugins: fixture.requiredPlugins || [],
+        optionalNestedPlugins: fixture.optionalNestedPlugins || fixture.metadata?.optionalNestedPlugins || [],
       }));
     const runtimeTargets = pack.id === "runtime"
       ? (report.runtimes || []).map(runtime => ({

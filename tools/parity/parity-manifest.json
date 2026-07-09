@@ -156,7 +156,9 @@
         {
           "pluginId": "sai.vn",
           "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
-        },
+        }
+      ],
+      "optionalNestedPlugins": [
         {
           "pluginId": "norn.graph",
           "capabilities": ["embed.norn"]
@@ -1301,22 +1303,9 @@
       "splitTarget": "EveIOS",
       "graduationTrigger": "Split when UIKit renderer has generic surface lowering, sensor edge release flow, and device CI independent of Eve core.",
       "requiredFixtures": ["embedded-surface"],
-      "pluginFixtures": ["sai-vn"],
+      "pluginFixtures": [],
       "supportedFeatures": ["embeddedDocuments"],
-      "unsupportedPlugins": [
-        {
-          "pluginId": "sai.vn",
-          "reason": "UIKit smoke proves generic embedded document lowering and capture only; Sai VN projection belongs to EveFlutter/EveUnity or a future EveIOS projection adapter."
-        },
-        {
-          "pluginId": "norn.graph",
-          "reason": "UIKit smoke preserves embed.norn as generic Eve structure; Norn graph projection is not implemented in this runtime."
-        },
-        {
-          "pluginId": "tex.math",
-          "reason": "UIKit smoke preserves embed.tex as generic Eve structure; TeX projection is not implemented in this runtime."
-        }
-      ],
+      "unsupportedPlugins": [],
       "expectedPaths": ["Sources/EVEViewController.mm", "scripts/capture-eve-screenshot.ps1"],
       "expectedSourceSymbols": [
         {
@@ -1393,22 +1382,9 @@
       "splitTarget": "EveAndroid",
       "graduationTrigger": "Split when Kotlin device edge has generic surface traversal, sensor release flow, and Android-specific CI.",
       "requiredFixtures": ["embedded-surface"],
-      "pluginFixtures": ["sai-vn"],
+      "pluginFixtures": [],
       "supportedFeatures": ["cultmesh-dashboard-documents", "sensor-uplink", "embeddedDocuments"],
-      "unsupportedPlugins": [
-        {
-          "pluginId": "sai.vn",
-          "reason": "Kotlin device edge is a lightweight CultMesh/sensor dashboard proof; Sai VN projection belongs to Flutter, Unity, or a future Android projection adapter."
-        },
-        {
-          "pluginId": "norn.graph",
-          "reason": "Kotlin device edge preserves embed.norn as generic Eve structure; Norn graph projection is not implemented in this runtime."
-        },
-        {
-          "pluginId": "tex.math",
-          "reason": "Kotlin device edge preserves embed.tex as generic Eve structure; TeX projection is not implemented in this runtime."
-        }
-      ],
+      "unsupportedPlugins": [],
       "expectedPaths": ["android/app/src/main/java/org/gamecult/eve/MainActivity.kt", "scripts/build-android.ps1"],
       "expectedSourceSymbols": [
         {
