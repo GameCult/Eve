@@ -216,6 +216,11 @@ Consumer smokes can assert them with
 `--expect-provider-plugin-requirement <providerId:surfaceId:pluginId:status:pluginOwnerRepo[:availability]>`.
 Plugin-owner smokes should use the optional availability field when proving that
 Sai's required VN plugin is distinct from optional nested Norn or TeX surfaces.
+For the parent/nested relationship itself, use
+`--expect-independent-nested-plugin <providerId:surfaceId:parentPluginId:nestedPluginId:nestedOwnerRepo>`;
+this checks that the parent plugin is required, the nested plugin is
+`optional-nested`, the nested owner is separate, and nested capabilities remain
+optional composition rather than parent-plugin dependency.
 
 The runtime conformance pack is evidence-shaped, not fixture-shaped. Its
 `packs/runtime.json` document includes `runtimeTargets` so runtime repos can

@@ -74,6 +74,8 @@ node $consumerScript $consumerExport `
   --expect-plugin-abi-operation-coverage norn.graph:apply:contracted:Norn `
   --expect-provider-plugin-requirement gamecult.home.vn:sai.visual_novel.surface:norn.graph:optional-satisfied:Norn:optional-nested `
   --expect-provider-plugin-requirement gamecult.home.vn:sai.visual_novel.surface:tex.math:optional-satisfied:EvePlugins:optional-nested `
+  --expect-independent-nested-plugin gamecult.home.vn:sai.visual_novel.surface:sai.vn:norn.graph:Norn `
+  --expect-independent-nested-plugin gamecult.home.vn:sai.visual_novel.surface:sai.vn:tex.math:EvePlugins `
   --expect-plugin-capability sai.vn:vn.stage `
   --expect-plugin-capability sai.vn:story.choose `
   --expect-plugin-capability sai.vn:story.continue `

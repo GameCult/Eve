@@ -682,6 +682,13 @@ Recently cut:
   agreement, checks sidecar operations against ABI fixture operations, exports
   the runtime boundary, and the plugin-owner consumer smoke asserts the Sai and
   Norn sidecar contracts from the conformance pack.
+- The plugin-owner conformance consumer now asserts independent nested plugin
+  composition directly. `--expect-independent-nested-plugin` verifies that the
+  Sai VN provider surface requires `sai.vn` while `norn.graph` and `tex.math`
+  remain `optional-nested`, separately owned, sidecar-provided capabilities.
+  That keeps a Sai surface free to deploy with Norn or TeX when available
+  without turning either plugin into a Sai dependency or runtime-hosted
+  semantic authority.
 - Conformance export now carries first-class `capabilityGaps[]` records derived
   from plugin errors, provider advertisement/scenario errors, runtime missing
   evidence, declared unsupported plugin projection, capture gaps, and split

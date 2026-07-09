@@ -47,6 +47,7 @@ if (!exportDirectory) {
     "  --expect-provider-surface-field <providerId:surfaceId:field.path:value>",
     "  --expect-interactive-world-surface <providerId:surfaceId:targetId:ownerRepo>",
     "  --expect-provider-plugin-requirement <providerId:surfaceId:pluginId:status:pluginOwnerRepo[:availability]>",
+    "  --expect-independent-nested-plugin <providerId:surfaceId:parentPluginId:nestedPluginId:nestedOwnerRepo>",
     "  --expect-provider-command <providerId:command>",
     "  --expect-provider-receipt-state <providerId:state>",
     "  --expect-provider-handoff <providerId>",
@@ -548,6 +549,45 @@ function validateIndex(index, directory, expectations, errors) {
     }
     if (expectation.availability && requirement.availability !== expectation.availability) {
       errors.push(`providerPluginRequirementCoverage:${expectation.providerId}:${expectation.surfaceId}:${expectation.pluginId}:availability:expected ${expectation.availability} got ${requirement.availability || ""}`);
+    }
+  }
+  for (const expectation of expectations.independentNestedPlugins) {
+    const parentRequirement = providerPluginRequirementCoverage.find(candidate =>
+      candidate.providerId === expectation.providerId &&
+      candidate.surfaceId === expectation.surfaceId &&
+      candidate.pluginId === expectation.parentPluginId);
+    const nestedRequirement = providerPluginRequirementCoverage.find(candidate =>
+      candidate.providerId === expectation.providerId &&
+      candidate.surfaceId === expectation.surfaceId &&
+      candidate.pluginId === expectation.nestedPluginId);
+    if (!parentRequirement) {
+      errors.push(`independentNestedPlugin:${expectation.providerId}:${expectation.surfaceId}:${expectation.parentPluginId}:parent:missing`);
+      continue;
+    }
+    if (!nestedRequirement) {
+      errors.push(`independentNestedPlugin:${expectation.providerId}:${expectation.surfaceId}:${expectation.nestedPluginId}:nested:missing`);
+      continue;
+    }
+    if (parentRequirement.availability !== "required") {
+      errors.push(`independentNestedPlugin:${expectation.providerId}:${expectation.surfaceId}:${expectation.parentPluginId}:parent.availability:expected required got ${parentRequirement.availability || ""}`);
+    }
+    if (nestedRequirement.availability !== "optional-nested") {
+      errors.push(`independentNestedPlugin:${expectation.providerId}:${expectation.surfaceId}:${expectation.nestedPluginId}:nested.availability:expected optional-nested got ${nestedRequirement.availability || ""}`);
+    }
+    if (!["optional-satisfied", "optional-degraded"].includes(nestedRequirement.status)) {
+      errors.push(`independentNestedPlugin:${expectation.providerId}:${expectation.surfaceId}:${expectation.nestedPluginId}:nested.status:expected optional-satisfied or optional-degraded got ${nestedRequirement.status || ""}`);
+    }
+    if (nestedRequirement.pluginOwnerRepo !== expectation.nestedOwnerRepo) {
+      errors.push(`independentNestedPlugin:${expectation.providerId}:${expectation.surfaceId}:${expectation.nestedPluginId}:nested.pluginOwnerRepo:expected ${expectation.nestedOwnerRepo} got ${nestedRequirement.pluginOwnerRepo || ""}`);
+    }
+    if (nestedRequirement.pluginOwnerRepo === parentRequirement.pluginOwnerRepo) {
+      errors.push(`independentNestedPlugin:${expectation.providerId}:${expectation.surfaceId}:${expectation.nestedPluginId}:owner:expected owner distinct from parent ${parentRequirement.pluginOwnerRepo || ""}`);
+    }
+    if (Array.isArray(nestedRequirement.requiredCapabilities) && nestedRequirement.requiredCapabilities.length) {
+      errors.push(`independentNestedPlugin:${expectation.providerId}:${expectation.surfaceId}:${expectation.nestedPluginId}:requiredCapabilities:expected empty got ${nestedRequirement.requiredCapabilities.join(",")}`);
+    }
+    if (!Array.isArray(nestedRequirement.optionalCapabilities) || !nestedRequirement.optionalCapabilities.length) {
+      errors.push(`independentNestedPlugin:${expectation.providerId}:${expectation.surfaceId}:${expectation.nestedPluginId}:optionalCapabilities:missing`);
     }
   }
   for (const expectation of expectations.providerCommands) {
@@ -1270,6 +1310,7 @@ function parseArguments(args) {
     providerSurfaceFields: [],
     interactiveWorldSurfaces: [],
     providerPluginRequirements: [],
+    independentNestedPlugins: [],
     providerCommands: [],
     providerReceiptStates: [],
     providerHandoffs: [],
@@ -1332,6 +1373,7 @@ function parseArguments(args) {
     ["--expect-provider-surface-field", expectations.providerSurfaceFields],
     ["--expect-interactive-world-surface", expectations.interactiveWorldSurfaces],
     ["--expect-provider-plugin-requirement", expectations.providerPluginRequirements],
+    ["--expect-independent-nested-plugin", expectations.independentNestedPlugins],
     ["--expect-provider-command", expectations.providerCommands],
     ["--expect-provider-receipt-state", expectations.providerReceiptStates],
     ["--expect-provider-handoff", expectations.providerHandoffs],
@@ -1416,6 +1458,8 @@ function parseArguments(args) {
       target.push(parseInteractiveWorldSurfaceExpectation(value));
     } else if (option === "--expect-provider-plugin-requirement") {
       target.push(parseProviderPluginRequirementExpectation(value));
+    } else if (option === "--expect-independent-nested-plugin") {
+      target.push(parseIndependentNestedPluginExpectation(value));
     } else if (option === "--expect-provider-command") {
       target.push(parseProviderExpectation(value, "command"));
     } else if (option === "--expect-provider-receipt-state") {
@@ -1512,6 +1556,21 @@ function parseRuntimeCaptureProbeExpectation(value) {
     status: parts[1],
     contractArtifactKind: parts[2],
     captureOwnerRepo: parts[3],
+  };
+}
+
+function parseIndependentNestedPluginExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 5 || parts.some(part => !part)) {
+    console.error(`Expected independent nested plugin in <providerId:surfaceId:parentPluginId:nestedPluginId:nestedOwnerRepo> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    providerId: parts[0],
+    surfaceId: parts[1],
+    parentPluginId: parts[2],
+    nestedPluginId: parts[3],
+    nestedOwnerRepo: parts[4],
   };
 }
 
