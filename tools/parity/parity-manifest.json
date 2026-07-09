@@ -409,8 +409,9 @@
       "graduationTrigger": "Stays in Eve core as the minimal non-product interactive-world control fixture.",
       "schemaPath": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
       "advertisementPath": "web/fixtures/eve-world-smoke.provider-advertisement.json",
+      "scenarioPath": "web/fixtures/eve-world-smoke-scenario.json",
       "requiredFixtures": ["eve-world-smoke"],
-      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "eve.world_smoke.frame.v1"],
+      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "eve.world_smoke.frame.v1", "eve.world_smoke.command_receipt.v1"],
       "expectedSurfaces": ["eve.world-smoke.surface"],
       "expectedSurfaceKinds": {
         "eve.world-smoke.surface": "interactive-world"
@@ -418,7 +419,8 @@
       "expectedCommands": ["eve.world-smoke.commands"],
       "expectedPaths": [
         "web/fixtures/eve-world-smoke-surface.json",
-        "web/fixtures/eve-world-smoke-surface.conformance.json"
+        "web/fixtures/eve-world-smoke-surface.conformance.json",
+        "web/fixtures/eve-world-smoke-scenario.json"
       ]
     }
   ],

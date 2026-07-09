@@ -1002,6 +1002,11 @@ Recently cut:
   `web-reference`, `unity-uitoolkit`, `unity-scene`, `electron-shell`, and
   `tui` lower the same provider-owned world/command boundary without importing
   Aetheria product state.
+- That generic world fixture now has its own provider scenario at
+  `web/fixtures/eve-world-smoke-scenario.json`. The scenario advertises
+  accepted and denied command receipts through
+  `eve.world_smoke.command_receipt.v1`, so replay proof is no longer only an
+  Aetheria product concern.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
   project, lower, measure, and apply behavior. The parity harness validates
   those fixtures against plugin manifests, so Eve proves the ABI shape without

@@ -59,5 +59,13 @@
       "transport": "cultmesh",
       "summary": "Fixture command boundary for provider-owned world command intents."
     }
+  ],
+  "conformanceScenarios": [
+    {
+      "scenarioId": "eve-world-smoke-command-replay",
+      "schema": "gamecult.eve.provider_scenario.v1",
+      "path": "web/fixtures/eve-world-smoke-scenario.json",
+      "summary": "Minimal interactive world replay through provider advertisement, command intent, and provider-owned receipts."
+    }
   ]
 }

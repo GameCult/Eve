@@ -59,6 +59,7 @@ try {
     --expect-local-provider-catalog-advertisement web:eve-world-smoke.provider-advertisement.json `
     --expect-local-provider-catalog-advertisement web:repixelizer.provider-advertisement.json `
     --expect-local-provider-catalog-advertisement web:sai-vn.provider-advertisement.json `
+    --expect-scenario eve-world-smoke-command-replay `
     --expect-interactive-world-surface eve.world-smoke:eve.world-smoke.surface:web-reference:Eve `
     --expect-interactive-world-surface eve.world-smoke:eve.world-smoke.surface:unity-scene:Eve `
     --expect-interactive-world-surface eve.world-smoke:eve.world-smoke.surface:electron-shell:Eve `

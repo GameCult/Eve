@@ -1,0 +1,62 @@
+{
+  "schema": "gamecult.eve.provider_scenario.v1",
+  "scenarioId": "eve-world-smoke-command-replay",
+  "providerId": "eve.world-smoke",
+  "ownerRepo": "Eve",
+  "advertisementPath": "web/fixtures/eve-world-smoke.provider-advertisement.json",
+  "surfaceFixture": "eve-world-smoke",
+  "purpose": "Proves interactive-world command replay without depending on Aetheria product state.",
+  "requires": {
+    "fixtures": ["eve-world-smoke"],
+    "surfaces": ["eve.world-smoke.surface"],
+    "worldSurfaces": [
+      {
+        "surfaceId": "eve.world-smoke.surface",
+        "surfaceKind": "interactive-world",
+        "projectionKind": "provider-authored-world-surface",
+        "commandBoundary": "eve.world-smoke.commands",
+        "receiptSchema": "eve.world_smoke.command_receipt.v1"
+      }
+    ],
+    "commands": ["eve.world-smoke.commands"],
+    "schemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "eve.world_smoke.command_receipt.v1"]
+  },
+  "commandIntents": [
+    {
+      "command": "eve.world-smoke.commands",
+      "commandId": "eve.world-smoke.focus",
+      "operation": "focus_object",
+      "payload": {
+        "objectId": "Beacon"
+      }
+    },
+    {
+      "command": "eve.world-smoke.commands",
+      "commandId": "eve.world-smoke.reject-unknown",
+      "operation": "focus_object",
+      "payload": {
+        "objectId": "Unknown"
+      }
+    }
+  ],
+  "expectedReceipts": [
+    {
+      "receiptId": "eve.world-smoke.focus.accepted",
+      "command": "eve.world-smoke.commands",
+      "commandId": "eve.world-smoke.focus",
+      "state": "accepted",
+      "authority": "eve.world-smoke.provider",
+      "ownerRepo": "Eve",
+      "schema": "eve.world_smoke.command_receipt.v1"
+    },
+    {
+      "receiptId": "eve.world-smoke.reject-unknown.denied",
+      "command": "eve.world-smoke.commands",
+      "commandId": "eve.world-smoke.reject-unknown",
+      "state": "denied",
+      "authority": "eve.world-smoke.provider",
+      "ownerRepo": "Eve",
+      "schema": "eve.world_smoke.command_receipt.v1"
+    }
+  ]
+}
