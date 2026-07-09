@@ -20,6 +20,7 @@ try {
   & (Join-Path $PSScriptRoot "run-eveunity-split-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveunity-scene-split-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveelectron-split-handoff-smoke.ps1")
+  & (Join-Path $PSScriptRoot "run-eveelectron-lifecycle-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-conformance-consumer-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-plugin-owner-conformance-consumer-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-runtime-owner-conformance-consumer-smoke.ps1")

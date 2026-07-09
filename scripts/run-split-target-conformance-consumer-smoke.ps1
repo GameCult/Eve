@@ -55,6 +55,7 @@ try {
     --expect-split-target EveElectron `
     --expect-split-target-status EveElectron:incubating `
     --expect-split-target-proof "EveElectron:EveElectron split handoff is machine-readable" `
+    --expect-split-target-proof "EveElectron:EveElectron lifecycle contract is machine-readable" `
     --expect-split-target-blocker "EveElectron:runtime:electron-shell:status:pending" `
     --expect-split-target-blocker-record EveElectron:runtime-status:electron-shell `
     --expect-split-target-blocker-record EveElectron:runtime-feature:electron-shell:providerAdvertisements `

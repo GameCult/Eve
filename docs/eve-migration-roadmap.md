@@ -387,6 +387,13 @@ Recently cut:
   observed Aetheria Electron/client paths that must be replaced, the required
   Eve contract inputs, and the pending external proofs without treating
   Aetheria's product client as the generic Electron runtime.
+- EveElectron now has a pending runtime capability manifest at
+  `runtimes/incubating/eve-electron/eve-runtime-capability.json` and a
+  lifecycle smoke at `scripts/run-eveelectron-lifecycle-smoke.ps1`. The
+  manifest declares no supported runtime features or plugin projection yet; it
+  only types the pending command boundary, package release, provider-shell
+  smoke, and Electron window capture contracts so EveElectron can consume the
+  conformance export without pretending the generic shell already exists.
 - EveTui now has a pending split target and handoff at
   `runtimes/incubating/eve-tui/evetui-split-handoff.json`. It does not claim
   the advertised `tui` world-surface lowering target yet. The handoff draws the

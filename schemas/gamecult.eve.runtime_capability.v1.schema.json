@@ -286,7 +286,6 @@
                 "runnerKind",
                 "runnerScript",
                 "consumerProject",
-                "unityExeDefault",
                 "packageName",
                 "testAssembly",
                 "testPlatform",

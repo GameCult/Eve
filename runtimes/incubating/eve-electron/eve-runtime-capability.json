@@ -1,0 +1,108 @@
+{
+  "schema": "gamecult.eve.runtime_capability.v1",
+  "runtimeId": "electron-shell",
+  "title": "Electron shell",
+  "owner": "EveElectron",
+  "incubation": {
+    "ownerRepo": "EveElectron",
+    "currentHostRepo": "Eve",
+    "splitTarget": "EveElectron",
+    "graduationTrigger": "Split when Electron has a provider-agnostic shell body, provider advertisement consumption, command transport, packaged app lifecycle, and capture evidence independent of Aetheria product code.",
+    "splitHandoff": {
+      "manifestPath": "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
+      "smokeCommand": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-eveelectron-split-handoff-smoke.ps1"
+    }
+  },
+  "supportedFeatures": [],
+  "supportedPlugins": [],
+  "unsupportedPlugins": [
+    {
+      "pluginId": "sai.vn",
+      "reason": "Electron has no generic runtime body yet; Sai projection belongs behind provider/plugin advertisements once EveElectron exists."
+    },
+    {
+      "pluginId": "norn.graph",
+      "reason": "Electron has no generic runtime body yet; Norn graph projection belongs behind provider/plugin advertisements once EveElectron exists."
+    },
+    {
+      "pluginId": "tex.math",
+      "reason": "Electron has no generic runtime body yet; TeX projection belongs behind provider/plugin advertisements once EveElectron exists."
+    }
+  ],
+  "commandTransport": {
+    "schema": "gamecult.eve.command.v1",
+    "status": "pending-runtime-body",
+    "emitter": "EveElectronShell.EmitCommand",
+    "clientId": "electron-shell",
+    "authority": "Electron emits command intents through provider-advertised command boundaries; providers accept, deny, and publish receipts."
+  },
+  "lifecycle": {
+    "release": {
+      "ownerRepo": "EveElectron",
+      "status": "pending-electron-package",
+      "releaseContract": {
+        "ownerRepo": "EveElectron",
+        "packageName": "eve-electron",
+        "packageRoot": "runtimes/incubating/eve-electron",
+        "versionSource": "runtimes/incubating/eve-electron/eve-runtime-capability.json",
+        "tagPattern": "eveelectron-v{version}",
+        "artifactKind": "electron-app",
+        "publishProof": "Packaged Electron release is created from the EveElectron repo and references the provider-agnostic shell package root."
+      },
+      "evidencePaths": [
+        "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
+        "scripts/run-eveelectron-split-handoff-smoke.ps1"
+      ],
+      "pendingProofs": [
+        "Electron packaged app release is cut from EveElectron rather than Eve incubation."
+      ]
+    },
+    "test": {
+      "ownerRepo": "EveElectron",
+      "status": "pending-provider-advertisement-shell-smoke",
+      "testContract": {
+        "ownerRepo": "EveElectron",
+        "runnerKind": "electron-provider-shell-smoke",
+        "runnerScript": "scripts/run-eveelectron-provider-shell-smoke.ps1",
+        "consumerProject": "E:\\Projects\\Aetheria",
+        "packageName": "eve-electron",
+        "testAssembly": "EveElectron.ProviderShell",
+        "testPlatform": "Electron",
+        "resultsArtifact": "artifacts/eveelectron-provider-shell/{stamp}/provider-shell-results.json",
+        "logArtifact": "artifacts/eveelectron-provider-shell/{stamp}/provider-shell.log",
+        "manifestMutation": "None; the shell consumes provider advertisements and must not mutate provider product manifests."
+      },
+      "evidencePaths": [
+        "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
+        "scripts/run-eveelectron-split-handoff-smoke.ps1"
+      ],
+      "pendingProofs": [
+        "Electron provider-advertisement shell smoke runs from EveElectron without importing Aetheria source layout."
+      ]
+    },
+    "capture": {
+      "ownerRepo": "EveElectron",
+      "status": "pending-electron-window-capture",
+      "captureContract": {
+        "ownerRepo": "EveElectron",
+        "runtimeId": "electron-shell",
+        "captureKind": "electron-window-png",
+        "artifactKind": "png",
+        "artifactPattern": "artifacts/eveelectron-capture/{stamp}/electron-shell.png",
+        "conformanceAttachment": "runtime.captureArtifacts[]",
+        "requiredProvider": "aetheria",
+        "requiredSurface": "aetheria.daemon.game",
+        "authority": "Capture observes Electron projection only; provider state, command acceptance, and receipts stay provider-owned.",
+        "publishProof": "Electron window capture artifact is attached to the runtime conformance report from EveElectron."
+      },
+      "evidencePaths": [],
+      "pendingProofs": [
+        "Electron window capture artifact is attached to the runtime conformance report."
+      ]
+    }
+  },
+  "capture": {
+    "status": "missing",
+    "note": "Electron capture is a split blocker until EveElectron owns a provider-agnostic shell."
+  }
+}

@@ -37,12 +37,14 @@ node $consumerScript $consumerExport `
   --expect-runtime linux-flutter `
   --expect-runtime android-flutter `
   --expect-runtime unity-uitoolkit `
+  --expect-runtime electron-shell `
   --expect-runtime direct2d `
   --expect-runtime-status web:active `
   --expect-runtime-status windows-flutter:active `
   --expect-runtime-status linux-flutter:active `
   --expect-runtime-status android-flutter:active `
   --expect-runtime-status unity-uitoolkit:active `
+  --expect-runtime-status electron-shell:pending `
   --expect-runtime-status direct2d:external-adapter-spike `
   --expect-runtime-feature web:providerAdvertisements `
   --expect-runtime-feature windows-flutter:embeddedDocuments `
@@ -80,6 +82,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-status linux-flutter:ssh-golden `
   --expect-runtime-capture-status android-flutter:adb-png `
   --expect-runtime-capture-status unity-uitoolkit:semantic `
+  --expect-runtime-capture-status electron-shell:missing `
   --expect-runtime-capture-status direct2d:missing `
   --expect-runtime-lifecycle-status unity-uitoolkit:release:incubating-upm-package `
   --expect-runtime-lifecycle-status unity-uitoolkit:test:batchmode-editmode-tests-and-consumer-build-smoke `
@@ -100,7 +103,18 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.artifactKind:png" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.conformanceAttachment:runtime.captureArtifacts[]" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredProvider:aetheria" `
-  --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredSurface:aetheria.daemon.game"
+  --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredSurface:aetheria.daemon.game" `
+  --expect-runtime-lifecycle-status electron-shell:release:pending-electron-package `
+  --expect-runtime-lifecycle-status electron-shell:test:pending-provider-advertisement-shell-smoke `
+  --expect-runtime-lifecycle-status electron-shell:capture:pending-electron-window-capture `
+  --expect-runtime-lifecycle-pending "electron-shell:release:Electron packaged app release" `
+  --expect-runtime-lifecycle-pending "electron-shell:test:Electron provider-advertisement shell smoke" `
+  --expect-runtime-lifecycle-pending "electron-shell:capture:Electron window capture artifact" `
+  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.artifactKind:electron-app" `
+  --expect-runtime-lifecycle-field "electron-shell:test:testContract.runnerKind:electron-provider-shell-smoke" `
+  --expect-runtime-lifecycle-field "electron-shell:test:testContract.runnerScript:scripts/run-eveelectron-provider-shell-smoke.ps1" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.captureKind:electron-window-png" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requiredSurface:aetheria.daemon.game"
 
 if ($LASTEXITCODE -ne 0) {
   throw "Runtime owner conformance consumer smoke failed with exit code $LASTEXITCODE"
