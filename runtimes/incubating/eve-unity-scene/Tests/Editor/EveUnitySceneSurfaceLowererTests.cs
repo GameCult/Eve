@@ -423,7 +423,7 @@ namespace GameCult.Eve.UnityScene.Tests
                 var bootstrap = hostObject.AddComponent<EveUnityPlayableWorldClientBootstrap>();
                 bootstrap.ConfigureProvider(provider);
 
-                hostObject.SetActive(true);
+                bootstrap.Mount();
 
                 Assert.That(bootstrap.Host, Is.Not.Null);
                 Assert.That(bootstrap.Host!.ActiveWorld, Is.Not.Null);

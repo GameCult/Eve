@@ -236,10 +236,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.providerId:aetheria" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.surfaceId:aetheria.daemon.editor" `
   --expect-runtime-lifecycle-status unity-scene:release:unity-scene-upm-artifact-smoke `
-  --expect-runtime-lifecycle-status unity-scene:test:provider-shell-contract-skeleton `
+  --expect-runtime-lifecycle-status unity-scene:test:unity-scene-editmode-batchmode `
   --expect-runtime-lifecycle-status unity-scene:capture:pending-unity-scene-capture `
   --expect-runtime-lifecycle-pending "unity-scene:release:Unity scene package release" `
-  --expect-runtime-lifecycle-pending "unity-scene:test:Unity scene provider-advertisement smoke" `
+  --expect-runtime-lifecycle-pending "unity-scene:test:Unity scene EditMode runner" `
   --expect-runtime-lifecycle-pending "unity-scene:capture:Unity scene screenshot or frame-capture PNG artifact" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.packageName:org.gamecult.eve.unity-scene" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactKind:upm-package" `
@@ -252,8 +252,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requiredPackageDependencies.0.packageName:org.gamecult.eve.surface" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requiredPackageDependencies.0.ownerRepo:Eve" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requiredPackageDependencies.0.packageManager:upm" `
-  --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerKind:unity-scene-provider-shell-smoke" `
-  --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerScript:scripts/run-eveunity-scene-provider-shell-smoke.ps1" `
+  --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerKind:unity-editmode-batchmode" `
+  --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerScript:scripts/run-aetheria-unity-scene-editmode-tests.ps1" `
+  --expect-runtime-lifecycle-field "unity-scene:test:testContract.testPlatform:EditMode" `
+  --expect-runtime-lifecycle-field "unity-scene:test:testContract.testAssembly:GameCult.Eve.UnityScene.Tests" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.captureKind:unity-scene-frame-png" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.targetId:unity-scene" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `

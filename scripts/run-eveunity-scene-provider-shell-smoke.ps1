@@ -20,7 +20,7 @@ $manifest = Get-Content -LiteralPath $absoluteManifestPath -Raw | ConvertFrom-Js
 if ($manifest.runtimeId -ne "unity-scene") {
   throw "Unexpected EveUnity scene runtime id: $($manifest.runtimeId)"
 }
-if ($manifest.lifecycle.test.status -ne "provider-shell-contract-skeleton") {
+if ($manifest.lifecycle.test.status -ne "unity-scene-editmode-batchmode") {
   throw "Unexpected EveUnity scene provider shell status: $($manifest.lifecycle.test.status)"
 }
 

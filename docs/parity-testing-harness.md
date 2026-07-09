@@ -425,6 +425,17 @@ The exported runtime lifecycle records that runner contract so EveUnity can
 inherit the Unity-specific test proof without making Eve responsible for
 CultLib package distribution.
 
+Unity scene EditMode test smoke:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-aetheria-unity-scene-editmode-tests.ps1
+```
+
+That wrapper uses the same manifest-restore runner, but selects
+`org.gamecult.eve.unity-scene` and `GameCult.Eve.UnityScene.Tests`. It proves
+the generic playable-world Unity client body through the Aetheria consumer
+project while keeping Aetheria as provider authority.
+
 Unity runtime lifecycle evidence:
 
 `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`

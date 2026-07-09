@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using GameCult.Eve.Surface;
 using UnityEngine;
 
@@ -172,15 +173,16 @@ namespace GameCult.Eve.UnityScene
 
         private void RefreshProviderSources()
         {
-            RefreshProvider(providerSurfaceDocuments);
-            RefreshProvider(assetManifestDocuments);
-            RefreshProvider(receiptSource);
-            RefreshProvider(commandSink);
+            var refreshed = new HashSet<MonoBehaviour>();
+            RefreshProvider(providerSurfaceDocuments, refreshed);
+            RefreshProvider(assetManifestDocuments, refreshed);
+            RefreshProvider(receiptSource, refreshed);
+            RefreshProvider(commandSink, refreshed);
         }
 
-        private static void RefreshProvider(MonoBehaviour? behaviour)
+        private static void RefreshProvider(MonoBehaviour? behaviour, ISet<MonoBehaviour> refreshed)
         {
-            if (behaviour is IEveUnityProviderRefreshSource refreshSource)
+            if (behaviour is IEveUnityProviderRefreshSource refreshSource && refreshed.Add(behaviour))
                 refreshSource.Refresh();
         }
 

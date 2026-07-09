@@ -131,6 +131,7 @@ namespace GameCult.Eve.UnityScene
             }
 
             var cameraObject = new GameObject("Eve Unity Playable World Camera");
+            cameraObject.transform.SetParent(transform, false);
             cameraObject.AddComponent<Camera>();
             cameraTransform = cameraObject.transform;
             return cameraTransform;

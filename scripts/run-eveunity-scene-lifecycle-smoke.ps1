@@ -1,5 +1,6 @@
 param(
-  [string] $CapabilityManifestPath = "runtimes\incubating\eve-unity-scene\eve-runtime-capability.json"
+  [string] $CapabilityManifestPath = "runtimes\incubating\eve-unity-scene\eve-runtime-capability.json",
+  [switch] $RunUnityEditMode
 )
 
 $ErrorActionPreference = "Stop"
@@ -39,7 +40,7 @@ if ($manifest.incubation.splitHandoff.manifestPath -ne "runtimes/incubating/eve-
   throw "EveUnity scene manifest missing split handoff path"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "sceneGraphProjection", "playableWorldProjection", "playableWorldRuntimeHost", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "providerAssetManifestSource", "embeddedDocuments")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "playableWorldClientHost", "playableWorldClientBootstrap", "playableWorldInputDriver", "playableWorldCameraRig", "sceneGraphProjection", "playableWorldProjection", "playableWorldRuntimeHost", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "providerAssetManifestSource", "embeddedDocuments")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveUnity scene manifest missing provider-shell feature: $feature"
   }
@@ -182,6 +183,18 @@ foreach ($field in @("ownerRepo", "runnerKind", "runnerScript", "consumerProject
     throw "EveUnity scene test contract missing $field"
   }
 }
+if ($testContract.runnerKind -ne "unity-editmode-batchmode") {
+  throw "EveUnity scene test contract has unexpected runner kind: $($testContract.runnerKind)"
+}
+if ($testContract.packageName -ne "org.gamecult.eve.unity-scene") {
+  throw "EveUnity scene test contract has unexpected package name: $($testContract.packageName)"
+}
+if ($testContract.testAssembly -ne "GameCult.Eve.UnityScene.Tests") {
+  throw "EveUnity scene test contract has unexpected test assembly: $($testContract.testAssembly)"
+}
+if ($testContract.testPlatform -ne "EditMode") {
+  throw "EveUnity scene test contract has unexpected test platform: $($testContract.testPlatform)"
+}
 foreach ($pathProperty in @("runnerScript", "consumerProject")) {
   $candidate = $testContract.$pathProperty
   $absolutePath = if ([System.IO.Path]::IsPathRooted($candidate)) {
@@ -191,6 +204,12 @@ foreach ($pathProperty in @("runnerScript", "consumerProject")) {
   }
   if (-not (Test-Path -LiteralPath $absolutePath)) {
     throw "EveUnity scene test contract $pathProperty does not exist: $candidate"
+  }
+}
+$runnerSource = Get-Content -LiteralPath (Join-Path $projectRoot $testContract.runnerScript) -Raw
+foreach ($expectedText in @($testContract.packageName, $testContract.testAssembly, "run-aetheria-unity-editmode-tests.ps1")) {
+  if (-not $runnerSource.Contains($expectedText)) {
+    throw "EveUnity scene test runner script missing expected text: $expectedText"
   }
 }
 
@@ -226,5 +245,12 @@ foreach ($pathProperty in @("requestBuilder", "advertisementPath")) {
 & (Join-Path $projectRoot "scripts\run-eveunity-scene-release-artifact-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-eveunity-scene-capture-contract-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-eveunity-scene-capture-smoke.ps1")
+
+if ($RunUnityEditMode) {
+  & (Join-Path $projectRoot "scripts\run-aetheria-unity-scene-editmode-tests.ps1")
+  if ($LASTEXITCODE -ne 0) {
+    throw "Aetheria Unity scene EditMode smoke failed with exit code $LASTEXITCODE"
+  }
+}
 
 Write-Host "EveUnity scene lifecycle smoke passed: $absoluteManifestPath"

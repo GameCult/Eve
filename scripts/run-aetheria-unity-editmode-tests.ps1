@@ -1,7 +1,9 @@
 param(
   [string] $AetheriaRoot = "E:\Projects\Aetheria",
   [string] $UnityExe = "C:\Program Files\Unity\Hub\Editor\6000.4.2f1\Editor\Unity.exe",
-  [string] $OutputRoot = ""
+  [string] $OutputRoot = "",
+  [string] $PackageName = "org.gamecult.eve.unity-uitoolkit",
+  [string] $TestAssembly = "GameCult.Eve.UnityUIToolkit.Tests"
 )
 
 $ErrorActionPreference = "Stop"
@@ -9,6 +11,12 @@ $ErrorActionPreference = "Stop"
 $eveRoot = Split-Path -Parent $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($OutputRoot)) {
   $OutputRoot = Join-Path $eveRoot "artifacts\aetheria-unity-editmode"
+}
+if ([string]::IsNullOrWhiteSpace($PackageName)) {
+  throw "Unity EditMode package name must not be empty"
+}
+if ([string]::IsNullOrWhiteSpace($TestAssembly)) {
+  throw "Unity EditMode test assembly must not be empty"
 }
 
 if (-not (Test-Path -LiteralPath $AetheriaRoot)) {
@@ -29,7 +37,6 @@ New-Item -ItemType Directory -Force -Path $runRoot | Out-Null
 
 $resultsPath = Join-Path $runRoot "unity-editmode-results.xml"
 $logPath = Join-Path $runRoot "unity-editmode.log"
-$packageName = "org.gamecult.eve.unity-uitoolkit"
 
 $originalManifest = Get-Content -Raw -LiteralPath $manifestPath
 $manifestRestored = $false
@@ -43,9 +50,12 @@ function Restore-Manifest {
 
 try {
   $manifest = $originalManifest | ConvertFrom-Json
-  $testables = @($manifest.testables)
-  if ($testables -notcontains $packageName) {
-    $testables += $packageName
+  $testables = @()
+  if ($null -ne $manifest.testables) {
+    $testables = @($manifest.testables) | Where-Object { $null -ne $_ -and -not [string]::IsNullOrWhiteSpace([string] $_) }
+  }
+  if ($testables -notcontains $PackageName) {
+    $testables += $PackageName
     if ($manifest.PSObject.Properties.Name -contains "testables") {
       $manifest.testables = $testables
     } else {
@@ -59,7 +69,7 @@ try {
     "-projectPath", $AetheriaRoot,
     "-runTests",
     "-testPlatform", "EditMode",
-    "-assemblyNames", "GameCult.Eve.UnityUIToolkit.Tests",
+    "-assemblyNames", $TestAssembly,
     "-testResults", $resultsPath,
     "-logFile", $logPath
   )
@@ -94,6 +104,6 @@ if ($failed -gt 0) {
   throw "Unity EditMode tests failed: $failed failed, $passed passed, $total total. Results: $resultsPath"
 }
 
-Write-Host "Unity EditMode tests passed: $passed passed, $total total"
+Write-Host "Unity EditMode tests passed for ${TestAssembly}: $passed passed, $total total"
 Write-Host "Unity EditMode results: $resultsPath"
 Write-Host "Unity EditMode log: $logPath"

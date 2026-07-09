@@ -550,16 +550,20 @@ Recently cut:
   `interactiveWorldSurfaces[]` records. The Aetheria consumer smoke asserts the
   advertised web, Unity UI Toolkit, and Unity scene lowering targets without
   importing Aetheria or Eve internals.
-- EveUnity test lifecycle now carries a structured Unity EditMode runner
-  contract. `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
-  names the runner script, consumer Unity project, default Unity editor path,
-  package name, test assembly, platform, result artifacts, and temporary
-  `testables` manifest mutation. The lifecycle smoke validates the runner
-  script and Aetheria project, parity compares the contract against the ledger,
-  and the runtime-owner consumer smoke asserts exported test fields. This is
-  Unity package consumption proof for CultLib-produced assemblies; the test
-  contract names those CultLib-owned NuGet/precompiled assembly inputs
-  explicitly. CultLib remains the owner of the .NET/NuGet dependency story.
+- EveUnity test lifecycle now carries structured Unity EditMode runner
+  contracts. `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
+  and `runtimes/incubating/eve-unity-scene/eve-runtime-capability.json` name
+  runner scripts, the Aetheria consumer Unity project, package names, test
+  assemblies, platform, result artifacts, and temporary `testables` manifest
+  mutation. The shared runner restores Aetheria's `Packages/manifest.json`
+  after each run, while `scripts/run-aetheria-unity-scene-editmode-tests.ps1`
+  selects `org.gamecult.eve.unity-scene` and
+  `GameCult.Eve.UnityScene.Tests`. Lifecycle smokes validate the runner scripts
+  and Aetheria project, parity compares the contracts against the ledger, and
+  runtime-owner consumer smoke asserts exported test fields. UI Toolkit still
+  carries the CultLib-managed precompiled assembly dependency proof; Unity
+  Scene now carries a generic playable-world EditMode proof through the real
+  Aetheria consumer project.
 - EveUnity release lifecycle now carries a structured UPM release contract.
   `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
   names the package root, version source, tag pattern, artifact kind, and
@@ -973,6 +977,15 @@ Recently cut:
   resolves those assemblies after it leaves Eve incubation, not inventing a
   dependency system for CultLib. This proves the incubating test lifecycle; it
   does not make Eve own Unity's final runtime lifecycle.
+- Aetheria now has the same repeatable Unity EditMode evidence for the
+  EveUnity scene runtime. `scripts/run-aetheria-unity-scene-editmode-tests.ps1`
+  temporarily adds `org.gamecult.eve.unity-scene` to Aetheria's Unity
+  `testables`, runs `GameCult.Eve.UnityScene.Tests`, writes XML and log
+  artifacts under `artifacts/aetheria-unity-scene-editmode`, and restores
+  `Packages/manifest.json`. This proves the generic playable-world host,
+  bootstrap, input, camera, scene sink, and command-envelope tests compile and
+  run through the Aetheria consumer project without making the Unity client
+  Aetheria-specific.
 - Aetheria now has repeatable Unity package consumer-build evidence for the
   Eve UI Toolkit runtime. `scripts/run-aetheria-unity-package-smoke.ps1`
   verifies Aetheria's Unity `Packages/manifest.json` consumes Eve's surface and
