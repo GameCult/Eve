@@ -101,6 +101,12 @@ foreach ($handoffPath in $HandoffPaths) {
   }
 
   $operations = @($abiFixture.operations | ForEach-Object { $_.operation })
+  if ($abiFixture.requestSchema -ne $manifest.runtime.sidecar.requestSchema) {
+    throw "Plugin handoff $($handoff.pluginId) ABI fixture request schema does not match sidecar: $($abiFixture.requestSchema)"
+  }
+  if ($abiFixture.responseSchema -ne $manifest.runtime.sidecar.responseSchema) {
+    throw "Plugin handoff $($handoff.pluginId) ABI fixture response schema does not match sidecar: $($abiFixture.responseSchema)"
+  }
   foreach ($operation in @("describe", "validate", "project", "lower", "measure", "apply")) {
     if (-not ($operations -contains $operation)) {
       throw "Plugin handoff $($handoff.pluginId) ABI fixture missing operation: $operation"
@@ -132,6 +138,8 @@ foreach ($handoffPath in $HandoffPaths) {
     "gamecult.eve.plugin.v1",
     "gamecult.eve.plugin_advertisement.v1",
     "gamecult.eve.plugin_abi.v1",
+    "gamecult.eve.plugin_abi.request.v1",
+    "gamecult.eve.plugin_abi.response.v1",
     "gamecult.eve.plugin_abi_fixture.v1",
     "gamecult.eve.conformance_export.v1"
   )) {

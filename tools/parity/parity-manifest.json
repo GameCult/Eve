@@ -11,6 +11,8 @@
     "gamecult.eve.conformance_export.v1": "schemas/gamecult.eve.conformance_export.v1.schema.json",
     "gamecult.eve.command.v1": "schemas/gamecult.eve.command.v1.schema.json",
     "gamecult.eve.plugin.v1": "schemas/gamecult.eve.plugin.v1.schema.json",
+    "gamecult.eve.plugin_abi.request.v1": "schemas/gamecult.eve.plugin_abi.request.v1.schema.json",
+    "gamecult.eve.plugin_abi.response.v1": "schemas/gamecult.eve.plugin_abi.response.v1.schema.json",
     "gamecult.eve.plugin_abi_fixture.v1": "schemas/gamecult.eve.plugin_abi_fixture.v1.schema.json",
     "gamecult.eve.plugin_advertisement.v1": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
     "gamecult.eve.runtime_capability.v1": "schemas/gamecult.eve.runtime_capability.v1.schema.json",

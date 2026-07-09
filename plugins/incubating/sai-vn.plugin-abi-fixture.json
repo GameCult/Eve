@@ -4,6 +4,8 @@
   "pluginId": "sai.vn",
   "ownerRepo": "Sai",
   "contract": "gamecult.eve.plugin_abi.v1",
+  "requestSchema": "gamecult.eve.plugin_abi.request.v1",
+  "responseSchema": "gamecult.eve.plugin_abi.response.v1",
   "sourceFixture": "sai-vn",
   "operations": [
     {

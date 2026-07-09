@@ -604,6 +604,11 @@ function validatePluginRuntimeBoundary(plugin, runtimeBoundary) {
   errors.push(...missingMembers(expectedRuntime.authority || [], runtimeBoundary.advertisementAuthority || [], "runtime.advertisementAuthority"));
   errors.push(...comparePluginSidecar(expectedRuntime.sidecar || {}, runtimeBoundary.sidecar || {}, "runtime.sidecar"));
   errors.push(...comparePluginSidecar(runtimeBoundary.sidecar || {}, runtimeBoundary.advertisementSidecar || {}, "runtime.advertisementSidecar"));
+  for (const schemaId of [runtimeBoundary.sidecar?.requestSchema, runtimeBoundary.sidecar?.responseSchema].filter(Boolean)) {
+    if (!manifest.schemas?.[schemaId]) {
+      errors.push(`runtime.sidecar.schemaCatalog:${schemaId}:missing`);
+    }
+  }
   return errors;
 }
 
@@ -925,6 +930,17 @@ async function validatePluginAbiFixture(plugin) {
     }
     if (abiFixture.contract !== "gamecult.eve.plugin_abi.v1") {
       errors.push(`${plugin.abiFixturePath}:contract:expected gamecult.eve.plugin_abi.v1 got ${abiFixture.contract}`);
+    }
+    if (abiFixture.requestSchema !== pluginManifest.runtime?.sidecar?.requestSchema) {
+      errors.push(`${plugin.abiFixturePath}:requestSchema:expected ${pluginManifest.runtime?.sidecar?.requestSchema || ""} got ${abiFixture.requestSchema || ""}`);
+    }
+    if (abiFixture.responseSchema !== pluginManifest.runtime?.sidecar?.responseSchema) {
+      errors.push(`${plugin.abiFixturePath}:responseSchema:expected ${pluginManifest.runtime?.sidecar?.responseSchema || ""} got ${abiFixture.responseSchema || ""}`);
+    }
+    for (const schemaId of [abiFixture.requestSchema, abiFixture.responseSchema].filter(Boolean)) {
+      if (!manifest.schemas?.[schemaId]) {
+        errors.push(`${plugin.abiFixturePath}:schemaCatalog:${schemaId}:missing`);
+      }
     }
 
     for (const operation of ["describe", "validate", "project", "lower", "measure", "apply"]) {

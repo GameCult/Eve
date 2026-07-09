@@ -4,6 +4,8 @@
   "pluginId": "tex.math",
   "ownerRepo": "EvePlugins",
   "contract": "gamecult.eve.plugin_abi.v1",
+  "requestSchema": "gamecult.eve.plugin_abi.request.v1",
+  "responseSchema": "gamecult.eve.plugin_abi.response.v1",
   "sourceFixture": "sai-vn",
   "sourceFixtureRole": "optional-nested-placement-evidence",
   "authority": "EvePlugins owns TeX semantics independently; the Sai fixture only proves a provider surface can nest embed.tex when tex.math is available.",

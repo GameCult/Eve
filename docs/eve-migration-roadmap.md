@@ -819,6 +819,12 @@ Recently cut:
   project, lower, measure, and apply behavior. The parity harness validates
   those fixtures against plugin manifests, so Eve proves the ABI shape without
   owning plugin semantics.
+- Plugin sidecar request/response schema names are now backed by Eve contract
+  documents. `gamecult.eve.plugin_abi.request.v1` and
+  `gamecult.eve.plugin_abi.response.v1` live under `schemas/`; Sai, Norn, and
+  TeX ABI fixtures must name those same schemas, and parity fails if a sidecar
+  advertises a request/response schema that is missing from the contract
+  catalog.
 - Split-readiness reporting now exists for `EveFlutter` and `EveUnity`. The
   parity report lists member runtime health, required plugin capability claims,
   pending proofs, and blockers before either repo can graduate out of Eve

@@ -171,10 +171,13 @@ assets. It cannot decide whether a provider command is allowed, cannot persist
 app truth, and cannot write receipts except for its own runtime diagnostics.
 
 The incubating sidecar contract is checked in three places: the plugin manifest,
-the plugin advertisement, and the ABI fixture. The parity harness compares
-manifest and advertisement `runtime.sidecar` fields, verifies that sidecar
-operations cover the ABI fixture operations, and exports the sidecar boundary
-through the conformance pack for Sai, Norn, and EvePlugins to consume.
+the plugin advertisement, and the ABI fixture. The manifest and advertisement
+name `gamecult.eve.plugin_abi.request.v1` and
+`gamecult.eve.plugin_abi.response.v1`; the ABI fixture must name the same wire
+schemas. The parity harness compares manifest and advertisement
+`runtime.sidecar` fields, verifies that sidecar operations cover the ABI fixture
+operations, and exports the sidecar boundary through the conformance pack for
+Sai, Norn, and EvePlugins to consume.
 
 Example ABI request:
 

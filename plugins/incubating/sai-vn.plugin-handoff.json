@@ -33,6 +33,8 @@
     "gamecult.eve.plugin.v1",
     "gamecult.eve.plugin_advertisement.v1",
     "gamecult.eve.plugin_abi.v1",
+    "gamecult.eve.plugin_abi.request.v1",
+    "gamecult.eve.plugin_abi.response.v1",
     "gamecult.eve.plugin_abi_fixture.v1",
     "gamecult.eve.conformance_export.v1"
   ],

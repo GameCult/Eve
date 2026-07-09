@@ -9,6 +9,8 @@
     "pluginId",
     "ownerRepo",
     "contract",
+    "requestSchema",
+    "responseSchema",
     "operations"
   ],
   "properties": {
@@ -28,6 +30,14 @@
       "minLength": 1
     },
     "contract": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requestSchema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "responseSchema": {
       "type": "string",
       "minLength": 1
     },
