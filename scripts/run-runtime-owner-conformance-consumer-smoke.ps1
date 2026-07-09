@@ -48,6 +48,12 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature windows-flutter:embeddedDocuments `
   --expect-runtime-feature unity-uitoolkit:embeddedDocuments `
   --expect-runtime-feature direct2d:embeddedDocuments `
+  --expect-runtime-world-target web:web-reference `
+  --expect-runtime-world-field web:web-reference:supportLevel:reference-dom-canvas-command-boundary `
+  --expect-runtime-world-field web:web-reference:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
+  --expect-runtime-world-target unity-uitoolkit:unity-uitoolkit `
+  --expect-runtime-world-field unity-uitoolkit:unity-uitoolkit:supportLevel:ui-toolkit-semantic-command-surface `
+  --expect-runtime-world-field unity-uitoolkit:unity-uitoolkit:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
   --expect-runtime-handoff unity-uitoolkit `
   --expect-runtime-command-schema web:gamecult.eve.command.v1 `
   --expect-runtime-command-schema windows-flutter:gamecult.eve.command.v1 `

@@ -124,6 +124,55 @@
       },
       "additionalProperties": true
     },
+    "worldSurfaceLowering": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "targetId",
+          "surfaceKinds",
+          "projectionKinds",
+          "supportLevel",
+          "ownership"
+        ],
+        "properties": {
+          "targetId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceKinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "projectionKinds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "supportLevel": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownership": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidencePaths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "lifecycle": {
       "type": "object",
       "required": [

@@ -345,6 +345,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
     supportedPlugins,
     unsupportedPlugins: runtime.unsupportedPlugins || [],
     unsupportedPluginNotes,
+    worldSurfaceLowering: runtime.worldSurfaceLowering || [],
     missingRequiredFeatures,
     commandTransportSmoke: runtime.commandTransportSmoke || null,
     commandTransportSmokeErrors,
@@ -1134,6 +1135,7 @@ async function validateRuntimeCapabilityManifest(runtime) {
   const supportedFeatures = document.supportedFeatures || [];
   const supportedPlugins = document.supportedPlugins || [];
   const unsupportedPlugins = document.unsupportedPlugins || [];
+  const worldSurfaceLowering = document.worldSurfaceLowering || [];
   const commandTransport = document.commandTransport || {};
   const lifecycle = document.lifecycle || {};
 
@@ -1147,6 +1149,11 @@ async function validateRuntimeCapabilityManifest(runtime) {
     runtime.unsupportedPlugins || [],
     unsupportedPlugins,
     `${capabilityManifest.manifestPath}:unsupportedPlugins`,
+  ));
+  errors.push(...compareWorldSurfaceLoweringClaims(
+    runtime.worldSurfaceLowering || [],
+    worldSurfaceLowering,
+    `${capabilityManifest.manifestPath}:worldSurfaceLowering`,
   ));
 
   const expectedCommandSchema = runtime.commandTransportSmoke?.schema || "";
@@ -1172,6 +1179,32 @@ async function validateRuntimeCapabilityManifest(runtime) {
     capabilityManifest.manifestPath,
   ));
 
+  return errors;
+}
+
+function compareWorldSurfaceLoweringClaims(expectedClaims, actualClaims, label) {
+  const errors = [];
+  const actualByTarget = new Map((actualClaims || []).map(claim => [claim.targetId, claim]));
+  for (const expected of expectedClaims || []) {
+    const actual = actualByTarget.get(expected.targetId);
+    if (!actual) {
+      errors.push(`${label}:${expected.targetId}:missing`);
+      continue;
+    }
+    for (const key of ["supportLevel", "ownership"]) {
+      if ((expected[key] || "") !== (actual[key] || "")) {
+        errors.push(`${label}:${expected.targetId}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
+      }
+    }
+    errors.push(...missingMembers(expected.surfaceKinds || [], actual.surfaceKinds || [], `${label}:${expected.targetId}.surfaceKinds`));
+    errors.push(...missingMembers(expected.projectionKinds || [], actual.projectionKinds || [], `${label}:${expected.targetId}.projectionKinds`));
+    errors.push(...missingMembers(expected.evidencePaths || [], actual.evidencePaths || [], `${label}:${expected.targetId}.evidencePaths`));
+    for (const evidencePath of actual.evidencePaths || []) {
+      if (!existsSync(path.join(repoRoot, evidencePath))) {
+        errors.push(`${label}:${expected.targetId}.evidencePath:${evidencePath}:missing`);
+      }
+    }
+  }
   return errors;
 }
 
@@ -1516,6 +1549,7 @@ function buildConformanceExport(report) {
           supportedFeatures: runtime.supportedFeatures,
           supportedPlugins: runtime.supportedPlugins,
           unsupportedPlugins: runtime.unsupportedPlugins,
+          worldSurfaceLowering: runtime.worldSurfaceLowering,
           requiredFixtures: runtime.requiredFixtures,
           pluginFixtures: runtime.pluginFixtures,
           capabilityManifestPath: runtime.capabilityManifest?.manifestPath || "",
@@ -1600,6 +1634,7 @@ function buildConformanceExport(report) {
       commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
       captureStatus: runtime.capture?.status || "",
       lifecycle: runtime.lifecycle,
+      worldSurfaceLowering: runtime.worldSurfaceLowering || [],
     })),
     splitTargets: report.splitTargets || [],
   };
@@ -1647,6 +1682,7 @@ function buildCapabilityMatrix(report) {
     supportedFeatures: runtime.supportedFeatures || [],
     supportedPlugins: runtime.supportedPlugins || [],
     unsupportedPlugins: runtime.unsupportedPlugins || [],
+    worldSurfaceLowering: runtime.worldSurfaceLowering || [],
     commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
     captureStatus: runtime.capture?.status || "",
     splitHandoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
@@ -1774,6 +1810,28 @@ function collectCapabilityGaps(report) {
         gap: `unsupported-plugin:${note}`,
         severity: "declared-gap",
       });
+    }
+  }
+
+  const worldLoweringTargets = new Set();
+  for (const runtime of report.runtimes || []) {
+    for (const claim of runtime.worldSurfaceLowering || []) {
+      if (claim.targetId) worldLoweringTargets.add(claim.targetId);
+    }
+  }
+  for (const provider of report.providers || []) {
+    for (const surface of provider.surfaceContracts || []) {
+      for (const targetId of surface.worldInteraction?.loweringTargets || []) {
+        if (!worldLoweringTargets.has(targetId)) {
+          addGap({
+            kind: "runtime",
+            ownerRepo: "Eve",
+            subjectId: "world-surface-lowering",
+            gap: `provider:${provider.providerId}:surface:${surface.surfaceId}:world-lowering-target:${targetId}:missing-runtime`,
+            severity: "blocker",
+          });
+        }
+      }
     }
   }
 

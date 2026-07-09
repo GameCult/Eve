@@ -280,6 +280,16 @@ Exit criteria:
 
 Recently cut:
 
+- Runtime capability manifests now declare world-surface lowering targets.
+  `web/eve-runtime-capability.json` claims `web-reference`, and
+  `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
+  claims `unity-uitoolkit`, each with supported world surface kinds,
+  projection kinds, support level, evidence paths, and the rule that runtimes
+  lower provider-owned world state without owning it. Parity compares those
+  claims against the ledger, exports them through runtime records and
+  `packs/runtime.json`, the runtime-owner smoke asserts them, and the generic
+  conformance smoke now reports the advertised but unclaimed `unity-scene`
+  lowering target as an explicit capability gap.
 - Aetheria interactive world surfaces now carry a structured provider-owned
   `worldInteraction` contract. The provider advertisement names projection
   kind, provider state schemas, daemon command boundary, receipt schema,

@@ -34,6 +34,8 @@ if (!exportDirectory) {
     "  --expect-provider-handoff <providerId>",
     "  --expect-runtime-status <runtimeId:status>",
     "  --expect-runtime-feature <runtimeId:feature>",
+    "  --expect-runtime-world-target <runtimeId:targetId>",
+    "  --expect-runtime-world-field <runtimeId:targetId:field.path:value>",
     "  --expect-runtime-handoff <runtimeId>",
     "  --expect-runtime-command-schema <runtimeId:schema>",
     "  --expect-runtime-capture-status <runtimeId:status>",
@@ -311,6 +313,34 @@ function validateIndex(index, directory, expectations, errors) {
       errors.push(`runtimes:${expectation.runtimeId}:feature:${expectation.feature}:missing`);
     }
   }
+  for (const expectation of expectations.runtimeWorldTargets) {
+    const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!runtime) {
+      errors.push(`runtimes:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    const worldTargets = Array.isArray(runtime.worldSurfaceLowering) ? runtime.worldSurfaceLowering : [];
+    if (!worldTargets.some(candidate => candidate.targetId === expectation.targetId)) {
+      errors.push(`runtimes:${expectation.runtimeId}:worldSurfaceLowering:${expectation.targetId}:missing`);
+    }
+  }
+  for (const expectation of expectations.runtimeWorldFields) {
+    const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!runtime) {
+      errors.push(`runtimes:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    const worldTargets = Array.isArray(runtime.worldSurfaceLowering) ? runtime.worldSurfaceLowering : [];
+    const target = worldTargets.find(candidate => candidate.targetId === expectation.targetId);
+    if (!target) {
+      errors.push(`runtimes:${expectation.runtimeId}:worldSurfaceLowering:${expectation.targetId}:missing`);
+      continue;
+    }
+    const actual = readNestedField(target, expectation.fieldPath);
+    if (actual !== expectation.value) {
+      errors.push(`runtimes:${expectation.runtimeId}:worldSurfaceLowering:${expectation.targetId}.${expectation.fieldPath}:expected ${expectation.value} got ${actual || ""}`);
+    }
+  }
   for (const expectation of expectations.runtimeCommandSchemas) {
     const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
     if (!runtime) {
@@ -539,6 +569,8 @@ function parseArguments(args) {
     runtimes: [],
     runtimeStatuses: [],
     runtimeFeatures: [],
+    runtimeWorldTargets: [],
+    runtimeWorldFields: [],
     runtimeHandoffs: [],
     runtimeCommandSchemas: [],
     runtimeCaptureStatuses: [],
@@ -577,6 +609,8 @@ function parseArguments(args) {
     ["--expect-provider-handoff", expectations.providerHandoffs],
     ["--expect-runtime-status", expectations.runtimeStatuses],
     ["--expect-runtime-feature", expectations.runtimeFeatures],
+    ["--expect-runtime-world-target", expectations.runtimeWorldTargets],
+    ["--expect-runtime-world-field", expectations.runtimeWorldFields],
     ["--expect-runtime-handoff", expectations.runtimeHandoffs],
     ["--expect-runtime-command-schema", expectations.runtimeCommandSchemas],
     ["--expect-runtime-capture-status", expectations.runtimeCaptureStatuses],
@@ -639,6 +673,10 @@ function parseArguments(args) {
       target.push(parseRuntimeExpectation(value, "status"));
     } else if (option === "--expect-runtime-feature") {
       target.push(parseRuntimeExpectation(value, "feature"));
+    } else if (option === "--expect-runtime-world-target") {
+      target.push(parseRuntimeWorldTargetExpectation(value));
+    } else if (option === "--expect-runtime-world-field") {
+      target.push(parseRuntimeWorldFieldExpectation(value));
     } else if (option === "--expect-runtime-handoff") {
       target.push(value);
     } else if (option === "--expect-runtime-command-schema") {
@@ -739,6 +777,32 @@ function parseRuntimeExpectation(value, field) {
   return {
     runtimeId: value.slice(0, separator),
     [field]: value.slice(separator + 1),
+  };
+}
+
+function parseRuntimeWorldTargetExpectation(value) {
+  const separator = value.indexOf(":");
+  if (separator <= 0 || separator === value.length - 1) {
+    console.error(`Expected runtime world target in <runtimeId:targetId> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: value.slice(0, separator),
+    targetId: value.slice(separator + 1),
+  };
+}
+
+function parseRuntimeWorldFieldExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length < 4 || !parts[0] || !parts[1] || !parts[2] || !parts.slice(3).join(":")) {
+    console.error(`Expected runtime world field in <runtimeId:targetId:field.path:value> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    targetId: parts[1],
+    fieldPath: parts[2],
+    value: parts.slice(3).join(":"),
   };
 }
 

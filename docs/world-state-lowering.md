@@ -93,6 +93,13 @@ Conformance scenarios can require `worldSurfaces[]` entries and the parity
 harness checks them against the advertisement. This makes an interactive world
 surface portable without giving Eve or a runtime private Aetheria knowledge.
 
+Runtime capability manifests answer the other half with
+`worldSurfaceLowering[]`. Each claim names a `targetId`, supported surface
+kinds, projection kinds, support level, evidence paths, and the ownership rule
+that the runtime lowers provider state without becoming provider truth. If a
+provider advertises a lowering target and no runtime claims it, conformance
+emits a capability gap instead of quietly pretending the engine exists.
+
 ## Quality Tiers
 
 A low-end or debugging renderer may lower a world surface into labels, simple

@@ -114,13 +114,15 @@ are not plugin runtime state.
 The runtime conformance pack is evidence-shaped, not fixture-shaped. Its
 `packs/runtime.json` document includes `runtimeTargets` so runtime repos can
 consume status, supported features, plugin support, command schema, lifecycle,
-capture status, and missing evidence without reading Eve's local parity
+capture status, world-surface lowering claims, and missing evidence without reading Eve's local parity
 manifest. The runtime-owner consumer smoke asserts EveUnity lifecycle stage
 status and pending release/test/capture proofs from the exported runtime record,
 plus release contract fields such as package name, artifact kind, tag pattern,
 and package root, plus Unity EditMode test runner contract fields such as
-runner script, package name, test assembly, and platform. Split blockers stay
-machine-readable instead of hiding in handoff prose.
+runner script, package name, test assembly, and platform. It also asserts that
+web and Unity UI Toolkit claim their provider-advertised world-surface lowering
+targets. Split blockers stay machine-readable instead of hiding in handoff
+prose.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into

@@ -46,6 +46,20 @@
     "emitter": "EveUiToolkitSurfaceLowerer.EmitCommand",
     "clientId": "unity-uitoolkit"
   },
+  "worldSurfaceLowering": [
+    {
+      "targetId": "unity-uitoolkit",
+      "surfaceKinds": ["interactive-world", "interactive-world-editor"],
+      "projectionKinds": ["provider-authored-world-surface", "provider-authored-world-editor-surface"],
+      "supportLevel": "ui-toolkit-semantic-command-surface",
+      "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
+      "evidencePaths": [
+        "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs",
+        "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/EveUiToolkitSurfaceLowererTests.cs",
+        "web/fixtures/aetheria.provider-advertisement.json"
+      ]
+    }
+  ],
   "lifecycle": {
     "release": {
       "ownerRepo": "EveUnity",

@@ -622,6 +622,20 @@
           "capabilities": ["embed.tex"]
         }
       ],
+      "worldSurfaceLowering": [
+        {
+          "targetId": "web-reference",
+          "surfaceKinds": ["interactive-world", "interactive-world-editor"],
+          "projectionKinds": ["provider-authored-world-surface", "provider-authored-world-editor-surface"],
+          "supportLevel": "reference-dom-canvas-command-boundary",
+          "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
+          "evidencePaths": [
+            "web/surface.js",
+            "packages/eve-browser-lowering/src/index.ts",
+            "web/fixtures/aetheria.provider-advertisement.json"
+          ]
+        }
+      ],
       "expectedSourceSymbols": [
         {
           "path": "web/surface.js",
@@ -945,6 +959,20 @@
         {
           "pluginId": "tex.math",
           "reason": "Unity UI Toolkit currently preserves embed.tex as generic Eve structure; no TeX projection adapter exists in this runtime."
+        }
+      ],
+      "worldSurfaceLowering": [
+        {
+          "targetId": "unity-uitoolkit",
+          "surfaceKinds": ["interactive-world", "interactive-world-editor"],
+          "projectionKinds": ["provider-authored-world-surface", "provider-authored-world-editor-surface"],
+          "supportLevel": "ui-toolkit-semantic-command-surface",
+          "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
+          "evidencePaths": [
+            "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs",
+            "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/EveUiToolkitSurfaceLowererTests.cs",
+            "web/fixtures/aetheria.provider-advertisement.json"
+          ]
         }
       ],
       "expectedPaths": [

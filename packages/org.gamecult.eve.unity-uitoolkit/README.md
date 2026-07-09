@@ -55,6 +55,12 @@ under `artifacts/aetheria-unity-editmode/{stamp}`, and temporarily adds
 Unity package consumption proof. CultLib still owns the .NET/NuGet dependency
 story for its assemblies.
 
+The manifest also declares `worldSurfaceLowering` target `unity-uitoolkit`.
+That means this package can lower provider-advertised `interactive-world` and
+`interactive-world-editor` surfaces as semantic UI Toolkit command surfaces.
+It does not claim Unity scene/world simulation ownership; Aetheria still owns
+world state, assets, command acceptance, and receipts.
+
 Those lifecycle claims are validated by the parity harness. A missing evidence
 path is a runtime capability error, not a README footnote.
 

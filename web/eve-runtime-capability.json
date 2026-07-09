@@ -48,6 +48,20 @@
     "emitter": "createEveCommandIntent",
     "clientId": "browser.reference"
   },
+  "worldSurfaceLowering": [
+    {
+      "targetId": "web-reference",
+      "surfaceKinds": ["interactive-world", "interactive-world-editor"],
+      "projectionKinds": ["provider-authored-world-surface", "provider-authored-world-editor-surface"],
+      "supportLevel": "reference-dom-canvas-command-boundary",
+      "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
+      "evidencePaths": [
+        "web/surface.js",
+        "packages/eve-browser-lowering/src/index.ts",
+        "web/fixtures/aetheria.provider-advertisement.json"
+      ]
+    }
+  ],
   "lifecycle": {
     "release": {
       "ownerRepo": "Eve",
