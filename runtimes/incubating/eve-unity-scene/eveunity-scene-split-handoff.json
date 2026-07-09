@@ -26,6 +26,24 @@
       "replacementProof": "EveUnity hosts a provider-agnostic Unity scene lowerer that consumes provider advertisements and world surfaces without importing Aetheria runtime internals."
     },
     {
+      "id": "unity-scene-upm-package",
+      "stage": "release",
+      "currentPaths": [
+        "runtimes/incubating/eve-unity-scene/package.json",
+        "runtimes/incubating/eve-unity-scene/Runtime/GameCult.Eve.UnityScene.asmdef",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Tests/Editor/GameCult.Eve.UnityScene.Tests.asmdef",
+        "tools/eveunity/eveunity-release-contract.mjs",
+        "tools/eveunity/eveunity-release-contract.test.mjs",
+        "tools/eveunity/eveunity-release-artifact.mjs",
+        "tools/eveunity/eveunity-release-artifact.test.mjs",
+        "scripts/run-eveunity-scene-release-contract-smoke.ps1",
+        "scripts/run-eveunity-scene-release-artifact-smoke.ps1"
+      ],
+      "destinationOwner": "EveUnity",
+      "replacementProof": "EveUnity builds the provider-agnostic Unity scene UPM package artifact now; the split is not complete until the tagged Unity scene release is cut from EveUnity."
+    },
+    {
       "id": "unity-scene-world-surface-lowering",
       "stage": "world-surface-lowering",
       "currentPaths": [
@@ -120,6 +138,7 @@
   ],
   "requiredExternalProofs": [
     "EveUnity publishes a Unity scene runtime capability manifest.",
+    "EveUnity builds the provider-agnostic Unity scene UPM package artifact.",
     "EveUnity owns a provider-agnostic scene graph lowerer that consumes advertised worldInteraction boundaries without importing Aetheria internals.",
     "EveUnity owns the provider-agnostic scene graph lowerer outside Eve incubation.",
     "EveUnity owns the Unity scene Sai projection adapter outside Eve incubation without importing Sai story state or VN/Ink internals.",

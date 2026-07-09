@@ -142,7 +142,7 @@ foreach ($stage in @("release", "test", "capture")) {
 }
 
 $releaseContract = $manifest.lifecycle.release.releaseContract
-foreach ($field in @("ownerRepo", "packageName", "packageRoot", "versionSource", "tagPattern", "artifactKind", "requestSchema", "requestBuilder", "artifactPattern", "publishProof")) {
+foreach ($field in @("ownerRepo", "packageName", "packageRoot", "versionSource", "tagPattern", "artifactKind", "requestSchema", "requestBuilder", "artifactBuilder", "artifactPattern", "publishProof")) {
   if (-not $releaseContract.$field) {
     throw "EveUnity scene release contract missing $field"
   }
@@ -157,7 +157,7 @@ foreach ($pathProperty in @("packageRoot", "versionSource")) {
     throw "EveUnity scene release contract $pathProperty does not exist: $relativePath"
   }
 }
-foreach ($pathProperty in @("requestBuilder")) {
+foreach ($pathProperty in @("requestBuilder", "artifactBuilder")) {
   $relativePath = $releaseContract.$pathProperty
   $absolutePath = Join-Path $projectRoot $relativePath
   if (-not (Test-Path -LiteralPath $absolutePath)) {
@@ -223,6 +223,7 @@ foreach ($pathProperty in @("requestBuilder", "advertisementPath")) {
 & (Join-Path $projectRoot "scripts\run-eveunity-scene-split-handoff-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-eveunity-scene-provider-shell-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-eveunity-scene-release-contract-smoke.ps1")
+& (Join-Path $projectRoot "scripts\run-eveunity-scene-release-artifact-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-eveunity-scene-capture-contract-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-eveunity-scene-capture-smoke.ps1")
 

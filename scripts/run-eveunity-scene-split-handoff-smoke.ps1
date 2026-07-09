@@ -44,6 +44,7 @@ if (-not (Test-Path -LiteralPath $sourcePackageRoot)) {
 $moveSets = @($handoff.moveSets)
 $expectedMoveSets = @{
   "unity-scene-runtime-body" = "runtime-body"
+  "unity-scene-upm-package" = "release"
   "unity-scene-world-surface-lowering" = "world-surface-lowering"
   "unity-scene-sai-plugin-projection" = "plugin-projection"
   "unity-scene-norn-plugin-projection" = "plugin-projection"
@@ -68,7 +69,7 @@ foreach ($id in $expectedMoveSets.Keys) {
   }
   $currentPaths = if ($null -eq $moveSet.currentPaths) { @() } else { @($moveSet.currentPaths) }
   $observedProviderPaths = if ($null -eq $moveSet.observedProviderPaths) { @() } else { @($moveSet.observedProviderPaths) }
-  if ($id -in @("unity-scene-runtime-body", "unity-scene-world-surface-lowering", "unity-scene-sai-plugin-projection", "unity-scene-norn-plugin-projection", "unity-scene-tex-plugin-projection", "unity-scene-command-transport", "unity-scene-capture-lifecycle")) {
+  if ($id -in @("unity-scene-runtime-body", "unity-scene-upm-package", "unity-scene-world-surface-lowering", "unity-scene-sai-plugin-projection", "unity-scene-norn-plugin-projection", "unity-scene-tex-plugin-projection", "unity-scene-command-transport", "unity-scene-capture-lifecycle")) {
     if ($currentPaths.Count -eq 0) {
       throw "EveUnity scene split handoff move set $id must name current Eve incubation paths"
     }

@@ -26,7 +26,7 @@ $releaseContract = $manifest.lifecycle.release.releaseContract
 if ($null -eq $releaseContract) {
   throw "EveUnity scene release contract missing lifecycle.release.releaseContract"
 }
-foreach ($field in @("ownerRepo", "packageName", "packageRoot", "versionSource", "tagPattern", "artifactKind", "requestSchema", "requestBuilder", "artifactPattern", "publishProof")) {
+foreach ($field in @("ownerRepo", "packageName", "packageRoot", "versionSource", "tagPattern", "artifactKind", "requestSchema", "requestBuilder", "artifactBuilder", "artifactPattern", "publishProof")) {
   if (-not $releaseContract.$field) {
     throw "EveUnity scene release contract missing $field"
   }
@@ -45,9 +45,10 @@ if ($releaseContract.artifactKind -ne "upm-package") {
 }
 
 $builderPath = Join-Path $projectRoot $releaseContract.requestBuilder
+$artifactBuilderPath = Join-Path $projectRoot $releaseContract.artifactBuilder
 $packagePath = Join-Path $projectRoot $releaseContract.versionSource
 $packageRoot = Join-Path $projectRoot $releaseContract.packageRoot
-foreach ($path in @($builderPath, $packagePath, $packageRoot)) {
+foreach ($path in @($builderPath, $artifactBuilderPath, $packagePath, $packageRoot)) {
   if (-not (Test-Path -LiteralPath $path)) {
     throw "EveUnity scene release contract path not found: $path"
   }

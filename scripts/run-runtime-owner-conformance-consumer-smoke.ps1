@@ -218,7 +218,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.providerId:aetheria" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.surfaceId:aetheria.daemon.editor" `
-  --expect-runtime-lifecycle-status unity-scene:release:pending-unity-scene-package `
+  --expect-runtime-lifecycle-status unity-scene:release:unity-scene-upm-artifact-smoke `
   --expect-runtime-lifecycle-status unity-scene:test:provider-shell-contract-skeleton `
   --expect-runtime-lifecycle-status unity-scene:capture:pending-unity-scene-capture `
   --expect-runtime-lifecycle-pending "unity-scene:release:Unity scene package release" `
@@ -230,6 +230,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.versionSource:runtimes/incubating/eve-unity-scene/package.json" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requestSchema:gamecult.eve.runtime_release_request.v1" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requestBuilder:tools/eveunity/eveunity-release-contract.mjs" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactBuilder:tools/eveunity/eveunity-release-artifact.mjs" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactPattern:artifacts/eveunity-scene-release/{version}/org.gamecult.eve.unity-scene-{version}.tgz" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requiredPackageDependencies.0.packageName:org.gamecult.eve.surface" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requiredPackageDependencies.0.ownerRepo:Eve" `

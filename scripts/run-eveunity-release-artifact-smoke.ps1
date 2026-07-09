@@ -1,7 +1,8 @@
 param(
   [string] $CapabilityManifestPath = "packages\org.gamecult.eve.unity-uitoolkit\eve-runtime-capability.json",
   [string] $RequestOutputPath = "artifacts\eveunity-uitoolkit-release-contract\latest\release-request.json",
-  [string] $ProofOutputPath = "artifacts\eveunity-uitoolkit-release\latest\release-artifact.json"
+  [string] $ProofOutputPath = "artifacts\eveunity-uitoolkit-release\latest\release-artifact.json",
+  [string] $ReleaseContractSmokePath = "scripts\run-eveunity-release-contract-smoke.ps1"
 )
 
 $ErrorActionPreference = "Stop"
@@ -45,13 +46,21 @@ $artifactBuilderPath = Join-Path $projectRoot $releaseContract.artifactBuilder
 if (-not (Test-Path -LiteralPath $artifactBuilderPath)) {
   throw "EveUnity release artifact builder not found: $($releaseContract.artifactBuilder)"
 }
+$releaseContractSmoke = if ([System.IO.Path]::IsPathRooted($ReleaseContractSmokePath)) {
+  $ReleaseContractSmokePath
+} else {
+  Join-Path $projectRoot $ReleaseContractSmokePath
+}
+if (-not (Test-Path -LiteralPath $releaseContractSmoke)) {
+  throw "EveUnity release contract smoke not found: $ReleaseContractSmokePath"
+}
 
 node --test (Join-Path $projectRoot "tools\eveunity\eveunity-release-artifact.test.mjs")
 if ($LASTEXITCODE -ne 0) {
   throw "EveUnity release artifact tests failed with exit code $LASTEXITCODE"
 }
 
-& (Join-Path $projectRoot "scripts\run-eveunity-release-contract-smoke.ps1") `
+& $releaseContractSmoke `
   -CapabilityManifestPath $CapabilityManifestPath `
   -OutputPath $RequestOutputPath
 if ($LASTEXITCODE -ne 0) {

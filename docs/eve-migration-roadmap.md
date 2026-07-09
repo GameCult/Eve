@@ -652,10 +652,12 @@ Recently cut:
   Unity UI Toolkit. The `unity-scene` runtime capability manifest names
   `gamecult.eve.runtime_release_request.v1`, the shared
   `tools/eveunity/eveunity-release-contract.mjs` request builder,
+  `tools/eveunity/eveunity-release-artifact.mjs` artifact builder,
   `runtimes/incubating/eve-unity-scene/package.json` as the version source, and
   the `eveunity-scene-v{version}` tag/artifact pattern.
-  `scripts/run-eveunity-scene-release-contract-smoke.ps1` proves the request
-  without pretending the tagged UPM package has been published.
+  `scripts/run-eveunity-scene-release-artifact-smoke.ps1` now produces the
+  declared Unity scene UPM `.tgz` as local smoke evidence without pretending the
+  tagged UPM package has been published from EveUnity.
 - EveTui capture lifecycle now carries a structured terminal cell-grid capture
   contract and typed artifact. `captureContract` names the TUI runtime,
   `terminal-cell-grid` capture kind, `json-grid` artifact kind, conformance
