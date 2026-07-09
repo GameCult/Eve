@@ -51,6 +51,42 @@
             "minLength": 1
           }
         },
+        "worldSurfaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "surfaceId",
+              "surfaceKind",
+              "projectionKind",
+              "commandBoundary",
+              "receiptSchema"
+            ],
+            "properties": {
+              "surfaceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "surfaceKind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "projectionKind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "commandBoundary": {
+                "type": "string",
+                "minLength": 1
+              },
+              "receiptSchema": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": true
+          }
+        },
         "commands": {
           "type": "array",
           "items": {

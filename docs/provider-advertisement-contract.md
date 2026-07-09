@@ -78,6 +78,12 @@ Required top-level meanings:
   the advertised surface, schemas, and command boundary.
 - `surfaces[].interactionModel`: short name for how interaction returns to the
   provider, such as `provider-command-receipts`.
+- `surfaces[].worldInteraction`: optional structured contract for
+  provider-authored world surfaces. It names the projection kind, provider-owned
+  state schemas, command boundary, receipt schema, expected lowering targets,
+  and ownership rule. Runtimes use it to decide how to lower the surface and
+  where command intents must return; they do not gain authority over world
+  state because they can render it.
 - `surfaces[].requiresPlugins`: sidecar plugin capabilities required to render
   or interact with that surface. Runtimes compare these requirements with their
   local projection support and report visible capability gaps; they must not

@@ -54,6 +54,30 @@ if ($scenario.ownerRepo -ne $handoff.ownerRepo) {
   throw "Aetheria scenario owner does not match handoff owner: $($scenario.ownerRepo)"
 }
 
+$worldSurfaces = @{}
+foreach ($surface in @($advertisement.surfaces)) {
+  if ($surface.surfaceId -and $surface.worldInteraction) {
+    $worldSurfaces[$surface.surfaceId] = $surface
+  }
+}
+foreach ($requirement in @($scenario.requires.worldSurfaces)) {
+  if (-not $worldSurfaces.ContainsKey($requirement.surfaceId)) {
+    throw "Aetheria scenario requires world surface not advertised with worldInteraction: $($requirement.surfaceId)"
+  }
+  $advertisedSurface = $worldSurfaces[$requirement.surfaceId]
+  if ($advertisedSurface.surfaceKind -ne $requirement.surfaceKind) {
+    throw "Aetheria world surface kind mismatch for $($requirement.surfaceId): $($advertisedSurface.surfaceKind)"
+  }
+  foreach ($property in @("projectionKind", "commandBoundary", "receiptSchema")) {
+    if ($advertisedSurface.worldInteraction.$property -ne $requirement.$property) {
+      throw "Aetheria world surface $($requirement.surfaceId) $property mismatch: $($advertisedSurface.worldInteraction.$property)"
+    }
+  }
+  if (-not $advertisedSurface.worldInteraction.ownership) {
+    throw "Aetheria world surface $($requirement.surfaceId) missing ownership rule"
+  }
+}
+
 foreach ($fixtureId in @($handoff.fixtureIds)) {
   if (-not (@($scenario.requires.fixtures) -contains $fixtureId)) {
     throw "Aetheria provider handoff fixture is not required by scenario: $fixtureId"

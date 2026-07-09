@@ -28,6 +28,7 @@ if (!exportDirectory) {
     "  --expect-plugin-handoff <pluginId>",
     "  --expect-provider-surface <providerId:surfaceId>",
     "  --expect-provider-surface-kind <providerId:surfaceId:surfaceKind>",
+    "  --expect-provider-surface-field <providerId:surfaceId:field.path:value>",
     "  --expect-provider-command <providerId:command>",
     "  --expect-provider-receipt-state <providerId:state>",
     "  --expect-provider-handoff <providerId>",
@@ -237,6 +238,23 @@ function validateIndex(index, directory, expectations, errors) {
       errors.push(`providers:${expectation.providerId}:surfaceKind:${expectation.surfaceId}:missing`);
     } else if (surface.surfaceKind !== expectation.surfaceKind) {
       errors.push(`providers:${expectation.providerId}:surfaceKind:${expectation.surfaceId}:expected ${expectation.surfaceKind} got ${surface.surfaceKind || ""}`);
+    }
+  }
+  for (const expectation of expectations.providerSurfaceFields) {
+    const provider = providers.find(candidate => candidate.providerId === expectation.providerId);
+    if (!provider) {
+      errors.push(`providers:${expectation.providerId}:missing`);
+      continue;
+    }
+    const surfaceContracts = Array.isArray(provider.surfaceContracts) ? provider.surfaceContracts : [];
+    const surface = surfaceContracts.find(candidate => candidate.surfaceId === expectation.surfaceId);
+    if (!surface) {
+      errors.push(`providers:${expectation.providerId}:surfaceContract:${expectation.surfaceId}:missing`);
+      continue;
+    }
+    const actual = readNestedField(surface, expectation.fieldPath);
+    if (actual !== expectation.value) {
+      errors.push(`providers:${expectation.providerId}:surfaceContract:${expectation.surfaceId}.${expectation.fieldPath}:expected ${expectation.value} got ${actual || ""}`);
     }
   }
   for (const expectation of expectations.providerCommands) {
@@ -514,6 +532,7 @@ function parseArguments(args) {
     providers: [],
     providerSurfaces: [],
     providerSurfaceKinds: [],
+    providerSurfaceFields: [],
     providerCommands: [],
     providerReceiptStates: [],
     providerHandoffs: [],
@@ -552,6 +571,7 @@ function parseArguments(args) {
     ["--expect-plugin-handoff", expectations.pluginHandoffs],
     ["--expect-provider-surface", expectations.providerSurfaces],
     ["--expect-provider-surface-kind", expectations.providerSurfaceKinds],
+    ["--expect-provider-surface-field", expectations.providerSurfaceFields],
     ["--expect-provider-command", expectations.providerCommands],
     ["--expect-provider-receipt-state", expectations.providerReceiptStates],
     ["--expect-provider-handoff", expectations.providerHandoffs],
@@ -607,6 +627,8 @@ function parseArguments(args) {
       target.push(parseProviderExpectation(value, "surfaceId"));
     } else if (option === "--expect-provider-surface-kind") {
       target.push(parseProviderSurfaceKindExpectation(value));
+    } else if (option === "--expect-provider-surface-field") {
+      target.push(parseProviderSurfaceFieldExpectation(value));
     } else if (option === "--expect-provider-command") {
       target.push(parseProviderExpectation(value, "command"));
     } else if (option === "--expect-provider-receipt-state") {
@@ -666,6 +688,20 @@ function parsePluginRuntimeFieldExpectation(value) {
     pluginId: parts[0],
     fieldPath: parts[1],
     value: parts.slice(2).join(":"),
+  };
+}
+
+function parseProviderSurfaceFieldExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length < 4 || !parts[0] || !parts[1] || !parts[2] || !parts.slice(3).join(":")) {
+    console.error(`Expected provider surface field in <providerId:surfaceId:field.path:value> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    providerId: parts[0],
+    surfaceId: parts[1],
+    fieldPath: parts[2],
+    value: parts.slice(3).join(":"),
   };
 }
 

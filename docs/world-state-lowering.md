@@ -76,6 +76,23 @@ World surfaces should be able to describe:
 The renderer chooses the best native projection it can support. It must not
 invent provider semantics to compensate for missing contract information.
 
+Provider advertisements attach the reusable boundary to world surfaces through
+`surfaces[].worldInteraction`. That block names:
+
+- `projectionKind`: the generic world presentation role, not a game-specific
+  rule name;
+- `stateSchemas`: provider-owned state documents that describe the world;
+- `commandBoundary`: the provider command route that receives interaction
+  intents;
+- `receiptSchema`: the provider-owned receipt document schema;
+- `loweringTargets`: runtime families expected to consume the surface;
+- `ownership`: the plain-language authority rule for state, assets, command
+  acceptance, and receipts.
+
+Conformance scenarios can require `worldSurfaces[]` entries and the parity
+harness checks them against the advertisement. This makes an interactive world
+surface portable without giving Eve or a runtime private Aetheria knowledge.
+
 ## Quality Tiers
 
 A low-end or debugging renderer may lower a world surface into labels, simple
@@ -119,6 +136,13 @@ If a renderer must know the phrase "Aetheria gravity" to draw the field, Eve is
 missing a generic scalar-field primitive or the provider surface is
 underspecified. If a renderer must know "Aetheria planet" to draw a body, the
 object row or asset contract is underspecified.
+
+The incubating Aetheria fixture advertises `aetheria.daemon.game` as
+`interactive-world` with `worldInteraction.projectionKind:
+provider-authored-world-surface`, `commandBoundary: aetheria.daemon.commands`,
+and `receiptSchema: aetheria.eve_command_acceptance_status.v1`. Web, Unity UI
+Toolkit, Unity scene, and TUI lowerers are lowering targets; Aetheria remains
+the owner of world state, assets, command acceptance, and receipts.
 
 ## Non-Goals
 

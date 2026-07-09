@@ -9,6 +9,15 @@
   "requires": {
     "fixtures": ["aetheria-world"],
     "surfaces": ["aetheria.daemon.game"],
+    "worldSurfaces": [
+      {
+        "surfaceId": "aetheria.daemon.game",
+        "surfaceKind": "interactive-world",
+        "projectionKind": "provider-authored-world-surface",
+        "commandBoundary": "aetheria.daemon.commands",
+        "receiptSchema": "aetheria.eve_command_acceptance_status.v1"
+      }
+    ],
     "commands": ["aetheria.daemon.commands"],
     "schemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "aetheria.eve_command_acceptance_status.v1"]
   },

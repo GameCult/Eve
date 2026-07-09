@@ -14,6 +14,7 @@
     "field.surface2d world projection",
     "daemon command boundary",
     "provider-owned bindings",
+    "provider-advertised world interaction contract",
     "Aetheria style tokens"
   ],
   "splitTarget": "Aetheria"

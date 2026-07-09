@@ -144,6 +144,50 @@
             "type": "string",
             "minLength": 1
           },
+          "worldInteraction": {
+            "type": "object",
+            "required": [
+              "projectionKind",
+              "stateSchemas",
+              "commandBoundary",
+              "receiptSchema",
+              "loweringTargets",
+              "ownership"
+            ],
+            "properties": {
+              "projectionKind": {
+                "type": "string",
+                "minLength": 1
+              },
+              "stateSchemas": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "commandBoundary": {
+                "type": "string",
+                "minLength": 1
+              },
+              "receiptSchema": {
+                "type": "string",
+                "minLength": 1
+              },
+              "loweringTargets": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "ownership": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": true
+          },
           "requiresPlugins": {
             "type": "array",
             "items": {

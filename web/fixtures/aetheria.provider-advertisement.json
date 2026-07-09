@@ -96,6 +96,18 @@
       "mode": "interactive",
       "surfaceKind": "interactive-world",
       "interactionModel": "provider-command-receipts",
+      "worldInteraction": {
+        "projectionKind": "provider-authored-world-surface",
+        "stateSchemas": [
+          "aetheria.world_state.v1",
+          "aetheria.runtime.daemon.frame.v1",
+          "aetheria.runtime.daemon.soa_view.v1"
+        ],
+        "commandBoundary": "aetheria.daemon.commands",
+        "receiptSchema": "aetheria.eve_command_acceptance_status.v1",
+        "loweringTargets": ["web-reference", "unity-uitoolkit", "unity-scene", "tui"],
+        "ownership": "provider-owns-world-state-assets-command-acceptance-and-receipts"
+      },
       "summary": "Authoritative daemon game surface consumed by Unity and web lowerers."
     },
     {
@@ -116,7 +128,19 @@
       "audience": "operator",
       "mode": "interactive",
       "surfaceKind": "interactive-world-editor",
-      "interactionModel": "provider-command-receipts"
+      "interactionModel": "provider-command-receipts",
+      "worldInteraction": {
+        "projectionKind": "provider-authored-world-editor-surface",
+        "stateSchemas": [
+          "aetheria.world_state.v1",
+          "aetheria.runtime.daemon.editor_surface.v1",
+          "aetheria.runtime.daemon.command_boundary.v1"
+        ],
+        "commandBoundary": "aetheria.daemon.commands",
+        "receiptSchema": "aetheria.eve_command_acceptance_status.v1",
+        "loweringTargets": ["web-reference", "unity-uitoolkit", "tui"],
+        "ownership": "provider-owns-editor-state-assets-command-acceptance-and-receipts"
+      }
     }
   ],
   "commands": [

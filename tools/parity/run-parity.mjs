@@ -629,6 +629,7 @@ async function evaluateProvider(provider, fixtureResults, pluginResults) {
   ])].sort() : [];
   const surfaceIds = advertisement ? (advertisement.surfaces || []).map(surface => surface.surfaceId).filter(Boolean).sort() : [];
   const surfaceKinds = advertisement ? collectProviderSurfaceKinds(advertisement) : [];
+  const surfaceContracts = advertisement ? collectProviderSurfaceContracts(advertisement) : [];
   const commandIds = advertisement ? (advertisement.commands || []).map(command => command.command).filter(Boolean).sort() : [];
   const witnessKinds = advertisement ? (advertisement.witnesses || []).map(witness => witness.kind).filter(Boolean).sort() : [];
   const pluginRequirements = advertisement ? collectProviderPluginRequirements(advertisement) : [];
@@ -679,6 +680,7 @@ async function evaluateProvider(provider, fixtureResults, pluginResults) {
     advertisedSchemaIds,
     surfaceIds,
     surfaceKinds,
+    surfaceContracts,
     commandIds,
     witnessKinds,
     pluginRequirements,
@@ -716,6 +718,18 @@ function collectProviderSurfaceKinds(advertisement) {
       surfaceId: surface.surfaceId,
       surfaceKind: surface.surfaceKind,
       interactionModel: surface.interactionModel || "",
+    }))
+    .sort((left, right) => left.surfaceId.localeCompare(right.surfaceId));
+}
+
+function collectProviderSurfaceContracts(advertisement) {
+  return (advertisement.surfaces || [])
+    .filter(surface => surface.surfaceId && surface.worldInteraction)
+    .map(surface => ({
+      surfaceId: surface.surfaceId,
+      surfaceKind: surface.surfaceKind || "",
+      interactionModel: surface.interactionModel || "",
+      worldInteraction: surface.worldInteraction || {},
     }))
     .sort((left, right) => left.surfaceId.localeCompare(right.surfaceId));
 }
@@ -797,6 +811,25 @@ async function validateProviderScenario(provider, advertisement, fixtureResults,
     errors.push(...missingMembers(scenario.requires?.surfaces || [], surfaceIds, `${provider.scenarioPath}:requires.surfaces`));
     errors.push(...missingMembers(scenario.requires?.commands || [], commandIds, `${provider.scenarioPath}:requires.commands`));
     errors.push(...missingMembers(scenario.requires?.schemas || [], advertisedSchemaIds, `${provider.scenarioPath}:requires.schemas`));
+    const advertisedWorldSurfaces = new Map((advertisement.surfaces || [])
+      .filter(surface => surface.surfaceId && surface.worldInteraction)
+      .map(surface => [surface.surfaceId, surface]));
+    for (const requirement of scenario.requires?.worldSurfaces || []) {
+      const advertisedSurface = advertisedWorldSurfaces.get(requirement.surfaceId);
+      if (!advertisedSurface) {
+        errors.push(`${provider.scenarioPath}:requires.worldSurfaces:${requirement.surfaceId}:missing`);
+        continue;
+      }
+      if (advertisedSurface.surfaceKind !== requirement.surfaceKind) {
+        errors.push(`${provider.scenarioPath}:requires.worldSurfaces:${requirement.surfaceId}:surfaceKind:expected ${requirement.surfaceKind} got ${advertisedSurface.surfaceKind || ""}`);
+      }
+      for (const key of ["projectionKind", "commandBoundary", "receiptSchema"]) {
+        const actual = advertisedSurface.worldInteraction?.[key] || "";
+        if (actual !== requirement[key]) {
+          errors.push(`${provider.scenarioPath}:requires.worldSurfaces:${requirement.surfaceId}:${key}:expected ${requirement[key]} got ${actual}`);
+        }
+      }
+    }
 
     const receipts = scenario.expectedReceipts || [];
     const receiptKeys = new Set(receipts.map(receipt => `${receipt.command}:${receipt.commandId}`));
@@ -1548,6 +1581,7 @@ function buildConformanceExport(report) {
       receiptStates: provider.scenarioReceiptStates || [],
       surfaces: provider.surfaceIds,
       surfaceKinds: provider.surfaceKinds,
+      surfaceContracts: provider.surfaceContracts,
       commands: provider.commandIds,
       pluginRequirements: provider.pluginRequirements,
     })),
@@ -1599,6 +1633,7 @@ function buildCapabilityMatrix(report) {
     status: provider.status,
     surfaces: provider.surfaceIds || [],
     surfaceKinds: provider.surfaceKinds || [],
+    surfaceContracts: provider.surfaceContracts || [],
     commands: provider.commandIds || [],
     receiptStates: provider.scenarioReceiptStates || [],
     handoffExportPath: makeHandoffExportPath("provider", provider.providerId, provider.handoffPath),
