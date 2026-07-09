@@ -16,6 +16,7 @@
     "providerPluginRequirementCoverage",
     "runtimePluginProjectionCoverage",
     "providerRuntimePluginProjectionCoverage",
+    "localProviderCatalogs",
     "interactiveWorldSurfaces",
     "worldSurfaceLoweringCoverage",
     "commandBoundaryCoverage",
@@ -347,6 +348,68 @@
           },
           "reason": {
             "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "localProviderCatalogs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "runtimeId",
+          "ownerRepo",
+          "catalogPath",
+          "catalogExportPath",
+          "schema",
+          "purpose",
+          "status",
+          "providerIds",
+          "advertisementPaths",
+          "surfaceCount",
+          "errors"
+        ],
+        "properties": {
+          "runtimeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "catalogPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "catalogExportPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "schema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "providerIds": {
+            "type": "array"
+          },
+          "advertisementPaths": {
+            "type": "array"
+          },
+          "surfaceCount": {
+            "type": "number"
+          },
+          "errors": {
+            "type": "array"
           }
         },
         "additionalProperties": true

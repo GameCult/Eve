@@ -811,7 +811,11 @@ Recently cut:
   advertisement-backed entries for Aetheria, Repixelizer, and Sai through the
   same `loadProviderAdvertisement` path used by the provider picker. Fixture-only
   surfaces remain explicit local catalog entries until they gain provider
-  advertisements or move into their owner packs.
+  advertisements or move into their owner packs. The fallback catalog is now
+  schema-backed as `gamecult.eve.local_provider_catalog.v1`, copied into the
+  conformance export, and indexed as `localProviderCatalogs[]` so external
+  consumers can verify which provider advertisements the browser reference uses
+  without importing Eve's source layout.
 - Provider advertisements can now name sidecar plugin requirements per surface
   with `surfaces[].requiresPlugins[]`. The parity harness validates those
   requirements against known plugin manifests, exports them in the conformance
@@ -947,7 +951,10 @@ Recently cut:
 - The surface contract now states nested Norn and TeX placement as optional
   composition, not Sai custody. The plugin-owner consumer can assert
   provider-plugin requirement availability, so `sai.vn` remains required while
-  `norn.graph` and `tex.math` stay optional nested sidecar plugins.
+  `norn.graph` and `tex.math` stay optional nested sidecar plugins. The browser
+  fallback catalog only advertises the Sai provider surface; independent Norn
+  and TeX availability is discovered through that provider's plugin
+  requirements and the separate plugin advertisements.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
   project, lower, measure, and apply behavior. The parity harness validates
   those fixtures against plugin manifests, so Eve proves the ABI shape without

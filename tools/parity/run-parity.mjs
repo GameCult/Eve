@@ -502,6 +502,14 @@ async function validateRuntimeLocalProviderCatalog(runtime) {
     return [`${catalogPath}:invalid-json:${error instanceof Error ? error.message : String(error)}`];
   }
 
+  errors.push(...await validateJsonDocument(
+    manifest.schemas?.["gamecult.eve.local_provider_catalog.v1"],
+    catalogPath,
+    {
+      schema: "gamecult.eve.local_provider_catalog.v1",
+    },
+  ));
+
   const providers = Array.isArray(catalog.providers) ? catalog.providers : [];
   const providerIds = new Set(providers.map(provider => provider.providerId).filter(Boolean));
   for (const providerId of catalogConfig.requiredProviders || []) {
@@ -1990,6 +1998,7 @@ function buildConformanceExport(report) {
     runtimePluginProjectionCoverage: collectRuntimePluginProjectionCoverage(report),
     runtimePluginProjectionGaps: collectRuntimePluginProjectionGaps(report),
     providerRuntimePluginProjectionCoverage: collectProviderRuntimePluginProjectionCoverage(report),
+    localProviderCatalogs: collectLocalProviderCatalogs(report),
     interactiveWorldSurfaces: collectInteractiveWorldSurfaces(report),
     worldSurfaceLoweringCoverage: collectWorldSurfaceLoweringCoverage(report),
     commandBoundaryCoverage: collectCommandBoundaryCoverage(report),
@@ -2071,6 +2080,44 @@ function buildSchemaCatalog() {
       exportPath: `schemas/${path.basename(schemaPath)}`,
     }))
     .sort((left, right) => left.schemaId.localeCompare(right.schemaId));
+}
+
+function collectLocalProviderCatalogs(report) {
+  return (report.runtimes || [])
+    .filter(runtime => runtime.localProviderCatalog?.path)
+    .map(runtime => {
+      const catalogPath = runtime.localProviderCatalog.path;
+      let catalog = {};
+      try {
+        catalog = JSON.parse(readFileSync(path.join(repoRoot, catalogPath), "utf8"));
+      } catch {
+        catalog = {};
+      }
+      const providers = Array.isArray(catalog.providers) ? catalog.providers : [];
+      const catalogDirectory = path.posix.dirname(normalizePath(catalogPath));
+      return {
+        runtimeId: runtime.id,
+        ownerRepo: runtime.ownerRepo || "",
+        catalogPath,
+        catalogExportPath: makeLocalProviderCatalogExportPath(runtime.id, catalogPath),
+        schema: catalog.schema || "",
+        purpose: catalog.purpose || "",
+        status: (runtime.localProviderCatalogErrors || []).length ? "invalid" : "valid",
+        providerIds: providers.map(provider => provider.providerId).filter(Boolean).sort(),
+        advertisementPaths: providers
+          .map(provider => resolveCatalogPath(catalogDirectory, provider.advertisement || ""))
+          .filter(Boolean)
+          .sort(),
+        surfaceCount: providers.reduce((count, provider) => count + (Array.isArray(provider.surfaces) ? provider.surfaces.length : 0), 0),
+        errors: runtime.localProviderCatalogErrors || [],
+      };
+    })
+    .sort((left, right) => left.runtimeId.localeCompare(right.runtimeId));
+}
+
+function makeLocalProviderCatalogExportPath(runtimeId, catalogPath) {
+  if (!runtimeId || !catalogPath) return "";
+  return `catalogs/${runtimeId}/${path.basename(catalogPath)}`;
 }
 
 function buildCapabilityMatrix(report) {
@@ -3118,6 +3165,14 @@ async function writeConformanceExport(conformanceExport, directory) {
     const sourcePath = path.join(repoRoot, handoff.sourcePath);
     if (!existsSync(sourcePath)) continue;
     const destinationPath = path.join(directory, handoff.exportPath);
+    await mkdir(path.dirname(destinationPath), { recursive: true });
+    await writeFile(destinationPath, await readFile(sourcePath, "utf8"));
+  }
+  for (const catalog of conformanceExport.localProviderCatalogs || []) {
+    if (!catalog.catalogPath || !catalog.catalogExportPath) continue;
+    const sourcePath = path.join(repoRoot, catalog.catalogPath);
+    if (!existsSync(sourcePath)) continue;
+    const destinationPath = path.join(directory, catalog.catalogExportPath);
     await mkdir(path.dirname(destinationPath), { recursive: true });
     await writeFile(destinationPath, await readFile(sourcePath, "utf8"));
   }

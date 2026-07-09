@@ -45,10 +45,18 @@ try {
     --expect-schema gamecult.eve.runtime_split_handoff.v1 `
     --expect-schema gamecult.eve.plugin_handoff.v1 `
     --expect-schema gamecult.eve.provider_handoff.v1 `
+    --expect-schema gamecult.eve.local_provider_catalog.v1 `
     --expect-schema gamecult.eve.electron_shell_projection.v1 `
     --expect-schema gamecult.eve.tui_grid.v1 `
     --expect-schema gamecult.eve.web_layout_probe.v1 `
     --expect-capability-gap runtime:Fensalir:direct2d:capture:missing `
+    --expect-local-provider-catalog web:valid:local-provider-catalog.json `
+    --expect-local-provider-catalog-provider web:aetheria `
+    --expect-local-provider-catalog-provider web:repixelizer `
+    --expect-local-provider-catalog-provider web:gamecult.home.vn `
+    --expect-local-provider-catalog-advertisement web:aetheria.provider-advertisement.json `
+    --expect-local-provider-catalog-advertisement web:repixelizer.provider-advertisement.json `
+    --expect-local-provider-catalog-advertisement web:sai-vn.provider-advertisement.json `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:web-reference:claimed:Eve:web `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-scene:claimed:EveUnity:unity-scene `

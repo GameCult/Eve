@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.local_provider_catalog.v1",
+  "title": "Eve Local Provider Catalog",
+  "type": "object",
+  "required": [
+    "schema",
+    "purpose",
+    "providers"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.local_provider_catalog.v1"
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 1
+    },
+    "providers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "providerId",
+          "title",
+          "kind",
+          "surfaces"
+        ],
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "advertisement": {
+            "type": "string"
+          },
+          "freshness": {
+            "type": "object",
+            "required": [
+              "state"
+            ],
+            "properties": {
+              "state": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": true
+          },
+          "surfaces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "transport",
+                "surfaceId"
+              ],
+              "properties": {
+                "transport": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "surfaceId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

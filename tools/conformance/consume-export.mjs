@@ -22,6 +22,9 @@ if (!exportDirectory) {
     "  --expect-runtime-plugin-projection <runtimeId:pluginId:status:ownerRepo>",
     "  --expect-provider-runtime-plugin-projection <providerId:surfaceId:runtimeId:pluginId:status:runtimeOwnerRepo>",
     "  --expect-runtime-plugin-gap <runtimeId:pluginId:ownerRepo>",
+    "  --expect-local-provider-catalog <runtimeId:status:path-substring>",
+    "  --expect-local-provider-catalog-provider <runtimeId:providerId>",
+    "  --expect-local-provider-catalog-advertisement <runtimeId:advertisement-path-substring>",
     "  --expect-world-lowering-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>",
     "  --expect-command-boundary-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>",
     "  --expect-world-lowering-gap <providerId:surfaceId:targetId:ownerRepo:runtimeId>",
@@ -143,6 +146,7 @@ function validateIndex(index, directory, expectations, errors) {
   const runtimePluginProjectionCoverage = Array.isArray(index.runtimePluginProjectionCoverage) ? index.runtimePluginProjectionCoverage : [];
   const providerRuntimePluginProjectionCoverage = Array.isArray(index.providerRuntimePluginProjectionCoverage) ? index.providerRuntimePluginProjectionCoverage : [];
   const runtimePluginProjectionGaps = Array.isArray(index.runtimePluginProjectionGaps) ? index.runtimePluginProjectionGaps : [];
+  const localProviderCatalogs = Array.isArray(index.localProviderCatalogs) ? index.localProviderCatalogs : [];
   const interactiveWorldSurfaces = Array.isArray(index.interactiveWorldSurfaces) ? index.interactiveWorldSurfaces : [];
   const worldSurfaceLoweringCoverage = Array.isArray(index.worldSurfaceLoweringCoverage) ? index.worldSurfaceLoweringCoverage : [];
   const commandBoundaryCoverage = Array.isArray(index.commandBoundaryCoverage) ? index.commandBoundaryCoverage : [];
@@ -174,6 +178,7 @@ function validateIndex(index, directory, expectations, errors) {
   validateRuntimePluginProjectionCoverage(index.runtimePluginProjectionCoverage, errors);
   validateProviderRuntimePluginProjectionCoverage(index.providerRuntimePluginProjectionCoverage, errors);
   validateRuntimePluginProjectionGaps(index.runtimePluginProjectionGaps, errors);
+  validateLocalProviderCatalogs(index.localProviderCatalogs, directory, errors);
   validateSplitTargetBlockers(index.splitTargetBlockers, errors);
   validateSplitHandoffMoveCoverage(index.splitHandoffMoveCoverage, errors);
   validatePluginHandoffMoveCoverage(index.pluginHandoffMoveCoverage, errors);
@@ -232,6 +237,39 @@ function validateIndex(index, directory, expectations, errors) {
     }
     if (!gap.reason) {
       errors.push(`runtimePluginProjectionGaps:${expectation.runtimeId}:${expectation.pluginId}:reason:missing`);
+    }
+  }
+  for (const expectation of expectations.localProviderCatalogs) {
+    const catalog = localProviderCatalogs.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!catalog) {
+      errors.push(`localProviderCatalogs:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    if (catalog.status !== expectation.status) {
+      errors.push(`localProviderCatalogs:${expectation.runtimeId}:status:expected ${expectation.status} got ${catalog.status || ""}`);
+    }
+    if (!catalog.catalogPath?.includes(expectation.pathSubstring) && !catalog.catalogExportPath?.includes(expectation.pathSubstring)) {
+      errors.push(`localProviderCatalogs:${expectation.runtimeId}:path:expected substring ${expectation.pathSubstring}`);
+    }
+  }
+  for (const expectation of expectations.localProviderCatalogProviders) {
+    const catalog = localProviderCatalogs.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!catalog) {
+      errors.push(`localProviderCatalogs:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    if (!Array.isArray(catalog.providerIds) || !catalog.providerIds.includes(expectation.providerId)) {
+      errors.push(`localProviderCatalogs:${expectation.runtimeId}:provider:${expectation.providerId}:missing`);
+    }
+  }
+  for (const expectation of expectations.localProviderCatalogAdvertisements) {
+    const catalog = localProviderCatalogs.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!catalog) {
+      errors.push(`localProviderCatalogs:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    if (!Array.isArray(catalog.advertisementPaths) || !catalog.advertisementPaths.some(candidate => candidate.includes(expectation.pathSubstring))) {
+      errors.push(`localProviderCatalogs:${expectation.runtimeId}:advertisement:${expectation.pathSubstring}:missing`);
     }
   }
   for (const expectation of expectations.worldLoweringCoverage) {
@@ -1070,6 +1108,25 @@ function validateProviderPluginRequirementCoverage(records, errors) {
   }
 }
 
+function validateLocalProviderCatalogs(catalogs, directory, errors) {
+  if (!Array.isArray(catalogs)) {
+    errors.push("localProviderCatalogs:missing");
+    return;
+  }
+  for (const [index, catalog] of catalogs.entries()) {
+    for (const field of ["runtimeId", "ownerRepo", "catalogPath", "catalogExportPath", "schema", "purpose", "status"]) {
+      if (!catalog?.[field]) errors.push(`localProviderCatalogs:${index}:${field}:missing`);
+    }
+    for (const field of ["providerIds", "advertisementPaths", "errors"]) {
+      if (!Array.isArray(catalog?.[field])) errors.push(`localProviderCatalogs:${index}:${field}:expected array`);
+    }
+    if (typeof catalog?.surfaceCount !== "number") errors.push(`localProviderCatalogs:${index}:surfaceCount:expected number`);
+    if (catalog?.catalogExportPath && !existsSync(path.join(directory, catalog.catalogExportPath))) {
+      errors.push(`localProviderCatalogs:${index}:catalogExportPath:${catalog.catalogExportPath}:missing`);
+    }
+  }
+}
+
 function validateInteractiveWorldSurfaces(surfaces, errors) {
   if (!Array.isArray(surfaces)) {
     errors.push("interactiveWorldSurfaces:missing");
@@ -1197,6 +1254,9 @@ function parseArguments(args) {
     runtimePluginProjectionCoverage: [],
     providerRuntimePluginProjectionCoverage: [],
     runtimePluginGaps: [],
+    localProviderCatalogs: [],
+    localProviderCatalogProviders: [],
+    localProviderCatalogAdvertisements: [],
     worldLoweringCoverage: [],
     commandBoundaryCoverage: [],
     worldLoweringGaps: [],
@@ -1251,6 +1311,9 @@ function parseArguments(args) {
     ["--expect-runtime-plugin-projection", expectations.runtimePluginProjectionCoverage],
     ["--expect-provider-runtime-plugin-projection", expectations.providerRuntimePluginProjectionCoverage],
     ["--expect-runtime-plugin-gap", expectations.runtimePluginGaps],
+    ["--expect-local-provider-catalog", expectations.localProviderCatalogs],
+    ["--expect-local-provider-catalog-provider", expectations.localProviderCatalogProviders],
+    ["--expect-local-provider-catalog-advertisement", expectations.localProviderCatalogAdvertisements],
     ["--expect-world-lowering-coverage", expectations.worldLoweringCoverage],
     ["--expect-command-boundary-coverage", expectations.commandBoundaryCoverage],
     ["--expect-world-lowering-gap", expectations.worldLoweringGaps],
@@ -1361,6 +1424,12 @@ function parseArguments(args) {
       target.push(parseRuntimePluginProjectionCoverageExpectation(value));
     } else if (option === "--expect-provider-runtime-plugin-projection") {
       target.push(parseProviderRuntimePluginProjectionCoverageExpectation(value));
+    } else if (option === "--expect-local-provider-catalog") {
+      target.push(parseLocalProviderCatalogExpectation(value));
+    } else if (option === "--expect-local-provider-catalog-provider") {
+      target.push(parseLocalProviderCatalogProviderExpectation(value));
+    } else if (option === "--expect-local-provider-catalog-advertisement") {
+      target.push(parseLocalProviderCatalogAdvertisementExpectation(value));
     } else {
       target.push(value);
     }
@@ -1381,6 +1450,43 @@ function parseScreenshotMetricExpectation(value) {
     fixtureId: parts[1],
     metricKind: parts[2],
     status: parts[3],
+  };
+}
+
+function parseLocalProviderCatalogExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 3 || parts.some(part => !part)) {
+    console.error(`Expected local provider catalog in <runtimeId:status:path-substring> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    status: parts[1],
+    pathSubstring: parts[2],
+  };
+}
+
+function parseLocalProviderCatalogProviderExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 2 || parts.some(part => !part)) {
+    console.error(`Expected local provider catalog provider in <runtimeId:providerId> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    providerId: parts[1],
+  };
+}
+
+function parseLocalProviderCatalogAdvertisementExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 2 || parts.some(part => !part)) {
+    console.error(`Expected local provider catalog advertisement in <runtimeId:advertisement-path-substring> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    pathSubstring: parts[1],
   };
 }
 

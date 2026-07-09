@@ -170,6 +170,15 @@ The conformance export includes runtime `capabilityManifestPath` and
 `capabilityManifestErrors` fields so external consumers can distinguish a
 generic projection runtime from a runtime that can project plugin-declared
 capabilities.
+Browser reference fallback discovery is exported as `localProviderCatalogs[]`.
+Each record names the runtime, source catalog path, exported catalog copy,
+schema, purpose, provider ids, advertisement paths, surface count, status, and
+validation errors. This proves which local provider/plugin advertisements the
+web picker is consuming without turning the fallback file into live discovery
+truth. Consumer smokes can assert entries with
+`--expect-local-provider-catalog <runtimeId:status:path-substring>`,
+`--expect-local-provider-catalog-provider <runtimeId:providerId>`, and
+`--expect-local-provider-catalog-advertisement <runtimeId:advertisement-path-substring>`.
 
 Plugin handoff paths are exported as `plugins[].handoffPath` for owner repos
 such as Sai, Norn, and EvePlugins. These paths are incubation evidence for

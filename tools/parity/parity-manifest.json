@@ -27,6 +27,7 @@
     "gamecult.eve.web_layout_probe.v1": "schemas/gamecult.eve.web_layout_probe.v1.schema.json",
     "gamecult.eve.provider_scenario.v1": "schemas/gamecult.eve.provider_scenario.v1.schema.json",
     "gamecult.eve.provider_advertisement.v1": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
+    "gamecult.eve.local_provider_catalog.v1": "schemas/gamecult.eve.local_provider_catalog.v1.schema.json",
     "gamecult.eve.provider_handoff.v1": "schemas/gamecult.eve.provider_handoff.v1.schema.json",
     "gamecult.eve.conformance_handoff.v1": "schemas/gamecult.eve.conformance_handoff.v1.schema.json",
     "gamecult.eve.electron_shell_projection.v1": "schemas/gamecult.eve.electron_shell_projection.v1.schema.json",
