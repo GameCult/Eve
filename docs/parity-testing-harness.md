@@ -303,9 +303,10 @@ provider-agnostic shell exists. The same smoke asserts that the Aetheria
 Electron source paths named by the handoff currently exist as
 `observed-provider` sources, so the extraction pressure is visible without
 turning those paths into EveElectron authority. The Electron runtime now claims
-a narrow provider-advertised surface-tree command surface, while packaged
-rendering, embedded document rendering, capture, and plugin projection remain
-blockers. EveTui is also intentionally pending: it now claims a lossy
+a narrow provider-advertised surface-tree command surface and exposes a typed
+capture request contract, while packaged rendering, embedded document
+rendering, actual window capture, and plugin projection remain blockers.
+EveTui is also intentionally pending: it now claims a lossy
 provider-advertised terminal-grid command surface, while transcript/cell-grid
 capture, embedded document rendering, plugin projection, and repo graduation
 remain blockers. EveUnity includes both the active `unity-uitoolkit` package proof

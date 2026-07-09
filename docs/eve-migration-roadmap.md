@@ -416,10 +416,10 @@ Recently cut:
   `runtimes/incubating/eve-electron/eveelectron-split-handoff.json`. It does
   claim a provider-agnostic Electron shell surface-tree projection and command
   surface, but not packaged rendering, embedded document rendering, plugin
-  projection, or capture. The handoff draws the line between the generic shell
-  and Aetheria's Starbridge RTS product client, and the split-target consumer
-  smoke keeps release, packaged rendering, embedded document rendering, and
-  capture proofs visible as blockers.
+  projection, or captured window artifacts. The handoff draws the line between
+  the generic shell and Aetheria's Starbridge RTS product client, and the
+  split-target consumer smoke keeps release, packaged rendering, embedded
+  document rendering, and capture artifact proofs visible as blockers.
 - EveElectron now has a direct split handoff smoke at
   `scripts/run-eveelectron-split-handoff-smoke.ps1`. The smoke verifies the
   current generic shell, command, and world-surface lowering paths, the observed
@@ -431,8 +431,11 @@ Recently cut:
   lifecycle smoke at `scripts/run-eveelectron-lifecycle-smoke.ps1`. The
   manifest declares provider advertisement consumption, command transport, and
   surface-tree projection, claims `electron-shell` world/editor lowering, and
-  still keeps package release, packaged window rendering, plugin projection,
-  and Electron window capture as pending EveElectron work.
+  now carries an executable capture request contract through
+  `tools/eveelectron/eveelectron-capture-contract.mjs` and
+  `scripts/run-eveelectron-capture-contract-smoke.ps1`. Package release,
+  packaged window rendering, plugin projection, and actual Electron window
+  capture artifacts remain pending EveElectron work.
 - Electron and TUI pending lifecycle details now live in their runtime
   capability manifests rather than being duplicated in
   `tools/parity/parity-manifest.json`. The parity ledger points at the
@@ -493,6 +496,16 @@ Recently cut:
   `scripts/run-eveunity-capture-contract-smoke.ps1` proves that request path
   without pretending a Unity PNG has been captured. The actual capture artifact
   remains a split blocker for EveUnity.
+- EveElectron capture lifecycle now carries the same kind of structured pending
+  capture contract. `captureContract` names the Electron shell runtime, capture
+  kind, PNG artifact pattern, conformance attachment point, required Aetheria
+  provider surface, request schema, request builder, advertisement input, and
+  authority rule. `tools/eveelectron/eveelectron-capture-contract.mjs` builds a
+  `gamecult.eve.runtime_capture_request.v1` request from the runtime capability
+  manifest and provider advertisement, and
+  `scripts/run-eveelectron-capture-contract-smoke.ps1` proves that request path
+  without pretending an Electron window PNG has been captured. The actual
+  capture artifact remains a split blocker for EveElectron.
 - Runtime-owner conformance consumption now asserts EveUnity lifecycle stage
   evidence directly. The generic consumer supports
   `--expect-runtime-lifecycle-status` and

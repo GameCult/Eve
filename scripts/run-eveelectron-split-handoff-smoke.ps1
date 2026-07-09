@@ -69,6 +69,14 @@ foreach ($id in @("electron-shell-runtime", "electron-command-transport", "elect
   }
 }
 
+$captureMoveSet = $moveSets | Where-Object { $_.id -eq "electron-capture-lifecycle" } | Select-Object -First 1
+if (-not $captureMoveSet) {
+  throw "EveElectron split handoff missing move set: electron-capture-lifecycle"
+}
+if (@($captureMoveSet.currentPaths).Count -eq 0) {
+  throw "EveElectron capture lifecycle move set must declare currentPaths"
+}
+
 foreach ($contract in @(
   "gamecult.eve.surface.v1",
   "gamecult.eve.command.v1",

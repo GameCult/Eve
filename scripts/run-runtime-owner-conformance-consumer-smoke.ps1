@@ -167,6 +167,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "electron-shell:test:testContract.runnerKind:electron-provider-shell-smoke" `
   --expect-runtime-lifecycle-field "electron-shell:test:testContract.runnerScript:scripts/run-eveelectron-provider-shell-smoke.ps1" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.captureKind:electron-window-png" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.targetId:electron-shell" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requestBuilder:tools/eveelectron/eveelectron-capture-contract.mjs" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.advertisementPath:web/fixtures/aetheria.provider-advertisement.json" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-status tui:release:pending-tui-package `
   --expect-runtime-lifecycle-status tui:test:provider-shell-contract-skeleton `

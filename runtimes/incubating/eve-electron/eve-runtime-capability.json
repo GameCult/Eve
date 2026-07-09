@@ -110,6 +110,10 @@
       "captureContract": {
         "ownerRepo": "EveElectron",
         "runtimeId": "electron-shell",
+        "targetId": "electron-shell",
+        "requestSchema": "gamecult.eve.runtime_capture_request.v1",
+        "requestBuilder": "tools/eveelectron/eveelectron-capture-contract.mjs",
+        "advertisementPath": "web/fixtures/aetheria.provider-advertisement.json",
         "captureKind": "electron-window-png",
         "artifactKind": "png",
         "artifactPattern": "artifacts/eveelectron-capture/{stamp}/electron-shell.png",
@@ -119,7 +123,11 @@
         "authority": "Capture observes Electron projection only; provider state, command acceptance, and receipts stay provider-owned.",
         "publishProof": "Electron window capture artifact is attached to the runtime conformance report from EveElectron."
       },
-      "evidencePaths": [],
+      "evidencePaths": [
+        "tools/eveelectron/eveelectron-capture-contract.mjs",
+        "tools/eveelectron/eveelectron-capture-contract.test.mjs",
+        "scripts/run-eveelectron-capture-contract-smoke.ps1"
+      ],
       "pendingProofs": [
         "Electron window capture artifact is attached to the runtime conformance report."
       ]

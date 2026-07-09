@@ -758,7 +758,10 @@
         "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
         "runtimes/incubating/eve-electron/eve-runtime-capability.json",
         "scripts/run-eveelectron-lifecycle-smoke.ps1",
-        "scripts/run-eveelectron-provider-shell-smoke.ps1"
+        "scripts/run-eveelectron-provider-shell-smoke.ps1",
+        "scripts/run-eveelectron-capture-contract-smoke.ps1",
+        "tools/eveelectron/eveelectron-capture-contract.mjs",
+        "tools/eveelectron/eveelectron-capture-contract.test.mjs"
       ],
       "expectedSourceSymbols": [
         {
@@ -768,6 +771,14 @@
         {
           "path": "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
           "contains": ["selects the active advertised provider surface", "lowers provider surface trees into an Electron shell projection", "rejects surface documents that do not match the advertised target", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+        },
+        {
+          "path": "tools/eveelectron/eveelectron-capture-contract.mjs",
+          "contains": ["buildElectronCaptureRequest", "gamecult.eve.runtime_capture_request.v1", "loweringTargets", "artifactPattern", "writeCaptureRequest"]
+        },
+        {
+          "path": "tools/eveelectron/eveelectron-capture-contract.test.mjs",
+          "contains": ["builds Electron shell capture request from provider advertisement", "rejects capture request when the surface does not advertise Electron shell", "electron-shell", "aetheria.daemon.commands"]
         }
       ],
       "capture": {

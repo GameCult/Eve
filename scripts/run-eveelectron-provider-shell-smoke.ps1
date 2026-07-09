@@ -67,7 +67,9 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
 $expectedFiles = @(
   "runtimes\incubating\eve-electron\package.json",
   "runtimes\incubating\eve-electron\src\eve-electron-shell.mjs",
-  "runtimes\incubating\eve-electron\test\eve-electron-shell.test.mjs"
+  "runtimes\incubating\eve-electron\test\eve-electron-shell.test.mjs",
+  "scripts\run-eveelectron-capture-contract-smoke.ps1",
+  "tools\eveelectron\eveelectron-capture-contract.mjs"
 )
 
 foreach ($relativePath in $expectedFiles) {

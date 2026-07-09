@@ -138,13 +138,33 @@ foreach ($pathProperty in @("runnerScript", "consumerProject")) {
 }
 
 $captureContract = $manifest.lifecycle.capture.captureContract
-foreach ($field in @("ownerRepo", "runtimeId", "captureKind", "artifactKind", "artifactPattern", "conformanceAttachment", "requiredProvider", "requiredSurface", "authority", "publishProof")) {
+foreach ($field in @("ownerRepo", "runtimeId", "targetId", "requestSchema", "requestBuilder", "advertisementPath", "captureKind", "artifactKind", "artifactPattern", "conformanceAttachment", "requiredProvider", "requiredSurface", "authority", "publishProof")) {
   if (-not $captureContract.$field) {
     throw "EveElectron capture contract missing $field"
+  }
+}
+if ($captureContract.runtimeId -ne "electron-shell") {
+  throw "EveElectron capture contract has unexpected runtime: $($captureContract.runtimeId)"
+}
+if ($captureContract.targetId -ne "electron-shell") {
+  throw "EveElectron capture contract has unexpected target: $($captureContract.targetId)"
+}
+if ($captureContract.requestSchema -ne "gamecult.eve.runtime_capture_request.v1") {
+  throw "EveElectron capture contract has unexpected request schema: $($captureContract.requestSchema)"
+}
+if ($captureContract.captureKind -ne "electron-window-png") {
+  throw "EveElectron capture contract has unexpected capture kind: $($captureContract.captureKind)"
+}
+foreach ($pathProperty in @("requestBuilder", "advertisementPath")) {
+  $relativePath = $captureContract.$pathProperty
+  $absolutePath = Join-Path $projectRoot $relativePath
+  if (-not (Test-Path -LiteralPath $absolutePath)) {
+    throw "EveElectron capture contract $pathProperty does not exist: $relativePath"
   }
 }
 
 & (Join-Path $projectRoot "scripts\run-eveelectron-split-handoff-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-eveelectron-provider-shell-smoke.ps1")
+& (Join-Path $projectRoot "scripts\run-eveelectron-capture-contract-smoke.ps1")
 
 Write-Host "EveElectron lifecycle smoke passed: $absoluteManifestPath"

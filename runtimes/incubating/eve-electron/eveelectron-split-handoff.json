@@ -57,9 +57,13 @@
     {
       "id": "electron-capture-lifecycle",
       "stage": "capture",
-      "currentPaths": [],
+      "currentPaths": [
+        "tools/eveelectron/eveelectron-capture-contract.mjs",
+        "tools/eveelectron/eveelectron-capture-contract.test.mjs",
+        "scripts/run-eveelectron-capture-contract-smoke.ps1"
+      ],
       "destinationOwner": "EveElectron",
-      "replacementProof": "EveElectron attaches desktop-window capture artifacts to conformance output for at least one non-Aetheria provider and one Aetheria scenario."
+      "replacementProof": "EveElectron builds a provider-advertisement-backed capture request now; the split is not complete until the EveElectron repo attaches desktop-window capture artifacts to conformance output for at least one non-Aetheria provider and one Aetheria scenario."
     }
   ],
   "contractInputs": [
