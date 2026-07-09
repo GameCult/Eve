@@ -299,6 +299,11 @@ Recently cut:
   data in addition to the generic `capabilityGaps[]` ledger. Runtime owners can
   consume provider id, surface id, target id, owner repo, runtime id, split
   target, and runtime status without scraping prose or gap strings.
+- The conformance export also carries `worldSurfaceLoweringCoverage[]`, a full
+  provider-surface-to-target ledger that marks each advertised lowering target
+  as `claimed`, `missing-claim`, or `missing-runtime`. The generic conformance
+  consumer now asserts Aetheria's claimed web/UI Toolkit targets and missing
+  Unity scene/TUI targets from the same typed surface.
 - The conformance export schema and consumer smoke now require minimum typed
   item shapes for plugins, providers, runtimes, and split targets. Owner repos
   can rely on exported ids, owners, statuses, split targets, manifest or

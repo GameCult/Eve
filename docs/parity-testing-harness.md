@@ -113,6 +113,12 @@ The same facts are also exported as `worldSurfaceLoweringGaps[]` so runtime
 owners can consume provider id, surface id, target id, owner repo, runtime id,
 split target, and runtime status as typed fields instead of parsing the generic
 gap text.
+The full advertised-target ledger is exported as
+`worldSurfaceLoweringCoverage[]`. Each record joins a provider-owned world
+surface to one advertised lowering target and reports whether that target is
+`claimed`, `missing-claim`, or `missing-runtime`, along with the runtime owner
+and runtime id. Consumer smokes can assert complete coverage facts with
+`--expect-world-lowering-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>`.
 Provider-owned world/editor surfaces are exported as
 `interactiveWorldSurfaces[]`. These records index the provider id, owner repo,
 surface id, surface kind, projection kind, state schemas, command boundary,

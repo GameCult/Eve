@@ -1671,6 +1671,7 @@ function buildConformanceExport(report) {
     capabilityMatrix: buildCapabilityMatrix(report),
     runtimePluginProjectionGaps: collectRuntimePluginProjectionGaps(report),
     interactiveWorldSurfaces: collectInteractiveWorldSurfaces(report),
+    worldSurfaceLoweringCoverage: collectWorldSurfaceLoweringCoverage(report),
     worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
     splitTargetBlockers: collectSplitTargetBlockers(report),
     capabilityGaps: collectCapabilityGaps(report),
@@ -1976,6 +1977,35 @@ function collectInteractiveWorldSurfaces(report) {
     `${left.providerId}:${left.surfaceId}`.localeCompare(`${right.providerId}:${right.surfaceId}`));
 }
 
+function collectWorldSurfaceLoweringCoverage(report) {
+  const { claimByTarget, runtimeByTarget } = buildWorldSurfaceLoweringTargetIndex(report);
+  const coverage = [];
+  for (const surface of collectInteractiveWorldSurfaces(report)) {
+    for (const targetId of surface.loweringTargets || []) {
+      const claim = claimByTarget.get(targetId);
+      const runtime = runtimeByTarget.get(targetId);
+      const status = claim ? "claimed" : runtime ? "missing-claim" : "missing-runtime";
+      coverage.push({
+        providerId: surface.providerId,
+        providerOwnerRepo: surface.ownerRepo || "",
+        surfaceId: surface.surfaceId,
+        surfaceKind: surface.surfaceKind || "",
+        projectionKind: surface.projectionKind || "",
+        targetId,
+        status,
+        severity: status === "claimed" ? "ok" : "blocker",
+        runtimeId: runtime?.id || "world-surface-lowering",
+        runtimeOwnerRepo: runtime ? resolveRuntimeProjectionOwnerRepo(runtime) : "Eve",
+        splitTarget: runtime?.splitTarget || "",
+        runtimeStatus: runtime?.status || "",
+        supportLevel: claim?.supportLevel || "",
+        loweringOwnership: claim?.ownership || "",
+      });
+    }
+  }
+  return coverage;
+}
+
 function resolveRuntimeProjectionOwnerRepo(runtime) {
   return runtime.lifecycle?.release?.ownerRepo
     || runtime.lifecycle?.test?.ownerRepo
@@ -1986,23 +2016,13 @@ function resolveRuntimeProjectionOwnerRepo(runtime) {
 }
 
 function collectWorldSurfaceLoweringGaps(report) {
-  const claimedTargets = new Set();
-  const runtimeByWorldTarget = new Map();
-  for (const runtime of report.runtimes || []) {
-    if (runtime.id) runtimeByWorldTarget.set(runtime.id, runtime);
-    for (const claim of runtime.worldSurfaceLowering || []) {
-      if (!claim.targetId) continue;
-      claimedTargets.add(claim.targetId);
-      runtimeByWorldTarget.set(claim.targetId, runtime);
-    }
-  }
-
+  const { claimByTarget, runtimeByTarget } = buildWorldSurfaceLoweringTargetIndex(report);
   const gaps = [];
   for (const provider of report.providers || []) {
     for (const surface of provider.surfaceContracts || []) {
       for (const targetId of surface.worldInteraction?.loweringTargets || []) {
-        if (claimedTargets.has(targetId)) continue;
-        const targetRuntime = runtimeByWorldTarget.get(targetId);
+        if (claimByTarget.has(targetId)) continue;
+        const targetRuntime = runtimeByTarget.get(targetId);
         gaps.push({
           providerId: provider.providerId,
           providerOwnerRepo: provider.ownerRepo || "",
@@ -2010,7 +2030,7 @@ function collectWorldSurfaceLoweringGaps(report) {
           surfaceKind: surface.surfaceKind || "",
           projectionKind: surface.worldInteraction?.projectionKind || "",
           targetId,
-          ownerRepo: targetRuntime?.ownerRepo || "Eve",
+          ownerRepo: targetRuntime ? resolveRuntimeProjectionOwnerRepo(targetRuntime) : "Eve",
           runtimeId: targetRuntime?.id || "world-surface-lowering",
           splitTarget: targetRuntime?.splitTarget || "",
           runtimeStatus: targetRuntime?.status || "",
@@ -2023,6 +2043,20 @@ function collectWorldSurfaceLoweringGaps(report) {
     }
   }
   return gaps;
+}
+
+function buildWorldSurfaceLoweringTargetIndex(report) {
+  const claimByTarget = new Map();
+  const runtimeByTarget = new Map();
+  for (const runtime of report.runtimes || []) {
+    if (runtime.id) runtimeByTarget.set(runtime.id, runtime);
+    for (const claim of runtime.worldSurfaceLowering || []) {
+      if (!claim.targetId) continue;
+      claimByTarget.set(claim.targetId, claim);
+      runtimeByTarget.set(claim.targetId, runtime);
+    }
+  }
+  return { claimByTarget, runtimeByTarget };
 }
 
 async function writeConformanceExport(conformanceExport, directory) {

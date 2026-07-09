@@ -12,6 +12,7 @@
     "providers",
     "runtimes",
     "interactiveWorldSurfaces",
+    "worldSurfaceLoweringCoverage",
     "splitTargetBlockers",
     "splitTargets"
   ],
@@ -334,6 +335,77 @@
             "minLength": 1
           },
           "detail": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "worldSurfaceLoweringCoverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "providerId",
+          "providerOwnerRepo",
+          "surfaceId",
+          "surfaceKind",
+          "projectionKind",
+          "targetId",
+          "status",
+          "severity",
+          "runtimeId",
+          "runtimeOwnerRepo"
+        ],
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "providerOwnerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceKind": {
+            "type": "string"
+          },
+          "projectionKind": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeOwnerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "splitTarget": {
+            "type": "string"
+          },
+          "runtimeStatus": {
+            "type": "string"
+          },
+          "supportLevel": {
+            "type": "string"
+          },
+          "loweringOwnership": {
             "type": "string"
           }
         },
