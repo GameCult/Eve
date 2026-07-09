@@ -34,7 +34,7 @@ if ($handoff.runtimeId -ne "electron-shell") {
 }
 
 $moveSets = @($handoff.moveSets)
-foreach ($stage in @("runtime-body", "command", "capture")) {
+foreach ($stage in @("runtime-body", "command", "world-surface-lowering", "capture")) {
   $moveSet = $moveSets | Where-Object { $_.stage -eq $stage } | Select-Object -First 1
   if (-not $moveSet) {
     throw "EveElectron split handoff missing move set for stage: $stage"
@@ -53,7 +53,7 @@ foreach ($stage in @("runtime-body", "command", "capture")) {
   }
 }
 
-foreach ($id in @("electron-shell-runtime", "electron-command-transport")) {
+foreach ($id in @("electron-shell-runtime", "electron-command-transport", "electron-world-surface-lowering")) {
   $moveSet = $moveSets | Where-Object { $_.id -eq $id } | Select-Object -First 1
   if (-not $moveSet) {
     throw "EveElectron split handoff missing move set: $id"

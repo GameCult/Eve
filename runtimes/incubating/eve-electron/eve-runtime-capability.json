@@ -15,7 +15,8 @@
   },
   "supportedFeatures": [
     "providerAdvertisements",
-    "commandTransport"
+    "commandTransport",
+    "surfaceTreeProjection"
   ],
   "supportedPlugins": [],
   "unsupportedPlugins": [
@@ -32,10 +33,24 @@
       "reason": "Electron provider-shell skeleton exists, but no TeX projection adapter exists in this runtime."
     }
   ],
+  "worldSurfaceLowering": [
+    {
+      "targetId": "electron-shell",
+      "surfaceKinds": ["interactive-world", "interactive-world-editor"],
+      "projectionKinds": ["provider-authored-world-surface", "provider-authored-world-editor-surface"],
+      "supportLevel": "electron-shell-surface-tree-command-surface",
+      "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
+      "evidencePaths": [
+        "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+        "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
+        "web/fixtures/aetheria.provider-advertisement.json"
+      ]
+    }
+  ],
   "commandTransport": {
     "schema": "gamecult.eve.command.v1",
     "status": "provider-shell-contract-skeleton",
-    "emitter": "EveElectronShell.EmitCommand",
+    "emitter": "EveElectronShell.createCommandIntent",
     "clientId": "electron-shell",
     "authority": "Electron emits command intents through provider-advertised command boundaries; providers accept, deny, and publish receipts."
   },
@@ -112,6 +127,6 @@
   },
   "capture": {
     "status": "missing",
-    "note": "Electron capture is a split blocker until EveElectron owns a provider-agnostic shell."
+    "note": "Electron capture is a split blocker until EveElectron attaches provider-agnostic shell window artifacts."
   }
 }

@@ -148,8 +148,9 @@ The incubating Aetheria fixture advertises `aetheria.daemon.game` as
 `interactive-world` with `worldInteraction.projectionKind:
 provider-authored-world-surface`, `commandBoundary: aetheria.daemon.commands`,
 and `receiptSchema: aetheria.eve_command_acceptance_status.v1`. Web, Unity UI
-Toolkit, Unity scene, and TUI lowerers are lowering targets; Aetheria remains
-the owner of world state, assets, command acceptance, and receipts.
+Toolkit, Unity scene, Electron shell, and TUI lowerers are lowering targets;
+Aetheria remains the owner of world state, assets, command acceptance, and
+receipts.
 
 ## Non-Goals
 

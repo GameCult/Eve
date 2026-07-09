@@ -23,6 +23,26 @@ export class EveElectronShell {
     };
   }
 
+  lowerSurface(surfaceDocument, providerAdvertisement, requestedSurfaceId = "") {
+    const selected = this.selectSurface(providerAdvertisement, requestedSurfaceId);
+    const document = normalizeSurfaceDocument(surfaceDocument);
+    if (document.surfaceId !== selected.surfaceId) {
+      throw new Error(`Surface document ${document.surfaceId} does not match advertised Electron surface ${selected.surfaceId}.`);
+    }
+
+    return {
+      type: "electron-shell-projection",
+      schema: "gamecult.eve.electron_shell_projection.v1",
+      providerId: selected.providerId,
+      surfaceId: selected.surfaceId,
+      projectionKind: selected.worldInteraction.projectionKind,
+      commandBoundary: selected.worldInteraction.commandBoundary,
+      receiptSchema: selected.worldInteraction.receiptSchema,
+      ownership: selected.worldInteraction.ownership,
+      root: buildShellNode(document.root),
+    };
+  }
+
   createCommandIntent(providerAdvertisement, requestedSurfaceId, command, payload = {}) {
     if (!command) throw new Error("Command is required.");
     const selected = this.selectSurface(providerAdvertisement, requestedSurfaceId);
@@ -75,6 +95,47 @@ export function normalizeProviderAdvertisement(providerAdvertisement) {
     : [];
   if (!surfaces.length) throw new Error(`Provider ${providerId} advertises no surfaces.`);
   return { ...providerAdvertisement, providerId, surfaces };
+}
+
+export function normalizeSurfaceDocument(surfaceDocument) {
+  if (!surfaceDocument || typeof surfaceDocument !== "object") {
+    throw new Error("Surface document is required.");
+  }
+  if (surfaceDocument.schema !== "gamecult.eve.surface.v1") {
+    throw new Error(`Unexpected surface schema: ${surfaceDocument.schema || ""}`);
+  }
+  const surface = objectValue(surfaceDocument.surface);
+  const surfaceId = firstString(surface.id);
+  if (!surfaceId) throw new Error("Surface document missing surface.id.");
+  const root = objectValue(surface.root);
+  if (!root.id) throw new Error(`Surface document ${surfaceId} missing surface.root.`);
+  return { ...surfaceDocument, surfaceId, root };
+}
+
+function buildShellNode(component) {
+  const source = objectValue(component);
+  const children = Array.isArray(source.children) ? source.children.map(buildShellNode) : [];
+  return {
+    id: firstString(source.id),
+    componentKind: firstString(source.kind),
+    shellElementKind: shellElementKind(firstString(source.kind)),
+    props: objectValue(source.props),
+    layout: objectValue(source.layout),
+    style: objectValue(source.style),
+    stateBindingCount: Array.isArray(source.stateBindings) ? source.stateBindings.length : 0,
+    embeddedDocumentCount: Array.isArray(source.embeddedDocuments) ? source.embeddedDocuments.length : 0,
+    children,
+  };
+}
+
+function shellElementKind(componentKind) {
+  if (!componentKind) return "empty";
+  if (componentKind.startsWith("control.")) return "command-control";
+  if (componentKind.startsWith("embed.")) return "plugin-placeholder";
+  if (componentKind === "surface.slot") return "embedded-surface-slot";
+  if (componentKind.startsWith("field.") || componentKind.startsWith("world.")) return "world-projection-node";
+  if (componentKind.startsWith("text.") || componentKind === "text" || componentKind === "label") return "text";
+  return "shell-node";
 }
 
 function normalizeWorldInteraction(value) {

@@ -105,10 +105,10 @@
         ],
         "commandBoundary": "aetheria.daemon.commands",
         "receiptSchema": "aetheria.eve_command_acceptance_status.v1",
-        "loweringTargets": ["web-reference", "unity-uitoolkit", "unity-scene", "tui"],
+        "loweringTargets": ["web-reference", "unity-uitoolkit", "unity-scene", "electron-shell", "tui"],
         "ownership": "provider-owns-world-state-assets-command-acceptance-and-receipts"
       },
-      "summary": "Authoritative daemon game surface consumed by Unity and web lowerers."
+      "summary": "Authoritative daemon game surface consumed by Unity, Electron, and web lowerers."
     },
     {
       "schema": "gamecult.eve.surface.v1",
@@ -138,7 +138,7 @@
         ],
         "commandBoundary": "aetheria.daemon.commands",
         "receiptSchema": "aetheria.eve_command_acceptance_status.v1",
-        "loweringTargets": ["web-reference", "unity-uitoolkit", "tui"],
+        "loweringTargets": ["web-reference", "unity-uitoolkit", "electron-shell", "tui"],
         "ownership": "provider-owns-editor-state-assets-command-acceptance-and-receipts"
       }
     }
@@ -176,10 +176,11 @@
   "styleCapabilities": [
     {
       "styleProfile": "aetheria.daemon.world",
-      "preferredLowerings": ["unity-uitoolkit", "web-reference", "tui"],
+      "preferredLowerings": ["unity-uitoolkit", "web-reference", "electron-shell", "tui"],
       "tokenGroups": ["aetheria.world", "aetheria.daemon", "aetheria.commandBoundary"],
       "lossiness": {
         "web-reference": "proves generic Eve lowering and command/binding shape; does not own Aetheria assets or simulation truth",
+        "electron-shell": "projects the same Eve surface tree inside a generic Electron shell; does not own Aetheria assets, IPC truth, or simulation truth",
         "tui": "dense command/state inspection only"
       }
     }

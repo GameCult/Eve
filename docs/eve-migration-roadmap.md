@@ -294,11 +294,11 @@ Recently cut:
   lower provider-owned world state without owning it. Parity compares those
   claims against the ledger, exports them through runtime records and
   `packs/runtime.json`, the runtime-owner smoke asserts them, and the generic
-  conformance smoke now treats `unity-scene` as a narrow Unity scene graph
-  command-surface claim while capture and release remain split blockers.
+  conformance smoke now treats `unity-scene` and `electron-shell` as narrow
+  runtime-owned command-surface claims while capture and release remain split
+  blockers.
 - Missing provider-advertised world-surface lowering targets are now assigned
-  to their pending runtime owner when one exists. `unity-scene` gaps point at
-  EveUnity's pending `unity-scene` runtime, and `tui` gaps point at EveTui's
+  to their pending runtime owner when one exists. `tui` gaps point at EveTui's
   pending `tui` runtime. Eve only owns a world-lowering gap when no runtime
   target has been declared.
 - The conformance export now carries `worldSurfaceLoweringGaps[]` as typed
@@ -308,14 +308,15 @@ Recently cut:
 - The conformance export also carries `worldSurfaceLoweringCoverage[]`, a full
   provider-surface-to-target ledger that marks each advertised lowering target
   as `claimed`, `missing-claim`, or `missing-runtime`. The generic conformance
-  consumer now asserts Aetheria's claimed web, UI Toolkit, and Unity scene graph
-  targets plus the missing TUI targets from the same typed surface.
+  consumer now asserts Aetheria's claimed web, UI Toolkit, Unity scene graph,
+  and Electron shell targets plus the missing TUI targets from the same typed
+  surface.
 - The conformance export carries `commandBoundaryCoverage[]`, joining each
   provider-owned interactive world surface target to its runtime owner,
-  provider command boundary, receipt schema, and runtime command envelope. Web
-  Unity UI Toolkit, and Unity scene are `covered` because they advertise
-  `gamecult.eve.command.v1`; TUI stays visible as `missing-runtime-claim`
-  until its generic terminal lowerer exists.
+  provider command boundary, receipt schema, and runtime command envelope. Web,
+  Unity UI Toolkit, Unity scene, and Electron shell are `covered` because they
+  advertise `gamecult.eve.command.v1`; TUI stays visible as
+  `missing-runtime-claim` until its generic terminal lowerer exists.
 - The browser reference lowerer now carries the active provider surface's
   advertised `worldInteraction.commandBoundary` and
   `worldInteraction.receiptSchema` into each `gamecult.eve.command.v1` intent.
@@ -415,23 +416,25 @@ Recently cut:
   external proof until EveUnity owns it.
 - EveElectron now has a pending split target and handoff at
   `runtimes/incubating/eve-electron/eveelectron-split-handoff.json`. It does
-  not claim an Electron runtime body yet. The handoff draws the line between a
-  future provider-agnostic Electron shell and Aetheria's Starbridge RTS product
-  client, and the split-target consumer smoke keeps the missing shell,
-  provider-advertisement consumption, command transport, and capture proofs
-  visible as blockers.
+  claim a provider-agnostic Electron shell surface-tree projection and command
+  surface, but not packaged rendering, embedded document rendering, plugin
+  projection, or capture. The handoff draws the line between the generic shell
+  and Aetheria's Starbridge RTS product client, and the split-target consumer
+  smoke keeps release, packaged rendering, embedded document rendering, and
+  capture proofs visible as blockers.
 - EveElectron now has a direct split handoff smoke at
   `scripts/run-eveelectron-split-handoff-smoke.ps1`. The smoke verifies the
-  observed Aetheria Electron/client paths that must be replaced, the required
-  Eve contract inputs, and the pending external proofs without treating
-  Aetheria's product client as the generic Electron runtime.
+  current generic shell, command, and world-surface lowering paths, the observed
+  Aetheria Electron/client paths that must be replaced, the required Eve
+  contract inputs, and the pending external proofs without treating Aetheria's
+  product client as the generic Electron runtime.
 - EveElectron now has a pending runtime capability manifest at
   `runtimes/incubating/eve-electron/eve-runtime-capability.json` and a
   lifecycle smoke at `scripts/run-eveelectron-lifecycle-smoke.ps1`. The
-  manifest declares no supported runtime features or plugin projection yet; it
-  only types the pending command boundary, package release, provider-shell
-  smoke, and Electron window capture contracts so EveElectron can consume the
-  conformance export without pretending the generic shell already exists.
+  manifest declares provider advertisement consumption, command transport, and
+  surface-tree projection, claims `electron-shell` world/editor lowering, and
+  still keeps package release, packaged window rendering, plugin projection,
+  and Electron window capture as pending EveElectron work.
 - Electron and TUI pending lifecycle details now live in their runtime
   capability manifests rather than being duplicated in
   `tools/parity/parity-manifest.json`. The parity ledger points at the
@@ -717,8 +720,8 @@ Recently cut:
   provider entry, and `aetheria-world-command-replay` scenario without reading
   Eve's parity manifest or dirtying the Aetheria worktree.
 - The Aetheria consumer smoke now also asserts frontend extraction boundaries:
-  web and Unity UI Toolkit are covered generic lowerings, Unity scene remains a
-  typed EveUnity gap, and the observed Aetheria Electron shell/client paths are
+  web, Unity UI Toolkit, Unity scene, and Electron shell are covered generic
+  lowerings, while the observed Aetheria Electron shell/client paths remain
   split-handoff evidence to replace with a provider-agnostic EveElectron body.
 - The parity harness now runs a conformance consumer smoke against a copied
   `artifacts/conformance/latest` layout, proving the export can be consumed

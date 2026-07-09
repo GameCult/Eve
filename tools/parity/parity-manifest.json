@@ -620,7 +620,7 @@
       "status": "pending",
       "runtimes": ["electron-shell"],
       "requiredRuntimeStatuses": ["active"],
-      "requiredFeatures": ["providerAdvertisements", "embeddedDocuments"],
+      "requiredFeatures": ["providerAdvertisements", "surfaceTreeProjection", "embeddedDocuments"],
       "requiredPlugins": [],
       "proofs": [
         {
@@ -643,7 +643,7 @@
           ]
         },
         {
-          "description": "EveElectron provider-shell skeleton selects advertised surfaces and emits Eve command intents.",
+          "description": "EveElectron provider-shell skeleton selects advertised surfaces, projects Eve surface trees, and emits Eve command intents.",
           "status": "passed",
           "evidencePaths": [
             "runtimes/incubating/eve-electron/package.json",
@@ -722,7 +722,7 @@
       "splitHandoffPath": "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
       "requiredFixtures": ["embedded-surface", "aetheria-world"],
       "pluginFixtures": [],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "surfaceTreeProjection"],
       "supportedPlugins": [],
       "unsupportedPlugins": [
         {
@@ -738,6 +738,20 @@
           "reason": "Electron provider-shell skeleton exists, but no TeX projection adapter exists in this runtime."
         }
       ],
+      "worldSurfaceLowering": [
+        {
+          "targetId": "electron-shell",
+          "surfaceKinds": ["interactive-world", "interactive-world-editor"],
+          "projectionKinds": ["provider-authored-world-surface", "provider-authored-world-editor-surface"],
+          "supportLevel": "electron-shell-surface-tree-command-surface",
+          "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
+          "evidencePaths": [
+            "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+            "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
+            "web/fixtures/aetheria.provider-advertisement.json"
+          ]
+        }
+      ],
       "expectedPaths": [
         "runtimes/incubating/eve-electron/package.json",
         "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
@@ -750,16 +764,16 @@
       "expectedSourceSymbols": [
         {
           "path": "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
-          "contains": ["EveElectronShell", "selectSurface", "createCommandIntent", "worldInteraction", "commandBoundary", "receiptSchema", "electron-shell"]
+          "contains": ["EveElectronShell", "selectSurface", "lowerSurface", "createCommandIntent", "normalizeSurfaceDocument", "buildShellNode", "shellElementKind", "worldInteraction", "commandBoundary", "receiptSchema", "electron-shell"]
         },
         {
           "path": "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
-          "contains": ["selects the active advertised provider surface", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "contains": ["selects the active advertised provider surface", "lowers provider surface trees into an Electron shell projection", "rejects surface documents that do not match the advertised target", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
         }
       ],
       "capture": {
         "status": "missing",
-        "note": "Electron capture is a split blocker until EveElectron owns a provider-agnostic shell."
+        "note": "Electron capture is a split blocker until EveElectron attaches provider-agnostic shell window artifacts."
       }
     },
     {

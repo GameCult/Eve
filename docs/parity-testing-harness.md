@@ -302,7 +302,10 @@ Starbridge RTS client remains Aetheria-owned product code until a
 provider-agnostic shell exists. The same smoke asserts that the Aetheria
 Electron source paths named by the handoff currently exist as
 `observed-provider` sources, so the extraction pressure is visible without
-turning those paths into EveElectron authority. EveTui is also intentionally
+turning those paths into EveElectron authority. The Electron runtime now claims
+a narrow provider-advertised surface-tree command surface, while packaged
+rendering, embedded document rendering, capture, and plugin projection remain
+blockers. EveTui is also intentionally
 pending: Aetheria advertises `tui` as an agent-facing lowering target, but Eve
 should not claim that target until a real terminal/grid lowerer and transcript
 capture exist. EveUnity includes both the active `unity-uitoolkit` package proof

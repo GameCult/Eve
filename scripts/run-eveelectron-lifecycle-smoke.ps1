@@ -39,13 +39,37 @@ if (-not $manifest.incubation.splitHandoff.manifestPath) {
   throw "EveElectron manifest missing split handoff path"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "surfaceTreeProjection")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveElectron manifest missing provider-shell feature: $feature"
   }
 }
 if (@($manifest.supportedPlugins).Count -ne 0) {
-  throw "EveElectron must not claim plugin projection before the generic shell body exists"
+  throw "EveElectron must not claim plugin projection before runtime adapters or sidecar bridges exist"
+}
+
+$worldSurfaceLoweringClaims = @()
+if ($null -ne $manifest.worldSurfaceLowering) {
+  $worldSurfaceLoweringClaims = @($manifest.worldSurfaceLowering)
+}
+if ($worldSurfaceLoweringClaims.Count -ne 1) {
+  throw "EveElectron must claim exactly one world-surface lowering target"
+}
+$worldSurfaceLoweringClaim = $worldSurfaceLoweringClaims | Where-Object { $_.targetId -eq "electron-shell" } | Select-Object -First 1
+if (-not $worldSurfaceLoweringClaim) {
+  throw "EveElectron manifest missing electron-shell world-surface lowering claim"
+}
+if ($worldSurfaceLoweringClaim.supportLevel -ne "electron-shell-surface-tree-command-surface") {
+  throw "Unexpected EveElectron world-surface support level: $($worldSurfaceLoweringClaim.supportLevel)"
+}
+if ($worldSurfaceLoweringClaim.ownership -ne "runtime-lowers-provider-world-surface-without-owning-world-state") {
+  throw "Unexpected EveElectron world-surface ownership: $($worldSurfaceLoweringClaim.ownership)"
+}
+foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
+  $absoluteEvidencePath = Join-Path $projectRoot $evidencePath
+  if (-not (Test-Path -LiteralPath $absoluteEvidencePath)) {
+    throw "EveElectron world-surface claim missing evidence path: $evidencePath"
+  }
 }
 
 foreach ($pluginId in @("sai.vn", "norn.graph", "tex.math")) {

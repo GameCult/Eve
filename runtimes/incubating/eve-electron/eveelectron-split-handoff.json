@@ -41,6 +41,20 @@
       "replacementProof": "Electron emits gamecult.eve.command.v1 intents through the provider-advertised command boundary and receives provider receipts instead of mutating local product state."
     },
     {
+      "id": "electron-world-surface-lowering",
+      "stage": "world-surface-lowering",
+      "currentPaths": [
+        "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+        "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
+        "runtimes/incubating/eve-electron/eve-runtime-capability.json"
+      ],
+      "observedProviderPaths": [
+        "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\Client"
+      ],
+      "destinationOwner": "EveElectron",
+      "replacementProof": "Electron claims provider-advertised world/editor surface targets with provider-agnostic surface-tree projection and command boundary evidence; packaged rendering and capture remain separate lifecycle proofs."
+    },
+    {
       "id": "electron-capture-lifecycle",
       "stage": "capture",
       "currentPaths": [],
@@ -65,7 +79,7 @@
   ],
   "requiredExternalProofs": [
     "EveElectron publishes a runtime capability manifest with provider advertisement consumption and command transport.",
-    "EveElectron owns a provider-shell contract skeleton that selects advertised provider surfaces and emits gamecult.eve.command.v1 intents.",
+    "EveElectron owns a provider-shell contract skeleton that selects advertised provider surfaces, projects Eve surface trees, and emits gamecult.eve.command.v1 intents.",
     "EveElectron lowers at least one generic Eve provider surface that is not Aetheria.",
     "EveElectron lowers Aetheria world/editor surfaces through provider advertisements without importing Aetheria internals.",
     "Aetheria keeps Starbridge-specific UI, assets, authored flows, and receipts in the Aetheria repo.",
