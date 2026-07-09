@@ -296,8 +296,8 @@ Recently cut:
   artifacts so `web:embedded-surface:bounding-boxes` and
   `web:sai-vn:bounding-boxes` are measured runtime evidence instead of
   `pending-runtime-probe`. This proves the browser oracle can measure both core
-  embedded slots and Sai's nested Norn/TeX plugin composition without taking
-  custody of plugin semantics.
+  embedded slots and a Sai surface that optionally composes independent Norn
+  and TeX plugin surfaces without taking custody of their semantics.
 - The conformance export now carries `screenshotComparisonMetrics[]` records.
   Runtime owners get structure, color-token, bounding-box, and text-presence
   metrics per runtime/fixture pair without relying on byte-identical screenshots
@@ -391,15 +391,15 @@ Recently cut:
   are available, but Sai does not own their graph or math semantics.
 - Runtime/plugin projection claims are now exported as root
   `runtimePluginProjectionCoverage[]` records. Runtime-owner smokes assert
-  Unity UI Toolkit support for `sai.vn` and `norn.graph`, its declared TeX gap,
-  and the pending Unity scene/Electron unsupported Sai projection until their
-  generic lowerers exist.
+  Unity UI Toolkit support for `sai.vn` and `norn.graph`, Unity scene support
+  for `norn.graph`, the declared TeX gaps, and the pending Unity
+  scene/Electron unsupported Sai projection until their generic lowerers exist.
 - Provider/runtime/plugin projection coverage is now exported as
   `providerRuntimePluginProjectionCoverage[]`. The runtime-owner smoke proves
   the Sai VN provider surface lowers fully in web, lowers in Unity UI Toolkit
   with Norn support and TeX as a degraded optional nested plugin, and does not
-  let UIKit's generic embedded-document path impersonate full Sai/Norn
-  projection.
+  let UIKit's generic embedded-document path impersonate required Sai VN or
+  optional Norn graph projection.
 - Runtime/plugin projection gaps are now exported as
   `runtimePluginProjectionGaps[]`. The runtime-owner smoke asserts Unity and
   Electron plugin gaps as typed records, so missing Sai, Norn, or TeX projection
@@ -431,8 +431,8 @@ Recently cut:
   Unity scene PNG/frame artifact remains pending. The scene graph now preserves
   embedded document slot identity for resolver-backed child surfaces without
   owning the nested plugin semantics. Plugin projection adapters stay
-  unsupported until Sai, Norn, or TeX sidecar projection support exists in the
-  Unity scene runtime.
+  unsupported for Sai and TeX until those sidecar projection adapters exist in
+  the Unity scene runtime.
 - Unity scene now has a direct split handoff smoke at
   `scripts/run-eveunity-scene-split-handoff-smoke.ps1`. The smoke verifies the
   scene runtime's current source paths for runtime body, scene graph lowering,
@@ -630,8 +630,8 @@ Recently cut:
   request/response schemas, operations, command envelope, receipt schema, and
   state authority. The parity harness validates manifest/advertisement
   agreement, checks sidecar operations against ABI fixture operations, exports
-  the runtime boundary, and the plugin-owner consumer smoke asserts the Sai/Norn
-  sidecar contract from the conformance pack.
+  the runtime boundary, and the plugin-owner consumer smoke asserts the Sai and
+  Norn sidecar contracts from the conformance pack.
 - Conformance export now carries first-class `capabilityGaps[]` records derived
   from plugin errors, provider advertisement/scenario errors, runtime missing
   evidence, declared unsupported plugin projection, capture gaps, and split
@@ -735,8 +735,8 @@ Recently cut:
   tagged release, test runner ownership, and capture runner ownership must move
   to `EveFlutter`, rather than pretending the lifecycle shape is still unknown.
 - EveFlutter now has a provider-catalog picker primitive. `EveProviderCatalog`
-  parses conformance-export provider entries, including Sai/Norn/TeX plugin
-  requirements, and `EveProviderPicker` selects those provider ids without
+  parses conformance-export provider entries, including separate Sai, Norn, and
+  TeX plugin requirements, and `EveProviderPicker` selects those provider ids without
   reading web fixture paths. The Flutter smoke test proves provider selection
   from an export-shaped provider list, so the split-readiness report records the
   provider-picker proof as passed while leaving release/capture lifecycle
@@ -755,11 +755,12 @@ Recently cut:
   the parity harness validates embedded-slot preservation, command descriptors,
   runtime authority witnesses, and style tokens. Direct2D capture and
   runtime-owned command smoke remain the activation blockers.
-- UIKit and Kotlin device-edge runtimes now declare unsupported Sai/Norn/TeX
-  plugin projection explicitly. They remain generic embedded-document and
-  device-edge proofs; plugin projection authority belongs to EveFlutter,
-  EveUnity, or future runtime-specific projection adapters instead of being
-  reported as unexplained active capability gaps.
+- UIKit and Kotlin device-edge runtimes now declare unsupported plugin
+  projection explicitly for separate Sai, Norn, and TeX capabilities. They
+  remain generic embedded-document and device-edge proofs; plugin projection
+  authority belongs to EveFlutter, EveUnity, or future runtime-specific
+  projection adapters instead of being reported as unexplained active capability
+  gaps.
 - The web reference no longer hardcodes the local provider list in
   `web/surface.js`. It loads `web/local-provider-catalog.json`, then opens
   advertisement-backed entries for Aetheria, Repixelizer, and Sai through the
@@ -771,8 +772,9 @@ Recently cut:
   requirements against known plugin manifests, exports them in the conformance
   provider list, and reports missing plugins or capabilities as provider
   capability gaps. The Sai VN fixture now has an advertisement-shaped provider
-  entry for `gamecult.home.vn`, so Sai/Norn/TeX requirements sit at the
-  provider/plugin boundary instead of hiding only in fixture metadata.
+  entry for `gamecult.home.vn`, so Sai, Norn, and TeX requirements sit at
+  separate provider/plugin boundaries instead of hiding only in fixture
+  metadata.
 - The conformance runtime pack now exports `runtimeTargets` in
   `artifacts/conformance/latest/packs/runtime.json`. Runtime repos can consume
   runtime status, feature/plugin claims, command schema, lifecycle, capture
@@ -821,9 +823,14 @@ Recently cut:
 - Unity UI Toolkit now has a first-party `norn.graph` projection-adapter proof
   for `embed.norn`. `NornGraphUiToolkitProjectionAdapter` owns the native
   embedded graph shell and graph command emission path, while the Norn sidecar
-  plugin keeps graph layout and graph semantics. EveUnity split-readiness is now
+  plugin keeps graph layout and graph semantics. UI Toolkit split-readiness is now
   blocked on runtime-owned release, test, and capture lifecycle evidence rather
-  than missing Sai/Norn projection support.
+  than missing required Sai VN or optional Norn graph projection support.
+- Unity scene now has the same kind of bounded `norn.graph` projection proof
+  for `embed.norn`. `NornGraphUnitySceneProjectionAdapter` emits a
+  scene-projection shell with the sidecar ABI, command boundary, document id,
+  and Norn semantic owner preserved; it does not calculate graph layout or make
+  graph-state decisions.
 - Unity UI Toolkit now has a first-party `sai.vn` projection-adapter proof. The
   runtime owns `IEveUiToolkitPluginProjectionAdapter`, registers
   `SaiVisualNovelUiToolkitProjectionAdapter` through
@@ -835,9 +842,9 @@ Recently cut:
   `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`. The
   parity harness validates that manifest against
   `gamecult.eve.runtime_capability.v1`, cross-checks supported features,
-  unsupported Sai/Norn/TeX plugin declarations, command transport schema, and
-  incubation metadata, then exports the manifest path and validation errors
-  through the conformance report.
+  supported Sai and Norn plugin declarations, the unsupported TeX declaration,
+  command transport schema, and incubation metadata, then exports the manifest
+  path and validation errors through the conformance report.
 - Aetheria now consumes the exported conformance pack from its own working
   directory through `scripts/run-aetheria-conformance-consumer-smoke.ps1`. The
   smoke asserts the provider pack, `aetheria-world` fixture, `aetheria`

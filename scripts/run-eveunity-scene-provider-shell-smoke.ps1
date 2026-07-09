@@ -64,6 +64,7 @@ $expectedFiles = @(
   "runtimes\incubating\eve-unity-scene\package.json",
   "runtimes\incubating\eve-unity-scene\Runtime\GameCult.Eve.UnityScene.asmdef",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneSurfaceLowerer.cs",
+  "runtimes\incubating\eve-unity-scene\Runtime\NornGraphUnitySceneProjectionAdapter.cs",
   "runtimes\incubating\eve-unity-scene\Tests\Editor\GameCult.Eve.UnityScene.Tests.asmdef",
   "runtimes\incubating\eve-unity-scene\Tests\Editor\EveUnitySceneSurfaceLowererTests.cs"
 )
@@ -76,14 +77,21 @@ foreach ($relativePath in $expectedFiles) {
 }
 
 $lowererSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneSurfaceLowerer.cs") -Raw
-foreach ($symbol in @("EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "EveUnitySceneNode", "SceneObjectKind", "unity-scene")) {
+foreach ($symbol in @("EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "BuildPluginProjection", "EveUnityScenePluginProjection", "EveUnitySceneNode", "SceneObjectKind", "unity-scene")) {
   if (-not $lowererSource.Contains($symbol)) {
     throw "EveUnity scene provider shell lowerer missing symbol: $symbol"
   }
 }
 
+$nornAdapterSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\NornGraphUnitySceneProjectionAdapter.cs") -Raw
+foreach ($symbol in @("NornGraphUnitySceneProjectionAdapter", "norn.graph", "embed.norn", "gamecult.eve.plugin_abi.v1", "sidecar-advertised-plugin-abi", "Norn")) {
+  if (-not $nornAdapterSource.Contains($symbol)) {
+    throw "EveUnity scene Norn projection adapter missing symbol: $symbol"
+  }
+}
+
 $testSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Tests\Editor\EveUnitySceneSurfaceLowererTests.cs") -Raw
-foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "plugin-placeholder", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
+foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "norn-graph-scene-projection", "norn.graph", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
   if (-not $testSource.Contains($symbol)) {
     throw "EveUnity scene provider shell tests missing symbol: $symbol"
   }

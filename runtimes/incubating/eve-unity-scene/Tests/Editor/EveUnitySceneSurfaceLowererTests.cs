@@ -38,13 +38,23 @@ namespace GameCult.Eve.UnityScene.Tests
             Assert.That(projection.Root.Children[0].StateBindingCount, Is.EqualTo(1));
             Assert.That(projection.Root.Children[1].SceneObjectKind, Is.EqualTo("command-control"));
             Assert.That(projection.Root.Children[1].Props["command"], Is.EqualTo("aetheria.daemon.focus"));
-            Assert.That(projection.Root.Children[2].SceneObjectKind, Is.EqualTo("plugin-placeholder"));
-            Assert.That(projection.Root.Children[2].EmbeddedDocumentCount, Is.EqualTo(1));
-            Assert.That(projection.Root.Children[2].EmbeddedDocuments.Count, Is.EqualTo(1));
-            Assert.That(projection.Root.Children[2].EmbeddedDocuments[0].SlotId, Is.EqualTo("norn.map"));
-            Assert.That(projection.Root.Children[2].EmbeddedDocuments[0].DocumentId, Is.EqualTo("cultmesh://aetheria/norn/map"));
-            Assert.That(projection.Root.Children[2].EmbeddedDocuments[0].SchemaId, Is.EqualTo("gamecult.eve.surface.v1"));
-            Assert.That(projection.Root.Children[2].EmbeddedDocuments[0].PresentationKind, Is.EqualTo("scene-overlay"));
+            var nornNode = projection.Root.Children[2];
+            Assert.That(nornNode.SceneObjectKind, Is.EqualTo("norn-graph-scene-projection"));
+            Assert.That(nornNode.EmbeddedDocumentCount, Is.EqualTo(1));
+            Assert.That(nornNode.EmbeddedDocuments.Count, Is.EqualTo(1));
+            Assert.That(nornNode.EmbeddedDocuments[0].SlotId, Is.EqualTo("norn.map"));
+            Assert.That(nornNode.EmbeddedDocuments[0].DocumentId, Is.EqualTo("cultmesh://aetheria/norn/map"));
+            Assert.That(nornNode.EmbeddedDocuments[0].SchemaId, Is.EqualTo("gamecult.eve.surface.v1"));
+            Assert.That(nornNode.EmbeddedDocuments[0].PresentationKind, Is.EqualTo("scene-overlay"));
+            Assert.That(nornNode.PluginProjection, Is.Not.Null);
+            Assert.That(nornNode.PluginProjection!.PluginId, Is.EqualTo("norn.graph"));
+            Assert.That(nornNode.PluginProjection.ProjectionKind, Is.EqualTo("norn-scene-embedded-graph-shell"));
+            Assert.That(nornNode.PluginProjection.AbiSchema, Is.EqualTo("gamecult.eve.plugin_abi.v1"));
+            Assert.That(nornNode.PluginProjection.CommandBoundary, Is.EqualTo("sidecar-advertised-plugin-abi"));
+            Assert.That(nornNode.PluginProjection.Capabilities, Does.Contain("embed.norn"));
+            Assert.That(nornNode.PluginProjection.Command, Is.EqualTo("graph.focus"));
+            Assert.That(nornNode.PluginProjection.DocumentId, Is.EqualTo("cultmesh://aetheria/norn/map"));
+            Assert.That(nornNode.PluginProjection.SemanticOwner, Is.EqualTo("Norn"));
         }
 
         [Test]
@@ -109,7 +119,11 @@ namespace GameCult.Eve.UnityScene.Tests
                             new EveSurfaceComponent(
                                 $"{surfaceId}.norn",
                                 "embed.norn",
-                                new Dictionary<string, string>(StringComparer.Ordinal),
+                                new Dictionary<string, string>(StringComparer.Ordinal)
+                                {
+                                    ["graph.document"] = "cultmesh://aetheria/norn/map",
+                                    ["interaction.nodeAction"] = "graph.focus"
+                                },
                                 Array.Empty<EveSurfaceComponent>(),
                                 Array.Empty<CultMeshStateBindingDescriptor>(),
                                 new[]

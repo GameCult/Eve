@@ -61,7 +61,7 @@
     "provider internals",
     "plugin semantic internals",
     "Aetheria daemon state as Unity package authority",
-    "Sai or Norn implementation state as Unity projection authority"
+    "Sai, Norn, or TeX implementation state as Unity projection authority"
   ],
   "requiredExternalProofs": [
     "EveUnity publishes a tagged UPM release.",

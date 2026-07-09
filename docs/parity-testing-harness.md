@@ -150,8 +150,9 @@ assert them with `--expect-runtime-plugin-gap <runtimeId:pluginId:ownerRepo>`.
 The same claims are exported as `runtimePluginProjectionCoverage[]`, including
 positive `supported` projection adapters and declared `unsupported` gaps. This
 lets runtime and plugin owners consume one ledger for "Unity UI Toolkit has
-projection adapters for Sai/Norn sidecar-advertised output" and "Unity
-scene/Electron do not have generic plugin projection yet" instead of walking
+projection adapters for independent Sai and Norn sidecar-advertised output,"
+"Unity scene can project Norn's sidecar-advertised embedded graph shell," and
+"Electron does not have generic plugin projection yet" instead of walking
 nested runtime records. Consumer smokes can assert entries with
 `--expect-runtime-plugin-projection <runtimeId:pluginId:status:ownerRepo>`.
 Provider surface plugin requirements are also joined with runtime projection

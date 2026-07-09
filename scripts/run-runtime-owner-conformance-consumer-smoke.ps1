@@ -93,6 +93,8 @@ node $consumerScript $consumerExport `
   --expect-runtime-plugin-projection unity-uitoolkit:norn.graph:supported:EveUnity `
   --expect-runtime-plugin-projection unity-uitoolkit:tex.math:unsupported:EveUnity `
   --expect-runtime-plugin-projection unity-scene:sai.vn:unsupported:EveUnity `
+  --expect-runtime-plugin-projection unity-scene:norn.graph:supported:EveUnity `
+  --expect-runtime-plugin-projection unity-scene:tex.math:unsupported:EveUnity `
   --expect-runtime-plugin-projection electron-shell:sai.vn:unsupported:EveElectron `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:web:sai.vn:supported:Eve `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:web:tex.math:optional-supported:Eve `
@@ -103,7 +105,6 @@ node $consumerScript $consumerExport `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:ios-uikit:norn.graph:optional-unsupported-runtime-projection:EveIOS `
   --expect-runtime-plugin-gap unity-uitoolkit:tex.math:EveUnity `
   --expect-runtime-plugin-gap unity-scene:sai.vn:EveUnity `
-  --expect-runtime-plugin-gap unity-scene:norn.graph:EveUnity `
   --expect-runtime-plugin-gap unity-scene:tex.math:EveUnity `
   --expect-runtime-plugin-gap electron-shell:sai.vn:EveElectron `
   --expect-runtime-plugin-gap electron-shell:norn.graph:EveElectron `

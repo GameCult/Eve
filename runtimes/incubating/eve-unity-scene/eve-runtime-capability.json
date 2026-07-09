@@ -19,15 +19,19 @@
     "sceneGraphProjection",
     "embeddedDocuments"
   ],
-  "supportedPlugins": [],
+  "supportedPlugins": [
+    {
+      "pluginId": "norn.graph",
+      "capabilities": [
+        "embed.norn"
+      ],
+      "projectionAdapter": "NornGraphUnitySceneProjectionAdapter"
+    }
+  ],
   "unsupportedPlugins": [
     {
       "pluginId": "sai.vn",
       "reason": "Unity scene graph projection exists, but no scene adapter exists for Sai sidecar-advertised VN projection in this runtime."
-    },
-    {
-      "pluginId": "norn.graph",
-      "reason": "Unity scene graph projection exists, but no scene-space or UI overlay adapter exists for Norn sidecar-advertised graph projection in this runtime."
     },
     {
       "pluginId": "tex.math",
@@ -43,6 +47,7 @@
       "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
       "evidencePaths": [
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
         "web/fixtures/aetheria.provider-advertisement.json"
       ]
@@ -75,6 +80,7 @@
         "runtimes/incubating/eve-unity-scene/package.json",
         "runtimes/incubating/eve-unity-scene/Runtime/GameCult.Eve.UnityScene.asmdef",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
         "scripts/run-eveunity-scene-split-handoff-smoke.ps1",
         "scripts/run-eveunity-scene-release-contract-smoke.ps1",
@@ -104,6 +110,7 @@
         "runtimes/incubating/eve-unity-scene/package.json",
         "runtimes/incubating/eve-unity-scene/Runtime/GameCult.Eve.UnityScene.asmdef",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/GameCult.Eve.UnityScene.Tests.asmdef",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
         "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",

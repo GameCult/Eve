@@ -44,8 +44,18 @@ foreach ($feature in @("providerAdvertisements", "commandTransport", "sceneGraph
     throw "EveUnity scene manifest missing provider-shell feature: $feature"
   }
 }
-if (@($manifest.supportedPlugins).Count -ne 0) {
-  throw "EveUnity scene must not claim plugin projection before runtime projection adapters for sidecar-advertised capabilities exist"
+if (@($manifest.supportedPlugins).Count -ne 1) {
+  throw "EveUnity scene must claim exactly one plugin projection adapter"
+}
+$nornProjection = @($manifest.supportedPlugins) | Where-Object { $_.pluginId -eq "norn.graph" } | Select-Object -First 1
+if (-not $nornProjection) {
+  throw "EveUnity scene manifest missing supported Norn projection adapter"
+}
+if ($nornProjection.projectionAdapter -ne "NornGraphUnitySceneProjectionAdapter") {
+  throw "Unexpected EveUnity scene Norn projection adapter: $($nornProjection.projectionAdapter)"
+}
+if (-not (@($nornProjection.capabilities) -contains "embed.norn")) {
+  throw "EveUnity scene Norn projection adapter must claim embed.norn"
 }
 $worldSurfaceLoweringClaims = @()
 if ($null -ne $manifest.worldSurfaceLowering) {
@@ -71,11 +81,14 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
   }
 }
 
-foreach ($pluginId in @("sai.vn", "norn.graph", "tex.math")) {
+foreach ($pluginId in @("sai.vn", "tex.math")) {
   $unsupported = @($manifest.unsupportedPlugins) | Where-Object { $_.pluginId -eq $pluginId } | Select-Object -First 1
   if (-not $unsupported) {
     throw "EveUnity scene manifest missing unsupported plugin declaration: $pluginId"
   }
+}
+if (@($manifest.unsupportedPlugins) | Where-Object { $_.pluginId -eq "norn.graph" } | Select-Object -First 1) {
+  throw "EveUnity scene must not report norn.graph unsupported while the projection adapter is declared"
 }
 
 if ($manifest.commandTransport.schema -ne "gamecult.eve.command.v1") {

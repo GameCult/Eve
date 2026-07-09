@@ -9,6 +9,8 @@ namespace GameCult.Eve.UnityScene
 {
     public sealed class EveUnitySceneSurfaceLowerer
     {
+        private static readonly NornGraphUnitySceneProjectionAdapter NornGraphAdapter = new NornGraphUnitySceneProjectionAdapter();
+
         public EveUnitySceneProjection Lower(
             EveSurfaceDocument document,
             EveUnitySceneProviderSurfaceAdvertisement advertisedSurface)
@@ -85,7 +87,15 @@ namespace GameCult.Eve.UnityScene
                 component.StateBindings.Count,
                 component.EmbeddedDocuments.Count,
                 BuildEmbeddedDocumentSlots(component.EmbeddedDocuments),
+                BuildPluginProjection(component),
                 children);
+        }
+
+        private static EveUnityScenePluginProjection? BuildPluginProjection(EveSurfaceComponent component)
+        {
+            if (NornGraphAdapter.CanProject(component))
+                return NornGraphAdapter.Project(component);
+            return null;
         }
 
         private static IReadOnlyList<EveUnitySceneEmbeddedDocumentSlot> BuildEmbeddedDocumentSlots(
@@ -109,6 +119,8 @@ namespace GameCult.Eve.UnityScene
                 return "empty";
             if (componentKind.StartsWith("control.", StringComparison.Ordinal))
                 return "command-control";
+            if (string.Equals(componentKind, "embed.norn", StringComparison.Ordinal))
+                return "norn-graph-scene-projection";
             if (componentKind.StartsWith("embed.", StringComparison.Ordinal))
                 return "plugin-placeholder";
             if (string.Equals(componentKind, "surface.slot", StringComparison.Ordinal))
@@ -168,6 +180,7 @@ namespace GameCult.Eve.UnityScene
             int stateBindingCount,
             int embeddedDocumentCount,
             IReadOnlyList<EveUnitySceneEmbeddedDocumentSlot> embeddedDocuments,
+            EveUnityScenePluginProjection? pluginProjection,
             IReadOnlyList<EveUnitySceneNode> children)
         {
             Id = id ?? "";
@@ -179,6 +192,7 @@ namespace GameCult.Eve.UnityScene
             StateBindingCount = stateBindingCount;
             EmbeddedDocumentCount = embeddedDocumentCount;
             EmbeddedDocuments = embeddedDocuments ?? Array.Empty<EveUnitySceneEmbeddedDocumentSlot>();
+            PluginProjection = pluginProjection;
             Children = children ?? Array.Empty<EveUnitySceneNode>();
         }
 
@@ -200,7 +214,48 @@ namespace GameCult.Eve.UnityScene
 
         public IReadOnlyList<EveUnitySceneEmbeddedDocumentSlot> EmbeddedDocuments { get; }
 
+        public EveUnityScenePluginProjection? PluginProjection { get; }
+
         public IReadOnlyList<EveUnitySceneNode> Children { get; }
+    }
+
+    public sealed class EveUnityScenePluginProjection
+    {
+        public EveUnityScenePluginProjection(
+            string pluginId,
+            string projectionKind,
+            string abiSchema,
+            string commandBoundary,
+            IReadOnlyList<string> capabilities,
+            string command,
+            string documentId,
+            string semanticOwner)
+        {
+            PluginId = pluginId ?? "";
+            ProjectionKind = projectionKind ?? "";
+            AbiSchema = abiSchema ?? "";
+            CommandBoundary = commandBoundary ?? "";
+            Capabilities = capabilities ?? Array.Empty<string>();
+            Command = command ?? "";
+            DocumentId = documentId ?? "";
+            SemanticOwner = semanticOwner ?? "";
+        }
+
+        public string PluginId { get; }
+
+        public string ProjectionKind { get; }
+
+        public string AbiSchema { get; }
+
+        public string CommandBoundary { get; }
+
+        public IReadOnlyList<string> Capabilities { get; }
+
+        public string Command { get; }
+
+        public string DocumentId { get; }
+
+        public string SemanticOwner { get; }
     }
 
     public sealed class EveUnitySceneEmbeddedDocumentSlot
