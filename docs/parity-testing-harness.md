@@ -188,7 +188,9 @@ plugin owners can consume requirement coverage without reconstructing the
 provider/plugin join. `availability: optional-nested` means the parent surface
 can host that independent plugin when available; it is not a parent-plugin
 dependency. Consumer smokes can assert them with
-`--expect-provider-plugin-requirement <providerId:surfaceId:pluginId:status:pluginOwnerRepo>`.
+`--expect-provider-plugin-requirement <providerId:surfaceId:pluginId:status:pluginOwnerRepo[:availability]>`.
+Plugin-owner smokes should use the optional availability field when proving that
+Sai's required VN plugin is distinct from optional nested Norn or TeX surfaces.
 
 The runtime conformance pack is evidence-shaped, not fixture-shaped. Its
 `packs/runtime.json` document includes `runtimeTargets` so runtime repos can

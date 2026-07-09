@@ -710,6 +710,10 @@ Recently cut:
   Aetheria consumer smoke asserts editor ownership and the pending TUI lowering
   gap from the exported contract instead of letting editor support hide behind
   the game-surface scenario.
+- The surface contract now states nested Norn and TeX placement as optional
+  composition, not Sai custody. The plugin-owner consumer can assert
+  provider-plugin requirement availability, so `sai.vn` remains required while
+  `norn.graph` and `tex.math` stay optional nested sidecar plugins.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
   project, lower, measure, and apply behavior. The parity harness validates
   those fixtures against plugin manifests, so Eve proves the ABI shape without

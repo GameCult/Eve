@@ -48,7 +48,7 @@ node $consumerScript $consumerExport `
   --expect-plugin-abi-operation-coverage sai.vn:describe:contracted:Sai `
   --expect-plugin-abi-operation-coverage sai.vn:lower:contracted:Sai `
   --expect-plugin-abi-operation-coverage sai.vn:apply:contracted:Sai `
-  --expect-provider-plugin-requirement gamecult.home.vn:sai.visual_novel.surface:sai.vn:satisfied:Sai `
+  --expect-provider-plugin-requirement gamecult.home.vn:sai.visual_novel.surface:sai.vn:satisfied:Sai:required `
   --expect-plugin-operation norn.graph:describe `
   --expect-plugin-operation norn.graph:validate `
   --expect-plugin-operation norn.graph:project `
@@ -58,8 +58,8 @@ node $consumerScript $consumerExport `
   --expect-plugin-abi-operation-coverage norn.graph:describe:contracted:Norn `
   --expect-plugin-abi-operation-coverage norn.graph:lower:contracted:Norn `
   --expect-plugin-abi-operation-coverage norn.graph:apply:contracted:Norn `
-  --expect-provider-plugin-requirement gamecult.home.vn:sai.visual_novel.surface:norn.graph:optional-satisfied:Norn `
-  --expect-provider-plugin-requirement gamecult.home.vn:sai.visual_novel.surface:tex.math:optional-satisfied:EvePlugins `
+  --expect-provider-plugin-requirement gamecult.home.vn:sai.visual_novel.surface:norn.graph:optional-satisfied:Norn:optional-nested `
+  --expect-provider-plugin-requirement gamecult.home.vn:sai.visual_novel.surface:tex.math:optional-satisfied:EvePlugins:optional-nested `
   --expect-plugin-capability sai.vn:vn.stage `
   --expect-plugin-capability sai.vn:story.choose `
   --expect-plugin-capability sai.vn:story.continue `

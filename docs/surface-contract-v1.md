@@ -146,10 +146,15 @@ placeholder; it must not invent a local substitute for the child document.
 
 ## Embedded Knowledge Surfaces
 
-Eve must be able to place rich interactive surfaces inside another surface. For
-Sai, this means the VN scene can host Norn and TeX as diegetic scene elements:
-whiteboards, handheld tablets, hologram panes, cockpit screens, chalkboards, or
-chromakey regions baked into sprite assets.
+Eve must be able to place rich interactive surfaces inside another surface.
+Nested placement is composition, not custody. A parent surface may reserve scene
+space for another plugin's surface when that plugin is available, but the
+nested plugin keeps its own ABI, capability claims, conformance pack, and
+semantic owner. For Sai, this means a VN scene can deploy with Norn and TeX as
+optional diegetic scene elements: whiteboards, handheld tablets, hologram
+panes, cockpit screens, chalkboards, or chromakey regions baked into sprite
+assets. Sai owns the VN stage. Norn owns graph semantics. TeX owns math and
+typesetting semantics.
 
 ### `embed.norn`
 
@@ -352,12 +357,16 @@ Sai requires Eve/CultUI to carry:
 - speaker, avatar, dialogue, and choices;
 - sprite layers with position, scale, and offsets;
 - external provider-owned cards/fragments;
-- embedded Norn graph/map surfaces with clickable node targets;
-- embedded TeX surfaces for equations, whitepapers, ledgers, and proofs;
+- optional embedded Norn graph/map surfaces with clickable node targets when
+  `norn.graph` is advertised and available;
+- optional embedded TeX surfaces for equations, whitepapers, ledgers, and proofs
+  when `tex.math` is advertised and available;
 - diegetic placement with perspective, skew, keystone, chromakey, and occlusion
   metadata;
 - synchronized style tokens;
 - story commands for continue, choice, jump, and style patch.
 
-Those requirements are now inside the contract, not Sai-specific browser
-behavior.
+Those requirements are now inside the Eve surface and plugin-advertisement
+contracts, not Sai-specific browser behavior. Optional nested Norn or TeX gaps
+degrade the nested surface; they do not move graph, math, or renderer semantics
+into Sai.

@@ -38,7 +38,7 @@ if (!exportDirectory) {
     "  --expect-provider-surface-kind <providerId:surfaceId:surfaceKind>",
     "  --expect-provider-surface-field <providerId:surfaceId:field.path:value>",
     "  --expect-interactive-world-surface <providerId:surfaceId:targetId:ownerRepo>",
-    "  --expect-provider-plugin-requirement <providerId:surfaceId:pluginId:status:pluginOwnerRepo>",
+    "  --expect-provider-plugin-requirement <providerId:surfaceId:pluginId:status:pluginOwnerRepo[:availability]>",
     "  --expect-provider-command <providerId:command>",
     "  --expect-provider-receipt-state <providerId:state>",
     "  --expect-provider-handoff <providerId>",
@@ -463,6 +463,9 @@ function validateIndex(index, directory, expectations, errors) {
     }
     if (requirement.pluginOwnerRepo !== expectation.pluginOwnerRepo) {
       errors.push(`providerPluginRequirementCoverage:${expectation.providerId}:${expectation.surfaceId}:${expectation.pluginId}:pluginOwnerRepo:expected ${expectation.pluginOwnerRepo} got ${requirement.pluginOwnerRepo || ""}`);
+    }
+    if (expectation.availability && requirement.availability !== expectation.availability) {
+      errors.push(`providerPluginRequirementCoverage:${expectation.providerId}:${expectation.surfaceId}:${expectation.pluginId}:availability:expected ${expectation.availability} got ${requirement.availability || ""}`);
     }
   }
   for (const expectation of expectations.providerCommands) {
@@ -1406,8 +1409,8 @@ function parseInteractiveWorldSurfaceExpectation(value) {
 
 function parseProviderPluginRequirementExpectation(value) {
   const parts = value.split(":");
-  if (parts.length !== 5 || parts.some(part => !part)) {
-    console.error(`Expected provider plugin requirement in <providerId:surfaceId:pluginId:status:pluginOwnerRepo> form, got: ${value}`);
+  if (![5, 6].includes(parts.length) || parts.some(part => !part)) {
+    console.error(`Expected provider plugin requirement in <providerId:surfaceId:pluginId:status:pluginOwnerRepo[:availability]> form, got: ${value}`);
     process.exit(2);
   }
   return {
@@ -1416,6 +1419,7 @@ function parseProviderPluginRequirementExpectation(value) {
     pluginId: parts[2],
     status: parts[3],
     pluginOwnerRepo: parts[4],
+    availability: parts[5] || "",
   };
 }
 
