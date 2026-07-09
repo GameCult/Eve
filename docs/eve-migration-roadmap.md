@@ -336,6 +336,12 @@ Recently cut:
   surfaces, emits `gamecult.eve.command.v1` intents with provider command
   boundary and receipt schema fields, and has a runnable Node smoke without
   claiming embedded document rendering, packaged Electron lifecycle, or capture.
+- EveTui now has a provider-shell contract skeleton under
+  `runtimes/incubating/eve-tui`. The shell selects advertised provider
+  surfaces, emits `gamecult.eve.command.v1` intents with provider command
+  boundary and receipt schema fields, and produces an explicitly lossy
+  `gamecult.eve.tui_grid.v1` summary without claiming full `tui` world lowering
+  or transcript capture.
 - The conformance export carries `splitHandoffMoveCoverage[]`, joining runtime
   split handoff move sets to source path status. EveElectron now exposes the
   existing Aetheria `Aetheria.Rts.Web/Electron` and command transport paths as

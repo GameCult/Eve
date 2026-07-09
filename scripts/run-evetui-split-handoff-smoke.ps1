@@ -61,8 +61,18 @@ foreach ($id in $expectedMoveSets.Keys) {
   }
   $currentPaths = if ($null -eq $moveSet.currentPaths) { @() } else { @($moveSet.currentPaths) }
   $observedProviderPaths = if ($null -eq $moveSet.observedProviderPaths) { @() } else { @($moveSet.observedProviderPaths) }
-  if ($currentPaths.Count -ne 0) {
-    throw "EveTui split handoff move set $id must not claim existing Eve source paths before the generic TUI lowerer exists"
+  if ($id -in @("tui-runtime-body", "tui-command-transport")) {
+    if ($currentPaths.Count -eq 0) {
+      throw "EveTui split handoff move set $id must name provider-shell skeleton paths"
+    }
+    foreach ($relativePath in $currentPaths) {
+      $absolutePath = Join-Path $projectRoot $relativePath
+      if (-not (Test-Path -LiteralPath $absolutePath)) {
+        throw "EveTui split handoff move set $id references missing current path: $relativePath"
+      }
+    }
+  } elseif ($currentPaths.Count -ne 0) {
+    throw "EveTui split handoff move set $id must not claim existing Eve source paths before its proof exists"
   }
   if ($observedProviderPaths.Count -ne 0) {
     throw "EveTui split handoff move set $id must not treat provider product paths as generic TUI runtime source"

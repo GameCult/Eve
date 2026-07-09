@@ -13,25 +13,29 @@
       "smokeCommand": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-evetui-split-handoff-smoke.ps1"
     }
   },
-  "supportedFeatures": [],
+  "supportedFeatures": [
+    "providerAdvertisements",
+    "commandTransport",
+    "terminalGridSummary"
+  ],
   "supportedPlugins": [],
   "unsupportedPlugins": [
     {
       "pluginId": "sai.vn",
-      "reason": "TUI has no generic runtime body yet; Sai projection must be a declared lossy terminal projection once EveTui exists."
+      "reason": "TUI provider-shell skeleton exists, but no Sai terminal projection adapter exists in this runtime."
     },
     {
       "pluginId": "norn.graph",
-      "reason": "TUI has no generic runtime body yet; Norn graph projection needs explicit text/grid fallback semantics once EveTui exists."
+      "reason": "TUI provider-shell skeleton exists, but no Norn graph terminal fallback exists in this runtime."
     },
     {
       "pluginId": "tex.math",
-      "reason": "TUI has no generic runtime body yet; TeX projection needs explicit text/grid fallback semantics once EveTui exists."
+      "reason": "TUI provider-shell skeleton exists, but no TeX terminal fallback exists in this runtime."
     }
   ],
   "commandTransport": {
     "schema": "gamecult.eve.command.v1",
-    "status": "pending-runtime-body",
+    "status": "provider-shell-contract-skeleton",
     "emitter": "EveTui.EmitCommand",
     "clientId": "tui",
     "authority": "TUI emits command intents through provider-advertised command boundaries; providers accept, deny, and publish receipts."
@@ -50,6 +54,8 @@
         "publishProof": "Terminal runtime release is created from the EveTui repo and references the provider-agnostic TUI package root."
       },
       "evidencePaths": [
+        "runtimes/incubating/eve-tui/package.json",
+        "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
         "runtimes/incubating/eve-tui/evetui-split-handoff.json",
         "scripts/run-evetui-split-handoff-smoke.ps1"
       ],
@@ -59,25 +65,29 @@
     },
     "test": {
       "ownerRepo": "EveTui",
-      "status": "pending-provider-advertisement-tui-smoke",
+      "status": "provider-shell-contract-skeleton",
       "testContract": {
         "ownerRepo": "EveTui",
         "runnerKind": "terminal-provider-shell-smoke",
         "runnerScript": "scripts/run-evetui-provider-shell-smoke.ps1",
         "consumerProject": "E:\\Projects\\Aetheria",
         "packageName": "eve-tui",
-        "testAssembly": "EveTui.ProviderShell",
-        "testPlatform": "Terminal",
+        "testAssembly": "eve-tui-shell.test.mjs",
+        "testPlatform": "Node terminal-grid contract skeleton",
         "resultsArtifact": "artifacts/evetui-provider-shell/{stamp}/provider-shell-results.json",
         "logArtifact": "artifacts/evetui-provider-shell/{stamp}/provider-shell.log",
         "manifestMutation": "None; the TUI consumes provider advertisements and must not mutate provider product manifests."
       },
       "evidencePaths": [
+        "runtimes/incubating/eve-tui/package.json",
+        "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
+        "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
         "runtimes/incubating/eve-tui/evetui-split-handoff.json",
-        "scripts/run-evetui-split-handoff-smoke.ps1"
+        "scripts/run-evetui-split-handoff-smoke.ps1",
+        "scripts/run-evetui-provider-shell-smoke.ps1"
       ],
       "pendingProofs": [
-        "TUI provider-advertisement shell smoke runs from EveTui without importing provider source layout."
+        "TUI provider-advertisement smoke runs from EveTui with durable terminal transcript or cell-grid artifacts."
       ]
     },
     "capture": {

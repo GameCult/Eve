@@ -57,6 +57,9 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature unity-scene:commandTransport `
   --expect-runtime-feature electron-shell:providerAdvertisements `
   --expect-runtime-feature electron-shell:commandTransport `
+  --expect-runtime-feature tui:providerAdvertisements `
+  --expect-runtime-feature tui:commandTransport `
+  --expect-runtime-feature tui:terminalGridSummary `
   --expect-runtime-feature direct2d:embeddedDocuments `
   --expect-runtime-world-target web:web-reference `
   --expect-runtime-world-field web:web-reference:supportLevel:reference-dom-canvas-command-boundary `
@@ -142,10 +145,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.captureKind:electron-window-png" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-status tui:release:pending-tui-package `
-  --expect-runtime-lifecycle-status tui:test:pending-provider-advertisement-tui-smoke `
+  --expect-runtime-lifecycle-status tui:test:provider-shell-contract-skeleton `
   --expect-runtime-lifecycle-status tui:capture:pending-terminal-capture `
   --expect-runtime-lifecycle-pending "tui:release:TUI package release" `
-  --expect-runtime-lifecycle-pending "tui:test:TUI provider-advertisement shell smoke" `
+  --expect-runtime-lifecycle-pending "tui:test:TUI provider-advertisement smoke runs from EveTui with durable terminal transcript or cell-grid artifacts" `
   --expect-runtime-lifecycle-pending "tui:capture:TUI terminal transcript or cell-grid capture artifact" `
   --expect-runtime-lifecycle-field "tui:release:releaseContract.artifactKind:terminal-runtime" `
   --expect-runtime-lifecycle-field "tui:test:testContract.runnerKind:terminal-provider-shell-smoke" `

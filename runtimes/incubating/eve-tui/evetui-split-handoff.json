@@ -12,7 +12,11 @@
     {
       "id": "tui-runtime-body",
       "stage": "runtime-body",
-      "currentPaths": [],
+      "currentPaths": [
+        "runtimes/incubating/eve-tui/package.json",
+        "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
+        "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs"
+      ],
       "destinationOwner": "EveTui",
       "replacementProof": "EveTui hosts a provider-agnostic TUI lowerer that consumes provider advertisements and Eve surface documents without importing provider internals."
     },
@@ -26,7 +30,10 @@
     {
       "id": "tui-command-transport",
       "stage": "command",
-      "currentPaths": [],
+      "currentPaths": [
+        "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
+        "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs"
+      ],
       "destinationOwner": "EveTui",
       "replacementProof": "TUI actions emit gamecult.eve.command.v1 intents through provider-advertised command boundaries and render provider receipts instead of mutating local state."
     },
@@ -55,6 +62,7 @@
   ],
   "requiredExternalProofs": [
     "EveTui publishes a runtime capability manifest with terminal/grid capabilities.",
+    "EveTui owns a provider-shell contract skeleton that selects advertised provider surfaces, emits gamecult.eve.command.v1 intents, and produces an explicitly lossy terminal-grid summary.",
     "EveTui claims the tui world-surface lowering target only after a real provider-agnostic lowerer exists.",
     "EveTui consumes at least one non-Aetheria provider advertisement.",
     "EveTui consumes Aetheria's agent-facing TUI surface through provider advertisements without importing Aetheria internals.",

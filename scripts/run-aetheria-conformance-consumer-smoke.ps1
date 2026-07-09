@@ -70,8 +70,11 @@ try {
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:tui:missing-runtime-claim:EveTui:tui `
     --expect-world-lowering-gap aetheria:aetheria.daemon.game:unity-scene:EveUnity:unity-scene `
     --expect-world-lowering-gap aetheria:aetheria.daemon.editor:tui:EveTui:tui `
+    --expect-split-handoff-move EveTui:tui:tui-runtime-body:current:exists:eve-tui-shell.mjs `
+    --expect-split-handoff-move EveTui:tui:tui-command-transport:current:exists:eve-tui-shell.mjs `
     --expect-split-target-blocker "EveUnity:Unity scene runtime body graduates to EveUnity outside Aetheria product code" `
     --expect-split-target-blocker "EveElectron:Electron shell runtime body graduates to EveElectron outside Aetheria product code" `
+    --expect-split-target-blocker "EveTui:TUI runtime body graduates to EveTui outside provider product code" `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:replacement-required:no-source-paths:none `
     --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:current:exists:eve-electron-shell.mjs `

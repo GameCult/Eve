@@ -70,8 +70,10 @@ try {
     --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `
     --expect-split-target-proof "EveTui:EveTui lifecycle contract is machine-readable" `
     --expect-split-target-blocker "EveTui:runtime:tui:status:pending" `
-    --expect-split-target-blocker-record EveTui:runtime-feature:tui:commandTransport `
-    --expect-split-target-blocker "EveTui:TUI runtime body exists outside provider product code"
+    --expect-split-target-blocker-record EveTui:runtime-feature:tui:embeddedDocuments `
+    --expect-split-handoff-move EveTui:tui:tui-runtime-body:current:exists:eve-tui-shell.mjs `
+    --expect-split-handoff-move EveTui:tui:tui-command-transport:current:exists:eve-tui-shell.mjs `
+    --expect-split-target-blocker "EveTui:TUI runtime body graduates to EveTui outside provider product code"
   if ($LASTEXITCODE -ne 0) {
     throw "Split target conformance consumer smoke failed with exit code $LASTEXITCODE"
   }

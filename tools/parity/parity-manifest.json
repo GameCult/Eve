@@ -687,13 +687,21 @@
             "scripts/run-evetui-lifecycle-smoke.ps1",
             "scripts/run-evetui-provider-shell-smoke.ps1"
           ]
+        },
+        {
+          "description": "EveTui provider-shell skeleton selects advertised surfaces and emits Eve command intents.",
+          "status": "passed",
+          "evidencePaths": [
+            "runtimes/incubating/eve-tui/package.json",
+            "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
+            "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
+            "scripts/run-evetui-provider-shell-smoke.ps1"
+          ]
         }
       ],
       "pendingProofs": [
-        "TUI runtime body exists outside provider product code.",
-        "TUI consumes provider advertisements without provider source-layout knowledge.",
+        "TUI runtime body graduates to EveTui outside provider product code.",
         "TUI claims provider-advertised tui world-surface lowering with real transcript evidence.",
-        "TUI emits gamecult.eve.command.v1 through provider command boundaries.",
         "TUI terminal transcript or cell-grid captures are attached to conformance output."
       ]
     }
@@ -769,28 +777,41 @@
       "splitHandoffPath": "runtimes/incubating/eve-tui/evetui-split-handoff.json",
       "requiredFixtures": ["embedded-surface", "aetheria-world"],
       "pluginFixtures": [],
-      "supportedFeatures": [],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "terminalGridSummary"],
       "supportedPlugins": [],
       "unsupportedPlugins": [
         {
           "pluginId": "sai.vn",
-          "reason": "TUI has no generic runtime body yet; Sai projection must be a declared lossy terminal projection once EveTui exists."
+          "reason": "TUI provider-shell skeleton exists, but no Sai terminal projection adapter exists in this runtime."
         },
         {
           "pluginId": "norn.graph",
-          "reason": "TUI has no generic runtime body yet; Norn graph projection needs explicit text/grid fallback semantics once EveTui exists."
+          "reason": "TUI provider-shell skeleton exists, but no Norn graph terminal fallback exists in this runtime."
         },
         {
           "pluginId": "tex.math",
-          "reason": "TUI has no generic runtime body yet; TeX projection needs explicit text/grid fallback semantics once EveTui exists."
+          "reason": "TUI provider-shell skeleton exists, but no TeX terminal fallback exists in this runtime."
         }
       ],
       "expectedPaths": [
+        "runtimes/incubating/eve-tui/package.json",
+        "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
+        "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
         "runtimes/incubating/eve-tui/evetui-split-handoff.json",
         "runtimes/incubating/eve-tui/eve-runtime-capability.json",
         "scripts/run-evetui-split-handoff-smoke.ps1",
         "scripts/run-evetui-lifecycle-smoke.ps1",
         "scripts/run-evetui-provider-shell-smoke.ps1"
+      ],
+      "expectedSourceSymbols": [
+        {
+          "path": "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
+          "contains": ["EveTuiShell", "selectSurface", "createCommandIntent", "renderSummary", "gamecult.eve.tui_grid.v1", "commandBoundary", "receiptSchema"]
+        },
+        {
+          "path": "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
+          "contains": ["selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "aetheria.daemon.commands"]
+        }
       ],
       "capture": {
         "status": "missing",
