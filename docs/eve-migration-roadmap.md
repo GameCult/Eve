@@ -280,6 +280,11 @@ Exit criteria:
 
 Recently cut:
 
+- UIKit and Kotlin device-edge runtimes now declare unsupported Sai/Norn/TeX
+  plugin projection explicitly. They remain generic embedded-document and
+  device-edge proofs; plugin projection authority belongs to EveFlutter,
+  EveUnity, or future runtime-specific projection adapters instead of being
+  reported as unexplained active capability gaps.
 - The web reference no longer hardcodes the local provider list in
   `web/surface.js`. It loads `web/local-provider-catalog.json`, then opens
   advertisement-backed entries for Aetheria, Repixelizer, and Sai through the
