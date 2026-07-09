@@ -188,8 +188,9 @@ advertisement surfaces:
 - `Fensalir Direct2D`, a fixture surface for the planned
   CultMesh-to-`AquariumUiDocument` lowering.
 - `Sai VN Surface`, a fixture for visual-novel scenes exported as
-  `gamecult.eve.surface.v1`, including embedded Norn and TeX surfaces placed
-  diegetically inside the scene.
+  `gamecult.eve.surface.v1`, including optional nested Norn and TeX sidecar
+  plugin surfaces placed diegetically inside the scene when those independent
+  plugins are available.
 - `Huginn .cc`, a read-only `.eve` fixture emitted by CultCache/Huginn for
   `.cc` files: source witness, schema catalog, persisted records, payload byte
   counts, and decode status. Huginn emits Eve DSL; Eve compiles and renders it.

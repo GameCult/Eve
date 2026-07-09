@@ -32,14 +32,14 @@ test("builds Unity scene projection capture artifact from provider advertisement
   assert.equal(projection.root.children[1].children[0].sceneObjectKind, "world-projection-node");
 });
 
-test("keeps Sai, Norn, and TeX semantics in sidecar plugin projections", () => {
+test("marks Sai required and Norn TeX optional sidecar plugin projections", () => {
   const advertisement = structuredClone(saiAdvertisement);
   advertisement.surfaces[0].worldInteraction = {
     projectionKind: "provider-authored-visual-novel-surface",
     commandBoundary: "sai.vn.plugin.commands",
     receiptSchema: "gamecult.eve.command_receipt.v1",
     loweringTargets: ["unity-scene"],
-    ownership: "provider-owns-story-state-plugin-sidecars-own-nested-semantics",
+    ownership: "provider-owns-story-state-independent-plugin-sidecars-own-semantics",
   };
 
   const projection = buildUnitySceneProjection(saiSurfaceDocument, advertisement, "sai.visual_novel.surface");
@@ -49,8 +49,11 @@ test("keeps Sai, Norn, and TeX semantics in sidecar plugin projections", () => {
 
   assert.equal(projection.root.pluginProjection.pluginId, "sai.vn");
   assert.equal(projection.root.pluginProjection.semanticOwner, "Sai");
+  assert.equal(projection.root.pluginProjection.availability, "required");
   assert.equal(graphNode.pluginProjection.pluginId, "norn.graph");
   assert.equal(graphNode.pluginProjection.semanticOwner, "Norn");
+  assert.equal(graphNode.pluginProjection.availability, "optional-nested");
   assert.equal(texNode.pluginProjection.pluginId, "tex.math");
   assert.equal(texNode.pluginProjection.semanticOwner, "EvePlugins");
+  assert.equal(texNode.pluginProjection.availability, "optional-nested");
 });

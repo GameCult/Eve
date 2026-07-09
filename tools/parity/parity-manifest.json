@@ -1065,7 +1065,7 @@
         },
         {
           "path": "tools/eveunity/eveunity-scene-capture-artifact.test.mjs",
-          "contains": ["builds Unity scene projection capture artifact", "keeps Sai, Norn, and TeX semantics in sidecar plugin projections", "gamecult.eve.unity_scene_projection.v1", "unity-scene-projection-json"]
+          "contains": ["builds Unity scene projection capture artifact", "marks Sai required and Norn TeX optional sidecar plugin projections", "gamecult.eve.unity_scene_projection.v1", "unity-scene-projection-json", "optional-nested"]
         },
         {
           "path": "tools/eveunity/eveunity-release-contract.test.mjs",
@@ -1536,7 +1536,7 @@
         },
         {
           "path": "tools/eveunity/eveunity-uitoolkit-capture-artifact.test.mjs",
-          "contains": ["builds Unity UI Toolkit projection capture artifact", "keeps Sai, Norn, and TeX semantics in sidecar plugin UI projections", "gamecult.eve.unity_uitoolkit_projection.v1", "unity-uitoolkit-projection-json"]
+          "contains": ["builds Unity UI Toolkit projection capture artifact", "marks Sai required and Norn TeX optional sidecar plugin UI projections", "gamecult.eve.unity_uitoolkit_projection.v1", "unity-uitoolkit-projection-json", "optional-nested"]
         }
       ],
       "commandTransportSmoke": {

@@ -33,14 +33,14 @@ test("builds Unity UI Toolkit projection capture artifact from provider advertis
   assert.deepEqual(projection.root.classNames.slice(0, 2), ["eve-component", "eve-kind-surface"]);
 });
 
-test("keeps Sai, Norn, and TeX semantics in sidecar plugin UI projections", () => {
+test("marks Sai required and Norn TeX optional sidecar plugin UI projections", () => {
   const advertisement = structuredClone(saiAdvertisement);
   advertisement.surfaces[0].worldInteraction = {
     projectionKind: "provider-authored-visual-novel-surface",
     commandBoundary: "sai.vn.plugin.commands",
     receiptSchema: "gamecult.eve.command_receipt.v1",
     loweringTargets: ["unity-uitoolkit"],
-    ownership: "provider-owns-story-state-plugin-sidecars-own-nested-semantics",
+    ownership: "provider-owns-story-state-independent-plugin-sidecars-own-semantics",
   };
 
   const projection = buildUnityUiToolkitProjection(saiSurfaceDocument, advertisement, "sai.visual_novel.surface");
@@ -50,11 +50,14 @@ test("keeps Sai, Norn, and TeX semantics in sidecar plugin UI projections", () =
 
   assert.equal(projection.root.pluginProjection.pluginId, "sai.vn");
   assert.equal(projection.root.pluginProjection.semanticOwner, "Sai");
+  assert.equal(projection.root.pluginProjection.availability, "required");
   assert.equal(projection.root.visualElementKind, "SaiVisualNovelStageElement");
   assert.equal(graphNode.pluginProjection.pluginId, "norn.graph");
   assert.equal(graphNode.pluginProjection.semanticOwner, "Norn");
+  assert.equal(graphNode.pluginProjection.availability, "optional-nested");
   assert.equal(graphNode.visualElementKind, "NornGraphElement");
   assert.equal(texNode.pluginProjection.pluginId, "tex.math");
   assert.equal(texNode.pluginProjection.semanticOwner, "EvePlugins");
+  assert.equal(texNode.pluginProjection.availability, "optional-nested");
   assert.equal(texNode.visualElementKind, "TeXMathElement");
 });

@@ -189,6 +189,7 @@ function buildPluginProjection(componentKind, component) {
       command: "story.choose",
       documentId: firstString(props.storyId, component.id),
       semanticOwner: "Sai",
+      availability: "required",
     };
   }
 
@@ -202,6 +203,7 @@ function buildPluginProjection(componentKind, component) {
       command: "graph.focus",
       documentId: firstString(props.sourceUri, props.documentId, component.id),
       semanticOwner: "Norn",
+      availability: "optional-nested",
     };
   }
 
@@ -215,6 +217,7 @@ function buildPluginProjection(componentKind, component) {
       command: "",
       documentId: firstString(props.sourceUri, props.source, component.id),
       semanticOwner: "EvePlugins",
+      availability: "optional-nested",
     };
   }
 

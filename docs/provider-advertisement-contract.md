@@ -87,11 +87,12 @@ Required top-level meanings:
 - `surfaces[].requiresPlugins`: sidecar plugin capabilities used by the
   surface. Entries may be `availability: required` or
   `availability: optional-nested`. Required entries gate full surface
-  interaction. Optional nested entries, such as a Sai-authored scene slotting in
-  Norn or TeX, degrade when unavailable; they do not make the parent plugin own
-  the nested plugin's semantics. Runtimes compare these entries with local
-  projection support and report visible capability gaps; they must not import
-  provider or plugin internals to recover missing semantics.
+  interaction. Optional nested entries, such as a VN scene reserving space for
+  independently-owned Norn or TeX surfaces, degrade when unavailable; they do
+  not make Sai or any other parent plugin own the nested plugin's semantics.
+  Runtimes compare these entries with local projection support and report
+  visible capability gaps; they must not import provider or plugin internals to
+  recover missing semantics.
 - `commands`: command boundaries the provider accepts.
 - `routes`: transport, store, or compatibility routes used to reach the
   semantic address. WebSocket and HTTP routes live here when they still exist.
