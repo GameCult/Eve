@@ -598,6 +598,7 @@
           "status": "passed",
           "evidencePaths": [
             "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
+            "scripts/run-eveelectron-split-handoff-smoke.ps1",
             "docs/eve-migration-roadmap.md",
             "docs/parity-testing-harness.md"
           ]

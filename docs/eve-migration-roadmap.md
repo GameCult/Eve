@@ -376,6 +376,11 @@ Recently cut:
   client, and the split-target consumer smoke keeps the missing shell,
   provider-advertisement consumption, command transport, and capture proofs
   visible as blockers.
+- EveElectron now has a direct split handoff smoke at
+  `scripts/run-eveelectron-split-handoff-smoke.ps1`. The smoke verifies the
+  observed Aetheria Electron/client paths that must be replaced, the required
+  Eve contract inputs, and the pending external proofs without treating
+  Aetheria's product client as the generic Electron runtime.
 - EveTui now has a pending split target and handoff at
   `runtimes/incubating/eve-tui/evetui-split-handoff.json`. It does not claim
   the advertised `tui` world-surface lowering target yet. The handoff draws the
