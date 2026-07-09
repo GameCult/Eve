@@ -75,6 +75,7 @@ foreach ($contract in @(
   "gamecult.eve.command.v1",
   "gamecult.eve.command_receipt.v1",
   "gamecult.eve.conformance_export.v1",
+  "gamecult.eve.capability_matrix.v1",
   "gamecult.eve.conformance_fixture.v1",
   "gamecult.eve.provider_scenario.v1",
   "gamecult.eve.plugin.v1",
@@ -112,6 +113,7 @@ if (Test-Path -LiteralPath (Join-Path $absoluteExportDirectory "index.json")) {
   }
   foreach ($schemaId in @(
     "gamecult.eve.conformance_export.v1",
+    "gamecult.eve.capability_matrix.v1",
     "gamecult.eve.conformance_fixture.v1",
     "gamecult.eve.provider_scenario.v1",
     "gamecult.eve.provider_advertisement.v1",

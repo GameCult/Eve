@@ -20,6 +20,7 @@
       "destinationOwner": "EveConformance",
       "currentPaths": [
         "schemas/gamecult.eve.conformance_export.v1.schema.json",
+        "schemas/gamecult.eve.capability_matrix.v1.schema.json",
         "schemas/gamecult.eve.conformance_fixture.v1.schema.json",
         "schemas/gamecult.eve.provider_scenario.v1.schema.json",
         "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
@@ -67,6 +68,7 @@
     "gamecult.eve.command.v1",
     "gamecult.eve.command_receipt.v1",
     "gamecult.eve.conformance_export.v1",
+    "gamecult.eve.capability_matrix.v1",
     "gamecult.eve.conformance_fixture.v1",
     "gamecult.eve.provider_scenario.v1",
     "gamecult.eve.plugin.v1",

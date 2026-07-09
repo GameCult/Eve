@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.capability_matrix.v1",
+  "title": "Eve Capability Matrix",
+  "type": "object",
+  "required": [
+    "schema",
+    "generatedAt",
+    "summary",
+    "capabilityGapCount",
+    "handoffs",
+    "packs",
+    "plugins",
+    "providers",
+    "runtimes",
+    "splitTargets"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.capability_matrix.v1"
+    },
+    "generatedAt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "object"
+    },
+    "capabilityGapCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "handoffs": {
+      "type": "object",
+      "required": [
+        "conformance",
+        "plugins",
+        "providers",
+        "runtimes"
+      ],
+      "properties": {
+        "conformance": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "plugins": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "providers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "runtimes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true
+    },
+    "packs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "packId",
+          "ownerRepo",
+          "fixtureCount",
+          "passedFixtures",
+          "failedFixtures"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "plugins": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "pluginId",
+          "ownerRepo",
+          "status",
+          "capabilities",
+          "abiOperations"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "providers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "providerId",
+          "ownerRepo",
+          "status",
+          "surfaces",
+          "commands"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "runtimes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "runtimeId",
+          "ownerRepo",
+          "status",
+          "supportedFeatures",
+          "captureStatus"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "splitTargets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "ownerRepo",
+          "status",
+          "blockerCount",
+          "passedProofs"
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -9,6 +9,7 @@
   "schemas": {
     "gamecult.eve.conformance_fixture.v1": "schemas/gamecult.eve.conformance_fixture.v1.schema.json",
     "gamecult.eve.conformance_export.v1": "schemas/gamecult.eve.conformance_export.v1.schema.json",
+    "gamecult.eve.capability_matrix.v1": "schemas/gamecult.eve.capability_matrix.v1.schema.json",
     "gamecult.eve.command.v1": "schemas/gamecult.eve.command.v1.schema.json",
     "gamecult.eve.command_receipt.v1": "schemas/gamecult.eve.command_receipt.v1.schema.json",
     "gamecult.eve.plugin.v1": "schemas/gamecult.eve.plugin.v1.schema.json",
