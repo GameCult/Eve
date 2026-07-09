@@ -403,9 +403,12 @@ Recently cut:
   lifecycle smoke at `scripts/run-eveunity-scene-lifecycle-smoke.ps1`. The
   manifest claims a provider-agnostic scene graph command surface for
   `unity-scene`, types the package release, provider-advertisement scene smoke,
-  command boundary, and scene capture contracts, and keeps plugin projection
-  adapters unsupported until Sai, Norn, or TeX sidecar projection support exists
-  in the Unity scene runtime.
+  command boundary, and scene capture contracts. It now reuses the shared
+  EveUnity capture request builder through
+  `scripts/run-eveunity-scene-capture-contract-smoke.ps1`, while the actual
+  Unity scene PNG/frame artifact remains pending. Plugin projection adapters
+  stay unsupported until Sai, Norn, or TeX sidecar projection support exists in
+  the Unity scene runtime.
 - Unity scene now has a direct split handoff smoke at
   `scripts/run-eveunity-scene-split-handoff-smoke.ps1`. The smoke verifies the
   scene runtime's current source paths for runtime body, scene graph lowering,
@@ -506,6 +509,14 @@ Recently cut:
   `scripts/run-eveelectron-capture-contract-smoke.ps1` proves that request path
   without pretending an Electron window PNG has been captured. The actual
   capture artifact remains a split blocker for EveElectron.
+- Unity scene capture now uses that same request-contract shape. The
+  `unity-scene` runtime capability manifest names
+  `gamecult.eve.runtime_capture_request.v1`, the shared
+  `tools/eveunity/eveunity-capture-contract.mjs` request builder, the Aetheria
+  provider advertisement input, and the scene PNG artifact pattern.
+  `scripts/run-eveunity-scene-capture-contract-smoke.ps1` proves the request
+  without pretending a Unity scene frame has been captured. The actual frame or
+  screenshot artifact remains a split blocker for EveUnity.
 - Runtime-owner conformance consumption now asserts EveUnity lifecycle stage
   evidence directly. The generic consumer supports
   `--expect-runtime-lifecycle-status` and

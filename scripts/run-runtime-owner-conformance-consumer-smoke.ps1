@@ -156,6 +156,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerKind:unity-scene-provider-shell-smoke" `
   --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerScript:scripts/run-eveunity-scene-provider-shell-smoke.ps1" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.captureKind:unity-scene-frame-png" `
+  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.targetId:unity-scene" `
+  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `
+  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requestBuilder:tools/eveunity/eveunity-capture-contract.mjs" `
+  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.advertisementPath:web/fixtures/aetheria.provider-advertisement.json" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-status electron-shell:release:pending-electron-package `
   --expect-runtime-lifecycle-status electron-shell:test:provider-shell-contract-skeleton `

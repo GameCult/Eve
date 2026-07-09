@@ -65,7 +65,7 @@ foreach ($id in $expectedMoveSets.Keys) {
   }
   $currentPaths = if ($null -eq $moveSet.currentPaths) { @() } else { @($moveSet.currentPaths) }
   $observedProviderPaths = if ($null -eq $moveSet.observedProviderPaths) { @() } else { @($moveSet.observedProviderPaths) }
-  if ($id -in @("unity-scene-runtime-body", "unity-scene-world-surface-lowering", "unity-scene-command-transport")) {
+  if ($id -in @("unity-scene-runtime-body", "unity-scene-world-surface-lowering", "unity-scene-command-transport", "unity-scene-capture-lifecycle")) {
     if ($currentPaths.Count -eq 0) {
       throw "EveUnity scene split handoff move set $id must name current Eve incubation paths"
     }
@@ -75,8 +75,6 @@ foreach ($id in $expectedMoveSets.Keys) {
         throw "EveUnity scene split handoff move set $id path missing: $relativePath"
       }
     }
-  } elseif ($currentPaths.Count -ne 0) {
-    throw "EveUnity scene split handoff move set $id must not claim existing Eve source paths before its proof exists"
   }
   if ($observedProviderPaths.Count -ne 0) {
     throw "EveUnity scene split handoff move set $id must not treat provider product paths as generic scene runtime source"

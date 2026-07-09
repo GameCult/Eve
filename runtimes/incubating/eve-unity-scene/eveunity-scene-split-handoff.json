@@ -47,9 +47,13 @@
     {
       "id": "unity-scene-capture-lifecycle",
       "stage": "capture",
-      "currentPaths": [],
+      "currentPaths": [
+        "tools/eveunity/eveunity-capture-contract.mjs",
+        "tools/eveunity/eveunity-capture-contract.test.mjs",
+        "scripts/run-eveunity-scene-capture-contract-smoke.ps1"
+      ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "EveUnity attaches Unity scene screenshot or frame-capture artifacts to conformance output for at least one provider-authored world surface."
+      "replacementProof": "EveUnity builds a provider-advertisement-backed Unity scene capture request now; the split is not complete until EveUnity attaches Unity scene screenshot or frame-capture artifacts to conformance output for at least one provider-authored world surface."
     }
   ],
   "contractInputs": [

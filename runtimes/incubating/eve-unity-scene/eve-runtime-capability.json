@@ -113,6 +113,10 @@
       "captureContract": {
         "ownerRepo": "EveUnity",
         "runtimeId": "unity-scene",
+        "targetId": "unity-scene",
+        "requestSchema": "gamecult.eve.runtime_capture_request.v1",
+        "requestBuilder": "tools/eveunity/eveunity-capture-contract.mjs",
+        "advertisementPath": "web/fixtures/aetheria.provider-advertisement.json",
         "captureKind": "unity-scene-frame-png",
         "artifactKind": "png",
         "artifactPattern": "artifacts/eveunity-scene-capture/{stamp}/unity-scene.png",
@@ -122,7 +126,11 @@
         "authority": "Capture observes Unity scene projection only; provider state, command acceptance, and receipts stay provider-owned.",
         "publishProof": "Unity scene screenshot or frame-capture artifact is attached to the runtime conformance report from EveUnity."
       },
-      "evidencePaths": [],
+      "evidencePaths": [
+        "tools/eveunity/eveunity-capture-contract.mjs",
+        "tools/eveunity/eveunity-capture-contract.test.mjs",
+        "scripts/run-eveunity-scene-capture-contract-smoke.ps1"
+      ],
       "pendingProofs": [
         "Unity scene screenshot or frame-capture artifact is attached to the runtime conformance report."
       ]

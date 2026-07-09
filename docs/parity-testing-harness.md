@@ -312,8 +312,9 @@ capture, embedded document rendering, plugin projection, and repo graduation
 remain blockers. EveUnity includes both the active `unity-uitoolkit` package proof
 and the pending `unity-scene` runtime boundary; UI Toolkit support is not
 treated as full Unity scene/world lowering. The `unity-scene` runtime now claims
-a narrow scene graph command surface, while capture, release, and plugin
-projection adapters remain explicit blockers.
+a narrow scene graph command surface and exposes a typed capture request
+contract, while actual scene capture, release, and plugin projection adapters
+remain explicit blockers.
 
 The Flutter widget smoke also exercises `EveProviderCatalog` and
 `EveProviderPicker` against a conformance-export-shaped provider list. That is
