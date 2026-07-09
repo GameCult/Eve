@@ -20,6 +20,7 @@
     "providerSurfaceSource",
     "livePlayableWorldClient",
     "providerCommandReceipts",
+    "providerAssetManifestDocumentSource",
     "sceneGraphProjection",
     "playableWorldProjection",
     "playableWorldScenePresentation",

@@ -485,6 +485,62 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void AssetManifestDocumentSourceFeedsCacheWithoutChangingSceneLowering()
+        {
+            var lowerer = new EveUnitySceneSurfaceLowerer();
+            var projection = lowerer.Lower(PlayableArpgDocument(), Advertisement("aetheria.daemon.game"));
+            Assert.That(projection.PlayableWorld, Is.Not.Null);
+
+            var documentSource = new FakeAssetManifestDocumentSource(new EveUnityPlayableWorldAssetManifestDocument(
+                "cultmesh://aetheria/assets/manifest",
+                new[]
+                {
+                    new EveUnityPlayableWorldAssetManifestDocumentEntry(
+                        "cultmesh://aetheria/assets/map/entity/player",
+                        "player",
+                        "resources://Aetheria/Entities/Vanguard.prefab",
+                        "aetheria.vanguard")
+                },
+                "aetheria"));
+            using var manifestSource = new EveUnityPlayableWorldAssetManifestDocumentSource(documentSource);
+            var cache = new EveUnityPlayableWorldAssetManifestCache();
+            manifestSource.Connect();
+            cache.Connect(manifestSource);
+
+            var manifest = cache.GetForWorld(projection.PlayableWorld!);
+            Assert.That(manifest, Is.Not.Null);
+            Assert.That(manifest!.ManifestRef, Is.EqualTo("cultmesh://aetheria/assets/manifest"));
+            var player = manifest.Find(new EveUnityPlayableWorldAssetBinding(
+                "cultmesh://aetheria/assets/map/entity/player",
+                "player",
+                "provider-asset-ref"));
+            Assert.That(player, Is.Not.Null);
+            Assert.That(player!.ResourcesPath, Is.EqualTo("Aetheria/Entities/Vanguard"));
+            Assert.That(player.PrefabKey, Is.EqualTo("aetheria.vanguard"));
+
+            documentSource.Publish(new EveUnityPlayableWorldAssetManifestDocument(
+                "cultmesh://aetheria/assets/manifest",
+                new[]
+                {
+                    new EveUnityPlayableWorldAssetManifestDocumentEntry(
+                        "cultmesh://aetheria/assets/map/entity/player",
+                        "player",
+                        "Resources/Aetheria/Entities/VanguardAuthority.prefab",
+                        "aetheria.vanguard.authority")
+                },
+                "aetheria"));
+
+            var updated = cache.GetForWorld(projection.PlayableWorld);
+            var updatedPlayer = updated!.Find(new EveUnityPlayableWorldAssetBinding(
+                "cultmesh://aetheria/assets/map/entity/player",
+                "player",
+                "provider-asset-ref"));
+            Assert.That(updatedPlayer, Is.Not.Null);
+            Assert.That(updatedPlayer!.ResourcesPath, Is.EqualTo("Aetheria/Entities/VanguardAuthority"));
+            Assert.That(updatedPlayer.PrefabKey, Is.EqualTo("aetheria.vanguard.authority"));
+        }
+
+        [Test]
         public void SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState()
         {
             var lowerer = new EveUnitySceneSurfaceLowerer();
@@ -959,6 +1015,26 @@ namespace GameCult.Eve.UnityScene.Tests
             {
                 CurrentManifest = manifest;
                 ManifestAvailable?.Invoke(manifest);
+            }
+        }
+
+        private sealed class FakeAssetManifestDocumentSource : IEveUnityPlayableWorldAssetManifestDocumentSource
+        {
+            public FakeAssetManifestDocumentSource(EveUnityPlayableWorldAssetManifestDocument currentDocument)
+            {
+                CurrentDocument = currentDocument;
+            }
+
+            public string ManifestRef => CurrentDocument.ManifestRef;
+
+            public EveUnityPlayableWorldAssetManifestDocument CurrentDocument { get; private set; }
+
+            public event Action<EveUnityPlayableWorldAssetManifestDocument>? DocumentAvailable;
+
+            public void Publish(EveUnityPlayableWorldAssetManifestDocument document)
+            {
+                CurrentDocument = document;
+                DocumentAvailable?.Invoke(document);
             }
         }
     }

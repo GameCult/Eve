@@ -5,6 +5,7 @@ import { findProviderCatalogEntry, mergeProviderAdvertisement } from "./provider
 
 const catalog = JSON.parse(readFileSync(new URL("./local-provider-catalog.json", import.meta.url), "utf8"));
 const aetheriaAdvertisement = JSON.parse(readFileSync(new URL("./fixtures/aetheria.provider-advertisement.json", import.meta.url), "utf8"));
+const aetheriaUnityAssetManifest = JSON.parse(readFileSync(new URL("./fixtures/aetheria.unity-playable-world-asset-manifest.json", import.meta.url), "utf8"));
 const worldSmokeAdvertisement = JSON.parse(readFileSync(new URL("./fixtures/eve-world-smoke.provider-advertisement.json", import.meta.url), "utf8"));
 const saiAdvertisement = JSON.parse(readFileSync(new URL("./fixtures/sai-vn.provider-advertisement.json", import.meta.url), "utf8"));
 
@@ -20,6 +21,18 @@ test("merges local fixture transport with advertised Aetheria world interaction"
   assert.equal(surface.worldInteraction.commandBoundary, "aetheria.daemon.commands");
   assert.equal(surface.worldInteraction.receiptSchema, "aetheria.eve_command_acceptance_status.v1");
   assert.equal(provider.localAdvertisement.providerId, "aetheria");
+  assert.ok(aetheriaAdvertisement.schemas.includes("gamecult.eve.unity_playable_world_asset_manifest.v1"));
+});
+
+test("loads Aetheria Unity playable world asset manifest as provider-authored data", () => {
+  assert.equal(aetheriaUnityAssetManifest.schema, "gamecult.eve.unity_playable_world_asset_manifest.v1");
+  assert.equal(aetheriaUnityAssetManifest.providerId, "aetheria");
+  assert.equal(aetheriaUnityAssetManifest.manifestRef, "cultmesh://aetheria/assets/manifest");
+
+  const byKind = new Map(aetheriaUnityAssetManifest.entries.map(entry => [entry.entityKind, entry]));
+  assert.equal(byKind.get("player").assetRef, "cultmesh://aetheria/assets/map/entity/player");
+  assert.equal(byKind.get("player").resourcesPath, "resources://Aetheria/Entities/Vanguard.prefab");
+  assert.equal(byKind.get("enemy").prefabKey, "aetheria.raider");
 });
 
 test("merges generic world fixture transport with advertised world interaction", () => {

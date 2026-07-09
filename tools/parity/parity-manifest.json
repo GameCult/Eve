@@ -33,6 +33,7 @@
     "gamecult.eve.electron_shell_projection.v1": "schemas/gamecult.eve.electron_shell_projection.v1.schema.json",
     "gamecult.eve.unity_uitoolkit_projection.v1": "schemas/gamecult.eve.unity_uitoolkit_projection.v1.schema.json",
     "gamecult.eve.unity_scene_projection.v1": "schemas/gamecult.eve.unity_scene_projection.v1.schema.json",
+    "gamecult.eve.unity_playable_world_asset_manifest.v1": "schemas/gamecult.eve.unity_playable_world_asset_manifest.v1.schema.json",
     "gamecult.eve.tui_grid.v1": "schemas/gamecult.eve.tui_grid.v1.schema.json"
   },
   "conformancePacks": [
@@ -387,7 +388,7 @@
       "scenarioPath": "web/fixtures/aetheria-world-scenario.json",
       "handoffPath": "web/fixtures/aetheria-provider-handoff.json",
       "requiredFixtures": ["aetheria-world"],
-      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "aetheria.runtime.daemon.frame.v1"],
+      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "gamecult.eve.unity_playable_world_asset_manifest.v1", "aetheria.runtime.daemon.frame.v1"],
       "expectedSurfaces": ["aetheria.daemon.game", "aetheria.daemon.editor"],
       "expectedSurfaceKinds": {
         "aetheria.daemon.game": "interactive-world",
@@ -1040,7 +1041,7 @@
       "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
       "requiredFixtures": ["aetheria-world", "eve-world-smoke"],
       "pluginFixtures": ["sai-vn"],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestSource", "sceneGraphProjection", "playableWorldProjection", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "embeddedDocuments"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "providerAssetManifestSource", "sceneGraphProjection", "playableWorldProjection", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "embeddedDocuments"],
       "supportedPlugins": [
         {
           "pluginId": "sai.vn",
@@ -1142,7 +1143,7 @@
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldAssetManifest.cs",
-          "contains": ["EveUnityPlayableWorldAssetManifest", "IEveUnityPlayableWorldAssetManifestSource", "EveUnityPlayableWorldAssetManifestCache", "EveUnityPlayableWorldAssetManifestEntry", "EveUnityManifestGameObjectAssetProvider", "ManifestAvailable", "GetForWorld", "CreateGameObjectAssetProvider", "ManifestRef", "ResourcesPath", "PrefabKey", "NormalizeResourcesPath", "ResolvePrefab", "Resources.Load"]
+          "contains": ["EveUnityPlayableWorldAssetManifest", "IEveUnityPlayableWorldAssetManifestSource", "IEveUnityPlayableWorldAssetManifestDocumentSource", "EveUnityPlayableWorldAssetManifestDocumentSource", "EveUnityPlayableWorldAssetManifestDocument", "EveUnityPlayableWorldAssetManifestDocumentEntry", "FromDocument", "DocumentAvailable", "gamecult.eve.unity_playable_world_asset_manifest.v1", "EveUnityPlayableWorldAssetManifestCache", "EveUnityPlayableWorldAssetManifestEntry", "EveUnityManifestGameObjectAssetProvider", "ManifestAvailable", "GetForWorld", "CreateGameObjectAssetProvider", "ManifestRef", "ResourcesPath", "PrefabKey", "NormalizeResourcesPath", "ResolvePrefab", "Resources.Load"]
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
@@ -1158,7 +1159,7 @@
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
-          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "FakeProviderSurfaceSource", "FakeCommandReceiptSource", "FakeAssetManifestSource", "FakeCommandSink", "FakePlayableWorldSceneSink", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "pending", "reconciled", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "norn.map", "cultmesh://aetheria/norn/map", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "AssetManifestDocumentSourceFeedsCacheWithoutChangingSceneLowering", "FakeProviderSurfaceSource", "FakeCommandReceiptSource", "FakeAssetManifestSource", "FakeAssetManifestDocumentSource", "FakeCommandSink", "FakePlayableWorldSceneSink", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "pending", "reconciled", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "norn.map", "cultmesh://aetheria/norn/map", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
         },
         {
           "path": "tools/eveunity/eveunity-capture-contract.test.mjs",
@@ -1274,7 +1275,7 @@
         },
         {
           "path": "web/provider-advertisements.test.mjs",
-          "contains": ["preserves Sai required and optional nested plugin requirements from advertisement", "merges local fixture transport with advertised Aetheria world interaction", "merges generic world fixture transport with advertised world interaction", "requiresPlugins", "worldInteraction", "optional-nested", "aetheria.daemon.commands", "eve.world-smoke.commands"]
+          "contains": ["preserves Sai required and optional nested plugin requirements from advertisement", "merges local fixture transport with advertised Aetheria world interaction", "loads Aetheria Unity playable world asset manifest as provider-authored data", "gamecult.eve.unity_playable_world_asset_manifest.v1", "merges generic world fixture transport with advertised world interaction", "requiresPlugins", "worldInteraction", "optional-nested", "aetheria.daemon.commands", "eve.world-smoke.commands"]
         },
         {
           "path": "web/local-provider-catalog.json",

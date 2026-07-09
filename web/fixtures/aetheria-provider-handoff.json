@@ -28,6 +28,14 @@
       "replacementProof": "Aetheria owns RTS/ARPG world surface fixtures, generated level state, and assets."
     },
     {
+      "id": "unity-playable-world-asset-manifest",
+      "destinationOwner": "Aetheria",
+      "currentPaths": [
+        "web/fixtures/aetheria.unity-playable-world-asset-manifest.json"
+      ],
+      "replacementProof": "Aetheria owns provider-authored Unity playable-world asset manifest documents; EveUnity only consumes the typed manifest contract."
+    },
+    {
       "id": "provider-scenario",
       "destinationOwner": "Aetheria",
       "currentPaths": [
@@ -40,6 +48,7 @@
   "contractInputs": [
     "gamecult.eve.surface.v1",
     "gamecult.eve.command.v1",
+    "gamecult.eve.unity_playable_world_asset_manifest.v1",
     "gamecult.eve.provider_advertisement.v1",
     "gamecult.eve.provider_scenario.v1",
     "gamecult.eve.conformance_export.v1"

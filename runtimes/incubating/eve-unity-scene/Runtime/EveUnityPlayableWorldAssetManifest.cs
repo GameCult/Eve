@@ -35,6 +35,27 @@ namespace GameCult.Eve.UnityScene
 
         public IReadOnlyList<EveUnityPlayableWorldAssetManifestEntry> Entries { get; }
 
+        public static EveUnityPlayableWorldAssetManifest FromDocument(EveUnityPlayableWorldAssetManifestDocument document)
+        {
+            if (document == null) throw new ArgumentNullException(nameof(document));
+
+            var entries = new List<EveUnityPlayableWorldAssetManifestEntry>();
+            foreach (var entry in document.Entries)
+            {
+                if (entry == null)
+                    continue;
+
+                entries.Add(new EveUnityPlayableWorldAssetManifestEntry(
+                    entry.AssetRef,
+                    entry.EntityKind,
+                    entry.ResourcesPath,
+                    entry.PrefabKey,
+                    entry.PresentationKind));
+            }
+
+            return new EveUnityPlayableWorldAssetManifest(document.ManifestRef, entries);
+        }
+
         public EveUnityPlayableWorldAssetManifestEntry? Find(EveUnityPlayableWorldAssetBinding asset)
         {
             if (asset == null) throw new ArgumentNullException(nameof(asset));
@@ -128,6 +149,115 @@ namespace GameCult.Eve.UnityScene
                 ? fallback
                 : new EveUnityManifestGameObjectAssetProvider(manifest, fallback);
         }
+    }
+
+    public interface IEveUnityPlayableWorldAssetManifestDocumentSource
+    {
+        string ManifestRef { get; }
+
+        EveUnityPlayableWorldAssetManifestDocument CurrentDocument { get; }
+
+        event Action<EveUnityPlayableWorldAssetManifestDocument> DocumentAvailable;
+    }
+
+    public sealed class EveUnityPlayableWorldAssetManifestDocumentSource : IEveUnityPlayableWorldAssetManifestSource, IDisposable
+    {
+        private readonly IEveUnityPlayableWorldAssetManifestDocumentSource _documentSource;
+        private bool _connected;
+
+        public EveUnityPlayableWorldAssetManifestDocumentSource(
+            IEveUnityPlayableWorldAssetManifestDocumentSource documentSource)
+        {
+            _documentSource = documentSource ?? throw new ArgumentNullException(nameof(documentSource));
+            CurrentManifest = EveUnityPlayableWorldAssetManifest.FromDocument(_documentSource.CurrentDocument);
+        }
+
+        public string ManifestRef => CurrentManifest.ManifestRef;
+
+        public EveUnityPlayableWorldAssetManifest CurrentManifest { get; private set; }
+
+        public event Action<EveUnityPlayableWorldAssetManifest>? ManifestAvailable;
+
+        public void Connect()
+        {
+            if (_connected)
+                return;
+
+            _documentSource.DocumentAvailable += OnDocumentAvailable;
+            _connected = true;
+        }
+
+        public void Disconnect()
+        {
+            if (!_connected)
+                return;
+
+            _documentSource.DocumentAvailable -= OnDocumentAvailable;
+            _connected = false;
+        }
+
+        public void Dispose()
+        {
+            Disconnect();
+        }
+
+        private void OnDocumentAvailable(EveUnityPlayableWorldAssetManifestDocument document)
+        {
+            CurrentManifest = EveUnityPlayableWorldAssetManifest.FromDocument(document);
+            ManifestAvailable?.Invoke(CurrentManifest);
+        }
+    }
+
+    public sealed class EveUnityPlayableWorldAssetManifestDocument
+    {
+        public const string SchemaId = "gamecult.eve.unity_playable_world_asset_manifest.v1";
+
+        public EveUnityPlayableWorldAssetManifestDocument(
+            string manifestRef,
+            IReadOnlyList<EveUnityPlayableWorldAssetManifestDocumentEntry> entries,
+            string providerId = "",
+            string schema = SchemaId)
+        {
+            ManifestRef = manifestRef ?? "";
+            Entries = entries ?? Array.Empty<EveUnityPlayableWorldAssetManifestDocumentEntry>();
+            ProviderId = providerId ?? "";
+            Schema = string.IsNullOrWhiteSpace(schema) ? SchemaId : schema;
+        }
+
+        public string Schema { get; }
+
+        public string ManifestRef { get; }
+
+        public string ProviderId { get; }
+
+        public IReadOnlyList<EveUnityPlayableWorldAssetManifestDocumentEntry> Entries { get; }
+    }
+
+    public sealed class EveUnityPlayableWorldAssetManifestDocumentEntry
+    {
+        public EveUnityPlayableWorldAssetManifestDocumentEntry(
+            string assetRef,
+            string entityKind,
+            string resourcesPath,
+            string prefabKey,
+            string presentationKind = "provider-asset-ref")
+        {
+            AssetRef = assetRef ?? "";
+            EntityKind = entityKind ?? "";
+            ResourcesPath = resourcesPath ?? "";
+            PrefabKey = prefabKey ?? "";
+            PresentationKind = presentationKind ?? "";
+        }
+
+        public string AssetRef { get; }
+
+        public string EntityKind { get; }
+
+        public string ResourcesPath { get; }
+
+        public string PrefabKey { get; }
+
+        public string PresentationKind { get; }
     }
 
     public sealed class EveUnityPlayableWorldAssetManifestEntry

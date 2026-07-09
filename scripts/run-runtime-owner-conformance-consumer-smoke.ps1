@@ -48,6 +48,7 @@ node $consumerScript $consumerExport `
   --expect-schema gamecult.eve.electron_shell_projection.v1 `
   --expect-schema gamecult.eve.unity_uitoolkit_projection.v1 `
   --expect-schema gamecult.eve.unity_scene_projection.v1 `
+  --expect-schema gamecult.eve.unity_playable_world_asset_manifest.v1 `
   --expect-schema gamecult.eve.tui_grid.v1 `
   --expect-schema gamecult.eve.web_layout_probe.v1 `
   --expect-runtime-status web:active `
@@ -68,6 +69,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature unity-scene:providerSurfaceSource `
   --expect-runtime-feature unity-scene:livePlayableWorldClient `
   --expect-runtime-feature unity-scene:providerCommandReceipts `
+  --expect-runtime-feature unity-scene:providerAssetManifestDocumentSource `
   --expect-runtime-feature unity-scene:sceneGraphProjection `
   --expect-runtime-feature unity-scene:playableWorldProjection `
   --expect-runtime-feature unity-scene:playableWorldScenePresentation `

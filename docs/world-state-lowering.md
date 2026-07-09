@@ -181,19 +181,22 @@ is the first Unity-native implementation: it creates or updates generic
 `IEveUnityGameObjectAssetProvider` hook. `EveUnityPlayableWorldAssetManifest`
 and `EveUnityManifestGameObjectAssetProvider` add the provider-manifest mapping
 step: provider asset refs and entity kinds become Unity resource/prefab keys
-through data rather than Aetheria code. `IEveUnityPlayableWorldAssetManifestSource`
-and `EveUnityPlayableWorldAssetManifestCache` now key live manifest updates by
-the `playableWorld.AssetManifest` pointer, so a future CultMesh/CultCache source
-can update Unity asset bindings without changing the lowerer. Aetheria-specific
-names appear only as provider-authored data and command ids; the Unity client
-code does not import Aetheria runtime types, prefab classes, or apply movement
+through data rather than Aetheria code. `gamecult.eve.unity_playable_world_asset_manifest.v1`,
+`IEveUnityPlayableWorldAssetManifestDocumentSource`, and
+`EveUnityPlayableWorldAssetManifestDocumentSource` define the typed document
+loading boundary for those Unity load keys. `IEveUnityPlayableWorldAssetManifestSource`
+and `EveUnityPlayableWorldAssetManifestCache` key live manifest updates by the
+`playableWorld.AssetManifest` pointer, so a CultMesh/CultCache source can update
+Unity asset bindings without changing the lowerer. Aetheria-specific names
+appear only as provider-authored data and command ids; the Unity client code
+does not import Aetheria runtime types, prefab classes, or apply movement
 locally.
 
 This is not yet the final playable client. The remaining cut is a live
 CultMesh/CultNet provider subscription adapter implementing those source/sink
-ports, a concrete CultMesh/CultCache asset-manifest source implementation, and
-proof that daemon receipts plus provider snapshots drive the next rendered
-Unity frame rather than renderer-local state.
+ports, concrete CultMesh/CultCache readers for provider snapshots and asset
+manifest documents, and proof that daemon receipts plus provider snapshots drive
+the next rendered Unity frame rather than renderer-local state.
 
 ## Non-Goals
 

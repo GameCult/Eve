@@ -633,12 +633,16 @@ Recently cut:
   `IEveUnityPlayableWorldAssetManifestSource` and
   `EveUnityPlayableWorldAssetManifestCache` key live manifest updates by the
   `playableWorld.AssetManifest` pointer, so the future CultMesh/CultCache
-  reader can update Unity asset bindings without changing scene lowering. The
-  Unity client boundary is generic before it learns live transport. The next
-  blocker is the live generic Unity player loop: implement that CultMesh/CultNet
-  adapter, implement the concrete CultMesh/CultCache asset-manifest source, and
-  prove provider receipts plus daemon snapshots drive rendered Unity frames
-  rather than renderer-local simulation.
+  reader can update Unity asset bindings without changing scene lowering.
+  `gamecult.eve.unity_playable_world_asset_manifest.v1` and
+  `EveUnityPlayableWorldAssetManifestDocumentSource` now define the typed
+  manifest document loading boundary and feed that cache without importing
+  Aetheria asset classes. The Unity client boundary is generic before it learns
+  live transport. The next blocker is the live generic Unity player loop:
+  implement the CultMesh/CultNet adapter, implement concrete CultMesh/CultCache
+  readers for provider snapshots and asset manifest documents, and prove
+  provider receipts plus daemon snapshots drive rendered Unity frames rather
+  than renderer-local simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria

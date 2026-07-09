@@ -39,6 +39,7 @@ try {
   node $consumerScript $consumerExport `
     --expect-pack provider `
     --expect-schema gamecult.eve.provider_handoff.v1 `
+    --expect-schema gamecult.eve.unity_playable_world_asset_manifest.v1 `
     --expect-fixture aetheria-world `
     --expect-provider aetheria `
     --expect-scenario aetheria-world-command-replay `
@@ -110,6 +111,7 @@ try {
     --expect-provider-handoff-move aetheria:provider-advertisement:current:exists:aetheria.provider-advertisement.json `
     --expect-provider-handoff-move aetheria:interactive-world-surface:current:exists:aetheria-world-surface.json `
     --expect-provider-handoff-move aetheria:interactive-world-surface:current:exists:aetheria-world-surface.conformance.json `
+    --expect-provider-handoff-move aetheria:unity-playable-world-asset-manifest:current:exists:aetheria.unity-playable-world-asset-manifest.json `
     --expect-provider-handoff-move aetheria:provider-scenario:current:exists:aetheria-world-scenario.json `
     --expect-provider-handoff-move aetheria:provider-scenario:current:exists:run-aetheria-conformance-consumer-smoke.ps1
   if ($LASTEXITCODE -ne 0) {

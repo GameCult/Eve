@@ -507,10 +507,15 @@ entity kinds to Unity resource/prefab keys through data. The runtime now also
 declares `providerAssetManifestSource`: `IEveUnityPlayableWorldAssetManifestSource`
 and `EveUnityPlayableWorldAssetManifestCache` key live manifest updates by the
 `playableWorld.AssetManifest` pointer, giving the future CultMesh/CultCache
-reader a narrow slot that does not change scene lowering. The remaining blocker
-is the live CultMesh/CultNet adapter, a concrete CultMesh/CultCache provider
-asset-manifest source, and Unity screenshot or frame-capture PNG production from
-EveUnity.
+reader a narrow slot that does not change scene lowering. The runtime now also
+declares `providerAssetManifestDocumentSource`:
+`gamecult.eve.unity_playable_world_asset_manifest.v1`,
+`IEveUnityPlayableWorldAssetManifestDocumentSource`, and
+`EveUnityPlayableWorldAssetManifestDocumentSource` convert provider-authored
+manifest documents into the runtime cache without importing Aetheria asset
+classes. The remaining blocker is the live CultMesh/CultNet adapter, concrete
+CultMesh/CultCache readers for provider snapshots and asset manifests, and Unity
+screenshot or frame-capture PNG production from EveUnity.
 
 Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
 Each record joins runtime status, capture owner, lifecycle capture contract,

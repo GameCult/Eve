@@ -38,7 +38,8 @@
     "aetheria.runtime.daemon.editor_surface.v1",
     "aetheria.runtime.daemon.command.v1",
     "gamecult.eve.surface.v1",
-    "gamecult.eve.command.v1"
+    "gamecult.eve.command.v1",
+    "gamecult.eve.unity_playable_world_asset_manifest.v1"
   ],
   "witnesses": [
     {
@@ -65,6 +66,11 @@
       "kind": "cultmesh-record",
       "ref": "AetheriaRuntimeVerseRecordKeys.DaemonCommandBoundary",
       "summary": "Aetheria daemon typed command boundary record."
+    },
+    {
+      "kind": "cultmesh-record",
+      "ref": "cultmesh://aetheria/assets/manifest",
+      "summary": "Provider-authored Unity playable-world asset manifest consumed by EveUnity without importing Aetheria prefab classes."
     }
   ],
   "surfaces": [

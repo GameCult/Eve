@@ -73,7 +73,7 @@
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, provider snapshot session, live playable-world client composition, provider command receipt observation, playable-world scene presentation, Unity GameObject scene sink, provider asset manifest resolution, provider asset manifest source/cache, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
+      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, provider snapshot session, live playable-world client composition, provider command receipt observation, playable-world scene presentation, Unity GameObject scene sink, typed provider asset manifest document loading, provider asset manifest resolution, provider asset manifest source/cache, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
     },
     {
       "id": "unity-scene-sai-plugin-projection",
@@ -165,6 +165,7 @@
     "EveUnity owns a live playable-world client coordinator that applies provider snapshots through the presenter, observes provider command receipts, and emits command intents through the advertised provider command sink without local simulation.",
     "EveUnity owns a playable-world presenter that maps provider-authored entity rows and asset refs into Unity scene operations without importing Aetheria entity or prefab classes.",
     "EveUnity owns a generic Unity GameObject scene sink and asset-provider hook for playable-world rows without importing Aetheria entity or prefab classes.",
+    "EveUnity owns gamecult.eve.unity_playable_world_asset_manifest.v1 document loading into its asset manifest cache without importing Aetheria asset classes.",
     "EveUnity owns a provider asset manifest resolver that maps provider-authored asset refs and entity kinds to Unity load keys without importing Aetheria asset classes.",
     "EveUnity owns a provider asset manifest source/cache boundary keyed by playableWorld assetManifest pointers so live CultMesh/CultCache loading can update Unity asset bindings without changing scene lowering.",
     "EveUnity owns the provider-agnostic playable-world scene lowerer outside Eve incubation.",

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.unity_playable_world_asset_manifest.v1",
+  "title": "Eve Unity Playable World Asset Manifest",
+  "type": "object",
+  "required": ["schema", "manifestRef", "entries"],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.unity_playable_world_asset_manifest.v1"
+    },
+    "manifestRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "providerId": {
+      "type": "string"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["resourcesPath"],
+        "properties": {
+          "assetRef": {
+            "type": "string"
+          },
+          "entityKind": {
+            "type": "string"
+          },
+          "resourcesPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "prefabKey": {
+            "type": "string"
+          },
+          "presentationKind": {
+            "type": "string"
+          }
+        },
+        "anyOf": [
+          {
+            "required": ["assetRef"]
+          },
+          {
+            "required": ["entityKind"]
+          }
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}
