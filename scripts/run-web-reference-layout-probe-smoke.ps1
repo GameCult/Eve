@@ -4,7 +4,8 @@ param(
   [string] $OutputPath = "artifacts\web-reference-layout-probe\latest\embedded-surface.json",
   [int] $Port = 8892,
   [int] $Width = 1280,
-  [int] $Height = 720
+  [int] $Height = 720,
+  [switch] $SkipBuild
 )
 
 $ErrorActionPreference = "Stop"
@@ -18,9 +19,11 @@ $absoluteOutputPath = if ([System.IO.Path]::IsPathRooted($OutputPath)) {
 
 Push-Location $projectRoot
 try {
-  npm --prefix packages/eve-browser-lowering run build | Out-Host
-  if ($LASTEXITCODE -ne 0) {
-    throw "Eve browser lowering build failed with exit code $LASTEXITCODE"
+  if (-not $SkipBuild) {
+    npm --prefix packages/eve-browser-lowering run build | Out-Host
+    if ($LASTEXITCODE -ne 0) {
+      throw "Eve browser lowering build failed with exit code $LASTEXITCODE"
+    }
   }
 
   node .\tools\web-reference\run-layout-probe.mjs `

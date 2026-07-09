@@ -128,6 +128,9 @@ node $consumerScript $consumerExport `
   --expect-screenshot-metric web:embedded-surface:color-tokens:pass `
   --expect-screenshot-metric web:embedded-surface:text-presence:pass `
   --expect-screenshot-metric web:embedded-surface:bounding-boxes:pass `
+  --expect-screenshot-metric web:sai-vn:structure:pass `
+  --expect-screenshot-metric web:sai-vn:color-tokens:pass `
+  --expect-screenshot-metric web:sai-vn:bounding-boxes:pass `
   --expect-screenshot-metric unity-scene:aetheria-world:bounding-boxes:pending-capture `
   --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
   --expect-screenshot-metric tui:aetheria-world:bounding-boxes:pending-capture `

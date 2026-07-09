@@ -1122,6 +1122,14 @@
             "schema": "gamecult.eve.web_layout_probe.v1",
             "path": "artifacts/web-reference-layout-probe/latest/embedded-surface.json",
             "runner": "scripts/run-web-reference-layout-probe-smoke.ps1"
+          },
+          {
+            "fixtureId": "sai-vn",
+            "providerId": "gamecult.home.vn",
+            "surfaceId": "sai.visual_novel.surface",
+            "schema": "gamecult.eve.web_layout_probe.v1",
+            "path": "artifacts/web-reference-layout-probe/latest/sai-vn.json",
+            "runner": "scripts/run-web-reference-layout-probe-smoke.ps1"
           }
         ]
       }

@@ -67,6 +67,9 @@ try {
     --expect-screenshot-metric web:embedded-surface:color-tokens:pass `
     --expect-screenshot-metric web:embedded-surface:text-presence:pass `
     --expect-screenshot-metric web:embedded-surface:bounding-boxes:pass `
+    --expect-screenshot-metric web:sai-vn:structure:pass `
+    --expect-screenshot-metric web:sai-vn:color-tokens:pass `
+    --expect-screenshot-metric web:sai-vn:bounding-boxes:pass `
     --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
     --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release" `
     --expect-conformance-handoff
