@@ -1099,6 +1099,12 @@ Recently cut:
   `story.*`/`style.patch`; Aetheria proves the daemon command boundary; the web
   lowerer resolves authored `action.command` through the shared Eve command
   intent path.
+- Provider plugin requirements now distinguish required parent semantics from
+  optional nested sidecar affordances at the contract layer. A Sai surface may
+  require `sai.vn`, but nested `norn.graph` and `tex.math` entries must keep
+  `requiredCapabilities` empty and advertise their nested affordances through
+  `optionalCapabilities`, preserving Norn and TeX as independent sidecar
+  plugins.
 - Provider advertisement validation now runs in the parity harness.
 - Repixelizer and Aetheria provider advertisements are checked against
   `gamecult.eve.provider_advertisement.v1`.

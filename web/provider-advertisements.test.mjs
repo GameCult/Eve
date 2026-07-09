@@ -52,7 +52,9 @@ test("preserves Sai required and optional nested plugin requirements from advert
     "story.jump",
   ]);
   assert.equal(byPlugin.get("norn.graph").availability, "optional-nested");
+  assert.deepEqual(byPlugin.get("norn.graph").requiredCapabilities, []);
   assert.deepEqual(byPlugin.get("norn.graph").optionalCapabilities, ["embed.norn"]);
   assert.equal(byPlugin.get("tex.math").availability, "optional-nested");
+  assert.deepEqual(byPlugin.get("tex.math").requiredCapabilities, []);
   assert.deepEqual(byPlugin.get("tex.math").optionalCapabilities, ["embed.tex"]);
 });

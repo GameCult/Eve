@@ -220,6 +220,45 @@
                   }
                 }
               },
+              "allOf": [
+                {
+                  "if": {
+                    "properties": {
+                      "availability": {
+                        "const": "required"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "requiredCapabilities": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "required": ["availability"],
+                    "properties": {
+                      "availability": {
+                        "const": "optional-nested"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": ["optionalCapabilities"],
+                    "properties": {
+                      "requiredCapabilities": {
+                        "maxItems": 0
+                      },
+                      "optionalCapabilities": {
+                        "minItems": 1
+                      }
+                    }
+                  }
+                }
+              ],
               "additionalProperties": true
             }
           }

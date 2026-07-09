@@ -971,6 +971,7 @@ function validateProviderPluginRequirements(provider, requirements, pluginResult
   const errors = [];
   const pluginById = new Map((pluginResults || []).map(plugin => [plugin.pluginId, plugin]));
   for (const requirement of requirements) {
+    errors.push(...validateProviderPluginRequirementShape(provider, requirement));
     const plugin = pluginById.get(requirement.pluginId);
     const optional = requirement.availability && requirement.availability !== "required";
     if (!plugin) {
@@ -988,6 +989,28 @@ function validateProviderPluginRequirements(provider, requirements, pluginResult
       }
     }
   }
+  return errors;
+}
+
+function validateProviderPluginRequirementShape(provider, requirement) {
+  const label = `${provider.advertisementPath}:${requirement.surfaceId}:plugin:${requirement.pluginId || "unknown"}`;
+  const errors = [];
+  const availability = requirement.availability || "required";
+  if (!requirement.pluginId) errors.push(`${label}:pluginId:missing`);
+
+  if (availability === "required" && !requirement.requiredCapabilities.length) {
+    errors.push(`${label}:requiredCapabilities:missing`);
+  }
+
+  if (availability === "optional-nested") {
+    if (requirement.requiredCapabilities.length) {
+      errors.push(`${label}:optional-nested:requiredCapabilities:must-be-empty`);
+    }
+    if (!requirement.optionalCapabilities.length) {
+      errors.push(`${label}:optional-nested:optionalCapabilities:missing`);
+    }
+  }
+
   return errors;
 }
 

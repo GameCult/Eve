@@ -90,6 +90,9 @@ Required top-level meanings:
   interaction. Optional nested entries, such as a VN scene reserving space for
   independently-owned Norn or TeX surfaces, degrade when unavailable; they do
   not make Sai or any other parent plugin own the nested plugin's semantics.
+  Required entries put their gated capabilities in `requiredCapabilities`.
+  Optional nested entries leave `requiredCapabilities` empty and put their
+  nested affordance claims in `optionalCapabilities`.
   Runtimes compare these entries with local projection support and report
   visible capability gaps; they must not import provider or plugin internals to
   recover missing semantics.
