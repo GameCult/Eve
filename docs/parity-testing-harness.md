@@ -485,6 +485,10 @@ types. It also declares `providerSurfaceSource` through
 `EveUnitySceneProviderConnection`, `IEveUnitySceneProviderSurfaceSource`, and
 `IEveUnitySceneCommandSink`, so the live CultMesh/CultNet adapter has a narrow
 runtime-owned port to implement. The runtime now also declares
+`livePlayableWorldClient`: `EveUnityPlayableWorldLiveClient` composes the
+provider connection with `EveUnityPlayableWorldPresenter`, applies every live
+snapshot to the scene sink, and delegates player intent back to the advertised
+provider command boundary. The runtime now also declares
 `playableWorldScenePresentation`: `EveUnityPlayableWorldPresenter` maps
 provider-authored entity rows and asset refs into scene sink operations while
 removing entities absent from later provider snapshots. The runtime now also
@@ -499,8 +503,9 @@ declares `providerAssetManifestSource`: `IEveUnityPlayableWorldAssetManifestSour
 and `EveUnityPlayableWorldAssetManifestCache` key live manifest updates by the
 `playableWorld.AssetManifest` pointer, giving the future CultMesh/CultCache
 reader a narrow slot that does not change scene lowering. The remaining blocker
-is the live adapter, a concrete CultMesh/CultCache provider asset-manifest
-source, and Unity screenshot or frame-capture PNG production from EveUnity.
+is the live CultMesh/CultNet adapter, a concrete CultMesh/CultCache provider
+asset-manifest source, receipt-aware refresh through the live client, and Unity
+screenshot or frame-capture PNG production from EveUnity.
 
 Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
 Each record joins runtime status, capture owner, lifecycle capture contract,

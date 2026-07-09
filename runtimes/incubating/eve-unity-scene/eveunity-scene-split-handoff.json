@@ -18,6 +18,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldAssetManifest.cs",
@@ -39,6 +40,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldAssetManifest.cs",
@@ -60,6 +62,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldAssetManifest.cs",
@@ -70,7 +73,7 @@
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, provider snapshot session, playable-world scene presentation, Unity GameObject scene sink, provider asset manifest resolution, provider asset manifest source/cache, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
+      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, provider snapshot session, live playable-world client composition, playable-world scene presentation, Unity GameObject scene sink, provider asset manifest resolution, provider asset manifest source/cache, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
     },
     {
       "id": "unity-scene-sai-plugin-projection",
@@ -159,6 +162,7 @@
     "EveUnity owns a provider-agnostic scene graph lowerer that consumes advertised worldInteraction boundaries without importing Aetheria internals.",
     "EveUnity owns a provider-snapshot Unity scene client session that lowers Aetheria's surface and emits command intents without importing Aetheria project code.",
     "EveUnity owns provider surface source and command sink ports that a live CultMesh/CultNet adapter can implement without changing scene lowering.",
+    "EveUnity owns a live playable-world client coordinator that applies provider snapshots through the presenter and emits command intents through the advertised provider command sink without local simulation.",
     "EveUnity owns a playable-world presenter that maps provider-authored entity rows and asset refs into Unity scene operations without importing Aetheria entity or prefab classes.",
     "EveUnity owns a generic Unity GameObject scene sink and asset-provider hook for playable-world rows without importing Aetheria entity or prefab classes.",
     "EveUnity owns a provider asset manifest resolver that maps provider-authored asset refs and entity kinds to Unity load keys without importing Aetheria asset classes.",
