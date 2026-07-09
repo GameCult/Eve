@@ -1,0 +1,160 @@
+{
+  "type": "surface-state",
+  "schema": "gamecult.eve.surface.v1",
+  "providerId": "fensalir.direct2d",
+  "providerKind": "runtime.adapter",
+  "title": "Fensalir Direct2D Adapter Surface",
+  "version": 1,
+  "updatedAtUtc": "2026-07-09T00:00:00Z",
+  "surface": {
+    "id": "fensalir.direct2d.adapter",
+    "root": {
+      "id": "fensalir.direct2d.root",
+      "kind": "surface",
+      "props": {
+        "runtimeTarget": "Fensalir",
+        "loweringTarget": "AquariumUiDocument"
+      },
+      "children": [
+        {
+          "id": "fensalir.direct2d.summary",
+          "kind": "card",
+          "props": {
+            "title": "Direct2D Runtime Boundary",
+            "authorityOwner": "runtime",
+            "authorityState": "fresh",
+            "witnessRef": "E:\\Projects\\Fensalir\\src\\Aquarium.EveSurface\\EveSurfaceRuntime.cs"
+          },
+          "children": [
+            {
+              "id": "fensalir.direct2d.summary.text",
+              "kind": "text",
+              "props": {
+                "text": "Fensalir owns DirectWrite/Direct2D projection, focus, pointer dispatch, frame timing, and capture. Eve owns the contract this surface exercises."
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "fensalir.direct2d.pipeline",
+          "kind": "partition",
+          "props": {
+            "direction": "horizontal"
+          },
+          "children": [
+            {
+              "id": "fensalir.direct2d.aquarium",
+              "kind": "card",
+              "props": {
+                "title": "AquariumUiDocument"
+              },
+              "children": [
+                {
+                  "id": "fensalir.direct2d.aquarium.metric",
+                  "kind": "metric",
+                  "props": {
+                    "label": "Overlay Phase",
+                    "value": "D3D12 scene -> D2D overlay",
+                    "bind": "fensalir.overlay.phase"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "fensalir.direct2d.aquarium.detail",
+                  "kind": "text",
+                  "props": {
+                    "text": "The adapter lowers Eve components into Aquarium UI panels without importing provider game state."
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "fensalir.direct2d.commands",
+              "kind": "card",
+              "props": {
+                "title": "Command Boundary"
+              },
+              "children": [
+                {
+                  "id": "fensalir.direct2d.command.focus",
+                  "kind": "control.button",
+                  "props": {
+                    "label": "Focus Adapter Node",
+                    "command": "fensalir.overlay.commands",
+                    "commandId": "fensalir.overlay.focus",
+                    "action": {
+                      "schema": "gamecult.eve.command.v1",
+                      "command": "fensalir.overlay.commands",
+                      "operation": "focus_node",
+                      "nodeId": "aquarium-ui"
+                    }
+                  },
+                  "children": []
+                },
+                {
+                  "id": "fensalir.direct2d.command.capture",
+                  "kind": "control.button",
+                  "props": {
+                    "label": "Request Frame Capture",
+                    "command": "fensalir.overlay.commands",
+                    "commandId": "fensalir.overlay.capture",
+                    "action": {
+                      "schema": "gamecult.eve.command.v1",
+                      "command": "fensalir.overlay.commands",
+                      "operation": "capture_frame",
+                      "target": "direct2d-overlay"
+                    }
+                  },
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fensalir.direct2d.embedded-slot",
+          "kind": "surface.slot",
+          "props": {
+            "slotId": "fensalir.adapter.detail",
+            "documentId": "cultmesh://fensalir/eve/adapter/detail",
+            "schemaId": "gamecult.eve.surface.v1",
+            "presentationKind": "runtime.detail"
+          },
+          "children": [],
+          "embeddedDocuments": [
+            {
+              "slotId": "fensalir.adapter.detail",
+              "documentId": "cultmesh://fensalir/eve/adapter/detail",
+              "schemaId": "gamecult.eve.surface.v1",
+              "presentationKind": "runtime.detail",
+              "routeHint": {
+                "kind": "CultMesh",
+                "description": "Fensalir runtime detail surface"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "styles": {
+      "tokens": {
+        "colorBackground": "#090D10",
+        "colorPanel": "#182024",
+        "colorText": "#EDF7F2",
+        "colorMuted": "#9FB6B1",
+        "colorAccent": "#67D3B0"
+      }
+    }
+  },
+  "commands": [
+    {
+      "command": "fensalir.overlay.commands",
+      "schema": "gamecult.eve.command.v1",
+      "transport": "cultmesh",
+      "authority": "FensalirOverlayCommandBoundary",
+      "result": "accepted-denied-or-replayed"
+    }
+  ]
+}

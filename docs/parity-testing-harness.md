@@ -235,7 +235,9 @@ The harness tracks every target runtime:
   Required nested-surface evidence: `cargo test -p cultnet-rs
   rust_preserves_cultui_embedded_surface_slots_through_typed_document_sync`
   in CultLib.
-- Fensalir Direct2D: specialized native target, adapter/capture still missing.
+- Fensalir Direct2D: specialized native target with a runtime-pack
+  `gamecult.eve.surface.v1` adapter fixture; runtime-owned command smoke and
+  Direct2D capture are still missing.
 
 Pending runtimes are allowed. Silent fake parity is not.
 

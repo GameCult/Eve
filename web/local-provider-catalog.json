@@ -50,8 +50,8 @@
       "surfaces": [
         {
           "transport": "local-json",
-          "surfaceId": "fensalir.direct2d.fixture",
-          "url": "./fixtures/fensalir-client-surface.json"
+          "surfaceId": "fensalir.direct2d.adapter",
+          "url": "./fixtures/fensalir-direct2d-surface.json"
         }
       ]
     },

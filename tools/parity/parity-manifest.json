@@ -202,6 +202,30 @@
       }
     },
     {
+      "id": "fensalir-direct2d",
+      "title": "Fensalir Direct2D Adapter",
+      "pack": "runtime",
+      "ownerRepo": "Fensalir",
+      "surface": {
+        "transport": "local-json",
+        "path": "web/fixtures/fensalir-direct2d-surface.json"
+      },
+      "metadataPath": "web/fixtures/fensalir-direct2d-surface.conformance.json",
+      "expect": {
+        "providerId": "fensalir.direct2d",
+        "componentKinds": ["surface", "card", "text", "metric", "partition", "surface.slot", "control.button"],
+        "styleTokens": ["colorBackground", "colorPanel", "colorText", "colorMuted", "colorAccent"],
+        "bindings": ["fensalir.overlay.phase"],
+        "embeddedDocuments": ["fensalir.adapter.detail"],
+        "commandDescriptors": ["fensalir.overlay.commands"],
+        "commandDescriptorSchema": "gamecult.eve.command.v1",
+        "commandReferencesDeclared": true,
+        "authorityStates": ["fresh"],
+        "authorityOwners": ["runtime"],
+        "witnessRefs": 1
+      }
+    },
+    {
       "id": "authority-staleness",
       "title": "Authority And Staleness Witness",
       "pack": "core",
@@ -910,16 +934,16 @@
       "splitTarget": "Fensalir or EveDirect2D if it earns a separate body",
       "graduationTrigger": "Do not graduate until the Eve-to-AquariumUiDocument adapter and Direct2D frame capture exist.",
       "adapterSpike": "external",
-      "demotionReason": "Fensalir has an external Aquarium.EveSurface adapter spike, but Eve has no Direct2D frame capture and the local fensalir fixture is still legacy dashboard-state instead of gamecult.eve.surface.v1 conformance input.",
+      "demotionReason": "Fensalir has an external Aquarium.EveSurface adapter spike and a recorded gamecult.eve.surface.v1 adapter fixture, but Eve still has no Direct2D frame capture or runtime-owned command smoke.",
       "activationCriteria": [
         "Fensalir runs recorded gamecult.eve.surface.v1 fixtures without provider-specific renderer knowledge.",
         "Fensalir emits gamecult.eve.command.v1 intents through the advertised provider command boundary.",
         "Direct2D capture artifacts are produced and attached to the parity report."
       ],
-      "requiredFixtures": ["embedded-surface"],
-      "pluginFixtures": ["sai-vn"],
-      "supportedFeatures": [],
-      "expectedPaths": ["web/fixtures/fensalir-client-surface.json"],
+      "requiredFixtures": ["fensalir-direct2d"],
+      "pluginFixtures": [],
+      "supportedFeatures": ["embeddedDocuments"],
+      "expectedPaths": ["web/fixtures/fensalir-direct2d-surface.json"],
       "expectedExternalPaths": [
         "E:\\Projects\\Fensalir\\src\\Aquarium.EveSurface\\EveSurfaceRuntime.cs",
         "E:\\Projects\\Fensalir\\docs\\eve-direct2d-client-surface.md"
@@ -938,7 +962,7 @@
       ],
       "capture": {
         "status": "missing",
-        "note": "External Fensalir adapter spike exists; Eve still needs recorded surface replay and Direct2D frame capture before this runtime can become active."
+        "note": "External Fensalir adapter spike and recorded surface fixture exist; Eve still needs runtime-owned command smoke and Direct2D frame capture before this runtime can become active."
       }
     }
   ]

@@ -1,0 +1,21 @@
+{
+  "schema": "gamecult.eve.conformance_fixture.v1",
+  "fixtureId": "fensalir-direct2d",
+  "title": "Fensalir Direct2D Adapter",
+  "pack": "runtime",
+  "ownerRepo": "Fensalir",
+  "surface": {
+    "transport": "local-json",
+    "path": "web/fixtures/fensalir-direct2d-surface.json"
+  },
+  "purpose": "Proves Fensalir has a recorded gamecult.eve.surface.v1 runtime-adapter fixture before Direct2D capture becomes active evidence.",
+  "exitCriteria": "Move to Fensalir when AquariumUiDocument lowering, command emission, embedded-slot preservation, and Direct2D frame capture are runtime-owned.",
+  "asserts": [
+    "runtime adapter surface contract",
+    "AquariumUiDocument lowering target",
+    "command descriptor and command references",
+    "embedded document slot preservation",
+    "Direct2D style tokens"
+  ],
+  "splitTarget": "Fensalir"
+}

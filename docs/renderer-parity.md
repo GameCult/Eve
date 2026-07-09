@@ -38,7 +38,7 @@ proves the same contract at the CultMesh typed document sync layer.
 | iOS / UIKit | Active native screenshot target | SSH capture stages selected fixture JSON, EveCanvas renders it, and emits a PNG from `/var/mobile/Library/EveCanvas/latest-screenshot.png`; `embedded-surface` is part of the required fixture matrix | Plugin projection is explicitly unsupported until EveIOS owns adapters; still needs provider picker and command transport |
 | Android / Kotlin device edge | Active lightweight renderer | Native APK consumes CultMesh dashboard/sensor documents and preserves `surface.slot` / `embeddedDocuments` identity in the dashboard renderer | Plugin projection is explicitly unsupported; full graphical parity belongs to Flutter unless EveAndroid grows adapters |
 | Rust / CultMesh | Document-sync contract runtime | CultLib replicates the `gamecult.eve.surface.v1` embedded slot contract through typed document sync | Not a pixel renderer |
-| Fensalir Direct2D | External adapter spike, not active parity runtime | Fensalir has `src/Aquarium.EveSurface/EveSurfaceRuntime.cs`, reads an Eve broker, and lowers into `AquariumUiDocument` / `DirectWriteOverlay` | Needs recorded `gamecult.eve.surface.v1` fixture replay, command emission through the advertised boundary, DirectWrite/Direct2D token lowering, frame capture, and a clear reason to stay separate from Flutter for desktop UI |
+| Fensalir Direct2D | External adapter spike, not active parity runtime | Fensalir has `src/Aquarium.EveSurface/EveSurfaceRuntime.cs`, reads an Eve broker, lowers into `AquariumUiDocument` / `DirectWriteOverlay`, and now has a runtime-pack `gamecult.eve.surface.v1` fixture in Eve | Needs runtime-owned command smoke, DirectWrite/Direct2D frame capture, and a clear reason to stay separate from Flutter for desktop UI |
 
 ## Spawned Surfaces
 
@@ -51,8 +51,10 @@ provider picker:
   and `web/fixtures/aetheria-world-surface.json`.
 - `Sai VN Surface`: loads `web/fixtures/sai-vn.provider-advertisement.json`
   and `web/fixtures/sai-vn-surface.json`.
-- `Fensalir Direct2D`: loads `web/fixtures/fensalir-client-surface.json`, a
-  recorded surface describing the Direct2D client lowering path.
+- `Fensalir Direct2D`: loads
+  `web/fixtures/fensalir-direct2d-surface.json`, a recorded
+  `gamecult.eve.surface.v1` runtime-adapter surface for the Direct2D lowering
+  path.
 - `Huginn .cc`: compiles `web/fixtures/huginn-cc-surface.eve`.
 - `Reactive DSL`: compiles `web/fixtures/reactive-composition.eve`.
 - `CultUI Inspector`: compiles `web/fixtures/cultui-slider-inspector.eve`

@@ -280,6 +280,13 @@ Exit criteria:
 
 Recently cut:
 
+- Fensalir now has a recorded runtime-pack
+  `gamecult.eve.surface.v1` adapter fixture at
+  `web/fixtures/fensalir-direct2d-surface.json`. The browser local catalog uses
+  that contract-shaped surface instead of the older dashboard-state sketch, and
+  the parity harness validates embedded-slot preservation, command descriptors,
+  runtime authority witnesses, and style tokens. Direct2D capture and
+  runtime-owned command smoke remain the activation blockers.
 - UIKit and Kotlin device-edge runtimes now declare unsupported Sai/Norn/TeX
   plugin projection explicitly. They remain generic embedded-document and
   device-edge proofs; plugin projection authority belongs to EveFlutter,
