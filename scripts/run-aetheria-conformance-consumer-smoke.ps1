@@ -40,7 +40,15 @@ try {
     --expect-pack provider `
     --expect-fixture aetheria-world `
     --expect-provider aetheria `
-    --expect-scenario aetheria-world-command-replay
+    --expect-scenario aetheria-world-command-replay `
+    --expect-provider-surface aetheria:aetheria.daemon.game `
+    --expect-provider-surface aetheria:aetheria.daemon.editor `
+    --expect-provider-command aetheria:aetheria.daemon.commands `
+    --expect-provider-receipt-state aetheria:accepted `
+    --expect-provider-receipt-state aetheria:reconciled
+  if ($LASTEXITCODE -ne 0) {
+    throw "Aetheria conformance consumer smoke failed with exit code $LASTEXITCODE"
+  }
 } finally {
   Pop-Location
 }

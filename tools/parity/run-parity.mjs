@@ -1357,6 +1357,7 @@ function buildConformanceExport(report) {
       advertisementPath: provider.advertisementPath,
       scenarioPath: provider.scenarioPath,
       scenarioId: provider.scenarioId,
+      receiptStates: provider.scenarioReceiptStates || [],
       surfaces: provider.surfaceIds,
       commands: provider.commandIds,
       pluginRequirements: provider.pluginRequirements,

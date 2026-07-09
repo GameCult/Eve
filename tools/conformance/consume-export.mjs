@@ -18,6 +18,9 @@ if (!exportDirectory) {
     "  --expect-split-target <id>",
     "  --expect-plugin-operation <pluginId:operation>",
     "  --expect-plugin-capability <pluginId:capability>",
+    "  --expect-provider-surface <providerId:surfaceId>",
+    "  --expect-provider-command <providerId:command>",
+    "  --expect-provider-receipt-state <providerId:state>",
   ].join("\n"));
   process.exit(2);
 }
@@ -120,6 +123,36 @@ function validateIndex(index, directory, expectations, errors) {
   for (const expectedProvider of expectations.providers) {
     if (!providers.some(provider => provider.providerId === expectedProvider)) errors.push(`providers:${expectedProvider}:missing`);
   }
+  for (const expectation of expectations.providerSurfaces) {
+    const provider = providers.find(candidate => candidate.providerId === expectation.providerId);
+    if (!provider) {
+      errors.push(`providers:${expectation.providerId}:missing`);
+      continue;
+    }
+    if (!Array.isArray(provider.surfaces) || !provider.surfaces.includes(expectation.surfaceId)) {
+      errors.push(`providers:${expectation.providerId}:surface:${expectation.surfaceId}:missing`);
+    }
+  }
+  for (const expectation of expectations.providerCommands) {
+    const provider = providers.find(candidate => candidate.providerId === expectation.providerId);
+    if (!provider) {
+      errors.push(`providers:${expectation.providerId}:missing`);
+      continue;
+    }
+    if (!Array.isArray(provider.commands) || !provider.commands.includes(expectation.command)) {
+      errors.push(`providers:${expectation.providerId}:command:${expectation.command}:missing`);
+    }
+  }
+  for (const expectation of expectations.providerReceiptStates) {
+    const provider = providers.find(candidate => candidate.providerId === expectation.providerId);
+    if (!provider) {
+      errors.push(`providers:${expectation.providerId}:missing`);
+      continue;
+    }
+    if (!Array.isArray(provider.receiptStates) || !provider.receiptStates.includes(expectation.state)) {
+      errors.push(`providers:${expectation.providerId}:receiptState:${expectation.state}:missing`);
+    }
+  }
   for (const expectedRuntime of expectations.runtimes) {
     if (!runtimes.some(runtime => runtime.runtimeId === expectedRuntime)) errors.push(`runtimes:${expectedRuntime}:missing`);
   }
@@ -157,6 +190,9 @@ function parseArguments(args) {
     pluginOperations: [],
     pluginCapabilities: [],
     providers: [],
+    providerSurfaces: [],
+    providerCommands: [],
+    providerReceiptStates: [],
     runtimes: [],
     scenarios: [],
     splitTargets: [],
@@ -171,6 +207,9 @@ function parseArguments(args) {
     ["--expect-split-target", expectations.splitTargets],
     ["--expect-plugin-operation", expectations.pluginOperations],
     ["--expect-plugin-capability", expectations.pluginCapabilities],
+    ["--expect-provider-surface", expectations.providerSurfaces],
+    ["--expect-provider-command", expectations.providerCommands],
+    ["--expect-provider-receipt-state", expectations.providerReceiptStates],
   ]);
 
   for (let index = 1; index < args.length; index += 1) {
@@ -189,6 +228,12 @@ function parseArguments(args) {
       target.push(parsePluginExpectation(value, "operation"));
     } else if (option === "--expect-plugin-capability") {
       target.push(parsePluginExpectation(value, "capability"));
+    } else if (option === "--expect-provider-surface") {
+      target.push(parseProviderExpectation(value, "surfaceId"));
+    } else if (option === "--expect-provider-command") {
+      target.push(parseProviderExpectation(value, "command"));
+    } else if (option === "--expect-provider-receipt-state") {
+      target.push(parseProviderExpectation(value, "state"));
     } else {
       target.push(value);
     }
@@ -206,6 +251,18 @@ function parsePluginExpectation(value, field) {
   }
   return {
     pluginId: value.slice(0, separator),
+    [field]: value.slice(separator + 1),
+  };
+}
+
+function parseProviderExpectation(value, field) {
+  const separator = value.indexOf(":");
+  if (separator <= 0 || separator === value.length - 1) {
+    console.error(`Expected provider ${field} in <providerId:${field}> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    providerId: value.slice(0, separator),
     [field]: value.slice(separator + 1),
   };
 }

@@ -280,6 +280,13 @@ Exit criteria:
 
 Recently cut:
 
+- Provider owner conformance consumption now verifies the interactive-world
+  contract instead of only provider presence. The generic conformance consumer
+  supports `--expect-provider-surface`, `--expect-provider-command`, and
+  `--expect-provider-receipt-state`; the export now carries provider receipt
+  states; and Aetheria's consumer smoke asserts the daemon game/editor surfaces,
+  daemon command boundary, and accepted/reconciled receipts from the exported
+  provider pack.
 - Plugin owner conformance consumption now has a smoke runner at
   `scripts/run-plugin-owner-conformance-consumer-smoke.ps1`. The generic
   conformance consumer can assert plugin ABI operations and capabilities with
