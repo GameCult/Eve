@@ -20,6 +20,7 @@ if (!exportDirectory) {
     "  --expect-capability-gap <substring>",
     "  --expect-runtime-plugin-gap <runtimeId:pluginId:ownerRepo>",
     "  --expect-world-lowering-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>",
+    "  --expect-command-boundary-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>",
     "  --expect-world-lowering-gap <providerId:surfaceId:targetId:ownerRepo:runtimeId>",
     "  --expect-conformance-handoff",
     "  --expect-plugin-operation <pluginId:operation>",
@@ -133,6 +134,7 @@ function validateIndex(index, directory, expectations, errors) {
   const runtimePluginProjectionGaps = Array.isArray(index.runtimePluginProjectionGaps) ? index.runtimePluginProjectionGaps : [];
   const interactiveWorldSurfaces = Array.isArray(index.interactiveWorldSurfaces) ? index.interactiveWorldSurfaces : [];
   const worldSurfaceLoweringCoverage = Array.isArray(index.worldSurfaceLoweringCoverage) ? index.worldSurfaceLoweringCoverage : [];
+  const commandBoundaryCoverage = Array.isArray(index.commandBoundaryCoverage) ? index.commandBoundaryCoverage : [];
   const splitTargetBlockers = Array.isArray(index.splitTargetBlockers) ? index.splitTargetBlockers : [];
   const worldSurfaceLoweringGaps = Array.isArray(index.worldSurfaceLoweringGaps) ? index.worldSurfaceLoweringGaps : [];
 
@@ -157,6 +159,7 @@ function validateIndex(index, directory, expectations, errors) {
   validateRuntimePluginProjectionGaps(index.runtimePluginProjectionGaps, errors);
   validateSplitTargetBlockers(index.splitTargetBlockers, errors);
   validateWorldSurfaceLoweringCoverage(index.worldSurfaceLoweringCoverage, errors);
+  validateCommandBoundaryCoverage(index.commandBoundaryCoverage, errors);
   validateWorldSurfaceLoweringGaps(index.worldSurfaceLoweringGaps, errors);
   for (const expectedGap of expectations.capabilityGaps) {
     if (!capabilityGaps.some(gap => capabilityGapText(gap).includes(expectedGap))) {
@@ -195,6 +198,25 @@ function validateIndex(index, directory, expectations, errors) {
     }
     if (coverage.runtimeId !== expectation.runtimeId) {
       errors.push(`worldSurfaceLoweringCoverage:${expectation.providerId}:${expectation.surfaceId}:${expectation.targetId}:runtimeId:expected ${expectation.runtimeId} got ${coverage.runtimeId || ""}`);
+    }
+  }
+  for (const expectation of expectations.commandBoundaryCoverage) {
+    const coverage = commandBoundaryCoverage.find(candidate =>
+      candidate.providerId === expectation.providerId &&
+      candidate.surfaceId === expectation.surfaceId &&
+      candidate.targetId === expectation.targetId);
+    if (!coverage) {
+      errors.push(`commandBoundaryCoverage:${expectation.providerId}:${expectation.surfaceId}:${expectation.targetId}:missing`);
+      continue;
+    }
+    if (coverage.status !== expectation.status) {
+      errors.push(`commandBoundaryCoverage:${expectation.providerId}:${expectation.surfaceId}:${expectation.targetId}:status:expected ${expectation.status} got ${coverage.status || ""}`);
+    }
+    if (coverage.runtimeOwnerRepo !== expectation.ownerRepo) {
+      errors.push(`commandBoundaryCoverage:${expectation.providerId}:${expectation.surfaceId}:${expectation.targetId}:runtimeOwnerRepo:expected ${expectation.ownerRepo} got ${coverage.runtimeOwnerRepo || ""}`);
+    }
+    if (coverage.runtimeId !== expectation.runtimeId) {
+      errors.push(`commandBoundaryCoverage:${expectation.providerId}:${expectation.surfaceId}:${expectation.targetId}:runtimeId:expected ${expectation.runtimeId} got ${coverage.runtimeId || ""}`);
     }
   }
   for (const expectation of expectations.worldLoweringGaps) {
@@ -726,6 +748,21 @@ function validateWorldSurfaceLoweringCoverage(records, errors) {
   }
 }
 
+function validateCommandBoundaryCoverage(records, errors) {
+  if (!Array.isArray(records)) {
+    errors.push("commandBoundaryCoverage:missing");
+    return;
+  }
+  for (const [index, record] of records.entries()) {
+    for (const field of ["providerId", "providerOwnerRepo", "surfaceId", "targetId", "runtimeId", "runtimeOwnerRepo", "status", "severity", "commandBoundary", "receiptSchema"]) {
+      if (!record?.[field]) errors.push(`commandBoundaryCoverage:${index}:${field}:missing`);
+    }
+    if (record?.status === "covered" && record.runtimeCommandSchema !== "gamecult.eve.command.v1") {
+      errors.push(`commandBoundaryCoverage:${index}:runtimeCommandSchema:expected gamecult.eve.command.v1 got ${record.runtimeCommandSchema || ""}`);
+    }
+  }
+}
+
 function validateWorldSurfaceLoweringGaps(gaps, errors) {
   if (!Array.isArray(gaps)) {
     errors.push("worldSurfaceLoweringGaps:missing");
@@ -899,6 +936,7 @@ function parseArguments(args) {
     capabilityGaps: [],
     runtimePluginGaps: [],
     worldLoweringCoverage: [],
+    commandBoundaryCoverage: [],
     worldLoweringGaps: [],
     conformanceHandoff: false,
   };
@@ -944,6 +982,7 @@ function parseArguments(args) {
     ["--expect-capability-gap", expectations.capabilityGaps],
     ["--expect-runtime-plugin-gap", expectations.runtimePluginGaps],
     ["--expect-world-lowering-coverage", expectations.worldLoweringCoverage],
+    ["--expect-command-boundary-coverage", expectations.commandBoundaryCoverage],
     ["--expect-world-lowering-gap", expectations.worldLoweringGaps],
   ]);
 
@@ -1033,6 +1072,8 @@ function parseArguments(args) {
       target.push(parseWorldLoweringGapExpectation(value));
     } else if (option === "--expect-world-lowering-coverage") {
       target.push(parseWorldLoweringCoverageExpectation(value));
+    } else if (option === "--expect-command-boundary-coverage") {
+      target.push(parseCommandBoundaryCoverageExpectation(value));
     } else if (option === "--expect-runtime-plugin-gap") {
       target.push(parseRuntimePluginGapExpectation(value));
     } else {
@@ -1063,6 +1104,22 @@ function parseWorldLoweringCoverageExpectation(value) {
   const parts = value.split(":");
   if (parts.length !== 6 || parts.some(part => !part)) {
     console.error(`Expected world lowering coverage in <providerId:surfaceId:targetId:status:ownerRepo:runtimeId> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    providerId: parts[0],
+    surfaceId: parts[1],
+    targetId: parts[2],
+    status: parts[3],
+    ownerRepo: parts[4],
+    runtimeId: parts[5],
+  };
+}
+
+function parseCommandBoundaryCoverageExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 6 || parts.some(part => !part)) {
+    console.error(`Expected command boundary coverage in <providerId:surfaceId:targetId:status:ownerRepo:runtimeId> form, got: ${value}`);
     process.exit(2);
   }
   return {

@@ -1672,6 +1672,7 @@ function buildConformanceExport(report) {
     runtimePluginProjectionGaps: collectRuntimePluginProjectionGaps(report),
     interactiveWorldSurfaces: collectInteractiveWorldSurfaces(report),
     worldSurfaceLoweringCoverage: collectWorldSurfaceLoweringCoverage(report),
+    commandBoundaryCoverage: collectCommandBoundaryCoverage(report),
     worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
     splitTargetBlockers: collectSplitTargetBlockers(report),
     pluginAbiOperationCoverage: collectPluginAbiOperationCoverage(report),
@@ -2063,6 +2064,46 @@ function collectWorldSurfaceLoweringCoverage(report) {
         runtimeStatus: runtime?.status || "",
         supportLevel: claim?.supportLevel || "",
         loweringOwnership: claim?.ownership || "",
+      });
+    }
+  }
+  return coverage;
+}
+
+function collectCommandBoundaryCoverage(report) {
+  const { claimByTarget, runtimeByTarget } = buildWorldSurfaceLoweringTargetIndex(report);
+  const coverage = [];
+  for (const surface of collectInteractiveWorldSurfaces(report)) {
+    for (const targetId of surface.loweringTargets || []) {
+      const claim = claimByTarget.get(targetId);
+      const runtime = runtimeByTarget.get(targetId);
+      const runtimeCommandSchema = runtime?.commandTransportSmoke?.schema || "";
+      const missingProviderBoundary = !surface.commandBoundary || !surface.receiptSchema;
+      let status = "covered";
+      if (!runtime) {
+        status = "missing-runtime";
+      } else if (!claim) {
+        status = "missing-runtime-claim";
+      } else if (missingProviderBoundary) {
+        status = "missing-provider-boundary";
+      } else if (runtimeCommandSchema !== "gamecult.eve.command.v1") {
+        status = "missing-command-transport";
+      }
+      coverage.push({
+        providerId: surface.providerId,
+        providerOwnerRepo: surface.ownerRepo || "",
+        surfaceId: surface.surfaceId,
+        surfaceKind: surface.surfaceKind || "",
+        targetId,
+        runtimeId: runtime?.id || "world-surface-lowering",
+        runtimeOwnerRepo: runtime ? resolveRuntimeProjectionOwnerRepo(runtime) : "Eve",
+        splitTarget: runtime?.splitTarget || "",
+        runtimeStatus: runtime?.status || "",
+        status,
+        severity: status === "covered" ? "ok" : "blocker",
+        commandBoundary: surface.commandBoundary || "",
+        receiptSchema: surface.receiptSchema || "",
+        runtimeCommandSchema,
       });
     }
   }

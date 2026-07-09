@@ -15,6 +15,7 @@
     "providerPluginRequirementCoverage",
     "interactiveWorldSurfaces",
     "worldSurfaceLoweringCoverage",
+    "commandBoundaryCoverage",
     "splitTargetBlockers",
     "splitTargets"
   ],
@@ -408,6 +409,79 @@
             "type": "string"
           },
           "loweringOwnership": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "commandBoundaryCoverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "providerId",
+          "providerOwnerRepo",
+          "surfaceId",
+          "surfaceKind",
+          "targetId",
+          "runtimeId",
+          "runtimeOwnerRepo",
+          "status",
+          "severity",
+          "commandBoundary",
+          "receiptSchema",
+          "runtimeCommandSchema"
+        ],
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "providerOwnerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceKind": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeOwnerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "splitTarget": {
+            "type": "string"
+          },
+          "runtimeStatus": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "commandBoundary": {
+            "type": "string"
+          },
+          "receiptSchema": {
+            "type": "string"
+          },
+          "runtimeCommandSchema": {
             "type": "string"
           }
         },

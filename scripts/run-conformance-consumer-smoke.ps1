@@ -39,6 +39,10 @@ try {
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-scene:missing-claim:EveUnity:unity-scene `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.editor:tui:missing-claim:EveTui:tui `
+    --expect-command-boundary-coverage aetheria:aetheria.daemon.game:web-reference:covered:Eve:web `
+    --expect-command-boundary-coverage aetheria:aetheria.daemon.game:unity-uitoolkit:covered:EveUnity:unity-uitoolkit `
+    --expect-command-boundary-coverage aetheria:aetheria.daemon.game:unity-scene:missing-runtime-claim:EveUnity:unity-scene `
+    --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:tui:missing-runtime-claim:EveTui:tui `
     --expect-world-lowering-gap aetheria:aetheria.daemon.game:unity-scene:EveUnity:unity-scene `
     --expect-world-lowering-gap aetheria:aetheria.daemon.game:tui:EveTui:tui `
     --expect-world-lowering-gap aetheria:aetheria.daemon.editor:tui:EveTui:tui `

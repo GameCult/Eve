@@ -304,6 +304,12 @@ Recently cut:
   as `claimed`, `missing-claim`, or `missing-runtime`. The generic conformance
   consumer now asserts Aetheria's claimed web/UI Toolkit targets and missing
   Unity scene/TUI targets from the same typed surface.
+- The conformance export carries `commandBoundaryCoverage[]`, joining each
+  provider-owned interactive world surface target to its runtime owner,
+  provider command boundary, receipt schema, and runtime command envelope. Web
+  and Unity UI Toolkit are `covered` because they advertise
+  `gamecult.eve.command.v1`; Unity scene and TUI stay visible as
+  `missing-runtime-claim` until their generic lowerers exist.
 - The conformance export schema and consumer smoke now require minimum typed
   item shapes for plugins, providers, runtimes, and split targets. Owner repos
   can rely on exported ids, owners, statuses, split targets, manifest or

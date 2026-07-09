@@ -126,6 +126,15 @@ receipt schema, lowering targets, and ownership rule so runtime lowerers can
 discover provider-authored world surfaces without importing provider source
 layout. Consumer smokes can assert advertised targets with
 `--expect-interactive-world-surface <providerId:surfaceId:targetId:ownerRepo>`.
+The command path for those targets is exported as
+`commandBoundaryCoverage[]`. Each record joins a provider-owned surface,
+advertised lowering target, runtime owner, provider command boundary, receipt
+schema, and runtime command envelope schema. Status is `covered` only when the
+runtime has claimed the target and advertises `gamecult.eve.command.v1`;
+otherwise it reports `missing-runtime`, `missing-runtime-claim`,
+`missing-provider-boundary`, or `missing-command-transport`. Consumer smokes can
+assert it with
+`--expect-command-boundary-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>`.
 Declared runtime/plugin projection gaps are exported as
 `runtimePluginProjectionGaps[]`. These records carry runtime id, runtime owner,
 split target, plugin id, reason, severity, and fixture lists so EveUnity,
