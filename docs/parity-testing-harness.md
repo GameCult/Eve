@@ -178,6 +178,18 @@ exist. The current lifecycle proof is deliberately split:
   and Aetheria can build the package through Unity's generated project;
 - capture: Unity editor or batchmode capture remains a split blocker.
 
+EveUnity split handoff evidence:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-eveunity-split-handoff-smoke.ps1
+```
+
+That script validates
+`packages/org.gamecult.eve.unity-uitoolkit/eveunity-split-handoff.json` against
+the runtime capability manifest. The handoff names the package paths, lifecycle
+stages, Eve contracts, forbidden imports, and external proofs that must become
+EveUnity-owned before the runtime leaves incubation.
+
 The smoke runner writes:
 
 - `artifacts/parity-smoke/<timestamp>/parity-smoke.md`

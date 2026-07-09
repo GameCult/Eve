@@ -40,6 +40,7 @@ try {
     --expect-split-target EveUnity `
     --expect-split-target-status EveUnity:incubating `
     --expect-split-target-proof "EveUnity:Unity lifecycle evidence is declared" `
+    --expect-split-target-proof "EveUnity:EveUnity split handoff is machine-readable" `
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target-blocker "EveUnity:Unity batchmode EditMode runner" `
     --expect-split-target-blocker "EveUnity:Unity batchmode or editor capture artifact"

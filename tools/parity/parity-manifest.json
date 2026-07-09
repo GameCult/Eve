@@ -503,6 +503,15 @@
             "scripts/run-aetheria-unity-package-smoke.ps1",
             "scripts/run-aetheria-unity-editmode-tests.ps1"
           ]
+        },
+        {
+          "description": "EveUnity split handoff is machine-readable and smoke-checked.",
+          "status": "passed",
+          "evidencePaths": [
+            "packages/org.gamecult.eve.unity-uitoolkit/eveunity-split-handoff.json",
+            "scripts/run-eveunity-split-handoff-smoke.ps1",
+            "packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json"
+          ]
         }
       ],
       "pendingProofs": [
@@ -884,7 +893,9 @@
         "packages/org.gamecult.eve.unity-uitoolkit/Runtime/NornGraphUiToolkitProjectionAdapter.cs",
         "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/GameCult.Eve.UnityUIToolkit.Tests.asmdef",
         "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/EveUiToolkitSurfaceLowererTests.cs",
-        "scripts/run-aetheria-unity-editmode-tests.ps1"
+        "packages/org.gamecult.eve.unity-uitoolkit/eveunity-split-handoff.json",
+        "scripts/run-aetheria-unity-editmode-tests.ps1",
+        "scripts/run-eveunity-split-handoff-smoke.ps1"
       ],
       "expectedSourceSymbols": [
         {
@@ -946,7 +957,9 @@
             "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/GameCult.Eve.UnityUIToolkit.Tests.asmdef",
             "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/EveUiToolkitSurfaceLowererTests.cs",
             "scripts/run-aetheria-unity-editmode-tests.ps1",
-            "scripts/run-aetheria-unity-package-smoke.ps1"
+            "scripts/run-aetheria-unity-package-smoke.ps1",
+            "scripts/run-eveunity-split-handoff-smoke.ps1",
+            "packages/org.gamecult.eve.unity-uitoolkit/eveunity-split-handoff.json"
           ],
           "pendingProofs": [
             "Unity batchmode EditMode runner is owned by EveUnity rather than Eve incubation."

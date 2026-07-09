@@ -36,6 +36,9 @@ if ($manifest.incubation.currentHostRepo -ne "Eve") {
 if ($manifest.incubation.splitTarget -ne "EveUnity") {
   throw "Unexpected EveUnity split target: $($manifest.incubation.splitTarget)"
 }
+if (-not $manifest.incubation.splitHandoff.manifestPath) {
+  throw "EveUnity manifest missing split handoff path"
+}
 
 foreach ($feature in @("embeddedDocuments")) {
   if (-not ($manifest.supportedFeatures -contains $feature)) {
@@ -87,6 +90,11 @@ foreach ($stage in @("release", "test", "capture")) {
 & (Join-Path $projectRoot "scripts\run-aetheria-unity-package-smoke.ps1")
 if ($LASTEXITCODE -ne 0) {
   throw "Aetheria Unity package smoke failed with exit code $LASTEXITCODE"
+}
+
+& (Join-Path $projectRoot "scripts\run-eveunity-split-handoff-smoke.ps1")
+if ($LASTEXITCODE -ne 0) {
+  throw "EveUnity split handoff smoke failed with exit code $LASTEXITCODE"
 }
 
 if ($RunUnityEditMode) {

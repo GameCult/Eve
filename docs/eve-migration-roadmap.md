@@ -280,6 +280,14 @@ Exit criteria:
 
 Recently cut:
 
+- EveUnity now has a machine-readable split handoff at
+  `packages/org.gamecult.eve.unity-uitoolkit/eveunity-split-handoff.json` and
+  a verifier at `scripts/run-eveunity-split-handoff-smoke.ps1`. The handoff
+  names the UPM package body, Unity test lifecycle, Unity capture lifecycle,
+  contract inputs, forbidden imports, and required external proofs that must
+  move to EveUnity. It is wired into the runtime capability manifest and
+  lifecycle smoke, so the remaining split blockers are release/test/capture
+  ownership rather than an undocumented migration shape.
 - Split-target conformance consumption now verifies graduation state instead of
   only split-target presence. The generic consumer supports
   `--expect-split-target-status`, `--expect-split-target-blocker`, and

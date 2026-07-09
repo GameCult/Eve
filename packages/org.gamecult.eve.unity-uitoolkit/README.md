@@ -45,6 +45,13 @@ evidence:
 Those lifecycle claims are validated by the parity harness. A missing evidence
 path is a runtime capability error, not a README footnote.
 
+The split handoff manifest is `eveunity-split-handoff.json`. It is the
+machine-readable map of what EveUnity must carry out of Eve incubation: the UPM
+package body, the Unity test lifecycle, the Unity capture lifecycle, the Eve
+contracts it consumes, and the forbidden imports it must not use as shortcuts.
+It does not make the package ready to split by itself; it makes the remaining
+release, test, and capture blockers inspectable.
+
 From the repository root, run the split lifecycle smoke with:
 
 ```powershell
@@ -52,10 +59,11 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-eveunity-lifecycle-smoke.
 ```
 
 That smoke validates `eve-runtime-capability.json`, checks lifecycle evidence
-paths, and runs the Aetheria Unity package consumer-build smoke. Pass
-`-RunUnityEditMode` when the local Unity editor should also execute the
-incubating batchmode EditMode test runner. The final tagged UPM release,
-batchmode runner ownership, and capture artifact still graduate to `EveUnity`.
+paths, runs the Aetheria Unity package consumer-build smoke, and verifies the
+split handoff manifest. Pass `-RunUnityEditMode` when the local Unity editor
+should also execute the incubating batchmode EditMode test runner. The final
+tagged UPM release, batchmode runner ownership, and capture artifact still
+graduate to `EveUnity`.
 
 For Aetheria, the Unity evidence path is:
 
