@@ -649,12 +649,19 @@ Recently cut:
   manifest document loading boundary and feed that cache without importing
   Aetheria asset classes. `EveUnityLivePlayableWorldAssetProvider` connects
   that cache to the active world pointer for GameObject scenes. The Unity
-  client boundary is generic before it learns
-  live transport. The next blocker is the live generic Unity player loop:
-  implement the CultMesh/CultNet adapter, implement concrete CultMesh/CultCache
-  readers for provider surface and asset manifest documents, and prove
-  provider receipts plus daemon snapshots drive rendered Unity frames rather
-  than renderer-local simulation.
+  client boundary is generic before it learns live transport.
+  `EveUnityPlayableWorldClientHost`,
+  `EveUnityPlayableWorldClientBootstrap`,
+  `EveUnityPlayableWorldInputDriver`, and `EveUnityPlayableWorldCameraRig` now
+  form the first generic Unity client body: a provider component that implements
+  the Eve interfaces can be mounted without Aetheria-specific client code,
+  provider-authored entities are instantiated under a Unity scene root, camera
+  and movement input are runtime-owned, and movement exits through the
+  provider-advertised `gamecult.eve.command.v1` boundary. The next blocker is
+  owner-repo live proof: implement the CultMesh/CultNet adapter, implement
+  concrete CultMesh/CultCache readers for provider surface and asset manifest
+  documents, and prove provider receipts plus daemon snapshots drive rendered
+  Unity frames rather than renderer-local simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria

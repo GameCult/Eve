@@ -14,7 +14,7 @@ namespace GameCult.Eve.UnityScene
         [SerializeField] private MonoBehaviour? assetManifestDocuments;
         [SerializeField] private MonoBehaviour? receiptSource;
         [SerializeField] private MonoBehaviour? fallbackAssetProvider;
-        [SerializeField] private bool connectOnEnable = true;
+        [SerializeField] private bool connectOnEnable;
         [SerializeField] private bool refreshInUpdate = true;
         [SerializeField] private float refreshIntervalSeconds = 0.1f;
 
@@ -33,6 +33,12 @@ namespace GameCult.Eve.UnityScene
         public long ActiveVersion => Runtime?.ActiveVersion ?? 0;
 
         public Transform SceneRoot => sceneRoot == null ? transform : sceneRoot;
+
+        public bool ConnectOnEnable
+        {
+            get => connectOnEnable;
+            set => connectOnEnable = value;
+        }
 
         public void Configure(
             Transform? sceneRoot,

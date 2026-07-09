@@ -71,6 +71,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature unity-scene:livePlayableWorldClient `
   --expect-runtime-feature unity-scene:providerCommandReceipts `
   --expect-runtime-feature unity-scene:providerAssetManifestDocumentSource `
+  --expect-runtime-feature unity-scene:playableWorldClientHost `
+  --expect-runtime-feature unity-scene:playableWorldClientBootstrap `
+  --expect-runtime-feature unity-scene:playableWorldInputDriver `
+  --expect-runtime-feature unity-scene:playableWorldCameraRig `
   --expect-runtime-feature unity-scene:sceneGraphProjection `
   --expect-runtime-feature unity-scene:playableWorldProjection `
   --expect-runtime-feature unity-scene:playableWorldRuntimeHost `

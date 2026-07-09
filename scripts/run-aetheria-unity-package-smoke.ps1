@@ -11,6 +11,7 @@ if (-not (Test-Path $AetheriaRoot)) {
 
 $manifestPath = Join-Path $AetheriaRoot "Packages\manifest.json"
 $unityToolkitProject = Join-Path $AetheriaRoot "GameCult.Eve.UnityUIToolkit.csproj"
+$unitySceneProject = Join-Path $AetheriaRoot "GameCult.Eve.UnityScene.csproj"
 $surfaceProject = Join-Path $AetheriaRoot "GameCult.Eve.Surface.csproj"
 $aetheriaEveRuntimePackage = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\package.json"
 $aetheriaEveRuntimeAsmdef = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\GameCult.Aetheria.EveRuntime.asmdef"
@@ -23,6 +24,9 @@ if (-not (Test-Path $manifestPath)) {
 }
 if (-not (Test-Path $unityToolkitProject)) {
   throw "Aetheria Unity Toolkit project not found: $unityToolkitProject"
+}
+if (-not (Test-Path $unitySceneProject)) {
+  throw "Aetheria Unity Scene project not found: $unitySceneProject"
 }
 if (-not (Test-Path $surfaceProject)) {
   throw "Aetheria Eve Surface project not found: $surfaceProject"
@@ -70,6 +74,27 @@ foreach ($compileItem in $requiredCompileItems) {
   $expected = Join-Path $eveRoot "packages\org.gamecult.eve.unity-uitoolkit\$compileItem"
   if (-not $project.Contains($expected)) {
     throw "Aetheria GameCult.Eve.UnityUIToolkit.csproj missing compile item: $expected"
+  }
+}
+
+$sceneProject = Get-Content -Raw -LiteralPath $unitySceneProject
+$requiredSceneCompileItems = @(
+  "Runtime\EveUnitySceneSurfaceLowerer.cs",
+  "Runtime\EveUnitySceneClientSession.cs",
+  "Runtime\EveUnitySceneProviderConnection.cs",
+  "Runtime\EveUnityPlayableWorldLiveClient.cs",
+  "Runtime\EveUnityPlayableWorldRuntime.cs",
+  "Runtime\EveUnityPlayableWorldClientHost.cs",
+  "Runtime\EveUnityPlayableWorldClientBootstrap.cs",
+  "Runtime\EveUnityPlayableWorldInputDriver.cs",
+  "Runtime\EveUnityPlayableWorldCameraRig.cs",
+  "Runtime\EveUnityGameObjectPlayableWorldSceneSink.cs",
+  "Runtime\EveUnityPlayableWorldAssetManifest.cs"
+)
+foreach ($compileItem in $requiredSceneCompileItems) {
+  $expected = Join-Path $eveRoot "runtimes\incubating\eve-unity-scene\$compileItem"
+  if (-not $sceneProject.Contains($expected)) {
+    throw "Aetheria GameCult.Eve.UnityScene.csproj missing compile item: $expected"
   }
 }
 
@@ -173,6 +198,7 @@ foreach ($symbol in @(
 Push-Location $AetheriaRoot
 try {
   dotnet build GameCult.Eve.UnityUIToolkit.csproj --no-restore --nologo -v:minimal
+  dotnet build GameCult.Eve.UnityScene.csproj --no-restore --nologo -v:minimal
 } finally {
   Pop-Location
 }

@@ -401,6 +401,61 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void PlayableWorldClientBootstrapWiresGenericUnityClientFromProviderInterfaces()
+        {
+            var hostObject = new GameObject("generic-eve-client");
+            hostObject.SetActive(false);
+
+            try
+            {
+                var provider = hostObject.AddComponent<FakePlayableWorldProviderComponent>();
+                provider.Set(
+                    new EveUnitySceneProviderSurfaceDocument(
+                        PlayableArpgDocument(),
+                        Advertisement("aetheria.daemon.game"),
+                        "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                        1),
+                    new EveUnityPlayableWorldAssetManifestDocument(
+                        "cultmesh://aetheria/assets/manifest",
+                        Array.Empty<EveUnityPlayableWorldAssetManifestDocumentEntry>(),
+                        "aetheria"));
+
+                var bootstrap = hostObject.AddComponent<EveUnityPlayableWorldClientBootstrap>();
+                bootstrap.ConfigureProvider(provider);
+
+                hostObject.SetActive(true);
+
+                Assert.That(bootstrap.Host, Is.Not.Null);
+                Assert.That(bootstrap.Host!.ActiveWorld, Is.Not.Null);
+                Assert.That(bootstrap.Host.ActiveWorld!.PlayerEntityId, Is.EqualTo("player-vanguard"));
+                Assert.That(bootstrap.LastPresentation, Is.Not.Null);
+                Assert.That(bootstrap.LastPresentation!.ActiveEntities, Is.EqualTo(3));
+                Assert.That(bootstrap.SceneRoot, Is.Not.Null);
+                Assert.That(bootstrap.SceneRoot!.childCount, Is.EqualTo(3));
+                Assert.That(hostObject.GetComponent<EveUnityPlayableWorldInputDriver>(), Is.Not.Null);
+                Assert.That(hostObject.GetComponent<EveUnityPlayableWorldCameraRig>(), Is.Not.Null);
+                Assert.That(bootstrap.CameraTransform, Is.Not.Null);
+                Assert.That(provider.RefreshCount, Is.EqualTo(1));
+
+                var input = hostObject.GetComponent<EveUnityPlayableWorldInputDriver>();
+                var moveVector = input.SubmitMoveVectorInput(0f, 1f);
+
+                Assert.That(moveVector, Is.Not.Null);
+                Assert.That(provider.Submitted.Count, Is.EqualTo(1));
+                Assert.That(provider.Submitted[0], Is.SameAs(moveVector));
+                Assert.That(moveVector!.ProviderId, Is.EqualTo("aetheria"));
+                Assert.That(moveVector.SurfaceId, Is.EqualTo("aetheria.daemon.game"));
+                Assert.That(moveVector.CommandBoundary, Is.EqualTo("aetheria.daemon.commands"));
+                Assert.That(moveVector.Payload.GetString("commandId"), Is.EqualTo("aetheria.daemon.move_intent"));
+                Assert.That(moveVector.Payload.GetString("entityId"), Is.EqualTo("player-vanguard"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(hostObject);
+            }
+        }
+
+        [Test]
         public void PlayableWorldClientHostSubmitsProviderOwnedMoveVector()
         {
             var rootObject = new GameObject("generic-eve-world-root");
