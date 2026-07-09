@@ -84,7 +84,23 @@ namespace GameCult.Eve.UnityScene
                 component.Style,
                 component.StateBindings.Count,
                 component.EmbeddedDocuments.Count,
+                BuildEmbeddedDocumentSlots(component.EmbeddedDocuments),
                 children);
+        }
+
+        private static IReadOnlyList<EveUnitySceneEmbeddedDocumentSlot> BuildEmbeddedDocumentSlots(
+            IReadOnlyList<EveEmbeddedDocumentSlot> embeddedDocuments)
+        {
+            var slots = new List<EveUnitySceneEmbeddedDocumentSlot>(embeddedDocuments.Count);
+            foreach (var slot in embeddedDocuments)
+            {
+                slots.Add(new EveUnitySceneEmbeddedDocumentSlot(
+                    slot.SlotId,
+                    slot.DocumentId,
+                    slot.SchemaId,
+                    slot.PresentationKind));
+            }
+            return slots;
         }
 
         private static string SceneObjectKind(string componentKind)
@@ -151,6 +167,7 @@ namespace GameCult.Eve.UnityScene
             IReadOnlyDictionary<string, string> style,
             int stateBindingCount,
             int embeddedDocumentCount,
+            IReadOnlyList<EveUnitySceneEmbeddedDocumentSlot> embeddedDocuments,
             IReadOnlyList<EveUnitySceneNode> children)
         {
             Id = id ?? "";
@@ -161,6 +178,7 @@ namespace GameCult.Eve.UnityScene
             Style = style ?? new Dictionary<string, string>(StringComparer.Ordinal);
             StateBindingCount = stateBindingCount;
             EmbeddedDocumentCount = embeddedDocumentCount;
+            EmbeddedDocuments = embeddedDocuments ?? Array.Empty<EveUnitySceneEmbeddedDocumentSlot>();
             Children = children ?? Array.Empty<EveUnitySceneNode>();
         }
 
@@ -180,7 +198,32 @@ namespace GameCult.Eve.UnityScene
 
         public int EmbeddedDocumentCount { get; }
 
+        public IReadOnlyList<EveUnitySceneEmbeddedDocumentSlot> EmbeddedDocuments { get; }
+
         public IReadOnlyList<EveUnitySceneNode> Children { get; }
+    }
+
+    public sealed class EveUnitySceneEmbeddedDocumentSlot
+    {
+        public EveUnitySceneEmbeddedDocumentSlot(
+            string slotId,
+            string documentId,
+            string schemaId,
+            string presentationKind)
+        {
+            SlotId = slotId ?? "";
+            DocumentId = documentId ?? "";
+            SchemaId = schemaId ?? "";
+            PresentationKind = presentationKind ?? "";
+        }
+
+        public string SlotId { get; }
+
+        public string DocumentId { get; }
+
+        public string SchemaId { get; }
+
+        public string PresentationKind { get; }
     }
 
     public sealed class EveUnitySceneProviderSurfaceAdvertisement

@@ -67,6 +67,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature electron-shell:commandTransport `
   --expect-runtime-feature electron-shell:surfaceTreeProjection `
   --expect-runtime-feature electron-shell:embeddedDocuments `
+  --expect-runtime-feature unity-scene:embeddedDocuments `
   --expect-runtime-feature tui:providerAdvertisements `
   --expect-runtime-feature tui:commandTransport `
   --expect-runtime-feature tui:terminalGridSummary `

@@ -428,9 +428,11 @@ Recently cut:
   `scripts/run-eveunity-scene-release-contract-smoke.ps1`. It also reuses the
   shared EveUnity capture request builder through
   `scripts/run-eveunity-scene-capture-contract-smoke.ps1`, while the actual
-  Unity scene PNG/frame artifact remains pending. Plugin projection adapters
-  stay unsupported until Sai, Norn, or TeX sidecar projection support exists in
-  the Unity scene runtime.
+  Unity scene PNG/frame artifact remains pending. The scene graph now preserves
+  embedded document slot identity for resolver-backed child surfaces without
+  owning the nested plugin semantics. Plugin projection adapters stay
+  unsupported until Sai, Norn, or TeX sidecar projection support exists in the
+  Unity scene runtime.
 - Unity scene now has a direct split handoff smoke at
   `scripts/run-eveunity-scene-split-handoff-smoke.ps1`. The smoke verifies the
   scene runtime's current source paths for runtime body, scene graph lowering,

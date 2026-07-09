@@ -16,7 +16,8 @@
   "supportedFeatures": [
     "providerAdvertisements",
     "commandTransport",
-    "sceneGraphProjection"
+    "sceneGraphProjection",
+    "embeddedDocuments"
   ],
   "supportedPlugins": [],
   "unsupportedPlugins": [

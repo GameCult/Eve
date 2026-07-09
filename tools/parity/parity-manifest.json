@@ -942,7 +942,7 @@
       "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
       "requiredFixtures": ["aetheria-world"],
       "pluginFixtures": [],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "sceneGraphProjection"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "sceneGraphProjection", "embeddedDocuments"],
       "supportedPlugins": [],
       "unsupportedPlugins": [
         {
@@ -992,11 +992,11 @@
       "expectedSourceSymbols": [
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
-          "contains": ["EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "EveUnitySceneNode", "SceneObjectKind", "unity-scene"]
+          "contains": ["EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "BuildEmbeddedDocumentSlots", "EveUnitySceneEmbeddedDocumentSlot", "EveUnitySceneNode", "SceneObjectKind", "unity-scene"]
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
-          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "plugin-placeholder", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "plugin-placeholder", "norn.map", "cultmesh://aetheria/norn/map", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
         },
         {
           "path": "tools/eveunity/eveunity-capture-contract.test.mjs",

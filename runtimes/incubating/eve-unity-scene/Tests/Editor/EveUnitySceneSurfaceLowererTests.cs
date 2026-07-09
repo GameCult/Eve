@@ -40,6 +40,11 @@ namespace GameCult.Eve.UnityScene.Tests
             Assert.That(projection.Root.Children[1].Props["command"], Is.EqualTo("aetheria.daemon.focus"));
             Assert.That(projection.Root.Children[2].SceneObjectKind, Is.EqualTo("plugin-placeholder"));
             Assert.That(projection.Root.Children[2].EmbeddedDocumentCount, Is.EqualTo(1));
+            Assert.That(projection.Root.Children[2].EmbeddedDocuments.Count, Is.EqualTo(1));
+            Assert.That(projection.Root.Children[2].EmbeddedDocuments[0].SlotId, Is.EqualTo("norn.map"));
+            Assert.That(projection.Root.Children[2].EmbeddedDocuments[0].DocumentId, Is.EqualTo("cultmesh://aetheria/norn/map"));
+            Assert.That(projection.Root.Children[2].EmbeddedDocuments[0].SchemaId, Is.EqualTo("gamecult.eve.surface.v1"));
+            Assert.That(projection.Root.Children[2].EmbeddedDocuments[0].PresentationKind, Is.EqualTo("scene-overlay"));
         }
 
         [Test]
