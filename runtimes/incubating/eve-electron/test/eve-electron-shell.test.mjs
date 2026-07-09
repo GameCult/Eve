@@ -66,6 +66,14 @@ test("lowers provider surface trees into an Electron shell projection", () => {
   assert.equal(projection.root.children[1].props.command, "aetheria.daemon.commands");
   assert.equal(projection.root.children[2].shellElementKind, "plugin-placeholder");
   assert.equal(projection.root.children[2].embeddedDocumentCount, 1);
+  assert.deepEqual(projection.root.children[2].embeddedDocuments, [
+    {
+      slotId: "norn.map",
+      documentId: "cultmesh://aetheria/norn/map",
+      schemaId: "gamecult.eve.surface.v1",
+      presentationKind: "electron-overlay",
+    },
+  ]);
 });
 
 test("rejects surface documents that do not match the advertised target", () => {

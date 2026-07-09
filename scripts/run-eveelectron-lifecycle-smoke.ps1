@@ -39,7 +39,7 @@ if (-not $manifest.incubation.splitHandoff.manifestPath) {
   throw "EveElectron manifest missing split handoff path"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "surfaceTreeProjection")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "surfaceTreeProjection", "embeddedDocuments")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveElectron manifest missing provider-shell feature: $feature"
   }

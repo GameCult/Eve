@@ -75,6 +75,16 @@ test("lowers provider surface trees into a terminal grid", () => {
   assert.ok(grid.lines.some(line => line.includes("world aetheria.daemon.game.gravity")));
   assert.ok(grid.lines.some(line => line.includes("command aetheria.daemon.game.focus")));
   assert.ok(grid.lines.some(line => line.includes("plugin aetheria.daemon.game.norn")));
+  assert.ok(grid.lines.some(line => line.includes("slot norn.map")));
+  assert.deepEqual(grid.embeddedDocumentSlots, [
+    {
+      ownerId: "aetheria.daemon.game.norn",
+      slotId: "norn.map",
+      documentId: "cultmesh://aetheria/norn/map",
+      schemaId: "gamecult.eve.surface.v1",
+      presentationKind: "terminal-grid-slot",
+    },
+  ]);
 });
 
 test("rejects surface documents that do not match the advertised TUI target", () => {
@@ -159,6 +169,14 @@ function surfaceDocument(surfaceId = "aetheria.daemon.game") {
             props: {
               label: "Norn tactical map",
             },
+            embeddedDocuments: [
+              {
+                slotId: "norn.map",
+                documentId: "cultmesh://aetheria/norn/map",
+                schemaId: "gamecult.eve.surface.v1",
+                presentationKind: "terminal-grid-slot",
+              },
+            ],
             children: [],
           },
         ],

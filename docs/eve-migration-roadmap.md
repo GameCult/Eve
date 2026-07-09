@@ -602,17 +602,17 @@ Recently cut:
   the `eveunity-scene-v{version}` tag/artifact pattern.
   `scripts/run-eveunity-scene-release-contract-smoke.ps1` proves the request
   without pretending the tagged UPM package has been published.
-- EveTui capture lifecycle now carries a structured pending capture request
-  contract for terminal artifacts. `captureContract` names the TUI runtime,
-  transcript/cell-grid capture kind, ANSI transcript or JSON grid artifact kind,
-  conformance attachment point, required Aetheria provider surface, request
-  schema, request builder, advertisement input, and authority rule.
+- EveTui capture lifecycle now carries a structured terminal cell-grid capture
+  contract and typed artifact. `captureContract` names the TUI runtime,
+  `terminal-cell-grid` capture kind, `json-grid` artifact kind, conformance
+  attachment point, required Aetheria provider surface, request schema, request
+  builder, advertisement input, and authority rule.
   `tools/evetui/evetui-capture-contract.mjs` builds a
   `gamecult.eve.runtime_capture_request.v1` request from the runtime capability
   manifest and provider advertisement, and
-  `scripts/run-evetui-capture-contract-smoke.ps1` proves that request path
-  without pretending a durable terminal transcript has been captured. The
-  actual transcript or cell-grid artifact remains a split blocker for EveTui.
+  `tools/evetui/evetui-capture-artifact.mjs` writes
+  `gamecult.eve.tui_grid.v1` evidence. The remaining blocker is owner-repo
+  production of the same capture path, not absence of a cell-grid artifact.
 - Runtime-owner conformance consumption now asserts EveUnity lifecycle stage
   evidence directly. The generic consumer supports
   `--expect-runtime-lifecycle-status` and

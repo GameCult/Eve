@@ -36,7 +36,7 @@ if ($manifest.incubation.splitTarget -ne "EveTui") {
   throw "Unexpected EveTui split target: $($manifest.incubation.splitTarget)"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering", "embeddedDocuments")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveTui manifest missing provider-shell feature: $feature"
   }

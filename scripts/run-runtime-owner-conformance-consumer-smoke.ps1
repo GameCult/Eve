@@ -66,10 +66,12 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature electron-shell:providerAdvertisements `
   --expect-runtime-feature electron-shell:commandTransport `
   --expect-runtime-feature electron-shell:surfaceTreeProjection `
+  --expect-runtime-feature electron-shell:embeddedDocuments `
   --expect-runtime-feature tui:providerAdvertisements `
   --expect-runtime-feature tui:commandTransport `
   --expect-runtime-feature tui:terminalGridSummary `
   --expect-runtime-feature tui:terminalGridLowering `
+  --expect-runtime-feature tui:embeddedDocuments `
   --expect-runtime-feature direct2d:embeddedDocuments `
   --expect-runtime-world-target web:web-reference `
   --expect-runtime-world-field web:web-reference:supportLevel:reference-dom-canvas-command-boundary `

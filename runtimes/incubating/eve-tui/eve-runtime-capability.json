@@ -17,7 +17,8 @@
     "providerAdvertisements",
     "commandTransport",
     "terminalGridSummary",
-    "terminalGridLowering"
+    "terminalGridLowering",
+    "embeddedDocuments"
   ],
   "supportedPlugins": [],
   "unsupportedPlugins": [

@@ -736,7 +736,7 @@
       "splitHandoffPath": "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
       "requiredFixtures": ["embedded-surface", "aetheria-world"],
       "pluginFixtures": [],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "surfaceTreeProjection"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "surfaceTreeProjection", "embeddedDocuments"],
       "supportedPlugins": [],
       "unsupportedPlugins": [
         {
@@ -784,11 +784,11 @@
       "expectedSourceSymbols": [
         {
           "path": "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
-          "contains": ["EveElectronShell", "selectSurface", "lowerSurface", "createCommandIntent", "normalizeSurfaceDocument", "buildShellNode", "shellElementKind", "worldInteraction", "commandBoundary", "receiptSchema", "electron-shell"]
+          "contains": ["EveElectronShell", "selectSurface", "lowerSurface", "createCommandIntent", "normalizeSurfaceDocument", "buildShellNode", "normalizeEmbeddedDocuments", "embeddedDocuments", "shellElementKind", "worldInteraction", "commandBoundary", "receiptSchema", "electron-shell"]
         },
         {
           "path": "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
-          "contains": ["selects the active advertised provider surface", "lowers provider surface trees into an Electron shell projection", "rejects surface documents that do not match the advertised target", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "contains": ["selects the active advertised provider surface", "lowers provider surface trees into an Electron shell projection", "embeddedDocuments", "norn.map", "rejects surface documents that do not match the advertised target", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
         },
         {
           "path": "tools/eveelectron/eveelectron-capture-contract.mjs",
@@ -827,7 +827,7 @@
       "splitHandoffPath": "runtimes/incubating/eve-tui/evetui-split-handoff.json",
       "requiredFixtures": ["embedded-surface", "aetheria-world"],
       "pluginFixtures": [],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering", "embeddedDocuments"],
       "supportedPlugins": [],
       "unsupportedPlugins": [
         {
@@ -880,11 +880,11 @@
       "expectedSourceSymbols": [
         {
           "path": "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
-          "contains": ["EveTuiShell", "selectSurface", "lowerSurface", "normalizeSurfaceDocument", "buildComponentLines", "terminalElementKind", "createCommandIntent", "renderSummary", "gamecult.eve.tui_grid.v1", "commandBoundary", "receiptSchema"]
+          "contains": ["EveTuiShell", "selectSurface", "lowerSurface", "normalizeSurfaceDocument", "buildComponentLines", "collectEmbeddedDocumentSlots", "normalizeEmbeddedDocuments", "embeddedDocumentSlots", "terminalElementKind", "createCommandIntent", "renderSummary", "gamecult.eve.tui_grid.v1", "commandBoundary", "receiptSchema"]
         },
         {
           "path": "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
-          "contains": ["selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "lowers provider surface trees into a terminal grid", "rejects surface documents that do not match the advertised TUI target", "aetheria.daemon.commands"]
+          "contains": ["selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "lowers provider surface trees into a terminal grid", "embeddedDocumentSlots", "norn.map", "rejects surface documents that do not match the advertised TUI target", "aetheria.daemon.commands"]
         },
         {
           "path": "tools/evetui/evetui-capture-contract.mjs",

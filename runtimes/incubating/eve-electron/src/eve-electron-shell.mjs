@@ -115,6 +115,7 @@ export function normalizeSurfaceDocument(surfaceDocument) {
 function buildShellNode(component) {
   const source = objectValue(component);
   const children = Array.isArray(source.children) ? source.children.map(buildShellNode) : [];
+  const embeddedDocuments = normalizeEmbeddedDocuments(source.embeddedDocuments);
   return {
     id: firstString(source.id),
     componentKind: firstString(source.kind),
@@ -123,9 +124,24 @@ function buildShellNode(component) {
     layout: objectValue(source.layout),
     style: objectValue(source.style),
     stateBindingCount: Array.isArray(source.stateBindings) ? source.stateBindings.length : 0,
-    embeddedDocumentCount: Array.isArray(source.embeddedDocuments) ? source.embeddedDocuments.length : 0,
+    embeddedDocumentCount: embeddedDocuments.length,
+    embeddedDocuments,
     children,
   };
+}
+
+function normalizeEmbeddedDocuments(value) {
+  return Array.isArray(value)
+    ? value
+      .filter(document => document && typeof document === "object")
+      .map(document => ({
+        slotId: firstString(document.slotId, document.id),
+        documentId: firstString(document.documentId, document.href, document.url),
+        schemaId: firstString(document.schemaId, document.schema),
+        presentationKind: firstString(document.presentationKind, document.kind),
+      }))
+      .filter(document => document.slotId || document.documentId)
+    : [];
 }
 
 function shellElementKind(componentKind) {

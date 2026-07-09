@@ -61,7 +61,6 @@ try {
     --expect-split-target-proof "EveElectron:EveElectron lifecycle contract is machine-readable" `
     --expect-split-target-blocker "EveElectron:runtime:electron-shell:status:pending" `
     --expect-split-target-blocker-record EveElectron:runtime-status:electron-shell `
-    --expect-split-target-blocker-record EveElectron:runtime-feature:electron-shell:embeddedDocuments `
     --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:current:exists:eve-electron-shell.mjs `
     --expect-split-handoff-move EveElectron:electron-shell:electron-command-transport:current:exists:eve-electron-shell.mjs `
     --expect-split-handoff-move EveElectron:electron-shell:electron-world-surface-lowering:current:exists:eve-electron-shell.mjs `
@@ -75,7 +74,6 @@ try {
     --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `
     --expect-split-target-proof "EveTui:EveTui lifecycle contract is machine-readable" `
     --expect-split-target-blocker "EveTui:runtime:tui:status:pending" `
-    --expect-split-target-blocker-record EveTui:runtime-feature:tui:embeddedDocuments `
     --expect-split-handoff-move EveTui:tui:tui-runtime-body:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-world-surface-lowering:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-command-transport:current:exists:eve-tui-shell.mjs `

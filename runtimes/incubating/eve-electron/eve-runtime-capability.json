@@ -16,7 +16,8 @@
   "supportedFeatures": [
     "providerAdvertisements",
     "commandTransport",
-    "surfaceTreeProjection"
+    "surfaceTreeProjection",
+    "embeddedDocuments"
   ],
   "supportedPlugins": [],
   "unsupportedPlugins": [

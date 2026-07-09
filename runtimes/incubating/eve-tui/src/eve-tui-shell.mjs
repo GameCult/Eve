@@ -81,6 +81,7 @@ export class EveTuiShell {
       ownership: selected.worldInteraction.ownership,
       width: this.width,
       lines,
+      embeddedDocumentSlots: collectEmbeddedDocumentSlots(document.root),
       lossiness: "terminal-grid-command-surface; summarizes provider-authored world surface without owning provider state",
     };
   }
@@ -155,10 +156,38 @@ function buildComponentLines(component, width, depth = 0) {
   const indent = "  ".repeat(Math.min(depth, 6));
   const ownLine = fitLine(`${indent}${terminalElementKind(kind)} ${id}${label ? ` ${label}` : ""}`, width);
   const children = Array.isArray(source.children) ? source.children : [];
+  const embeddedDocuments = normalizeEmbeddedDocuments(source.embeddedDocuments);
   return [
     ownLine,
+    ...embeddedDocuments.map(document => fitLine(`${indent}  slot ${document.slotId || "(slot)"} ${document.documentId || "(document)"}`, width)),
     ...children.flatMap(child => buildComponentLines(child, width, depth + 1)),
   ];
+}
+
+function collectEmbeddedDocumentSlots(component, slots = []) {
+  const source = objectValue(component);
+  const ownerId = firstString(source.id);
+  for (const document of normalizeEmbeddedDocuments(source.embeddedDocuments)) {
+    slots.push({ ownerId, ...document });
+  }
+  for (const child of Array.isArray(source.children) ? source.children : []) {
+    collectEmbeddedDocumentSlots(child, slots);
+  }
+  return slots;
+}
+
+function normalizeEmbeddedDocuments(value) {
+  return Array.isArray(value)
+    ? value
+      .filter(document => document && typeof document === "object")
+      .map(document => ({
+        slotId: firstString(document.slotId, document.id),
+        documentId: firstString(document.documentId, document.href, document.url),
+        schemaId: firstString(document.schemaId, document.schema),
+        presentationKind: firstString(document.presentationKind, document.kind),
+      }))
+      .filter(document => document.slotId || document.documentId)
+    : [];
 }
 
 function terminalElementKind(componentKind) {
