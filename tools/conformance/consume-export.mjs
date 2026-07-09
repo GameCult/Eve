@@ -32,6 +32,7 @@ if (!exportDirectory) {
     "  --expect-provider-surface <providerId:surfaceId>",
     "  --expect-provider-surface-kind <providerId:surfaceId:surfaceKind>",
     "  --expect-provider-surface-field <providerId:surfaceId:field.path:value>",
+    "  --expect-interactive-world-surface <providerId:surfaceId:targetId:ownerRepo>",
     "  --expect-provider-command <providerId:command>",
     "  --expect-provider-receipt-state <providerId:state>",
     "  --expect-provider-handoff <providerId>",
@@ -125,6 +126,7 @@ function validateIndex(index, directory, expectations, errors) {
   const splitTargets = Array.isArray(index.splitTargets) ? index.splitTargets : [];
   const capabilityGaps = Array.isArray(index.capabilityGaps) ? index.capabilityGaps : [];
   const runtimePluginProjectionGaps = Array.isArray(index.runtimePluginProjectionGaps) ? index.runtimePluginProjectionGaps : [];
+  const interactiveWorldSurfaces = Array.isArray(index.interactiveWorldSurfaces) ? index.interactiveWorldSurfaces : [];
   const splitTargetBlockers = Array.isArray(index.splitTargetBlockers) ? index.splitTargetBlockers : [];
   const worldSurfaceLoweringGaps = Array.isArray(index.worldSurfaceLoweringGaps) ? index.worldSurfaceLoweringGaps : [];
 
@@ -132,6 +134,7 @@ function validateIndex(index, directory, expectations, errors) {
   validateProviderRecords(providers, errors);
   validateRuntimeRecords(runtimes, errors);
   validateSplitTargetRecords(splitTargets, errors);
+  validateInteractiveWorldSurfaces(index.interactiveWorldSurfaces, errors);
 
   if (expectations.conformanceHandoff && !index.conformanceHandoffPath) {
     errors.push("conformanceHandoffPath:missing");
@@ -320,6 +323,24 @@ function validateIndex(index, directory, expectations, errors) {
     const actual = readNestedField(surface, expectation.fieldPath);
     if (actual !== expectation.value) {
       errors.push(`providers:${expectation.providerId}:surfaceContract:${expectation.surfaceId}.${expectation.fieldPath}:expected ${expectation.value} got ${actual || ""}`);
+    }
+  }
+  for (const expectation of expectations.interactiveWorldSurfaces) {
+    const surface = interactiveWorldSurfaces.find(candidate =>
+      candidate.providerId === expectation.providerId &&
+      candidate.surfaceId === expectation.surfaceId);
+    if (!surface) {
+      errors.push(`interactiveWorldSurfaces:${expectation.providerId}:${expectation.surfaceId}:missing`);
+      continue;
+    }
+    if (surface.ownerRepo !== expectation.ownerRepo) {
+      errors.push(`interactiveWorldSurfaces:${expectation.providerId}:${expectation.surfaceId}:ownerRepo:expected ${expectation.ownerRepo} got ${surface.ownerRepo || ""}`);
+    }
+    if (!Array.isArray(surface.loweringTargets) || !surface.loweringTargets.includes(expectation.targetId)) {
+      errors.push(`interactiveWorldSurfaces:${expectation.providerId}:${expectation.surfaceId}:target:${expectation.targetId}:missing`);
+    }
+    for (const field of ["projectionKind", "commandBoundary", "receiptSchema", "ownership"]) {
+      if (!surface[field]) errors.push(`interactiveWorldSurfaces:${expectation.providerId}:${expectation.surfaceId}:${field}:missing`);
     }
   }
   for (const expectation of expectations.providerCommands) {
@@ -682,6 +703,21 @@ function validateProviderRecords(providers, errors) {
   }
 }
 
+function validateInteractiveWorldSurfaces(surfaces, errors) {
+  if (!Array.isArray(surfaces)) {
+    errors.push("interactiveWorldSurfaces:missing");
+    return;
+  }
+  for (const [index, surface] of surfaces.entries()) {
+    for (const field of ["providerId", "ownerRepo", "surfaceId", "surfaceKind", "interactionModel", "projectionKind", "commandBoundary", "receiptSchema", "ownership"]) {
+      if (!surface?.[field]) errors.push(`interactiveWorldSurfaces:${index}:${field}:missing`);
+    }
+    for (const field of ["stateSchemas", "loweringTargets"]) {
+      if (!Array.isArray(surface?.[field])) errors.push(`interactiveWorldSurfaces:${index}:${field}:expected array`);
+    }
+  }
+}
+
 function validateRuntimeRecords(runtimes, errors) {
   for (const runtime of runtimes) {
     const label = `runtimes:${runtime.runtimeId || "unknown"}`;
@@ -735,6 +771,7 @@ function parseArguments(args) {
     providerSurfaces: [],
     providerSurfaceKinds: [],
     providerSurfaceFields: [],
+    interactiveWorldSurfaces: [],
     providerCommands: [],
     providerReceiptStates: [],
     providerHandoffs: [],
@@ -780,6 +817,7 @@ function parseArguments(args) {
     ["--expect-provider-surface", expectations.providerSurfaces],
     ["--expect-provider-surface-kind", expectations.providerSurfaceKinds],
     ["--expect-provider-surface-field", expectations.providerSurfaceFields],
+    ["--expect-interactive-world-surface", expectations.interactiveWorldSurfaces],
     ["--expect-provider-command", expectations.providerCommands],
     ["--expect-provider-receipt-state", expectations.providerReceiptStates],
     ["--expect-provider-handoff", expectations.providerHandoffs],
@@ -844,6 +882,8 @@ function parseArguments(args) {
       target.push(parseProviderSurfaceKindExpectation(value));
     } else if (option === "--expect-provider-surface-field") {
       target.push(parseProviderSurfaceFieldExpectation(value));
+    } else if (option === "--expect-interactive-world-surface") {
+      target.push(parseInteractiveWorldSurfaceExpectation(value));
     } else if (option === "--expect-provider-command") {
       target.push(parseProviderExpectation(value, "command"));
     } else if (option === "--expect-provider-receipt-state") {
@@ -982,6 +1022,20 @@ function parseProviderSurfaceFieldExpectation(value) {
     surfaceId: parts[1],
     fieldPath: parts[2],
     value: parts.slice(3).join(":"),
+  };
+}
+
+function parseInteractiveWorldSurfaceExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 4 || parts.some(part => !part)) {
+    console.error(`Expected interactive world surface in <providerId:surfaceId:targetId:ownerRepo> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    providerId: parts[0],
+    surfaceId: parts[1],
+    targetId: parts[2],
+    ownerRepo: parts[3],
   };
 }
 

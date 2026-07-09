@@ -113,6 +113,13 @@ The same facts are also exported as `worldSurfaceLoweringGaps[]` so runtime
 owners can consume provider id, surface id, target id, owner repo, runtime id,
 split target, and runtime status as typed fields instead of parsing the generic
 gap text.
+Provider-owned world/editor surfaces are exported as
+`interactiveWorldSurfaces[]`. These records index the provider id, owner repo,
+surface id, surface kind, projection kind, state schemas, command boundary,
+receipt schema, lowering targets, and ownership rule so runtime lowerers can
+discover provider-authored world surfaces without importing provider source
+layout. Consumer smokes can assert advertised targets with
+`--expect-interactive-world-surface <providerId:surfaceId:targetId:ownerRepo>`.
 Declared runtime/plugin projection gaps are exported as
 `runtimePluginProjectionGaps[]`. These records carry runtime id, runtime owner,
 split target, plugin id, reason, severity, and fixture lists so EveUnity,

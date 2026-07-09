@@ -11,6 +11,7 @@
     "plugins",
     "providers",
     "runtimes",
+    "interactiveWorldSurfaces",
     "splitTargetBlockers",
     "splitTargets"
   ],
@@ -209,6 +210,70 @@
             "type": "string"
           },
           "text": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "interactiveWorldSurfaces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "providerId",
+          "ownerRepo",
+          "surfaceId",
+          "surfaceKind",
+          "interactionModel",
+          "projectionKind",
+          "stateSchemas",
+          "commandBoundary",
+          "receiptSchema",
+          "loweringTargets",
+          "ownership"
+        ],
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceKind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "interactionModel": {
+            "type": "string",
+            "minLength": 1
+          },
+          "projectionKind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stateSchemas": {
+            "type": "array"
+          },
+          "commandBoundary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "receiptSchema": {
+            "type": "string",
+            "minLength": 1
+          },
+          "loweringTargets": {
+            "type": "array"
+          },
+          "ownership": {
             "type": "string",
             "minLength": 1
           }

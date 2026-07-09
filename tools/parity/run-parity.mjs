@@ -1670,6 +1670,7 @@ function buildConformanceExport(report) {
     packs,
     capabilityMatrix: buildCapabilityMatrix(report),
     runtimePluginProjectionGaps: collectRuntimePluginProjectionGaps(report),
+    interactiveWorldSurfaces: collectInteractiveWorldSurfaces(report),
     worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
     splitTargetBlockers: collectSplitTargetBlockers(report),
     capabilityGaps: collectCapabilityGaps(report),
@@ -1949,6 +1950,30 @@ function collectRuntimePluginProjectionGaps(report) {
 
 function collectSplitTargetBlockers(report) {
   return (report.splitTargets || []).flatMap(target => target.blockerRecords || []);
+}
+
+function collectInteractiveWorldSurfaces(report) {
+  const surfaces = [];
+  for (const provider of report.providers || []) {
+    for (const surface of provider.surfaceContracts || []) {
+      const worldInteraction = surface.worldInteraction || {};
+      surfaces.push({
+        providerId: provider.providerId,
+        ownerRepo: provider.ownerRepo || "",
+        surfaceId: surface.surfaceId,
+        surfaceKind: surface.surfaceKind || "",
+        interactionModel: surface.interactionModel || "",
+        projectionKind: worldInteraction.projectionKind || "",
+        stateSchemas: worldInteraction.stateSchemas || [],
+        commandBoundary: worldInteraction.commandBoundary || "",
+        receiptSchema: worldInteraction.receiptSchema || "",
+        loweringTargets: worldInteraction.loweringTargets || [],
+        ownership: worldInteraction.ownership || "",
+      });
+    }
+  }
+  return surfaces.sort((left, right) =>
+    `${left.providerId}:${left.surfaceId}`.localeCompare(`${right.providerId}:${right.surfaceId}`));
 }
 
 function resolveRuntimeProjectionOwnerRepo(runtime) {

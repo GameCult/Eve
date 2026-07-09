@@ -344,9 +344,11 @@ Recently cut:
   kind, provider state schemas, daemon command boundary, receipt schema,
   lowering targets, and ownership rules for `aetheria.daemon.game` and
   `aetheria.daemon.editor`. The provider scenario requires the daemon game
-  world-surface contract, parity validates it against the advertisement, the
-  conformance export carries `surfaceContracts`, and the Aetheria consumer
-  smoke asserts those fields without importing Aetheria or Eve internals.
+  world-surface contract, parity validates it against the advertisement, and the
+  conformance export carries both provider `surfaceContracts` and root
+  `interactiveWorldSurfaces[]` records. The Aetheria consumer smoke asserts the
+  advertised web, Unity UI Toolkit, and Unity scene lowering targets without
+  importing Aetheria or Eve internals.
 - EveUnity test lifecycle now carries a structured Unity EditMode runner
   contract. `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
   names the runner script, consumer Unity project, default Unity editor path,

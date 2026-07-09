@@ -52,6 +52,9 @@ try {
     --expect-provider-surface-field aetheria:aetheria.daemon.editor:worldInteraction.projectionKind:provider-authored-world-editor-surface `
     --expect-provider-surface-field aetheria:aetheria.daemon.editor:worldInteraction.commandBoundary:aetheria.daemon.commands `
     --expect-provider-surface-field aetheria:aetheria.daemon.editor:worldInteraction.receiptSchema:aetheria.eve_command_acceptance_status.v1 `
+    --expect-interactive-world-surface aetheria:aetheria.daemon.game:web-reference:Aetheria `
+    --expect-interactive-world-surface aetheria:aetheria.daemon.game:unity-scene:Aetheria `
+    --expect-interactive-world-surface aetheria:aetheria.daemon.editor:unity-uitoolkit:Aetheria `
     --expect-provider-command aetheria:aetheria.daemon.commands `
     --expect-provider-receipt-state aetheria:accepted `
     --expect-provider-receipt-state aetheria:reconciled `
