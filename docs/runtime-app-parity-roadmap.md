@@ -133,6 +133,8 @@ First cuts:
 
 - Replace hardcoded tabs with a provider picker.
 - Represent existing fixtures as provider advertisements.
+- Load fallback provider entries from `web/local-provider-catalog.json` so
+  local discovery data stays out of renderer code.
 - Add Repixelizer fixture loading from `docs/fixtures/repixelizer.eve-surface.json`.
 - Map the full Repixelizer style token set to CSS variables.
 - Add screenshot capture for the Repixelizer first viewport and main app

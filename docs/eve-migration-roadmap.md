@@ -280,6 +280,12 @@ Exit criteria:
 
 Recently cut:
 
+- The web reference no longer hardcodes the local provider list in
+  `web/surface.js`. It loads `web/local-provider-catalog.json`, then opens
+  advertisement-backed entries for Aetheria, Repixelizer, and Sai through the
+  same `loadProviderAdvertisement` path used by the provider picker. Fixture-only
+  surfaces remain explicit local catalog entries until they gain provider
+  advertisements or move into their owner packs.
 - Provider advertisements can now name sidecar plugin requirements per surface
   with `surfaces[].requiresPlugins[]`. The parity harness validates those
   requirements against known plugin manifests, exports them in the conformance

@@ -47,15 +47,20 @@ provider picker:
 
 - `Repixelizer`: loads `web/fixtures/repixelizer.provider-advertisement.json`
   and `web/fixtures/repixelizer.eve-surface.json`.
+- `Aetheria`: loads `web/fixtures/aetheria.provider-advertisement.json`
+  and `web/fixtures/aetheria-world-surface.json`.
+- `Sai VN Surface`: loads `web/fixtures/sai-vn.provider-advertisement.json`
+  and `web/fixtures/sai-vn-surface.json`.
 - `Fensalir Direct2D`: loads `web/fixtures/fensalir-client-surface.json`, a
   recorded surface describing the Direct2D client lowering path.
-- `Sai VN Surface`: loads `web/fixtures/sai-vn-surface.json`.
 - `Huginn .cc`: compiles `web/fixtures/huginn-cc-surface.eve`.
 - `Reactive DSL`: compiles `web/fixtures/reactive-composition.eve`.
 - `CultUI Inspector`: compiles `web/fixtures/cultui-slider-inspector.eve`
   and proves partition/field-row/slider-anatomy lowering in the web reference.
 
-The remaining temporary part is the local fixture provider list itself. The
+The local fallback provider list now lives in `web/local-provider-catalog.json`
+instead of renderer code. That catalog is fixture discovery data for the browser
+oracle; live discovery still belongs to CultMesh/Odin advertisements. The
 runtime app target is the same picker fed by live
 `gamecult.eve.provider_advertisement.v1` documents through CultMesh/Odin; the
 browser reference no longer opens live providers by dialing Mimir's deck broker

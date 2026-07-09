@@ -464,6 +464,15 @@
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["embeddedDocuments", "providerAdvertisements", "stateBindings", "styleTokens", "authorityWitnesses"],
+      "localProviderCatalog": {
+        "path": "web/local-provider-catalog.json",
+        "requiredProviders": ["aetheria", "repixelizer", "gamecult.home.vn"],
+        "requiredAdvertisements": [
+          "web/fixtures/aetheria.provider-advertisement.json",
+          "web/fixtures/repixelizer.provider-advertisement.json",
+          "web/fixtures/sai-vn.provider-advertisement.json"
+        ]
+      },
       "supportedPlugins": [
         {
           "pluginId": "sai.vn",
@@ -481,7 +490,11 @@
       "expectedSourceSymbols": [
         {
           "path": "web/surface.js",
-          "contains": ["loadProviderAdvertisement", "aetheria.provider-advertisement.json", "publishCommandIntent", "browser.reference"]
+          "contains": ["loadLocalProviderCatalog", "loadProviderAdvertisement", "publishCommandIntent", "browser.reference"]
+        },
+        {
+          "path": "web/local-provider-catalog.json",
+          "contains": ["aetheria.provider-advertisement.json", "repixelizer.provider-advertisement.json", "sai-vn.provider-advertisement.json"]
         },
         {
           "path": "packages/eve-browser-lowering/src/index.ts",

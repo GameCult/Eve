@@ -17,73 +17,6 @@ let currentProvider;
 let liveHermodr = false;
 let openProviderGeneration = 0;
 
-const localProviders = [
-  {
-    providerId: "aetheria",
-    title: "Aetheria",
-    kind: "game.runtime",
-    advertisement: "./fixtures/aetheria.provider-advertisement.json",
-    surfaces: [{ transport: "local-json", surfaceId: "aetheria.daemon.game", url: "./fixtures/aetheria-world-surface.json" }],
-  },
-  {
-    providerId: "repixelizer",
-    title: "Repixelizer",
-    kind: "service.product",
-    advertisement: "./fixtures/repixelizer.provider-advertisement.json",
-    surfaces: [{ transport: "local-json", surfaceId: "repixelizer.operator.surface", url: "./fixtures/repixelizer.eve-surface.json" }],
-  },
-  {
-    providerId: "fensalir.direct2d",
-    title: "Fensalir Direct2D",
-    kind: "surface.renderer",
-    freshness: { state: "fixture" },
-    surfaces: [{ transport: "local-json", surfaceId: "fensalir.direct2d.fixture", url: "./fixtures/fensalir-client-surface.json" }],
-  },
-  {
-    providerId: "sai.visual_novel",
-    aliases: ["gamecult.home.vn", "sai-vn"],
-    title: "Sai VN Surface",
-    kind: "content.runtime",
-    freshness: { state: "fixture" },
-    surfaces: [{ transport: "local-json", surfaceId: "sai.visual_novel.surface", url: "./fixtures/sai-vn-surface.json" }],
-  },
-  {
-    providerId: "cultcache.huginn.inspector",
-    title: "Huginn .cc",
-    kind: "inspection.huginn",
-    freshness: { state: "fixture" },
-    surfaces: [{ transport: "local-eve-dsl", surfaceId: "cultcache.huginn.inspector", url: "./fixtures/huginn-cc-surface.eve" }],
-  },
-  {
-    providerId: "eve.reactive.dsl",
-    title: "Reactive DSL",
-    kind: "surface.fixture",
-    freshness: { state: "fixture" },
-    surfaces: [{ transport: "local-eve-dsl", surfaceId: "eve.reactive.dsl", url: "./fixtures/reactive-composition.eve" }],
-  },
-  {
-    providerId: "gamecult.eve.authority-witness",
-    title: "Authority Witness",
-    kind: "surface.fixture",
-    freshness: { state: "fixture" },
-    surfaces: [{ transport: "local-json", surfaceId: "gamecult.eve.authority-witness", url: "./fixtures/authority-staleness-witness.json" }],
-  },
-  {
-    providerId: "eve.cultui.inspector",
-    title: "CultUI Inspector",
-    kind: "surface.fixture",
-    freshness: { state: "fixture" },
-    surfaces: [{ transport: "local-eve-dsl", surfaceId: "eve.cultui.inspector", url: "./fixtures/cultui-slider-inspector.eve" }],
-  },
-  {
-    providerId: "gamecult.eve.embedded-demo",
-    title: "Embedded Surface Slot",
-    kind: "surface.fixture",
-    freshness: { state: "fixture" },
-    surfaces: [{ transport: "local-json", surfaceId: "gamecult.eve.embedded-demo", url: "./fixtures/cultui-embedded-surface.json" }],
-  },
-];
-
 providerSelect.addEventListener("change", () => {
   const provider = providers.find(candidate => candidate.providerId === providerSelect.value);
   if (provider) void openProvider(provider);
@@ -96,7 +29,7 @@ async function bootProviders() {
   if (providers.length) {
     liveHermodr = true;
   } else {
-    providers = await Promise.all(localProviders.map(loadProviderAdvertisement));
+    providers = await Promise.all((await loadLocalProviderCatalog()).map(loadProviderAdvertisement));
   }
   providerSelect.replaceChildren(...providers.map(provider => {
     const option = document.createElement("option");
@@ -113,6 +46,12 @@ async function bootProviders() {
     || providers[0];
   providerSelect.value = firstProduct.providerId;
   await openProvider(firstProduct);
+}
+
+async function loadLocalProviderCatalog() {
+  const response = await fetch("./local-provider-catalog.json", { cache: "no-store" });
+  const catalog = await response.json();
+  return catalog.providers || [];
 }
 
 async function loadHermodrProviders() {

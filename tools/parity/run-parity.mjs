@@ -303,6 +303,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   }
   const commandTransportSmokeErrors = await validateRuntimeCommandTransportSmoke(runtime);
   const capabilityManifestErrors = await validateRuntimeCapabilityManifest(runtime);
+  const localProviderCatalogErrors = await validateRuntimeLocalProviderCatalog(runtime);
   const missingIncubationFields = requiredIncubationFields(runtime).filter(field => !runtime[field]);
   const pluginCapabilityGaps = collectPluginCapabilityGaps(runtime, fixtureResults);
   const unsupportedPluginNotes = collectUnsupportedPluginNotes(runtime, fixtureResults);
@@ -313,6 +314,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   if (runtime.kind === "active" && missingRequiredFeatures.length) status = "missing-required-feature";
   if (runtime.kind === "active" && commandTransportSmokeErrors.length) status = "missing-command-transport-smoke";
   if (runtime.kind === "active" && capabilityManifestErrors.length) status = "invalid-runtime-capability";
+  if (runtime.kind === "active" && localProviderCatalogErrors.length) status = "invalid-local-provider-catalog";
   if (runtime.kind === "active" && missingIncubationFields.length) status = "missing-incubation-metadata";
   if (runtime.kind === "active" && pluginCapabilityGaps.length && status === "active") status = "active-with-capability-gaps";
   if (runtime.kind === "pending" && runtime.adapterSpike === "external" && !missingExternalPaths.length && !missingExternalSourceSymbols.length) {
@@ -347,6 +349,8 @@ async function evaluateRuntime(runtime, fixtureResults) {
     commandTransportSmokeErrors,
     capabilityManifest: runtime.capabilityManifest || null,
     capabilityManifestErrors,
+    localProviderCatalog: runtime.localProviderCatalog || null,
+    localProviderCatalogErrors,
     lifecycle: runtime.lifecycle || null,
     ownerRepo: runtime.ownerRepo || "",
     repoRole: runtime.repoRole || "",
@@ -359,6 +363,56 @@ async function evaluateRuntime(runtime, fixtureResults) {
     pluginCapabilityGaps,
     capture: runtime.capture,
   };
+}
+
+async function validateRuntimeLocalProviderCatalog(runtime) {
+  const catalogConfig = runtime.localProviderCatalog;
+  if (!catalogConfig) return [];
+
+  const errors = [];
+  const catalogPath = catalogConfig.path || "";
+  const absolutePath = path.join(repoRoot, catalogPath);
+  if (!existsSync(absolutePath)) return [`${catalogPath}:missing`];
+
+  let catalog;
+  try {
+    catalog = JSON.parse(await readFile(absolutePath, "utf8"));
+  } catch (error) {
+    return [`${catalogPath}:invalid-json:${error instanceof Error ? error.message : String(error)}`];
+  }
+
+  const providers = Array.isArray(catalog.providers) ? catalog.providers : [];
+  const providerIds = new Set(providers.map(provider => provider.providerId).filter(Boolean));
+  for (const providerId of catalogConfig.requiredProviders || []) {
+    if (!providerIds.has(providerId)) errors.push(`${catalogPath}:provider:${providerId}:missing`);
+  }
+
+  const catalogDirectory = path.posix.dirname(normalizePath(catalogPath));
+  const advertisedPaths = new Set(providers
+    .map(provider => resolveCatalogPath(catalogDirectory, provider.advertisement || ""))
+    .filter(Boolean));
+  for (const advertisementPath of catalogConfig.requiredAdvertisements || []) {
+    const normalized = normalizePath(advertisementPath);
+    if (!advertisedPaths.has(normalized)) {
+      errors.push(`${catalogPath}:advertisement:${advertisementPath}:unreferenced`);
+    }
+    if (!existsSync(path.join(repoRoot, advertisementPath))) {
+      errors.push(`${advertisementPath}:missing`);
+    }
+  }
+
+  return errors;
+}
+
+function normalizePath(candidate) {
+  return candidate.replaceAll("\\", "/").replace(/^\.\//, "");
+}
+
+function resolveCatalogPath(catalogDirectory, candidate) {
+  const normalized = normalizePath(candidate);
+  if (!normalized) return "";
+  if (/^(https?:|\/)/i.test(normalized)) return normalized;
+  return path.posix.normalize(path.posix.join(catalogDirectory, normalized));
 }
 
 async function evaluatePlugin(plugin, fixtureResults) {
@@ -1243,13 +1297,14 @@ function buildConformanceExport(report) {
           capabilityManifestPath: runtime.capabilityManifest?.manifestPath || "",
           commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
           captureStatus: runtime.capture?.status || "",
-          lifecycle: runtime.lifecycle,
-          missingEvidence: [
+      lifecycle: runtime.lifecycle,
+      missingEvidence: [
             ...runtime.missingPaths,
             ...runtime.missingRequiredFixtures.map(id => `fixture:${id}`),
             ...runtime.missingRequiredFeatures.map(id => `feature:${id}`),
             ...runtime.commandTransportSmokeErrors.map(id => `command-smoke:${id}`),
             ...runtime.capabilityManifestErrors.map(id => `runtime-capability:${id}`),
+            ...runtime.localProviderCatalogErrors.map(id => `local-provider-catalog:${id}`),
           ],
         }))
       : [];
@@ -1464,6 +1519,7 @@ function renderMarkdown(report) {
       ...runtime.missingRequiredFeatures.map(id => `feature:${id}`),
       ...runtime.commandTransportSmokeErrors.map(id => `command-smoke:${id}`),
       ...runtime.capabilityManifestErrors.map(id => `runtime-capability:${id}`),
+      ...runtime.localProviderCatalogErrors.map(id => `local-provider-catalog:${id}`),
       ...runtime.missingIncubationFields.map(id => `metadata:${id}`),
     ].join(", ");
     lines.push(`| ${runtime.title} | ${runtime.status} | ${runtime.ownerRepo} | ${summarizeLifecycle(runtime.lifecycle)} | ${runtime.capture?.status || "unknown"} | ${runtime.commandTransportSmoke?.schema || ""} | ${runtime.requiredFixtures.join(", ")} | ${runtime.pluginFixtures.join(", ")} | ${runtime.supportedFeatures.join(", ")} | ${runtime.pluginCapabilityGaps.join(", ")} | ${runtime.unsupportedPluginNotes.join(", ")} | ${missing} |`);
