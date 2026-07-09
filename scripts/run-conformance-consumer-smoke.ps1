@@ -33,7 +33,8 @@ try {
   node .\tools\conformance\consume-export.mjs $consumerExport `
     --expect-capability-matrix `
     --expect-capability-gap runtime:Fensalir:direct2d:capture:missing `
-    --expect-capability-gap "runtime:Eve:world-surface-lowering:provider:aetheria:surface:aetheria.daemon.game:world-lowering-target:unity-scene:missing-runtime" `
+    --expect-capability-gap "runtime:EveUnity:unity-scene:provider:aetheria:surface:aetheria.daemon.game:world-lowering-target:unity-scene:missing-runtime" `
+    --expect-capability-gap "runtime:EveTui:tui:provider:aetheria:surface:aetheria.daemon.game:world-lowering-target:tui:missing-runtime" `
     --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release" `
     --expect-conformance-handoff
   if ($LASTEXITCODE -ne 0) {

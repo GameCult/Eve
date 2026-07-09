@@ -100,6 +100,10 @@ Capability gaps are exported as `capabilityGaps[]`. They are derived from
 missing plugin/provider/runtime evidence, declared unsupported plugin
 projection, capture gaps, and split blockers. Consumer smokes can assert named
 gap substrings with `--expect-capability-gap`.
+When a provider advertises a world-surface lowering target that no runtime
+claims, the gap is assigned to the matching pending runtime owner when one
+exists, such as `unity-scene` -> EveUnity or `tui` -> EveTui. Eve only owns the
+gap when no runtime target has been declared at all.
 
 The conformance export includes runtime `capabilityManifestPath` and
 `capabilityManifestErrors` fields so external consumers can distinguish a

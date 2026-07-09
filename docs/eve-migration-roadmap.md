@@ -290,6 +290,11 @@ Recently cut:
   `packs/runtime.json`, the runtime-owner smoke asserts them, and the generic
   conformance smoke now reports the advertised but unclaimed `unity-scene`
   lowering target as an explicit capability gap.
+- Missing provider-advertised world-surface lowering targets are now assigned
+  to their pending runtime owner when one exists. `unity-scene` gaps point at
+  EveUnity's pending `unity-scene` runtime, and `tui` gaps point at EveTui's
+  pending `tui` runtime. Eve only owns a world-lowering gap when no runtime
+  target has been declared.
 - EveUnity now has a pending Unity scene handoff at
   `runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json`.
   The active `unity-uitoolkit` runtime remains a semantic UI surface lowerer;

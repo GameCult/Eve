@@ -1816,21 +1816,28 @@ function collectCapabilityGaps(report) {
   }
 
   const worldLoweringTargets = new Set();
+  const runtimeByWorldTarget = new Map();
   for (const runtime of report.runtimes || []) {
+    if (runtime.id) runtimeByWorldTarget.set(runtime.id, runtime);
     for (const claim of runtime.worldSurfaceLowering || []) {
       if (claim.targetId) worldLoweringTargets.add(claim.targetId);
+      if (claim.targetId) runtimeByWorldTarget.set(claim.targetId, runtime);
     }
   }
   for (const provider of report.providers || []) {
     for (const surface of provider.surfaceContracts || []) {
       for (const targetId of surface.worldInteraction?.loweringTargets || []) {
         if (!worldLoweringTargets.has(targetId)) {
+          const targetRuntime = runtimeByWorldTarget.get(targetId);
           addGap({
             kind: "runtime",
-            ownerRepo: "Eve",
-            subjectId: "world-surface-lowering",
+            ownerRepo: targetRuntime?.ownerRepo || "Eve",
+            subjectId: targetRuntime?.id || "world-surface-lowering",
             gap: `provider:${provider.providerId}:surface:${surface.surfaceId}:world-lowering-target:${targetId}:missing-runtime`,
             severity: "blocker",
+            detail: targetRuntime
+              ? `splitTarget:${targetRuntime.splitTarget || ""}:status:${targetRuntime.status || ""}`
+              : "no-runtime-target-declared",
           });
         }
       }
