@@ -352,7 +352,11 @@ Recently cut:
   `org.gamecult.eve.unity-uitoolkit` to Aetheria's Unity `testables`, runs
   `GameCult.Eve.UnityUIToolkit.Tests` in Unity batchmode, writes XML and log
   artifacts under `artifacts/aetheria-unity-editmode`, and restores
-  `Packages/manifest.json` before returning. This proves the incubating test
+  `Packages/manifest.json` before returning. The Brokkr/CultMesh DLL references
+  in the Unity test asmdef are Unity package assembly plumbing: CultLib already
+  owns the .NET/NuGet dependency story. EveUnity's split blocker is proving how
+  the Unity package resolves those assemblies after it leaves Eve incubation,
+  not inventing a dependency system for CultLib. This proves the incubating test
   lifecycle; it does not make Eve own Unity's final runtime lifecycle.
 - Aetheria now has repeatable Unity package consumer-build evidence for the
   Eve UI Toolkit runtime. `scripts/run-aetheria-unity-package-smoke.ps1`
