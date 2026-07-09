@@ -209,6 +209,9 @@ Starbridge RTS client remains Aetheria-owned product code until a
 provider-agnostic shell exists. EveTui is also intentionally pending: Aetheria
 advertises `tui` as an agent-facing lowering target, but Eve should not claim
 that target until a real terminal/grid lowerer and transcript capture exist.
+EveUnity includes both the active `unity-uitoolkit` package proof and the
+pending `unity-scene` runtime boundary; UI Toolkit support is not treated as
+full Unity scene/world lowering.
 
 The Flutter widget smoke also exercises `EveProviderCatalog` and
 `EveProviderPicker` against a conformance-export-shaped provider list. That is

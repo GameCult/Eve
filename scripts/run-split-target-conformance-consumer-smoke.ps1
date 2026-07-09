@@ -41,9 +41,11 @@ try {
     --expect-split-target-status EveUnity:incubating `
     --expect-split-target-proof "EveUnity:Unity lifecycle evidence is declared" `
     --expect-split-target-proof "EveUnity:EveUnity split handoff is machine-readable" `
+    --expect-split-target-blocker "EveUnity:runtime:unity-scene:status:pending" `
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target-blocker "EveUnity:Unity batchmode EditMode runner" `
     --expect-split-target-blocker "EveUnity:Unity batchmode or editor capture artifact" `
+    --expect-split-target-blocker "EveUnity:Unity scene runtime body exists outside Aetheria product code" `
     --expect-split-target EveElectron `
     --expect-split-target-status EveElectron:incubating `
     --expect-split-target-proof "EveElectron:EveElectron split handoff is machine-readable" `

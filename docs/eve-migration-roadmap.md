@@ -290,6 +290,13 @@ Recently cut:
   `packs/runtime.json`, the runtime-owner smoke asserts them, and the generic
   conformance smoke now reports the advertised but unclaimed `unity-scene`
   lowering target as an explicit capability gap.
+- EveUnity now has a pending Unity scene handoff at
+  `runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json`.
+  The active `unity-uitoolkit` runtime remains a semantic UI surface lowerer;
+  it is not treated as full scene/world projection. The pending `unity-scene`
+  runtime keeps the missing provider-agnostic scene body, command transport,
+  scene capture, and advertised `unity-scene` lowering proof visible as
+  EveUnity blockers.
 - EveElectron now has a pending split target and handoff at
   `runtimes/incubating/eve-electron/eveelectron-split-handoff.json`. It does
   not claim an Electron runtime body yet. The handoff draws the line between a

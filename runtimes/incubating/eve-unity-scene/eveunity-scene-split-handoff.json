@@ -1,0 +1,63 @@
+{
+  "schema": "gamecult.eve.runtime_split_handoff.v1",
+  "splitTarget": "EveUnity",
+  "ownerRepo": "EveUnity",
+  "currentHostRepo": "Eve",
+  "runtimeId": "unity-scene",
+  "packageName": "org.gamecult.eve.unity-scene",
+  "sourcePackageRoot": "runtimes/incubating/eve-unity-scene",
+  "destinationPackageRoot": "packages/org.gamecult.eve.unity-scene",
+  "authorityBoundary": "EveUnity owns generic Unity scene projection for provider-authored world surfaces: scene graph construction, camera/input binding, Unity package lifecycle, scene capture, and command intent emission through advertised provider command boundaries. Providers such as Aetheria own world state, assets, simulation, command authorization, receipts, and authored scenario flows. Eve keeps only the surface, command, provider advertisement, runtime capability, and conformance export contracts.",
+  "moveSets": [
+    {
+      "id": "unity-scene-runtime-body",
+      "stage": "runtime-body",
+      "currentPaths": [],
+      "destinationOwner": "EveUnity",
+      "replacementProof": "EveUnity hosts a provider-agnostic Unity scene lowerer that consumes provider advertisements and world surfaces without importing Aetheria runtime internals."
+    },
+    {
+      "id": "unity-scene-world-surface-lowering",
+      "stage": "world-surface-lowering",
+      "currentPaths": [],
+      "destinationOwner": "EveUnity",
+      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with scene projection evidence, command boundary evidence, and capture artifacts."
+    },
+    {
+      "id": "unity-scene-command-transport",
+      "stage": "command",
+      "currentPaths": [],
+      "destinationOwner": "EveUnity",
+      "replacementProof": "Unity scene input emits gamecult.eve.command.v1 intents through provider-advertised command boundaries and renders provider receipts instead of mutating local world truth."
+    },
+    {
+      "id": "unity-scene-capture-lifecycle",
+      "stage": "capture",
+      "currentPaths": [],
+      "destinationOwner": "EveUnity",
+      "replacementProof": "EveUnity attaches Unity scene screenshot or frame-capture artifacts to conformance output for at least one provider-authored world surface."
+    }
+  ],
+  "contractInputs": [
+    "gamecult.eve.surface.v1",
+    "gamecult.eve.command.v1",
+    "gamecult.eve.provider_advertisement.v1",
+    "gamecult.eve.runtime_capability.v1",
+    "gamecult.eve.conformance_export.v1"
+  ],
+  "forbiddenImports": [
+    "Aetheria daemon state as Unity scene runtime authority",
+    "Aetheria gameplay scripts as EveUnity scene lowerer truth",
+    "provider-specific scene components that bypass gamecult.eve.command.v1",
+    "renderer-local world simulation as provider truth",
+    "product assets bundled as Eve runtime contract"
+  ],
+  "requiredExternalProofs": [
+    "EveUnity publishes a Unity scene runtime capability manifest.",
+    "EveUnity claims the unity-scene world-surface lowering target only after a real provider-agnostic scene lowerer exists.",
+    "EveUnity lowers at least one non-Aetheria provider-authored world surface into Unity scene objects.",
+    "EveUnity lowers Aetheria's game world surface through provider advertisements without importing Aetheria internals.",
+    "Unity scene input emits gamecult.eve.command.v1 intents and renders provider receipts.",
+    "Unity scene screenshot or frame-capture artifacts are attached to conformance output."
+  ]
+}

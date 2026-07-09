@@ -541,7 +541,7 @@
       "ownerRepo": "EveUnity",
       "repoRole": "runtime-target",
       "status": "incubating",
-      "runtimes": ["unity-uitoolkit"],
+      "runtimes": ["unity-uitoolkit", "unity-scene"],
       "requiredRuntimeStatuses": ["active"],
       "requiredFeatures": ["embeddedDocuments"],
       "requiredPlugins": [
@@ -578,7 +578,9 @@
       "pendingProofs": [
         "Tagged UPM release is cut from EveUnity rather than Eve incubation.",
         "Unity batchmode EditMode runner is owned by EveUnity rather than Eve incubation.",
-        "Unity batchmode or editor capture artifact is attached to the runtime conformance report."
+        "Unity batchmode or editor capture artifact is attached to the runtime conformance report.",
+        "Unity scene runtime body exists outside Aetheria product code.",
+        "Unity scene claims provider-advertised unity-scene world-surface lowering with real scene capture evidence."
       ]
     },
     {
@@ -706,6 +708,41 @@
       "capture": {
         "status": "missing",
         "note": "TUI transcript or cell-grid capture is a split blocker until EveTui owns a provider-agnostic lowerer."
+      }
+    },
+    {
+      "id": "unity-scene",
+      "title": "Unity / Scene",
+      "kind": "pending",
+      "ownerRepo": "EveUnity",
+      "repoRole": "runtime-target",
+      "splitTarget": "EveUnity",
+      "graduationTrigger": "Split with EveUnity when a provider-agnostic Unity scene lowerer consumes provider world surfaces, emits command intents, and attaches scene capture evidence without importing Aetheria product code.",
+      "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
+      "requiredFixtures": ["aetheria-world"],
+      "pluginFixtures": [],
+      "supportedFeatures": [],
+      "supportedPlugins": [],
+      "unsupportedPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "reason": "Unity scene has no generic runtime body yet; Sai projection must enter through provider/plugin advertisements once scene lowering exists."
+        },
+        {
+          "pluginId": "norn.graph",
+          "reason": "Unity scene has no generic runtime body yet; Norn graph projection needs explicit scene-space or UI overlay semantics once scene lowering exists."
+        },
+        {
+          "pluginId": "tex.math",
+          "reason": "Unity scene has no generic runtime body yet; TeX projection needs explicit scene-space or UI overlay semantics once scene lowering exists."
+        }
+      ],
+      "expectedPaths": [
+        "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json"
+      ],
+      "capture": {
+        "status": "missing",
+        "note": "Unity scene capture is a split blocker until EveUnity owns a provider-agnostic scene lowerer."
       }
     },
     {
