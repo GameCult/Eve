@@ -90,6 +90,8 @@ foreach ($contract in @(
   "gamecult.eve.runtime_capture_request.v1",
   "gamecult.eve.provider_advertisement.v1",
   "gamecult.eve.provider_handoff.v1",
+  "gamecult.eve.electron_shell_projection.v1",
+  "gamecult.eve.tui_grid.v1",
   "gamecult.eve.runtime_capability.v1",
   "gamecult.eve.runtime_lifecycle.v1",
   "gamecult.eve.runtime_split_handoff.v1"
@@ -124,6 +126,8 @@ if (Test-Path -LiteralPath (Join-Path $absoluteExportDirectory "index.json")) {
     "gamecult.eve.provider_scenario.v1",
     "gamecult.eve.provider_advertisement.v1",
     "gamecult.eve.provider_handoff.v1",
+    "gamecult.eve.electron_shell_projection.v1",
+    "gamecult.eve.tui_grid.v1",
     "gamecult.eve.runtime_capability.v1",
     "gamecult.eve.runtime_lifecycle.v1",
     "gamecult.eve.runtime_split_handoff.v1",

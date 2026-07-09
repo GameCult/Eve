@@ -1,6 +1,16 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+import { validateSchemaSubset } from "../../test-support/schema-subset.mjs";
 import { EveTuiShell } from "../src/eve-tui-shell.mjs";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
+const tuiGridSchema = JSON.parse(readFileSync(
+  path.join(repoRoot, "schemas/gamecult.eve.tui_grid.v1.schema.json"),
+  "utf8",
+));
 
 test("selects advertised provider surfaces for compact projection", () => {
   const shell = new EveTuiShell({ width: 48 });
@@ -40,6 +50,7 @@ test("summary grid is explicitly lossy provider-shell evidence", () => {
   const shell = new EveTuiShell({ width: 36 });
   const grid = shell.renderSummary(advertisement(), "aetheria.daemon.game");
 
+  assert.deepEqual(validateSchemaSubset(tuiGridSchema, grid), []);
   assert.equal(grid.schema, "gamecult.eve.tui_grid.v1");
   assert.equal(grid.runtimeId, "tui");
   assert.equal(grid.surfaceId, "aetheria.daemon.game");
@@ -51,6 +62,7 @@ test("lowers provider surface trees into a terminal grid", () => {
   const shell = new EveTuiShell({ width: 44 });
   const grid = shell.lowerSurface(surfaceDocument(), advertisement(), "aetheria.daemon.game");
 
+  assert.deepEqual(validateSchemaSubset(tuiGridSchema, grid), []);
   assert.equal(grid.schema, "gamecult.eve.tui_grid.v1");
   assert.equal(grid.runtimeId, "tui");
   assert.equal(grid.providerId, "aetheria");

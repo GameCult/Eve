@@ -45,6 +45,8 @@ node $consumerScript $consumerExport `
   --expect-schema gamecult.eve.runtime_capture_request.v1 `
   --expect-schema gamecult.eve.runtime_lifecycle.v1 `
   --expect-schema gamecult.eve.runtime_split_handoff.v1 `
+  --expect-schema gamecult.eve.electron_shell_projection.v1 `
+  --expect-schema gamecult.eve.tui_grid.v1 `
   --expect-runtime-status web:active `
   --expect-runtime-status windows-flutter:active `
   --expect-runtime-status linux-flutter:active `

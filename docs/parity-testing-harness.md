@@ -228,6 +228,10 @@ Runtime lifecycle records use `gamecult.eve.runtime_lifecycle.v1`. Standalone
 lifecycle documents such as `flutter/eve_parity/eveflutter-lifecycle.json` and
 embedded runtime capability lifecycle blocks validate against the same stage
 shape, and exported runtime records carry `lifecycleErrors`.
+Runtime shell output contracts are schema-backed too:
+`gamecult.eve.electron_shell_projection.v1` covers the Electron shell tree, and
+`gamecult.eve.tui_grid.v1` covers the compact terminal grid. The Electron and
+TUI runtime tests validate real lowered objects against those schemas.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into

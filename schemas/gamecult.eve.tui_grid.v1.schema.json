@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.tui_grid.v1",
+  "title": "Eve TUI Grid",
+  "type": "object",
+  "required": [
+    "schema",
+    "runtimeId",
+    "providerId",
+    "surfaceId",
+    "width",
+    "lines",
+    "lossiness"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.tui_grid.v1"
+    },
+    "runtimeId": {
+      "const": "tui"
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surfaceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "projectionKind": {
+      "type": "string"
+    },
+    "commandBoundary": {
+      "type": "string"
+    },
+    "receiptSchema": {
+      "type": "string"
+    },
+    "ownership": {
+      "type": "string"
+    },
+    "width": {
+      "type": "number"
+    },
+    "lines": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "lossiness": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

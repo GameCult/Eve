@@ -1,6 +1,16 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+import { validateSchemaSubset } from "../../test-support/schema-subset.mjs";
 import { EveElectronShell } from "../src/eve-electron-shell.mjs";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
+const electronProjectionSchema = JSON.parse(readFileSync(
+  path.join(repoRoot, "schemas/gamecult.eve.electron_shell_projection.v1.schema.json"),
+  "utf8",
+));
 
 test("selects the active advertised provider surface", () => {
   const shell = new EveElectronShell();
@@ -40,6 +50,7 @@ test("lowers provider surface trees into an Electron shell projection", () => {
   const shell = new EveElectronShell();
   const projection = shell.lowerSurface(surfaceDocument(), advertisement(), "aetheria.daemon.game");
 
+  assert.deepEqual(validateSchemaSubset(electronProjectionSchema, projection), []);
   assert.equal(projection.schema, "gamecult.eve.electron_shell_projection.v1");
   assert.equal(projection.providerId, "aetheria");
   assert.equal(projection.surfaceId, "aetheria.daemon.game");

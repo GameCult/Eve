@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.electron_shell_projection.v1",
+  "title": "Eve Electron Shell Projection",
+  "type": "object",
+  "required": [
+    "type",
+    "schema",
+    "providerId",
+    "surfaceId",
+    "projectionKind",
+    "commandBoundary",
+    "receiptSchema",
+    "ownership",
+    "root"
+  ],
+  "properties": {
+    "type": {
+      "const": "electron-shell-projection"
+    },
+    "schema": {
+      "const": "gamecult.eve.electron_shell_projection.v1"
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surfaceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "projectionKind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "commandBoundary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "receiptSchema": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownership": {
+      "type": "string",
+      "minLength": 1
+    },
+    "root": {
+      "type": "object",
+      "required": [
+        "id",
+        "componentKind",
+        "shellElementKind",
+        "stateBindingCount",
+        "embeddedDocumentCount",
+        "children"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "componentKind": {
+          "type": "string"
+        },
+        "shellElementKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "props": {
+          "type": "object"
+        },
+        "layout": {
+          "type": "object"
+        },
+        "style": {
+          "type": "object"
+        },
+        "stateBindingCount": {
+          "type": "number"
+        },
+        "embeddedDocumentCount": {
+          "type": "number"
+        },
+        "children": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

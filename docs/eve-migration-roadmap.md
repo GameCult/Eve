@@ -437,6 +437,11 @@ Recently cut:
   wrapped and validated through the same schema, and the conformance export
   carries `lifecycleManifestPath` plus `lifecycleErrors` so runtime owners can
   consume lifecycle status without guessing from prose.
+- Electron and TUI provider-shell outputs are now schema-backed as
+  `gamecult.eve.electron_shell_projection.v1` and
+  `gamecult.eve.tui_grid.v1`. Their runtime tests load the schema documents and
+  validate actual lowered projection objects, so Electron and TUI cannot claim
+  generic provider-shell lowering by string constant alone.
 - EveElectron now has a pending split target and handoff at
   `runtimes/incubating/eve-electron/eveelectron-split-handoff.json`. It does
   claim a provider-agnostic Electron shell surface-tree projection and command
