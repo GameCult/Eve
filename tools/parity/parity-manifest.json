@@ -493,6 +493,18 @@
           "capabilities": ["embed.norn"]
         }
       ],
+      "proofs": [
+        {
+          "description": "Unity lifecycle evidence is declared and smoke-checked for EveUnity incubation.",
+          "status": "passed",
+          "evidencePaths": [
+            "packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json",
+            "scripts/run-eveunity-lifecycle-smoke.ps1",
+            "scripts/run-aetheria-unity-package-smoke.ps1",
+            "scripts/run-aetheria-unity-editmode-tests.ps1"
+          ]
+        }
+      ],
       "pendingProofs": [
         "Tagged UPM release is cut from EveUnity rather than Eve incubation.",
         "Unity batchmode EditMode runner is owned by EveUnity rather than Eve incubation.",

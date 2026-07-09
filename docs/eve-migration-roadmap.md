@@ -280,6 +280,14 @@ Exit criteria:
 
 Recently cut:
 
+- EveUnity now has a split lifecycle smoke at
+  `scripts/run-eveunity-lifecycle-smoke.ps1`. It validates the existing
+  `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
+  lifecycle claims directly instead of duplicating them, checks evidence paths,
+  and runs the Aetheria Unity package consumer-build smoke. `-RunUnityEditMode`
+  is available for the heavier Unity batchmode path. EveUnity remains
+  incubating until tagged UPM release, batchmode runner ownership, and capture
+  artifacts live under the `EveUnity` repo.
 - EveFlutter now has explicit lifecycle incubation evidence at
   `flutter/eve_parity/eveflutter-lifecycle.json` and a smoke runner at
   `scripts/run-eveflutter-lifecycle-smoke.ps1`. The smoke validates the
