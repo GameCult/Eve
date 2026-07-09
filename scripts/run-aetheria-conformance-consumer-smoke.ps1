@@ -55,6 +55,23 @@ try {
     --expect-interactive-world-surface aetheria:aetheria.daemon.game:web-reference:Aetheria `
     --expect-interactive-world-surface aetheria:aetheria.daemon.game:unity-scene:Aetheria `
     --expect-interactive-world-surface aetheria:aetheria.daemon.editor:unity-uitoolkit:Aetheria `
+    --expect-world-lowering-coverage aetheria:aetheria.daemon.game:web-reference:claimed:Eve:web `
+    --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `
+    --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-scene:missing-claim:EveUnity:unity-scene `
+    --expect-world-lowering-coverage aetheria:aetheria.daemon.editor:web-reference:claimed:Eve:web `
+    --expect-world-lowering-coverage aetheria:aetheria.daemon.editor:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `
+    --expect-command-boundary-coverage aetheria:aetheria.daemon.game:web-reference:covered:Eve:web `
+    --expect-command-boundary-coverage aetheria:aetheria.daemon.game:unity-uitoolkit:covered:EveUnity:unity-uitoolkit `
+    --expect-command-boundary-coverage aetheria:aetheria.daemon.game:unity-scene:missing-runtime-claim:EveUnity:unity-scene `
+    --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:web-reference:covered:Eve:web `
+    --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:unity-uitoolkit:covered:EveUnity:unity-uitoolkit `
+    --expect-world-lowering-gap aetheria:aetheria.daemon.game:unity-scene:EveUnity:unity-scene `
+    --expect-split-target-blocker "EveUnity:Unity scene runtime body exists outside Aetheria product code" `
+    --expect-split-target-blocker "EveElectron:Electron shell runtime body exists outside Aetheria product code" `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:replacement-required:no-source-paths:none `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:replacement-required:no-source-paths:none `
+    --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:observed-provider:exists:Aetheria.Rts.Web/Electron `
+    --expect-split-handoff-move EveElectron:electron-shell:electron-command-transport:observed-provider:exists:Aetheria.Rts.Web/Client/app.ts `
     --expect-provider-command aetheria:aetheria.daemon.commands `
     --expect-provider-receipt-state aetheria:accepted `
     --expect-provider-receipt-state aetheria:reconciled `

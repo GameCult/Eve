@@ -194,6 +194,10 @@ Work:
   conformance fixtures are stable.
 - Move `tex.math` to EvePlugins when TeX source, macro, baseline, cached render,
   and fallback fixtures are stable.
+- Treat nested plugin placement as composition, not custody. A Sai surface may
+  deploy with nested Norn or TeX surfaces when those plugin sidecars are
+  available, but Norn and TeX remain independent plugin owners with their own
+  ABI manifests, capability claims, and conformance packs.
 
 Exit criteria:
 
@@ -201,6 +205,8 @@ Exit criteria:
 - Providers invoke plugins through the ABI object model.
 - Runtimes declare plugin support through capability manifests.
 - Unsupported required plugin capabilities appear as visible gaps.
+- Optional nested plugin gaps degrade the nested surface; they do not transfer
+  graph, math, or renderer semantics into the parent plugin.
 
 ## Phase 4: Graduate Runtime Bodies
 
@@ -666,6 +672,10 @@ Recently cut:
   smoke asserts the provider pack, `aetheria-world` fixture, `aetheria`
   provider entry, and `aetheria-world-command-replay` scenario without reading
   Eve's parity manifest or dirtying the Aetheria worktree.
+- The Aetheria consumer smoke now also asserts frontend extraction boundaries:
+  web and Unity UI Toolkit are covered generic lowerings, Unity scene remains a
+  typed EveUnity gap, and the observed Aetheria Electron shell/client paths are
+  split-handoff evidence to replace with a provider-agnostic EveElectron body.
 - The parity harness now runs a conformance consumer smoke against a copied
   `artifacts/conformance/latest` layout, proving the export can be consumed
   through `index.json` and `packs/*.json` without reading Eve's parity manifest.

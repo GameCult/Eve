@@ -35,8 +35,10 @@ node $consumerScript $consumerExport `
   --expect-fixture sai-vn `
   --expect-plugin sai.vn `
   --expect-plugin norn.graph `
+  --expect-plugin tex.math `
   --expect-plugin-handoff sai.vn `
   --expect-plugin-handoff norn.graph `
+  --expect-plugin-handoff tex.math `
   --expect-plugin-operation sai.vn:describe `
   --expect-plugin-operation sai.vn:validate `
   --expect-plugin-operation sai.vn:project `
@@ -64,6 +66,9 @@ node $consumerScript $consumerExport `
   --expect-plugin-capability sai.vn:story.jump `
   --expect-plugin-capability norn.graph:embed.norn `
   --expect-plugin-capability norn.graph:graph.node.activate `
+  --expect-plugin-capability tex.math:embed.tex `
+  --expect-plugin-capability tex.math:tex.inline `
+  --expect-plugin-capability tex.math:tex.block `
   --expect-plugin-runtime sai.vn:executable-sidecar `
   --expect-plugin-runtime-transport sai.vn:cultmesh `
   --expect-plugin-runtime-authority sai.vn:no-provider-state-mutation `
@@ -83,7 +88,27 @@ node $consumerScript $consumerExport `
   --expect-plugin-runtime-field norn.graph:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
   --expect-plugin-runtime-field norn.graph:sidecar.stateAuthority:proposes-plugin-state-only-provider-accepts `
   --expect-plugin-abi-field norn.graph:lower:expect.commandEnvelope:gamecult.eve.command.v1 `
-  --expect-plugin-abi-field norn.graph:apply:expect.receiptSchema:gamecult.eve.command_receipt.v1
+  --expect-plugin-abi-field norn.graph:apply:expect.receiptSchema:gamecult.eve.command_receipt.v1 `
+  --expect-plugin-operation tex.math:describe `
+  --expect-plugin-operation tex.math:validate `
+  --expect-plugin-operation tex.math:project `
+  --expect-plugin-operation tex.math:lower `
+  --expect-plugin-operation tex.math:measure `
+  --expect-plugin-operation tex.math:apply `
+  --expect-plugin-abi-operation-coverage tex.math:describe:contracted:EvePlugins `
+  --expect-plugin-abi-operation-coverage tex.math:lower:contracted:EvePlugins `
+  --expect-plugin-abi-operation-coverage tex.math:apply:contracted:EvePlugins `
+  --expect-plugin-runtime tex.math:executable-sidecar `
+  --expect-plugin-runtime-transport tex.math:cultmesh `
+  --expect-plugin-runtime-authority tex.math:no-provider-state-mutation `
+  --expect-plugin-runtime-field tex.math:sidecar.processKind:long-running-daemon `
+  --expect-plugin-runtime-field tex.math:sidecar.protocol:cultmesh-rpc-with-stdio-dev-transport `
+  --expect-plugin-runtime-field tex.math:sidecar.requestSchema:gamecult.eve.plugin_abi.request.v1 `
+  --expect-plugin-runtime-field tex.math:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
+  --expect-plugin-runtime-field tex.math:sidecar.stateAuthority:emits-render-results-only-provider-owns-source-state `
+  --expect-plugin-abi-field tex.math:lower:expect.loweringKind:typeset-fragment `
+  --expect-plugin-abi-field tex.math:lower:expect.fallbackKind:source-text `
+  --expect-plugin-abi-field tex.math:apply:expect.receiptSchema:gamecult.eve.plugin_receipt.v1
 
 if ($LASTEXITCODE -ne 0) {
   throw "Plugin owner conformance consumer smoke failed with exit code $LASTEXITCODE"

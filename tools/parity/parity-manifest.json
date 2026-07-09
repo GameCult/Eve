@@ -469,12 +469,15 @@
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
       "manifestPath": "plugins/incubating/tex-math.plugin.json",
       "abiFixturePath": "plugins/incubating/tex-math.plugin-abi-fixture.json",
+      "handoffPath": "plugins/incubating/tex-math.plugin-handoff.json",
       "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
       "advertisementPath": "plugins/incubating/tex-math.plugin-advertisement.json",
       "expectedPaths": [
         "plugins/incubating/tex-math.plugin.json",
         "plugins/incubating/tex-math.plugin-abi-fixture.json",
-        "plugins/incubating/tex-math.plugin-advertisement.json"
+        "plugins/incubating/tex-math.plugin-advertisement.json",
+        "plugins/incubating/tex-math.plugin-handoff.json",
+        "scripts/run-plugin-handoff-smoke.ps1"
       ]
     }
   ],

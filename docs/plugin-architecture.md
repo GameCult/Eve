@@ -445,7 +445,9 @@ Sai does not own:
 ## Norn And TeX As First-Class Plugins
 
 Norn and TeX are not Sai subfeatures. Sai can place them inside a visual-novel
-scene, but ownership stays with their plugins.
+scene, but ownership stays with their plugins. Each plugin publishes a
+renderer-independent sidecar ABI; runtimes only declare whether they can project
+that plugin's advertised capabilities.
 
 Norn plugin responsibilities:
 
@@ -496,6 +498,10 @@ That means a VN scene can put a graph on a whiteboard or an equation in a
 briefing without Sai becoming a graph engine or a TeX engine. Sai owns the
 stage. Norn owns the graph. TeX owns the math. Eve owns the plugin ABI and
 renderer conformance. The app provider owns live state and receipts.
+
+Fixture co-location is not semantic custody. A TeX ABI fixture may currently
+use the Sai VN surface to prove nested placement, but the TeX handoff, manifest,
+advertisement, and conformance pack still graduate through EvePlugins.
 
 ## Building An App With Eve And Sai
 

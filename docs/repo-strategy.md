@@ -33,7 +33,8 @@ Anything else is guilty until it can explain why it protects a core invariant.
 
 - `Eve`: kernel contracts, specs, browser reference, and conformance incubation.
 - `EvePlugins`: first-party reusable plugins while young, such as fields,
-  world 2D/3D, and TeX.
+  world 2D/3D, and TeX. These plugins are independent sidecar capabilities, not
+  hidden features of Sai or any other provider.
 - `Sai`: owner for the VN/Ink plugin once `sai.vn` graduates.
 - `Norn`: owner for graph plugin semantics once `norn.graph` graduates.
 - `EveUnity`, `EveGodot`, `EveFlutter`, `EveElectron`, and similar runtime
