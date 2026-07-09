@@ -437,10 +437,12 @@ Recently cut:
   lifecycle smoke at `scripts/run-eveelectron-lifecycle-smoke.ps1`. The
   manifest declares provider advertisement consumption, command transport, and
   surface-tree projection, claims `electron-shell` world/editor lowering, and
-  now carries an executable capture request contract through
+  now carries executable release and capture request contracts. Release uses
+  `tools/eveelectron/eveelectron-release-contract.mjs` and
+  `scripts/run-eveelectron-release-contract-smoke.ps1`; capture uses
   `tools/eveelectron/eveelectron-capture-contract.mjs` and
-  `scripts/run-eveelectron-capture-contract-smoke.ps1`. Package release,
-  packaged window rendering, plugin projection, and actual Electron window
+  `scripts/run-eveelectron-capture-contract-smoke.ps1`. The packaged Electron
+  app, packaged window rendering, plugin projection, and actual Electron window
   capture artifacts remain pending EveElectron work.
 - Electron and TUI pending lifecycle details now live in their runtime
   capability manifests rather than being duplicated in
@@ -515,6 +517,14 @@ Recently cut:
   `scripts/run-eveelectron-capture-contract-smoke.ps1` proves that request path
   without pretending an Electron window PNG has been captured. The actual
   capture artifact remains a split blocker for EveElectron.
+- EveElectron release lifecycle now carries a structured pending release
+  request contract. `releaseContract` names
+  `gamecult.eve.runtime_release_request.v1`, the
+  `tools/eveelectron/eveelectron-release-contract.mjs` request builder,
+  `runtimes/incubating/eve-electron/package.json` as the version source, and
+  the `eveelectron-v{version}` tag/artifact pattern.
+  `scripts/run-eveelectron-release-contract-smoke.ps1` proves the request
+  without pretending a packaged Electron app has been published.
 - Unity scene capture now uses that same request-contract shape. The
   `unity-scene` runtime capability manifest names
   `gamecult.eve.runtime_capture_request.v1`, the shared

@@ -172,6 +172,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-pending "electron-shell:test:Electron provider-advertisement smoke runs from EveElectron in a packaged Electron window" `
   --expect-runtime-lifecycle-pending "electron-shell:capture:Electron window capture artifact" `
   --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.artifactKind:electron-app" `
+  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.versionSource:runtimes/incubating/eve-electron/package.json" `
+  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.requestSchema:gamecult.eve.runtime_release_request.v1" `
+  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.requestBuilder:tools/eveelectron/eveelectron-release-contract.mjs" `
+  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.artifactPattern:artifacts/eveelectron-release/{version}/eve-electron-{version}.zip" `
   --expect-runtime-lifecycle-field "electron-shell:test:testContract.runnerKind:electron-provider-shell-smoke" `
   --expect-runtime-lifecycle-field "electron-shell:test:testContract.runnerScript:scripts/run-eveelectron-provider-shell-smoke.ps1" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.captureKind:electron-window-png" `

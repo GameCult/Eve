@@ -62,16 +62,22 @@
         "ownerRepo": "EveElectron",
         "packageName": "eve-electron",
         "packageRoot": "runtimes/incubating/eve-electron",
-        "versionSource": "runtimes/incubating/eve-electron/eve-runtime-capability.json",
+        "versionSource": "runtimes/incubating/eve-electron/package.json",
         "tagPattern": "eveelectron-v{version}",
         "artifactKind": "electron-app",
+        "requestSchema": "gamecult.eve.runtime_release_request.v1",
+        "requestBuilder": "tools/eveelectron/eveelectron-release-contract.mjs",
+        "artifactPattern": "artifacts/eveelectron-release/{version}/eve-electron-{version}.zip",
         "publishProof": "Packaged Electron release is created from the EveElectron repo and references the provider-agnostic shell package root."
       },
       "evidencePaths": [
         "runtimes/incubating/eve-electron/package.json",
         "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
         "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
-        "scripts/run-eveelectron-split-handoff-smoke.ps1"
+        "scripts/run-eveelectron-split-handoff-smoke.ps1",
+        "scripts/run-eveelectron-release-contract-smoke.ps1",
+        "tools/eveelectron/eveelectron-release-contract.mjs",
+        "tools/eveelectron/eveelectron-release-contract.test.mjs"
       ],
       "pendingProofs": [
         "Electron packaged app release is cut from EveElectron rather than Eve incubation."

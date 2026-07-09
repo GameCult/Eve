@@ -759,7 +759,10 @@
         "runtimes/incubating/eve-electron/eve-runtime-capability.json",
         "scripts/run-eveelectron-lifecycle-smoke.ps1",
         "scripts/run-eveelectron-provider-shell-smoke.ps1",
+        "scripts/run-eveelectron-release-contract-smoke.ps1",
         "scripts/run-eveelectron-capture-contract-smoke.ps1",
+        "tools/eveelectron/eveelectron-release-contract.mjs",
+        "tools/eveelectron/eveelectron-release-contract.test.mjs",
         "tools/eveelectron/eveelectron-capture-contract.mjs",
         "tools/eveelectron/eveelectron-capture-contract.test.mjs"
       ],
@@ -779,6 +782,14 @@
         {
           "path": "tools/eveelectron/eveelectron-capture-contract.test.mjs",
           "contains": ["builds Electron shell capture request from provider advertisement", "rejects capture request when the surface does not advertise Electron shell", "electron-shell", "aetheria.daemon.commands"]
+        },
+        {
+          "path": "tools/eveelectron/eveelectron-release-contract.mjs",
+          "contains": ["buildElectronReleaseRequest", "gamecult.eve.runtime_release_request.v1", "eveelectron-release", "writeReleaseRequest"]
+        },
+        {
+          "path": "tools/eveelectron/eveelectron-release-contract.test.mjs",
+          "contains": ["builds EveElectron release request from package manifest", "eveelectron-v0.1.0", "artifacts/eveelectron-release/0.1.0/eve-electron-0.1.0.zip"]
         }
       ],
       "capture": {
