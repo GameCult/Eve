@@ -90,6 +90,12 @@ Consumer smokes assert those exported copies, not just Eve-local source paths,
 so owner repos can inspect plugin, provider, runtime, and conformance handoff
 maps from the exported pack itself.
 
+The conformance export also carries a `gamecult.eve.capability_matrix.v1`
+projection. It summarizes pack health, plugin ABI/capability claims, provider
+surfaces/commands/receipts, runtime feature/capture/command coverage, split
+readiness, and handoff counts. This is derived evidence for consumers, not a
+new source of truth.
+
 The conformance export includes runtime `capabilityManifestPath` and
 `capabilityManifestErrors` fields so external consumers can distinguish a
 generic projection runtime from a runtime that can project plugin-declared

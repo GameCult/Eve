@@ -16,6 +16,7 @@ if (!exportDirectory) {
     "  --expect-runtime <id>",
     "  --expect-scenario <id>",
     "  --expect-split-target <id>",
+    "  --expect-capability-matrix",
     "  --expect-conformance-handoff",
     "  --expect-plugin-operation <pluginId:operation>",
     "  --expect-plugin-capability <pluginId:capability>",
@@ -112,6 +113,9 @@ function validateIndex(index, directory, expectations, errors) {
   }
   if (expectations.conformanceHandoff) {
     validateExportedHandoff(index.conformanceHandoffExportPath, directory, "conformanceHandoff", errors);
+  }
+  if (expectations.capabilityMatrix) {
+    validateCapabilityMatrix(index.capabilityMatrix, packs, plugins, providers, runtimes, splitTargets, errors);
   }
 
   for (const expectedFixture of expectations.fixtures) {
@@ -319,6 +323,51 @@ function validateExportedHandoff(exportPath, directory, label, errors) {
   }
 }
 
+function validateCapabilityMatrix(matrix, packs, plugins, providers, runtimes, splitTargets, errors) {
+  if (!matrix) {
+    errors.push("capabilityMatrix:missing");
+    return;
+  }
+  if (matrix.schema !== "gamecult.eve.capability_matrix.v1") {
+    errors.push(`capabilityMatrix:schema:expected gamecult.eve.capability_matrix.v1 got ${matrix.schema || ""}`);
+  }
+  if ((matrix.packs || []).length !== packs.length) {
+    errors.push(`capabilityMatrix:packs:expected ${packs.length} got ${(matrix.packs || []).length}`);
+  }
+  if ((matrix.plugins || []).length !== plugins.length) {
+    errors.push(`capabilityMatrix:plugins:expected ${plugins.length} got ${(matrix.plugins || []).length}`);
+  }
+  if ((matrix.providers || []).length !== providers.length) {
+    errors.push(`capabilityMatrix:providers:expected ${providers.length} got ${(matrix.providers || []).length}`);
+  }
+  if ((matrix.runtimes || []).length !== runtimes.length) {
+    errors.push(`capabilityMatrix:runtimes:expected ${runtimes.length} got ${(matrix.runtimes || []).length}`);
+  }
+  if ((matrix.splitTargets || []).length !== splitTargets.length) {
+    errors.push(`capabilityMatrix:splitTargets:expected ${splitTargets.length} got ${(matrix.splitTargets || []).length}`);
+  }
+  for (const packId of ["core", "plugin", "provider", "runtime"]) {
+    if (!(matrix.packs || []).some(pack => pack.packId === packId)) {
+      errors.push(`capabilityMatrix:packs:${packId}:missing`);
+    }
+  }
+  for (const plugin of plugins) {
+    if (!(matrix.plugins || []).some(candidate => candidate.pluginId === plugin.pluginId)) {
+      errors.push(`capabilityMatrix:plugins:${plugin.pluginId}:missing`);
+    }
+  }
+  for (const provider of providers) {
+    if (!(matrix.providers || []).some(candidate => candidate.providerId === provider.providerId)) {
+      errors.push(`capabilityMatrix:providers:${provider.providerId}:missing`);
+    }
+  }
+  for (const runtime of runtimes) {
+    if (!(matrix.runtimes || []).some(candidate => candidate.runtimeId === runtime.runtimeId)) {
+      errors.push(`capabilityMatrix:runtimes:${runtime.runtimeId}:missing`);
+    }
+  }
+}
+
 function parseArguments(args) {
   const exportPath = args[0] ? path.resolve(args[0]) : "";
   const expectations = {
@@ -344,6 +393,7 @@ function parseArguments(args) {
     splitTargetStatuses: [],
     splitTargetBlockers: [],
     splitTargetProofs: [],
+    capabilityMatrix: false,
     conformanceHandoff: false,
   };
   const optionTargets = new Map([
@@ -373,6 +423,10 @@ function parseArguments(args) {
 
   for (let index = 1; index < args.length; index += 1) {
     const option = args[index];
+    if (option === "--expect-capability-matrix") {
+      expectations.capabilityMatrix = true;
+      continue;
+    }
     if (option === "--expect-conformance-handoff") {
       expectations.conformanceHandoff = true;
       continue;

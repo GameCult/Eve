@@ -1355,6 +1355,7 @@ function buildConformanceExport(report) {
     conformanceHandoffPath: report.repoStrategy.conformanceHandoffPath || "",
     conformanceHandoffExportPath: makeHandoffExportPath("conformance", "EveConformance", report.repoStrategy.conformanceHandoffPath || ""),
     packs,
+    capabilityMatrix: buildCapabilityMatrix(report),
     plugins: (report.plugins || []).map(plugin => ({
       pluginId: plugin.pluginId,
       status: plugin.status,
@@ -1401,6 +1402,77 @@ function buildConformanceExport(report) {
       lifecycle: runtime.lifecycle,
     })),
     splitTargets: report.splitTargets || [],
+  };
+}
+
+function buildCapabilityMatrix(report) {
+  const packs = (report.conformancePacks || []).map(pack => {
+    const fixtures = (report.fixtures || []).filter(fixture => fixture.pack === pack.id);
+    return {
+      packId: pack.id,
+      ownerRepo: pack.ownerRepo || "",
+      fixtureCount: fixtures.length,
+      passedFixtures: fixtures.filter(fixture => fixture.status === "pass").length,
+      failedFixtures: fixtures.filter(fixture => fixture.status !== "pass").length,
+      exitCriteria: pack.exitCriteria || "",
+    };
+  });
+
+  const plugins = (report.plugins || []).map(plugin => ({
+    pluginId: plugin.pluginId,
+    ownerRepo: plugin.ownerRepo,
+    status: plugin.status,
+    capabilities: plugin.capabilities || [],
+    abiOperations: plugin.abiOperations || [],
+    handoffExportPath: makeHandoffExportPath("plugin", plugin.pluginId, plugin.handoffPath),
+  }));
+
+  const providers = (report.providers || []).map(provider => ({
+    providerId: provider.providerId,
+    ownerRepo: provider.ownerRepo,
+    status: provider.status,
+    surfaces: provider.surfaceIds || [],
+    commands: provider.commandIds || [],
+    receiptStates: provider.scenarioReceiptStates || [],
+    handoffExportPath: makeHandoffExportPath("provider", provider.providerId, provider.handoffPath),
+  }));
+
+  const runtimes = (report.runtimes || []).map(runtime => ({
+    runtimeId: runtime.id,
+    ownerRepo: runtime.ownerRepo,
+    splitTarget: runtime.splitTarget,
+    status: runtime.status,
+    supportedFeatures: runtime.supportedFeatures || [],
+    supportedPlugins: runtime.supportedPlugins || [],
+    unsupportedPlugins: runtime.unsupportedPlugins || [],
+    commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
+    captureStatus: runtime.capture?.status || "",
+    splitHandoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
+  }));
+
+  const splitTargets = (report.splitTargets || []).map(target => ({
+    id: target.id,
+    ownerRepo: target.ownerRepo,
+    status: target.status,
+    blockerCount: (target.blockers || []).length,
+    passedProofs: (target.proofs || []).filter(proof => proof.status === "passed").length,
+  }));
+
+  return {
+    schema: "gamecult.eve.capability_matrix.v1",
+    generatedAt: report.generatedAt,
+    summary: report.summary || {},
+    handoffs: {
+      conformance: report.repoStrategy.conformanceHandoffPath ? 1 : 0,
+      plugins: plugins.filter(plugin => plugin.handoffExportPath).length,
+      providers: providers.filter(provider => provider.handoffExportPath).length,
+      runtimes: runtimes.filter(runtime => runtime.splitHandoffExportPath).length,
+    },
+    packs,
+    plugins,
+    providers,
+    runtimes,
+    splitTargets,
   };
 }
 
@@ -1463,6 +1535,7 @@ function renderConformanceExportMarkdown(conformanceExport) {
     "",
     `Boundary rule: ${conformanceExport.boundaryRule || "not declared"}`,
     `Conformance handoff: ${conformanceExport.conformanceHandoffExportPath || conformanceExport.conformanceHandoffPath || "not declared"}`,
+    `Capability matrix: ${conformanceExport.capabilityMatrix?.schema || "not declared"}`,
     "",
     "## Packs",
     "",

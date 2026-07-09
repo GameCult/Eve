@@ -280,6 +280,13 @@ Exit criteria:
 
 Recently cut:
 
+- Conformance export now carries a first-class
+  `gamecult.eve.capability_matrix.v1` projection. The matrix summarizes pack
+  health, plugin ABI/capability claims, provider surfaces/commands/receipts,
+  runtime feature/capture/command coverage, split readiness, and handoff counts
+  from the exported evidence. The generic consumer smoke asserts it with
+  `--expect-capability-matrix`, so owner repos do not need to scrape the
+  Markdown report or rebuild Eve's summary logic to understand coverage.
 - Conformance export now copies handoff documents into `handoffs/*.json` rather
   than exporting Eve-local source paths only. The export carries handoff export
   paths for EveConformance, Sai/Norn plugins, Aetheria, and EveUnity; the
