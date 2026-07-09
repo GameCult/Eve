@@ -72,6 +72,12 @@ Required top-level meanings:
 - `witnesses`: CultCache `.cc` files, database exports, or document keys that
   witness durable state.
 - `surfaces`: Eve surface documents or endpoints the provider publishes.
+- `surfaces[].surfaceKind`: provider-declared role for a surface, such as
+  `interactive-world` or `interactive-world-editor`. This is discovery and
+  conformance evidence for runtimes; provider state and semantics remain behind
+  the advertised surface, schemas, and command boundary.
+- `surfaces[].interactionModel`: short name for how interaction returns to the
+  provider, such as `provider-command-receipts`.
 - `surfaces[].requiresPlugins`: sidecar plugin capabilities required to render
   or interact with that surface. Runtimes compare these requirements with their
   local projection support and report visible capability gaps; they must not

@@ -136,6 +136,14 @@
             "type": "string",
             "minLength": 1
           },
+          "surfaceKind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "interactionModel": {
+            "type": "string",
+            "minLength": 1
+          },
           "requiresPlugins": {
             "type": "array",
             "items": {

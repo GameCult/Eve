@@ -23,6 +23,7 @@ if (!exportDirectory) {
     "  --expect-plugin-capability <pluginId:capability>",
     "  --expect-plugin-handoff <pluginId>",
     "  --expect-provider-surface <providerId:surfaceId>",
+    "  --expect-provider-surface-kind <providerId:surfaceId:surfaceKind>",
     "  --expect-provider-command <providerId:command>",
     "  --expect-provider-receipt-state <providerId:state>",
     "  --expect-provider-handoff <providerId>",
@@ -174,6 +175,20 @@ function validateIndex(index, directory, expectations, errors) {
     }
     if (!Array.isArray(provider.surfaces) || !provider.surfaces.includes(expectation.surfaceId)) {
       errors.push(`providers:${expectation.providerId}:surface:${expectation.surfaceId}:missing`);
+    }
+  }
+  for (const expectation of expectations.providerSurfaceKinds) {
+    const provider = providers.find(candidate => candidate.providerId === expectation.providerId);
+    if (!provider) {
+      errors.push(`providers:${expectation.providerId}:missing`);
+      continue;
+    }
+    const surfaceKinds = Array.isArray(provider.surfaceKinds) ? provider.surfaceKinds : [];
+    const surface = surfaceKinds.find(candidate => candidate.surfaceId === expectation.surfaceId);
+    if (!surface) {
+      errors.push(`providers:${expectation.providerId}:surfaceKind:${expectation.surfaceId}:missing`);
+    } else if (surface.surfaceKind !== expectation.surfaceKind) {
+      errors.push(`providers:${expectation.providerId}:surfaceKind:${expectation.surfaceId}:expected ${expectation.surfaceKind} got ${surface.surfaceKind || ""}`);
     }
   }
   for (const expectation of expectations.providerCommands) {
@@ -410,6 +425,7 @@ function parseArguments(args) {
     pluginHandoffs: [],
     providers: [],
     providerSurfaces: [],
+    providerSurfaceKinds: [],
     providerCommands: [],
     providerReceiptStates: [],
     providerHandoffs: [],
@@ -440,6 +456,7 @@ function parseArguments(args) {
     ["--expect-plugin-capability", expectations.pluginCapabilities],
     ["--expect-plugin-handoff", expectations.pluginHandoffs],
     ["--expect-provider-surface", expectations.providerSurfaces],
+    ["--expect-provider-surface-kind", expectations.providerSurfaceKinds],
     ["--expect-provider-command", expectations.providerCommands],
     ["--expect-provider-receipt-state", expectations.providerReceiptStates],
     ["--expect-provider-handoff", expectations.providerHandoffs],
@@ -482,6 +499,8 @@ function parseArguments(args) {
       target.push(value);
     } else if (option === "--expect-provider-surface") {
       target.push(parseProviderExpectation(value, "surfaceId"));
+    } else if (option === "--expect-provider-surface-kind") {
+      target.push(parseProviderSurfaceKindExpectation(value));
     } else if (option === "--expect-provider-command") {
       target.push(parseProviderExpectation(value, "command"));
     } else if (option === "--expect-provider-receipt-state") {
@@ -534,6 +553,19 @@ function parseProviderExpectation(value, field) {
   return {
     providerId: value.slice(0, separator),
     [field]: value.slice(separator + 1),
+  };
+}
+
+function parseProviderSurfaceKindExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 3 || parts.some(part => !part)) {
+    console.error(`Expected provider surface kind in <providerId:surfaceId:surfaceKind> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    providerId: parts[0],
+    surfaceId: parts[1],
+    surfaceKind: parts[2],
   };
 }
 

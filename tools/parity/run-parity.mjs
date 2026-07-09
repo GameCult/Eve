@@ -549,12 +549,14 @@ async function evaluateProvider(provider, fixtureResults, pluginResults) {
     ...(advertisement.commands || []).map(command => command.schema).filter(Boolean),
   ])].sort() : [];
   const surfaceIds = advertisement ? (advertisement.surfaces || []).map(surface => surface.surfaceId).filter(Boolean).sort() : [];
+  const surfaceKinds = advertisement ? collectProviderSurfaceKinds(advertisement) : [];
   const commandIds = advertisement ? (advertisement.commands || []).map(command => command.command).filter(Boolean).sort() : [];
   const witnessKinds = advertisement ? (advertisement.witnesses || []).map(witness => witness.kind).filter(Boolean).sort() : [];
   const pluginRequirements = advertisement ? collectProviderPluginRequirements(advertisement) : [];
   const pluginRequirementErrors = validateProviderPluginRequirements(provider, pluginRequirements, pluginResults);
   const missingSchemas = (provider.expectedSchemas || []).filter(schema => !advertisedSchemaIds.includes(schema));
   const missingSurfaces = (provider.expectedSurfaces || []).filter(surface => !surfaceIds.includes(surface));
+  const missingSurfaceKinds = validateProviderSurfaceKinds(provider, surfaceKinds);
   const missingCommands = (provider.expectedCommands || []).filter(command => !commandIds.includes(command));
   const scenarioErrors = await validateProviderScenario(provider, advertisement, fixtureResults, advertisedSchemaIds, surfaceIds, commandIds);
   const scenario = scenarioErrors.length || !provider.scenarioPath ? null : await readJsonDocument(provider.scenarioPath);
@@ -566,7 +568,7 @@ async function evaluateProvider(provider, fixtureResults, pluginResults) {
         ? "missing-ownership-metadata"
         : advertisementErrors.length
           ? "invalid-provider-advertisement"
-          : missingSchemas.length || missingSurfaces.length || missingCommands.length || pluginRequirementErrors.length
+          : missingSchemas.length || missingSurfaces.length || missingSurfaceKinds.length || missingCommands.length || pluginRequirementErrors.length
             ? "capability-gap"
             : scenarioErrors.length
               ? "invalid-provider-scenario"
@@ -592,16 +594,19 @@ async function evaluateProvider(provider, fixtureResults, pluginResults) {
     missingIncubationFields,
     expectedSchemas: provider.expectedSchemas || [],
     expectedSurfaces: provider.expectedSurfaces || [],
+    expectedSurfaceKinds: provider.expectedSurfaceKinds || {},
     expectedCommands: provider.expectedCommands || [],
     schemaIds,
     advertisedSchemaIds,
     surfaceIds,
+    surfaceKinds,
     commandIds,
     witnessKinds,
     pluginRequirements,
     pluginRequirementErrors,
     missingSchemas,
     missingSurfaces,
+    missingSurfaceKinds,
     missingCommands,
     scenarioId: scenario?.scenarioId || "",
     scenarioReceiptStates: scenario ? [...new Set((scenario.expectedReceipts || []).map(receipt => receipt.state).filter(Boolean))].sort() : [],
@@ -623,6 +628,31 @@ function collectProviderPluginRequirements(advertisement) {
     }
   }
   return requirements;
+}
+
+function collectProviderSurfaceKinds(advertisement) {
+  return (advertisement.surfaces || [])
+    .filter(surface => surface.surfaceId && surface.surfaceKind)
+    .map(surface => ({
+      surfaceId: surface.surfaceId,
+      surfaceKind: surface.surfaceKind,
+      interactionModel: surface.interactionModel || "",
+    }))
+    .sort((left, right) => left.surfaceId.localeCompare(right.surfaceId));
+}
+
+function validateProviderSurfaceKinds(provider, surfaceKinds) {
+  const errors = [];
+  const kindsBySurface = new Map(surfaceKinds.map(surface => [surface.surfaceId, surface.surfaceKind]));
+  for (const [surfaceId, expectedKind] of Object.entries(provider.expectedSurfaceKinds || {})) {
+    const actualKind = kindsBySurface.get(surfaceId);
+    if (!actualKind) {
+      errors.push(`${surfaceId}:surfaceKind:missing`);
+    } else if (actualKind !== expectedKind) {
+      errors.push(`${surfaceId}:surfaceKind:expected ${expectedKind} got ${actualKind}`);
+    }
+  }
+  return errors;
 }
 
 function validateProviderPluginRequirements(provider, requirements, pluginResults) {
@@ -1383,6 +1413,7 @@ function buildConformanceExport(report) {
       scenarioId: provider.scenarioId,
       receiptStates: provider.scenarioReceiptStates || [],
       surfaces: provider.surfaceIds,
+      surfaceKinds: provider.surfaceKinds,
       commands: provider.commandIds,
       pluginRequirements: provider.pluginRequirements,
     })),
@@ -1433,6 +1464,7 @@ function buildCapabilityMatrix(report) {
     ownerRepo: provider.ownerRepo,
     status: provider.status,
     surfaces: provider.surfaceIds || [],
+    surfaceKinds: provider.surfaceKinds || [],
     commands: provider.commandIds || [],
     receiptStates: provider.scenarioReceiptStates || [],
     handoffExportPath: makeHandoffExportPath("provider", provider.providerId, provider.handoffPath),
@@ -1520,6 +1552,7 @@ function collectCapabilityGaps(report) {
       ...(provider.scenarioErrors || []).map(id => `scenario:${id}`),
       ...(provider.missingSchemas || []).map(id => `schema:${id}`),
       ...(provider.missingSurfaces || []).map(id => `surface:${id}`),
+      ...(provider.missingSurfaceKinds || []).map(id => `surface-kind:${id}`),
       ...(provider.missingCommands || []).map(id => `command:${id}`),
       ...(provider.pluginRequirementErrors || []).map(id => `plugin:${id}`),
     ]) {
@@ -1775,6 +1808,7 @@ function renderMarkdown(report) {
       ...provider.scenarioErrors.map(id => `scenario:${id}`),
       ...provider.missingSchemas.map(id => `schema:${id}`),
       ...provider.missingSurfaces.map(id => `surface:${id}`),
+      ...provider.missingSurfaceKinds.map(id => `surface-kind:${id}`),
       ...provider.missingCommands.map(id => `command:${id}`),
       ...provider.pluginRequirementErrors.map(id => `plugin:${id}`),
     ].join(", ");

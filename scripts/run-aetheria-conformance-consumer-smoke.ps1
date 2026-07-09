@@ -43,6 +43,8 @@ try {
     --expect-scenario aetheria-world-command-replay `
     --expect-provider-surface aetheria:aetheria.daemon.game `
     --expect-provider-surface aetheria:aetheria.daemon.editor `
+    --expect-provider-surface-kind aetheria:aetheria.daemon.game:interactive-world `
+    --expect-provider-surface-kind aetheria:aetheria.daemon.editor:interactive-world-editor `
     --expect-provider-command aetheria:aetheria.daemon.commands `
     --expect-provider-receipt-state aetheria:accepted `
     --expect-provider-receipt-state aetheria:reconciled `

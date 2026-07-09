@@ -94,6 +94,8 @@
       "status": "available",
       "audience": "player",
       "mode": "interactive",
+      "surfaceKind": "interactive-world",
+      "interactionModel": "provider-command-receipts",
       "summary": "Authoritative daemon game surface consumed by Unity and web lowerers."
     },
     {
@@ -112,7 +114,9 @@
       "transport": "cultmesh-record",
       "status": "available",
       "audience": "operator",
-      "mode": "interactive"
+      "mode": "interactive",
+      "surfaceKind": "interactive-world-editor",
+      "interactionModel": "provider-command-receipts"
     }
   ],
   "commands": [
