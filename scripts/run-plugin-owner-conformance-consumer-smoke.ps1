@@ -47,6 +47,12 @@ node $consumerScript $consumerExport `
   --expect-plugin-handoff sai.vn `
   --expect-plugin-handoff norn.graph `
   --expect-plugin-handoff tex.math `
+  --expect-plugin-handoff-move sai.vn:plugin-manifest:current:exists:sai-vn.plugin.json `
+  --expect-plugin-handoff-move sai.vn:abi-conformance:current:exists:sai-vn.plugin-abi-fixture.json `
+  --expect-plugin-handoff-move norn.graph:plugin-manifest:current:exists:norn-graph.plugin.json `
+  --expect-plugin-handoff-move norn.graph:abi-conformance:current:exists:norn-graph.plugin-abi-fixture.json `
+  --expect-plugin-handoff-move tex.math:plugin-manifest:current:exists:tex-math.plugin.json `
+  --expect-plugin-handoff-move tex.math:abi-conformance:current:exists:tex-math.plugin-abi-fixture.json `
   --expect-plugin-operation sai.vn:describe `
   --expect-plugin-operation sai.vn:validate `
   --expect-plugin-operation sai.vn:project `

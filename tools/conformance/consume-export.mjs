@@ -36,6 +36,7 @@ if (!exportDirectory) {
     "  --expect-plugin-abi-field <pluginId:operation:field.path:value>",
     "  --expect-plugin-abi-operation-coverage <pluginId:operation:status:ownerRepo>",
     "  --expect-plugin-handoff <pluginId>",
+    "  --expect-plugin-handoff-move <pluginId:moveSetId:pathKind:status:path-substring>",
     "  --expect-provider-surface <providerId:surfaceId>",
     "  --expect-provider-surface-kind <providerId:surfaceId:surfaceKind>",
     "  --expect-provider-surface-field <providerId:surfaceId:field.path:value>",
@@ -147,6 +148,7 @@ function validateIndex(index, directory, expectations, errors) {
   const screenshotComparisonMetrics = Array.isArray(index.screenshotComparisonMetrics) ? index.screenshotComparisonMetrics : [];
   const splitTargetBlockers = Array.isArray(index.splitTargetBlockers) ? index.splitTargetBlockers : [];
   const splitHandoffMoveCoverage = Array.isArray(index.splitHandoffMoveCoverage) ? index.splitHandoffMoveCoverage : [];
+  const pluginHandoffMoveCoverage = Array.isArray(index.pluginHandoffMoveCoverage) ? index.pluginHandoffMoveCoverage : [];
   const worldSurfaceLoweringGaps = Array.isArray(index.worldSurfaceLoweringGaps) ? index.worldSurfaceLoweringGaps : [];
 
   validatePluginRecords(plugins, errors);
@@ -172,6 +174,7 @@ function validateIndex(index, directory, expectations, errors) {
   validateRuntimePluginProjectionGaps(index.runtimePluginProjectionGaps, errors);
   validateSplitTargetBlockers(index.splitTargetBlockers, errors);
   validateSplitHandoffMoveCoverage(index.splitHandoffMoveCoverage, errors);
+  validatePluginHandoffMoveCoverage(index.pluginHandoffMoveCoverage, errors);
   validateWorldSurfaceLoweringCoverage(index.worldSurfaceLoweringCoverage, errors);
   validateCommandBoundaryCoverage(index.commandBoundaryCoverage, errors);
   validateScreenshotComparisonMetrics(index.screenshotComparisonMetrics, errors);
@@ -704,6 +707,17 @@ function validateIndex(index, directory, expectations, errors) {
       errors.push(`splitHandoffMoveCoverage:${expectation.splitTarget}:${expectation.runtimeId}:${expectation.moveSetId}:${expectation.pathKind}:${expectation.status}:${expectation.pathSubstring}:missing`);
     }
   }
+  for (const expectation of expectations.pluginHandoffMoves) {
+    const record = pluginHandoffMoveCoverage.find(candidate =>
+      candidate.pluginId === expectation.pluginId &&
+      candidate.moveSetId === expectation.moveSetId &&
+      candidate.pathKind === expectation.pathKind &&
+      candidate.status === expectation.status &&
+      candidate.sourcePath?.includes(expectation.pathSubstring));
+    if (!record) {
+      errors.push(`pluginHandoffMoveCoverage:${expectation.pluginId}:${expectation.moveSetId}:${expectation.pathKind}:${expectation.status}:${expectation.pathSubstring}:missing`);
+    }
+  }
   for (const expectation of expectations.splitTargetProofs) {
     const target = splitTargets.find(candidate => candidate.id === expectation.targetId);
     if (!target) {
@@ -881,6 +895,21 @@ function validateSplitHandoffMoveCoverage(records, errors) {
     }
     if (typeof record?.pathExists !== "boolean") {
       errors.push(`splitHandoffMoveCoverage:${index}:pathExists:expected boolean`);
+    }
+  }
+}
+
+function validatePluginHandoffMoveCoverage(records, errors) {
+  if (!Array.isArray(records)) {
+    errors.push("pluginHandoffMoveCoverage:missing");
+    return;
+  }
+  for (const [index, record] of records.entries()) {
+    for (const field of ["pluginId", "pluginOwnerRepo", "splitTarget", "handoffPath", "handoffExportPath", "moveSetId", "destinationOwner", "replacementProof", "pathKind", "sourcePath", "status", "severity"]) {
+      if (!record?.[field]) errors.push(`pluginHandoffMoveCoverage:${index}:${field}:missing`);
+    }
+    if (typeof record?.pathExists !== "boolean") {
+      errors.push(`pluginHandoffMoveCoverage:${index}:pathExists:expected boolean`);
     }
   }
 }
@@ -1104,6 +1133,7 @@ function parseArguments(args) {
     pluginAbiFields: [],
     pluginAbiOperationCoverage: [],
     pluginHandoffs: [],
+    pluginHandoffMoves: [],
     providers: [],
     providerSurfaces: [],
     providerSurfaceKinds: [],
@@ -1161,6 +1191,7 @@ function parseArguments(args) {
     ["--expect-plugin-abi-field", expectations.pluginAbiFields],
     ["--expect-plugin-abi-operation-coverage", expectations.pluginAbiOperationCoverage],
     ["--expect-plugin-handoff", expectations.pluginHandoffs],
+    ["--expect-plugin-handoff-move", expectations.pluginHandoffMoves],
     ["--expect-provider-surface", expectations.providerSurfaces],
     ["--expect-provider-surface-kind", expectations.providerSurfaceKinds],
     ["--expect-provider-surface-field", expectations.providerSurfaceFields],
@@ -1233,6 +1264,8 @@ function parseArguments(args) {
       target.push(parsePluginAbiOperationCoverageExpectation(value));
     } else if (option === "--expect-plugin-handoff") {
       target.push(value);
+    } else if (option === "--expect-plugin-handoff-move") {
+      target.push(parsePluginHandoffMoveExpectation(value));
     } else if (option === "--expect-provider-surface") {
       target.push(parseProviderExpectation(value, "surfaceId"));
     } else if (option === "--expect-provider-surface-kind") {
@@ -1449,6 +1482,21 @@ function parseSplitHandoffMoveExpectation(value) {
     pathKind: parts[3],
     status: parts[4],
     pathSubstring: parts.slice(5).join(":"),
+  };
+}
+
+function parsePluginHandoffMoveExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length < 5 || parts.slice(0, 4).some(part => !part) || !parts.slice(4).join(":")) {
+    console.error(`Expected plugin handoff move in <pluginId:moveSetId:pathKind:status:path-substring> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    pluginId: parts[0],
+    moveSetId: parts[1],
+    pathKind: parts[2],
+    status: parts[3],
+    pathSubstring: parts.slice(4).join(":"),
   };
 }
 

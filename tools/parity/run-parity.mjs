@@ -1967,6 +1967,7 @@ function buildConformanceExport(report) {
     worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
     splitTargetBlockers: collectSplitTargetBlockers(report),
     splitHandoffMoveCoverage: collectSplitHandoffMoveCoverage(report),
+    pluginHandoffMoveCoverage: collectPluginHandoffMoveCoverage(report),
     pluginAbiOperationCoverage: collectPluginAbiOperationCoverage(report),
     providerPluginRequirementCoverage: collectProviderPluginRequirementCoverage(report),
     capabilityGaps: collectCapabilityGaps(report),
@@ -2791,6 +2792,65 @@ function buildSplitHandoffMoveRecord(runtime, handoff, moveSet, source) {
     handoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
     moveSetId: moveSet.id || "",
     stage: moveSet.stage || "",
+    destinationOwner: moveSet.destinationOwner || "",
+    replacementProof: moveSet.replacementProof || "",
+    pathKind: source.pathKind,
+    sourcePath: normalizePath(source.sourcePath),
+    pathExists: source.pathExists,
+    status,
+    severity: "blocker",
+  };
+}
+
+function collectPluginHandoffMoveCoverage(report) {
+  const records = [];
+  for (const plugin of report.plugins || []) {
+    if (!plugin.handoffPath) continue;
+    const absoluteHandoffPath = path.join(repoRoot, plugin.handoffPath);
+    if (!existsSync(absoluteHandoffPath)) continue;
+
+    let handoff;
+    try {
+      handoff = JSON.parse(readFileSync(absoluteHandoffPath, "utf8"));
+    } catch {
+      continue;
+    }
+
+    for (const moveSet of handoff.moveSets || []) {
+      const currentPaths = Array.isArray(moveSet.currentPaths) ? moveSet.currentPaths : [];
+      for (const sourcePath of currentPaths) {
+        const absoluteSourcePath = path.join(repoRoot, sourcePath);
+        records.push(buildPluginHandoffMoveRecord(plugin, handoff, moveSet, {
+          pathKind: "current",
+          sourcePath,
+          pathExists: existsSync(absoluteSourcePath),
+        }));
+      }
+      if (!currentPaths.length) {
+        records.push(buildPluginHandoffMoveRecord(plugin, handoff, moveSet, {
+          pathKind: "replacement-required",
+          sourcePath: "(none)",
+          pathExists: false,
+        }));
+      }
+    }
+  }
+  return records.sort((left, right) =>
+    `${left.pluginId}:${left.moveSetId}:${left.pathKind}:${left.sourcePath}`
+      .localeCompare(`${right.pluginId}:${right.moveSetId}:${right.pathKind}:${right.sourcePath}`));
+}
+
+function buildPluginHandoffMoveRecord(plugin, handoff, moveSet, source) {
+  const status = source.pathKind === "replacement-required"
+    ? "no-source-paths"
+    : source.pathExists ? "exists" : "missing";
+  return {
+    pluginId: handoff.pluginId || plugin.pluginId || "",
+    pluginOwnerRepo: handoff.ownerRepo || plugin.ownerRepo || "",
+    splitTarget: handoff.splitTarget || plugin.splitTarget || "",
+    handoffPath: plugin.handoffPath || "",
+    handoffExportPath: makeHandoffExportPath("plugin", plugin.pluginId, plugin.handoffPath || ""),
+    moveSetId: moveSet.id || "",
     destinationOwner: moveSet.destinationOwner || "",
     replacementProof: moveSet.replacementProof || "",
     pathKind: source.pathKind,

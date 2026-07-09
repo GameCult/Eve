@@ -172,9 +172,14 @@ generic projection runtime from a runtime that can project plugin-declared
 capabilities.
 
 Plugin handoff paths are exported as `plugins[].handoffPath` for owner repos
-such as Sai and Norn. These paths are incubation evidence for where plugin
-manifest, advertisement, ABI fixture, and conformance ownership must move; they
-are not plugin runtime state.
+such as Sai, Norn, and EvePlugins. These paths are incubation evidence for
+where plugin manifest, advertisement, ABI fixture, and conformance ownership
+must move; they are not plugin runtime state.
+Plugin handoff move/source coverage is exported as
+`pluginHandoffMoveCoverage[]`. Each record joins plugin id, owner repo, split
+target, handoff move set, destination owner, replacement proof, and current
+source path status. Consumer smokes can assert them with
+`--expect-plugin-handoff-move <pluginId:moveSetId:pathKind:status:path-substring>`.
 Plugin ABI fixture operations are exported as `plugins[].abiOperationContracts`
 with `operation`, `input`, and `expect` blocks. Plugin owners can consume the
 operation-level contract for `describe`, `validate`, `project`, `lower`,

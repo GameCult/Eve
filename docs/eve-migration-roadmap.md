@@ -384,9 +384,14 @@ Recently cut:
   `lower`, `measure`, and `apply` without reading Eve-local fixture files.
 - Plugin ABI operation coverage is now exported as root
   `pluginAbiOperationCoverage[]` records. The plugin-owner smoke asserts Sai
-  and Norn `describe`, `lower`, and `apply` operations as `contracted`, so plugin
-  owners can consume the coverage ledger without walking Eve's nested plugin
-  records.
+  Norn, and TeX `describe`, `lower`, and `apply` operations as `contracted`, so
+  plugin owners can consume the coverage ledger without walking Eve's nested
+  plugin records.
+- Plugin handoff move/source coverage is now exported as root
+  `pluginHandoffMoveCoverage[]` records. The plugin-owner smoke asserts Sai,
+  Norn, and TeX manifest and ABI-conformance move sets as current existing
+  sources, so owner repos can see what must leave Eve incubation without
+  reading Eve's parity manifest or plugin handoff files directly.
 - Provider/plugin requirement coverage is now exported as root
   `providerPluginRequirementCoverage[]` records with availability. The
   plugin-owner smoke asserts `sai.vn` as the required VN plugin and
@@ -698,15 +703,16 @@ Recently cut:
   graduates. The conformance export carries `conformanceHandoffPath`, and the
   generic consumer smoke asserts it so EveConformance split readiness is not
   trapped in Eve's parity manifest.
-- Sai and Norn now have plugin handoff manifests at
-  `plugins/incubating/sai-vn.plugin-handoff.json` and
-  `plugins/incubating/norn-graph.plugin-handoff.json`, plus a shared verifier
-  at `scripts/run-plugin-handoff-smoke.ps1`. The handoffs name the manifest,
+- Sai, Norn, and TeX now have plugin handoff manifests at
+  `plugins/incubating/sai-vn.plugin-handoff.json`,
+  `plugins/incubating/norn-graph.plugin-handoff.json`, and
+  `plugins/incubating/tex-math.plugin-handoff.json`, plus a shared verifier at
+  `scripts/run-plugin-handoff-smoke.ps1`. The handoffs name the manifest,
   advertisement, ABI fixture, move sets, contract inputs, forbidden imports,
   and external proofs that must move to the owner repos. The conformance export
-  carries plugin `handoffPath`, and the plugin-owner smoke asserts it so Sai
-  and Norn can consume the plugin boundary without reading Eve's parity
-  manifest.
+  carries plugin `handoffPath` and `pluginHandoffMoveCoverage[]`, and the
+  plugin-owner smoke asserts them so Sai, Norn, and EvePlugins can consume the
+  plugin boundary without reading Eve's parity manifest.
 - Aetheria now has a provider handoff manifest at
   `web/fixtures/aetheria-provider-handoff.json` and a verifier at
   `scripts/run-aetheria-provider-handoff-smoke.ps1`. The handoff names the
