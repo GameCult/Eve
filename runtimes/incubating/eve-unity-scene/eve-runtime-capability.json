@@ -1,0 +1,108 @@
+{
+  "schema": "gamecult.eve.runtime_capability.v1",
+  "runtimeId": "unity-scene",
+  "title": "Unity / Scene",
+  "owner": "EveUnity",
+  "incubation": {
+    "ownerRepo": "EveUnity",
+    "currentHostRepo": "Eve",
+    "splitTarget": "EveUnity",
+    "graduationTrigger": "Split with EveUnity when a provider-agnostic Unity scene lowerer consumes provider world surfaces, emits command intents, and attaches scene capture evidence without importing Aetheria product code.",
+    "splitHandoff": {
+      "manifestPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
+      "smokeCommand": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-eveunity-scene-split-handoff-smoke.ps1"
+    }
+  },
+  "supportedFeatures": [],
+  "supportedPlugins": [],
+  "unsupportedPlugins": [
+    {
+      "pluginId": "sai.vn",
+      "reason": "Unity scene has no generic runtime body yet; Sai projection must enter through provider/plugin advertisements once scene lowering exists."
+    },
+    {
+      "pluginId": "norn.graph",
+      "reason": "Unity scene has no generic runtime body yet; Norn graph projection needs explicit scene-space or UI overlay semantics once scene lowering exists."
+    },
+    {
+      "pluginId": "tex.math",
+      "reason": "Unity scene has no generic runtime body yet; TeX projection needs explicit scene-space or UI overlay semantics once scene lowering exists."
+    }
+  ],
+  "commandTransport": {
+    "schema": "gamecult.eve.command.v1",
+    "status": "pending-runtime-body",
+    "emitter": "EveUnitySceneSurfaceLowerer.EmitCommand",
+    "clientId": "unity-scene",
+    "authority": "Unity scene input emits command intents through provider-advertised command boundaries; providers accept, deny, and publish receipts."
+  },
+  "lifecycle": {
+    "release": {
+      "ownerRepo": "EveUnity",
+      "status": "pending-unity-scene-package",
+      "releaseContract": {
+        "ownerRepo": "EveUnity",
+        "packageName": "org.gamecult.eve.unity-scene",
+        "packageRoot": "runtimes/incubating/eve-unity-scene",
+        "versionSource": "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json",
+        "tagPattern": "eveunity-scene-v{version}",
+        "artifactKind": "upm-package",
+        "publishProof": "Tagged Unity scene package release is created from the EveUnity repo and references the provider-agnostic scene package root."
+      },
+      "evidencePaths": [
+        "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
+        "scripts/run-eveunity-scene-split-handoff-smoke.ps1"
+      ],
+      "pendingProofs": [
+        "Unity scene package release is cut from EveUnity rather than Eve incubation."
+      ]
+    },
+    "test": {
+      "ownerRepo": "EveUnity",
+      "status": "pending-provider-advertisement-scene-smoke",
+      "testContract": {
+        "ownerRepo": "EveUnity",
+        "runnerKind": "unity-scene-provider-shell-smoke",
+        "runnerScript": "scripts/run-eveunity-scene-provider-shell-smoke.ps1",
+        "consumerProject": "E:\\Projects\\Aetheria",
+        "packageName": "org.gamecult.eve.unity-scene",
+        "testAssembly": "EveUnity.Scene.ProviderShell",
+        "testPlatform": "UnityScene",
+        "resultsArtifact": "artifacts/eveunity-scene-provider-shell/{stamp}/provider-shell-results.json",
+        "logArtifact": "artifacts/eveunity-scene-provider-shell/{stamp}/provider-shell.log",
+        "manifestMutation": "None; the scene lowerer consumes provider advertisements and must not mutate provider product manifests."
+      },
+      "evidencePaths": [
+        "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
+        "scripts/run-eveunity-scene-split-handoff-smoke.ps1"
+      ],
+      "pendingProofs": [
+        "Unity scene provider-advertisement smoke runs from EveUnity without importing Aetheria source layout."
+      ]
+    },
+    "capture": {
+      "ownerRepo": "EveUnity",
+      "status": "pending-unity-scene-capture",
+      "captureContract": {
+        "ownerRepo": "EveUnity",
+        "runtimeId": "unity-scene",
+        "captureKind": "unity-scene-frame-png",
+        "artifactKind": "png",
+        "artifactPattern": "artifacts/eveunity-scene-capture/{stamp}/unity-scene.png",
+        "conformanceAttachment": "runtime.captureArtifacts[]",
+        "requiredProvider": "aetheria",
+        "requiredSurface": "aetheria.daemon.game",
+        "authority": "Capture observes Unity scene projection only; provider state, command acceptance, and receipts stay provider-owned.",
+        "publishProof": "Unity scene screenshot or frame-capture artifact is attached to the runtime conformance report from EveUnity."
+      },
+      "evidencePaths": [],
+      "pendingProofs": [
+        "Unity scene screenshot or frame-capture artifact is attached to the runtime conformance report."
+      ]
+    }
+  },
+  "capture": {
+    "status": "missing",
+    "note": "Unity scene capture is a split blocker until EveUnity owns a provider-agnostic scene lowerer."
+  }
+}

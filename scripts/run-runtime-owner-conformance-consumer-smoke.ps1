@@ -37,6 +37,7 @@ node $consumerScript $consumerExport `
   --expect-runtime linux-flutter `
   --expect-runtime android-flutter `
   --expect-runtime unity-uitoolkit `
+  --expect-runtime unity-scene `
   --expect-runtime electron-shell `
   --expect-runtime tui `
   --expect-runtime direct2d `
@@ -45,6 +46,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-status linux-flutter:active `
   --expect-runtime-status android-flutter:active `
   --expect-runtime-status unity-uitoolkit:active `
+  --expect-runtime-status unity-scene:pending `
   --expect-runtime-status electron-shell:pending `
   --expect-runtime-status tui:pending `
   --expect-runtime-status direct2d:external-adapter-spike `
@@ -79,11 +81,15 @@ node $consumerScript $consumerExport `
   --expect-runtime-command-schema web:gamecult.eve.command.v1 `
   --expect-runtime-command-schema windows-flutter:gamecult.eve.command.v1 `
   --expect-runtime-command-schema unity-uitoolkit:gamecult.eve.command.v1 `
+  --expect-runtime-command-schema unity-scene:gamecult.eve.command.v1 `
+  --expect-runtime-command-schema electron-shell:gamecult.eve.command.v1 `
+  --expect-runtime-command-schema tui:gamecult.eve.command.v1 `
   --expect-runtime-capture-status web:chrome-headless `
   --expect-runtime-capture-status windows-flutter:golden `
   --expect-runtime-capture-status linux-flutter:ssh-golden `
   --expect-runtime-capture-status android-flutter:adb-png `
   --expect-runtime-capture-status unity-uitoolkit:semantic `
+  --expect-runtime-capture-status unity-scene:missing `
   --expect-runtime-capture-status electron-shell:missing `
   --expect-runtime-capture-status tui:missing `
   --expect-runtime-capture-status direct2d:missing `
@@ -107,6 +113,19 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.conformanceAttachment:runtime.captureArtifacts[]" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredProvider:aetheria" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredSurface:aetheria.daemon.game" `
+  --expect-runtime-lifecycle-status unity-scene:release:pending-unity-scene-package `
+  --expect-runtime-lifecycle-status unity-scene:test:pending-provider-advertisement-scene-smoke `
+  --expect-runtime-lifecycle-status unity-scene:capture:pending-unity-scene-capture `
+  --expect-runtime-lifecycle-pending "unity-scene:release:Unity scene package release" `
+  --expect-runtime-lifecycle-pending "unity-scene:test:Unity scene provider-advertisement smoke" `
+  --expect-runtime-lifecycle-pending "unity-scene:capture:Unity scene screenshot or frame-capture artifact" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.packageName:org.gamecult.eve.unity-scene" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactKind:upm-package" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.tagPattern:eveunity-scene-v{version}" `
+  --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerKind:unity-scene-provider-shell-smoke" `
+  --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerScript:scripts/run-eveunity-scene-provider-shell-smoke.ps1" `
+  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.captureKind:unity-scene-frame-png" `
+  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-status electron-shell:release:pending-electron-package `
   --expect-runtime-lifecycle-status electron-shell:test:pending-provider-advertisement-shell-smoke `
   --expect-runtime-lifecycle-status electron-shell:capture:pending-electron-window-capture `

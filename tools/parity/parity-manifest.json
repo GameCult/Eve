@@ -584,6 +584,15 @@
             "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
             "scripts/run-eveunity-scene-split-handoff-smoke.ps1"
           ]
+        },
+        {
+          "description": "Unity scene lifecycle contract is machine-readable and smoke-checked.",
+          "status": "passed",
+          "evidencePaths": [
+            "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json",
+            "scripts/run-eveunity-scene-lifecycle-smoke.ps1",
+            "scripts/run-eveunity-scene-provider-shell-smoke.ps1"
+          ]
         }
       ],
       "pendingProofs": [
@@ -894,6 +903,10 @@
       "repoRole": "runtime-target",
       "splitTarget": "EveUnity",
       "graduationTrigger": "Split with EveUnity when a provider-agnostic Unity scene lowerer consumes provider world surfaces, emits command intents, and attaches scene capture evidence without importing Aetheria product code.",
+      "capabilityManifest": {
+        "schemaPath": "schemas/gamecult.eve.runtime_capability.v1.schema.json",
+        "manifestPath": "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
+      },
       "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
       "requiredFixtures": ["aetheria-world"],
       "pluginFixtures": [],
@@ -914,7 +927,10 @@
         }
       ],
       "expectedPaths": [
-        "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json"
+        "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json",
+        "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
+        "scripts/run-eveunity-scene-lifecycle-smoke.ps1",
+        "scripts/run-eveunity-scene-provider-shell-smoke.ps1"
       ],
       "capture": {
         "status": "missing",

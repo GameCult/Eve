@@ -375,6 +375,13 @@ Recently cut:
   runtime keeps the missing provider-agnostic scene body, command transport,
   scene capture, and advertised `unity-scene` lowering proof visible as
   EveUnity blockers.
+- Unity scene now has a pending runtime capability manifest at
+  `runtimes/incubating/eve-unity-scene/eve-runtime-capability.json` and a
+  lifecycle smoke at `scripts/run-eveunity-scene-lifecycle-smoke.ps1`. The
+  manifest does not claim a scene lowerer yet; it types the package release,
+  provider-advertisement scene smoke, command boundary, and scene capture
+  contracts so EveUnity can consume the gap without importing Aetheria product
+  code or pretending UI Toolkit is full world projection.
 - Unity scene now has a direct split handoff smoke at
   `scripts/run-eveunity-scene-split-handoff-smoke.ps1`. The smoke verifies the
   scene runtime owns no current Eve source paths, does not treat Aetheria

@@ -19,6 +19,7 @@ try {
   & (Join-Path $PSScriptRoot "run-aetheria-provider-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveunity-split-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveunity-scene-split-handoff-smoke.ps1")
+  & (Join-Path $PSScriptRoot "run-eveunity-scene-lifecycle-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveelectron-split-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveelectron-lifecycle-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-split-handoff-smoke.ps1")

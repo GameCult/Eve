@@ -42,6 +42,7 @@ try {
     --expect-split-target-proof "EveUnity:Unity lifecycle evidence is declared" `
     --expect-split-target-proof "EveUnity:EveUnity split handoff is machine-readable" `
     --expect-split-target-proof "EveUnity:Unity scene split handoff is machine-readable" `
+    --expect-split-target-proof "EveUnity:Unity scene lifecycle contract is machine-readable" `
     --expect-split-target-blocker "EveUnity:runtime:unity-scene:status:pending" `
     --expect-split-target-blocker-record EveUnity:runtime-status:unity-scene `
     --expect-split-target-blocker-record EveUnity:runtime-plugin-projection:unity-scene:sai.vn `

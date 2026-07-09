@@ -303,6 +303,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   }
   const commandTransportSmokeErrors = await validateRuntimeCommandTransportSmoke(runtime);
   const capabilityManifestErrors = await validateRuntimeCapabilityManifest(runtime);
+  const capabilityManifestDocument = await readRuntimeCapabilityManifestDocument(runtime);
   const splitHandoffPath = await readRuntimeSplitHandoffPath(runtime);
   const localProviderCatalogErrors = await validateRuntimeLocalProviderCatalog(runtime);
   const missingIncubationFields = requiredIncubationFields(runtime).filter(field => !runtime[field]);
@@ -348,13 +349,14 @@ async function evaluateRuntime(runtime, fixtureResults) {
     worldSurfaceLowering: runtime.worldSurfaceLowering || [],
     missingRequiredFeatures,
     commandTransportSmoke: runtime.commandTransportSmoke || null,
+    commandTransport: runtime.commandTransport || capabilityManifestDocument?.commandTransport || null,
     commandTransportSmokeErrors,
     capabilityManifest: runtime.capabilityManifest || null,
     capabilityManifestErrors,
     splitHandoffPath,
     localProviderCatalog: runtime.localProviderCatalog || null,
     localProviderCatalogErrors,
-    lifecycle: runtime.lifecycle || null,
+    lifecycle: runtime.lifecycle || capabilityManifestDocument?.lifecycle || null,
     ownerRepo: runtime.ownerRepo || "",
     repoRole: runtime.repoRole || "",
     graduationTrigger: runtime.graduationTrigger || "",
@@ -366,6 +368,20 @@ async function evaluateRuntime(runtime, fixtureResults) {
     pluginCapabilityGaps,
     capture: runtime.capture,
   };
+}
+
+function runtimeCommandTransportSchema(runtime) {
+  return runtime.commandTransportSmoke?.schema || runtime.commandTransport?.schema || "";
+}
+
+async function readRuntimeCapabilityManifestDocument(runtime) {
+  const manifestPath = runtime.capabilityManifest?.manifestPath;
+  if (!manifestPath) return null;
+  try {
+    return await readJsonDocument(manifestPath);
+  } catch {
+    return null;
+  }
 }
 
 async function validateRuntimeLocalProviderCatalog(runtime) {
@@ -1180,7 +1196,7 @@ async function validateRuntimeCapabilityManifest(runtime) {
     `${capabilityManifest.manifestPath}:worldSurfaceLowering`,
   ));
 
-  const expectedCommandSchema = runtime.commandTransportSmoke?.schema || "";
+  const expectedCommandSchema = runtimeCommandTransportSchema(runtime);
   if (expectedCommandSchema && commandTransport.schema !== expectedCommandSchema) {
     errors.push(`${capabilityManifest.manifestPath}:commandTransport.schema:expected ${expectedCommandSchema} got ${commandTransport.schema || ""}`);
   }
@@ -1188,7 +1204,7 @@ async function validateRuntimeCapabilityManifest(runtime) {
   const incubation = document.incubation || {};
   for (const [key, value] of Object.entries({
     ownerRepo: runtime.splitTarget || runtime.ownerRepo || "",
-    currentHostRepo: runtime.ownerRepo || "",
+    currentHostRepo: runtime.currentHostRepo || "Eve",
     splitTarget: runtime.splitTarget || "",
     graduationTrigger: runtime.graduationTrigger || "",
   })) {
@@ -1663,7 +1679,7 @@ function buildConformanceExport(report) {
           requiredFixtures: runtime.requiredFixtures,
           pluginFixtures: runtime.pluginFixtures,
           capabilityManifestPath: runtime.capabilityManifest?.manifestPath || "",
-          commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
+          commandTransportSchema: runtimeCommandTransportSchema(runtime),
           captureStatus: runtime.capture?.status || "",
       lifecycle: runtime.lifecycle,
       missingEvidence: [
@@ -1753,7 +1769,7 @@ function buildConformanceExport(report) {
       capabilityManifestErrors: runtime.capabilityManifestErrors || [],
       splitHandoffPath: runtime.splitHandoffPath || "",
       splitHandoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
-      commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
+      commandTransportSchema: runtimeCommandTransportSchema(runtime),
       captureStatus: runtime.capture?.status || "",
       ...(runtime.lifecycle ? { lifecycle: runtime.lifecycle } : {}),
       worldSurfaceLowering: runtime.worldSurfaceLowering || [],
@@ -1805,7 +1821,7 @@ function buildCapabilityMatrix(report) {
     supportedPlugins: runtime.supportedPlugins || [],
     unsupportedPlugins: runtime.unsupportedPlugins || [],
     worldSurfaceLowering: runtime.worldSurfaceLowering || [],
-    commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
+    commandTransportSchema: runtimeCommandTransportSchema(runtime),
     captureStatus: runtime.capture?.status || "",
     splitHandoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
   }));
@@ -2297,7 +2313,7 @@ function collectCommandBoundaryCoverage(report) {
     for (const targetId of surface.loweringTargets || []) {
       const claim = claimByTarget.get(targetId);
       const runtime = runtimeByTarget.get(targetId);
-      const runtimeCommandSchema = runtime?.commandTransportSmoke?.schema || "";
+      const runtimeCommandSchema = runtime ? runtimeCommandTransportSchema(runtime) : "";
       const missingProviderBoundary = !surface.commandBoundary || !surface.receiptSchema;
       let status = "covered";
       if (!runtime) {
@@ -2591,7 +2607,7 @@ function renderMarkdown(report) {
       ...runtime.localProviderCatalogErrors.map(id => `local-provider-catalog:${id}`),
       ...runtime.missingIncubationFields.map(id => `metadata:${id}`),
     ].join(", ");
-    lines.push(`| ${runtime.title} | ${runtime.status} | ${runtime.ownerRepo} | ${summarizeLifecycle(runtime.lifecycle)} | ${runtime.capture?.status || "unknown"} | ${runtime.commandTransportSmoke?.schema || ""} | ${runtime.requiredFixtures.join(", ")} | ${runtime.pluginFixtures.join(", ")} | ${runtime.supportedFeatures.join(", ")} | ${runtime.pluginCapabilityGaps.join(", ")} | ${runtime.unsupportedPluginNotes.join(", ")} | ${missing} |`);
+    lines.push(`| ${runtime.title} | ${runtime.status} | ${runtime.ownerRepo} | ${summarizeLifecycle(runtime.lifecycle)} | ${runtime.capture?.status || "unknown"} | ${runtimeCommandTransportSchema(runtime)} | ${runtime.requiredFixtures.join(", ")} | ${runtime.pluginFixtures.join(", ")} | ${runtime.supportedFeatures.join(", ")} | ${runtime.pluginCapabilityGaps.join(", ")} | ${runtime.unsupportedPluginNotes.join(", ")} | ${missing} |`);
   }
 
   lines.push("", "## Split Readiness", "", "| Target | Status | Owner | Runtimes | Blockers |", "| --- | --- | --- | --- | --- |");
