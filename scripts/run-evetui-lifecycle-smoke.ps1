@@ -36,13 +36,37 @@ if ($manifest.incubation.splitTarget -ne "EveTui") {
   throw "Unexpected EveTui split target: $($manifest.incubation.splitTarget)"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "terminalGridSummary")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveTui manifest missing provider-shell feature: $feature"
   }
 }
 if (@($manifest.supportedPlugins).Count -ne 0) {
-  throw "EveTui must not claim plugin projection before the generic TUI lowerer exists"
+  throw "EveTui must not claim plugin projection before terminal projection adapters for sidecar-advertised capabilities exist"
+}
+
+$worldSurfaceLoweringClaims = @()
+if ($null -ne $manifest.worldSurfaceLowering) {
+  $worldSurfaceLoweringClaims = @($manifest.worldSurfaceLowering)
+}
+if ($worldSurfaceLoweringClaims.Count -ne 1) {
+  throw "EveTui must claim exactly one world-surface lowering target"
+}
+$worldSurfaceLoweringClaim = $worldSurfaceLoweringClaims | Where-Object { $_.targetId -eq "tui" } | Select-Object -First 1
+if (-not $worldSurfaceLoweringClaim) {
+  throw "EveTui manifest missing tui world-surface lowering claim"
+}
+if ($worldSurfaceLoweringClaim.supportLevel -ne "terminal-grid-command-surface") {
+  throw "Unexpected EveTui world-surface support level: $($worldSurfaceLoweringClaim.supportLevel)"
+}
+if ($worldSurfaceLoweringClaim.ownership -ne "runtime-lowers-provider-world-surface-without-owning-world-state") {
+  throw "Unexpected EveTui world-surface ownership: $($worldSurfaceLoweringClaim.ownership)"
+}
+foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
+  $absoluteEvidencePath = Join-Path $projectRoot $evidencePath
+  if (-not (Test-Path -LiteralPath $absoluteEvidencePath)) {
+    throw "EveTui world-surface claim missing evidence path: $evidencePath"
+  }
 }
 
 foreach ($pluginId in @("sai.vn", "norn.graph", "tex.math")) {

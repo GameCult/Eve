@@ -43,8 +43,34 @@ test("summary grid is explicitly lossy provider-shell evidence", () => {
   assert.equal(grid.schema, "gamecult.eve.tui_grid.v1");
   assert.equal(grid.runtimeId, "tui");
   assert.equal(grid.surfaceId, "aetheria.daemon.game");
-  assert.match(grid.lossiness, /not a full TUI world-surface lowering claim/);
+  assert.match(grid.lossiness, /use lowerSurface/);
   assert.ok(grid.lines.every(line => line.length <= 36));
+});
+
+test("lowers provider surface trees into a terminal grid", () => {
+  const shell = new EveTuiShell({ width: 44 });
+  const grid = shell.lowerSurface(surfaceDocument(), advertisement(), "aetheria.daemon.game");
+
+  assert.equal(grid.schema, "gamecult.eve.tui_grid.v1");
+  assert.equal(grid.runtimeId, "tui");
+  assert.equal(grid.providerId, "aetheria");
+  assert.equal(grid.surfaceId, "aetheria.daemon.game");
+  assert.equal(grid.projectionKind, "provider-authored-world-surface");
+  assert.equal(grid.commandBoundary, "aetheria.daemon.commands");
+  assert.equal(grid.receiptSchema, "aetheria.eve_command_acceptance_status.v1");
+  assert.match(grid.lossiness, /terminal-grid-command-surface/);
+  assert.ok(grid.lines.every(line => line.length <= 44));
+  assert.ok(grid.lines.some(line => line.includes("world aetheria.daemon.game.gravity")));
+  assert.ok(grid.lines.some(line => line.includes("command aetheria.daemon.game.focus")));
+  assert.ok(grid.lines.some(line => line.includes("plugin aetheria.daemon.game.norn")));
+});
+
+test("rejects surface documents that do not match the advertised TUI target", () => {
+  const shell = new EveTuiShell();
+  assert.throws(
+    () => shell.lowerSurface(surfaceDocument("aetheria.daemon.game"), advertisement(), "aetheria.daemon.editor"),
+    /does not match advertised TUI surface/,
+  );
 });
 
 function advertisement() {
@@ -76,5 +102,57 @@ function advertisement() {
         },
       },
     ],
+  };
+}
+
+function surfaceDocument(surfaceId = "aetheria.daemon.game") {
+  return {
+    type: "surface-state",
+    schema: "gamecult.eve.surface.v1",
+    providerId: "aetheria",
+    providerKind: "game.runtime",
+    title: "Aetheria world",
+    version: 1,
+    updatedAtUtc: "2026-07-09T00:00:00Z",
+    surface: {
+      id: surfaceId,
+      root: {
+        id: `${surfaceId}.root`,
+        kind: "surface",
+        props: {},
+        children: [
+          {
+            id: `${surfaceId}.gravity`,
+            kind: "field.surface2d",
+            props: {
+              label: "Current Zone Gravity",
+              bind: "aetheria.daemon.soaView.gravityField",
+              fieldId: "aetheria.zone.gravity",
+            },
+            children: [],
+          },
+          {
+            id: `${surfaceId}.focus`,
+            kind: "control.button",
+            props: {
+              label: "Focus Relay",
+              command: "aetheria.daemon.commands",
+              commandId: "aetheria.daemon.focus",
+            },
+            children: [],
+          },
+          {
+            id: `${surfaceId}.norn`,
+            kind: "embed.norn",
+            props: {
+              label: "Norn tactical map",
+            },
+            children: [],
+          },
+        ],
+      },
+      styles: [],
+    },
+    commands: [],
   };
 }

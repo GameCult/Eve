@@ -16,7 +16,8 @@
   "supportedFeatures": [
     "providerAdvertisements",
     "commandTransport",
-    "terminalGridSummary"
+    "terminalGridSummary",
+    "terminalGridLowering"
   ],
   "supportedPlugins": [],
   "unsupportedPlugins": [
@@ -33,10 +34,25 @@
       "reason": "TUI provider-shell skeleton exists, but no TeX terminal fallback exists in this runtime."
     }
   ],
+  "worldSurfaceLowering": [
+    {
+      "targetId": "tui",
+      "surfaceKinds": ["interactive-world", "interactive-world-editor"],
+      "projectionKinds": ["provider-authored-world-surface", "provider-authored-world-editor-surface"],
+      "supportLevel": "terminal-grid-command-surface",
+      "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
+      "lossiness": "terminal-grid-summary-only",
+      "evidencePaths": [
+        "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
+        "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
+        "web/fixtures/aetheria.provider-advertisement.json"
+      ]
+    }
+  ],
   "commandTransport": {
     "schema": "gamecult.eve.command.v1",
     "status": "provider-shell-contract-skeleton",
-    "emitter": "EveTui.EmitCommand",
+    "emitter": "EveTuiShell.createCommandIntent",
     "clientId": "tui",
     "authority": "TUI emits command intents through provider-advertised command boundaries; providers accept, deny, and publish receipts."
   },
@@ -113,6 +129,6 @@
   },
   "capture": {
     "status": "missing",
-    "note": "TUI transcript or cell-grid capture is a split blocker until EveTui owns a provider-agnostic lowerer."
+    "note": "TUI transcript or cell-grid capture is a split blocker until EveTui attaches durable terminal artifacts."
   }
 }

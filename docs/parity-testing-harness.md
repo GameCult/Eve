@@ -305,10 +305,10 @@ Electron source paths named by the handoff currently exist as
 turning those paths into EveElectron authority. The Electron runtime now claims
 a narrow provider-advertised surface-tree command surface, while packaged
 rendering, embedded document rendering, capture, and plugin projection remain
-blockers. EveTui is also intentionally
-pending: Aetheria advertises `tui` as an agent-facing lowering target, but Eve
-should not claim that target until a real terminal/grid lowerer and transcript
-capture exist. EveUnity includes both the active `unity-uitoolkit` package proof
+blockers. EveTui is also intentionally pending: it now claims a lossy
+provider-advertised terminal-grid command surface, while transcript/cell-grid
+capture, embedded document rendering, plugin projection, and repo graduation
+remain blockers. EveUnity includes both the active `unity-uitoolkit` package proof
 and the pending `unity-scene` runtime boundary; UI Toolkit support is not
 treated as full Unity scene/world lowering. The `unity-scene` runtime now claims
 a narrow scene graph command surface, while capture, release, and plugin

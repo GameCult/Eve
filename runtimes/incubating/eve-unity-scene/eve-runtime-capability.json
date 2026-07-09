@@ -22,7 +22,7 @@
   "unsupportedPlugins": [
     {
       "pluginId": "sai.vn",
-      "reason": "Unity scene graph projection exists, but no Sai VN scene projection adapter or sidecar bridge exists in this runtime."
+      "reason": "Unity scene graph projection exists, but no Sai VN scene projection adapter for sidecar-advertised capabilities exists in this runtime."
     },
     {
       "pluginId": "norn.graph",

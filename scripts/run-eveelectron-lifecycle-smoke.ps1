@@ -45,7 +45,7 @@ foreach ($feature in @("providerAdvertisements", "commandTransport", "surfaceTre
   }
 }
 if (@($manifest.supportedPlugins).Count -ne 0) {
-  throw "EveElectron must not claim plugin projection before runtime adapters or sidecar bridges exist"
+  throw "EveElectron must not claim plugin projection before runtime projection adapters for sidecar-advertised capabilities exist"
 }
 
 $worldSurfaceLoweringClaims = @()

@@ -689,7 +689,7 @@
           ]
         },
         {
-          "description": "EveTui provider-shell skeleton selects advertised surfaces and emits Eve command intents.",
+          "description": "EveTui provider-shell skeleton selects advertised surfaces, lowers Eve surface trees into terminal grids, and emits Eve command intents.",
           "status": "passed",
           "evidencePaths": [
             "runtimes/incubating/eve-tui/package.json",
@@ -701,7 +701,6 @@
       ],
       "pendingProofs": [
         "TUI runtime body graduates to EveTui outside provider product code.",
-        "TUI claims provider-advertised tui world-surface lowering with real transcript evidence.",
         "TUI terminal transcript or cell-grid captures are attached to conformance output."
       ]
     }
@@ -791,7 +790,7 @@
       "splitHandoffPath": "runtimes/incubating/eve-tui/evetui-split-handoff.json",
       "requiredFixtures": ["embedded-surface", "aetheria-world"],
       "pluginFixtures": [],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "terminalGridSummary"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering"],
       "supportedPlugins": [],
       "unsupportedPlugins": [
         {
@@ -807,6 +806,21 @@
           "reason": "TUI provider-shell skeleton exists, but no TeX terminal fallback exists in this runtime."
         }
       ],
+      "worldSurfaceLowering": [
+        {
+          "targetId": "tui",
+          "surfaceKinds": ["interactive-world", "interactive-world-editor"],
+          "projectionKinds": ["provider-authored-world-surface", "provider-authored-world-editor-surface"],
+          "supportLevel": "terminal-grid-command-surface",
+          "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
+          "lossiness": "terminal-grid-summary-only",
+          "evidencePaths": [
+            "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
+            "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
+            "web/fixtures/aetheria.provider-advertisement.json"
+          ]
+        }
+      ],
       "expectedPaths": [
         "runtimes/incubating/eve-tui/package.json",
         "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
@@ -820,16 +834,16 @@
       "expectedSourceSymbols": [
         {
           "path": "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
-          "contains": ["EveTuiShell", "selectSurface", "createCommandIntent", "renderSummary", "gamecult.eve.tui_grid.v1", "commandBoundary", "receiptSchema"]
+          "contains": ["EveTuiShell", "selectSurface", "lowerSurface", "normalizeSurfaceDocument", "buildComponentLines", "terminalElementKind", "createCommandIntent", "renderSummary", "gamecult.eve.tui_grid.v1", "commandBoundary", "receiptSchema"]
         },
         {
           "path": "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
-          "contains": ["selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "aetheria.daemon.commands"]
+          "contains": ["selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "lowers provider surface trees into a terminal grid", "rejects surface documents that do not match the advertised TUI target", "aetheria.daemon.commands"]
         }
       ],
       "capture": {
         "status": "missing",
-        "note": "TUI transcript or cell-grid capture is a split blocker until EveTui owns a provider-agnostic lowerer."
+        "note": "TUI transcript or cell-grid capture is a split blocker until EveTui attaches durable terminal artifacts."
       }
     },
     {
@@ -852,7 +866,7 @@
       "unsupportedPlugins": [
         {
           "pluginId": "sai.vn",
-          "reason": "Unity scene graph projection exists, but no Sai VN scene projection adapter or sidecar bridge exists in this runtime."
+          "reason": "Unity scene graph projection exists, but no Sai VN scene projection adapter for sidecar-advertised capabilities exists in this runtime."
         },
         {
           "pluginId": "norn.graph",

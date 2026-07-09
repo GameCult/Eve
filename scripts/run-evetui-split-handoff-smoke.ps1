@@ -61,7 +61,7 @@ foreach ($id in $expectedMoveSets.Keys) {
   }
   $currentPaths = if ($null -eq $moveSet.currentPaths) { @() } else { @($moveSet.currentPaths) }
   $observedProviderPaths = if ($null -eq $moveSet.observedProviderPaths) { @() } else { @($moveSet.observedProviderPaths) }
-  if ($id -in @("tui-runtime-body", "tui-command-transport")) {
+  if ($id -in @("tui-runtime-body", "tui-world-surface-lowering", "tui-command-transport")) {
     if ($currentPaths.Count -eq 0) {
       throw "EveTui split handoff move set $id must name provider-shell skeleton paths"
     }

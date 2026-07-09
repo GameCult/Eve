@@ -55,6 +55,36 @@ export class EveTuiShell {
     return intent;
   }
 
+  lowerSurface(surfaceDocument, providerAdvertisement, requestedSurfaceId = "") {
+    const selected = this.selectSurface(providerAdvertisement, requestedSurfaceId);
+    const document = normalizeSurfaceDocument(surfaceDocument);
+    if (document.surfaceId !== selected.surfaceId) {
+      throw new Error(`Surface document ${document.surfaceId} does not match advertised TUI surface ${selected.surfaceId}.`);
+    }
+
+    const lines = [
+      fitLine(`EveTui ${selected.providerId}`, this.width),
+      fitLine(`surface ${selected.surfaceId}`, this.width),
+      fitLine(`command ${selected.worldInteraction.commandBoundary || "unadvertised"}`, this.width),
+      fitLine(`receipt ${selected.worldInteraction.receiptSchema || "unadvertised"}`, this.width),
+      ...buildComponentLines(document.root, this.width),
+    ];
+
+    return {
+      schema: "gamecult.eve.tui_grid.v1",
+      runtimeId: "tui",
+      providerId: selected.providerId,
+      surfaceId: selected.surfaceId,
+      projectionKind: selected.worldInteraction.projectionKind,
+      commandBoundary: selected.worldInteraction.commandBoundary,
+      receiptSchema: selected.worldInteraction.receiptSchema,
+      ownership: selected.worldInteraction.ownership,
+      width: this.width,
+      lines,
+      lossiness: "terminal-grid-command-surface; summarizes provider-authored world surface without owning provider state",
+    };
+  }
+
   renderSummary(providerAdvertisement, requestedSurfaceId = "") {
     const selected = this.selectSurface(providerAdvertisement, requestedSurfaceId);
     const lines = [
@@ -71,7 +101,7 @@ export class EveTuiShell {
       surfaceId: selected.surfaceId,
       width: this.width,
       lines,
-      lossiness: "provider-shell-summary-only; not a full TUI world-surface lowering claim",
+      lossiness: "provider-shell-summary-only; use lowerSurface for TUI world-surface lowering",
     };
   }
 }
@@ -91,6 +121,21 @@ export function normalizeProviderAdvertisement(providerAdvertisement) {
   return { ...providerAdvertisement, providerId, surfaces };
 }
 
+export function normalizeSurfaceDocument(surfaceDocument) {
+  if (!surfaceDocument || typeof surfaceDocument !== "object") {
+    throw new Error("Surface document is required.");
+  }
+  if (surfaceDocument.schema !== "gamecult.eve.surface.v1") {
+    throw new Error(`Unexpected surface schema: ${surfaceDocument.schema || ""}`);
+  }
+  const surface = objectValue(surfaceDocument.surface);
+  const surfaceId = firstString(surface.id);
+  if (!surfaceId) throw new Error("Surface document missing surface.id.");
+  const root = objectValue(surface.root);
+  if (!root.id) throw new Error(`Surface document ${surfaceId} missing surface.root.`);
+  return { ...surfaceDocument, surfaceId, root };
+}
+
 function normalizeWorldInteraction(value) {
   const source = objectValue(value);
   return {
@@ -99,6 +144,32 @@ function normalizeWorldInteraction(value) {
     receiptSchema: firstString(source.receiptSchema),
     ownership: firstString(source.ownership),
   };
+}
+
+function buildComponentLines(component, width, depth = 0) {
+  const source = objectValue(component);
+  const kind = firstString(source.kind) || "component";
+  const id = firstString(source.id) || "(anonymous)";
+  const props = objectValue(source.props);
+  const label = firstString(props.label, props.title, props.text, props.bind, props.command, props.fieldId);
+  const indent = "  ".repeat(Math.min(depth, 6));
+  const ownLine = fitLine(`${indent}${terminalElementKind(kind)} ${id}${label ? ` ${label}` : ""}`, width);
+  const children = Array.isArray(source.children) ? source.children : [];
+  return [
+    ownLine,
+    ...children.flatMap(child => buildComponentLines(child, width, depth + 1)),
+  ];
+}
+
+function terminalElementKind(componentKind) {
+  if (!componentKind) return "empty";
+  if (componentKind.startsWith("control.")) return "command";
+  if (componentKind.startsWith("embed.")) return "plugin";
+  if (componentKind === "surface.slot") return "slot";
+  if (componentKind.startsWith("field.") || componentKind.startsWith("world.")) return "world";
+  if (componentKind.startsWith("text.") || componentKind === "text" || componentKind === "label") return "text";
+  if (componentKind === "metric") return "metric";
+  return componentKind;
 }
 
 function fitLine(value, width) {

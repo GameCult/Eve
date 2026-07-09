@@ -294,13 +294,12 @@ Recently cut:
   lower provider-owned world state without owning it. Parity compares those
   claims against the ledger, exports them through runtime records and
   `packs/runtime.json`, the runtime-owner smoke asserts them, and the generic
-  conformance smoke now treats `unity-scene` and `electron-shell` as narrow
-  runtime-owned command-surface claims while capture and release remain split
-  blockers.
-- Missing provider-advertised world-surface lowering targets are now assigned
-  to their pending runtime owner when one exists. `tui` gaps point at EveTui's
-  pending `tui` runtime. Eve only owns a world-lowering gap when no runtime
-  target has been declared.
+  conformance smoke now treats `unity-scene`, `electron-shell`, and `tui` as
+  narrow runtime-owned command-surface claims while capture and release remain
+  split blockers.
+- Missing provider-advertised world-surface lowering targets are still assigned
+  to their pending runtime owner when one exists. Eve only owns a world-lowering
+  gap when no runtime target has been declared.
 - The conformance export now carries `worldSurfaceLoweringGaps[]` as typed
   data in addition to the generic `capabilityGaps[]` ledger. Runtime owners can
   consume provider id, surface id, target id, owner repo, runtime id, split
@@ -309,14 +308,12 @@ Recently cut:
   provider-surface-to-target ledger that marks each advertised lowering target
   as `claimed`, `missing-claim`, or `missing-runtime`. The generic conformance
   consumer now asserts Aetheria's claimed web, UI Toolkit, Unity scene graph,
-  and Electron shell targets plus the missing TUI targets from the same typed
-  surface.
+  Electron shell, and TUI terminal-grid targets from the same typed surface.
 - The conformance export carries `commandBoundaryCoverage[]`, joining each
   provider-owned interactive world surface target to its runtime owner,
   provider command boundary, receipt schema, and runtime command envelope. Web,
-  Unity UI Toolkit, Unity scene, and Electron shell are `covered` because they
-  advertise `gamecult.eve.command.v1`; TUI stays visible as
-  `missing-runtime-claim` until its generic terminal lowerer exists.
+  Unity UI Toolkit, Unity scene, Electron shell, and TUI are `covered` because
+  they advertise `gamecult.eve.command.v1`.
 - The browser reference lowerer now carries the active provider surface's
   advertised `worldInteraction.commandBoundary` and
   `worldInteraction.receiptSchema` into each `gamecult.eve.command.v1` intent.
@@ -342,9 +339,10 @@ Recently cut:
 - EveTui now has a provider-shell contract skeleton under
   `runtimes/incubating/eve-tui`. The shell selects advertised provider
   surfaces, emits `gamecult.eve.command.v1` intents with provider command
-  boundary and receipt schema fields, and produces an explicitly lossy
-  `gamecult.eve.tui_grid.v1` summary without claiming full `tui` world lowering
-  or transcript capture.
+  boundary and receipt schema fields, lowers Eve surface trees into an
+  explicitly lossy `gamecult.eve.tui_grid.v1` terminal grid, and claims the
+  `tui` command-surface target without owning provider truth or transcript
+  capture.
 - The conformance export carries `splitHandoffMoveCoverage[]`, joining runtime
   split handoff move sets to source path status. EveElectron now exposes the
   existing Aetheria `Aetheria.Rts.Web/Electron` and command transport paths as
@@ -441,19 +439,20 @@ Recently cut:
   capability documents; the conformance export reads command/lifecycle contracts
   from those documents for pending runtimes.
 - EveTui now has a pending split target and handoff at
-  `runtimes/incubating/eve-tui/evetui-split-handoff.json`. It does not claim
-  the advertised `tui` world-surface lowering target yet. The handoff draws the
-  line between a future provider-agnostic terminal/grid lowerer and
-  provider-owned TUI surfaces, and the split-target consumer smoke keeps the
-  missing runtime body, provider-advertisement consumption, command transport,
-  transcript/cell-grid capture, and `tui` lowering proof visible as blockers.
+  `runtimes/incubating/eve-tui/evetui-split-handoff.json`. It claims the
+  advertised `tui` world-surface lowering target as a lossy terminal-grid
+  command surface. The handoff draws the line between the provider-agnostic
+  terminal/grid lowerer and provider-owned TUI surfaces, and the split-target
+  consumer smoke keeps runtime graduation and transcript/cell-grid capture
+  visible as blockers.
 - EveTui now has a direct split handoff smoke at
   `scripts/run-evetui-split-handoff-smoke.ps1`, a pending runtime capability
   manifest at `runtimes/incubating/eve-tui/eve-runtime-capability.json`, and a
   lifecycle smoke at `scripts/run-evetui-lifecycle-smoke.ps1`. The manifest
-  declares no supported runtime features or plugin projection yet; it only
-  types the pending command boundary, terminal package release,
-  provider-advertisement TUI smoke, and transcript/cell-grid capture contracts.
+  declares provider advertisement consumption, command transport, terminal-grid
+  summary, terminal-grid lowering, and the `tui` world/editor lowering claim;
+  it still keeps plugin projection, terminal package release, and
+  transcript/cell-grid capture contracts pending.
 - Aetheria interactive world surfaces now carry a structured provider-owned
   `worldInteraction` contract. The provider advertisement names projection
   kind, provider state schemas, daemon command boundary, receipt schema,
@@ -742,8 +741,8 @@ Recently cut:
   states without importing Aetheria internals into Eve.
 - Aetheria's provider scenario now covers both `aetheria.daemon.game` and
   `aetheria.daemon.editor` as provider-owned interactive world surfaces. The
-  Aetheria consumer smoke asserts editor ownership and the pending TUI lowering
-  gap from the exported contract instead of letting editor support hide behind
+  Aetheria consumer smoke asserts editor ownership and the claimed TUI
+  terminal-grid lowering target instead of letting editor support hide behind
   the game-surface scenario.
 - The surface contract now states nested Norn and TeX placement as optional
   composition, not Sai custody. The plugin-owner consumer can assert

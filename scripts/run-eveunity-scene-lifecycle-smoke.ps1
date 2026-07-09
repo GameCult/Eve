@@ -45,7 +45,7 @@ foreach ($feature in @("providerAdvertisements", "commandTransport", "sceneGraph
   }
 }
 if (@($manifest.supportedPlugins).Count -ne 0) {
-  throw "EveUnity scene must not claim plugin projection before runtime adapters or sidecar bridges exist"
+  throw "EveUnity scene must not claim plugin projection before runtime projection adapters for sidecar-advertised capabilities exist"
 }
 $worldSurfaceLoweringClaims = @()
 if ($null -ne $manifest.worldSurfaceLowering) {

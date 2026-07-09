@@ -39,7 +39,7 @@
   "forbiddenImports": [
     "Aetheria provider state",
     "renderer-native projection internals",
-    "Unity plugin host internals",
+    "runtime plugin projection internals",
     "provider command acceptance or receipt authority"
   ],
   "requiredExternalProofs": [

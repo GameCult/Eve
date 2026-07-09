@@ -62,6 +62,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature tui:providerAdvertisements `
   --expect-runtime-feature tui:commandTransport `
   --expect-runtime-feature tui:terminalGridSummary `
+  --expect-runtime-feature tui:terminalGridLowering `
   --expect-runtime-feature direct2d:embeddedDocuments `
   --expect-runtime-world-target web:web-reference `
   --expect-runtime-world-field web:web-reference:supportLevel:reference-dom-canvas-command-boundary `
@@ -75,6 +76,9 @@ node $consumerScript $consumerExport `
   --expect-runtime-world-target electron-shell:electron-shell `
   --expect-runtime-world-field electron-shell:electron-shell:supportLevel:electron-shell-surface-tree-command-surface `
   --expect-runtime-world-field electron-shell:electron-shell:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
+  --expect-runtime-world-target tui:tui `
+  --expect-runtime-world-field tui:tui:supportLevel:terminal-grid-command-surface `
+  --expect-runtime-world-field tui:tui:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
   --expect-runtime-plugin-projection unity-uitoolkit:sai.vn:supported:EveUnity `
   --expect-runtime-plugin-projection unity-uitoolkit:norn.graph:supported:EveUnity `
   --expect-runtime-plugin-projection unity-uitoolkit:tex.math:unsupported:EveUnity `
@@ -94,6 +98,9 @@ node $consumerScript $consumerExport `
   --expect-runtime-plugin-gap electron-shell:sai.vn:EveElectron `
   --expect-runtime-plugin-gap electron-shell:norn.graph:EveElectron `
   --expect-runtime-plugin-gap electron-shell:tex.math:EveElectron `
+  --expect-runtime-plugin-gap tui:sai.vn:EveTui `
+  --expect-runtime-plugin-gap tui:norn.graph:EveTui `
+  --expect-runtime-plugin-gap tui:tex.math:EveTui `
   --expect-runtime-handoff unity-uitoolkit `
   --expect-runtime-command-schema web:gamecult.eve.command.v1 `
   --expect-runtime-command-schema windows-flutter:gamecult.eve.command.v1 `
