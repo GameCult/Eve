@@ -352,7 +352,10 @@ turning those paths into EveElectron authority. The Electron runtime now claims
 a narrow provider-advertised surface-tree command surface and exposes a typed
 capture request contract plus a schema-backed JSON shell projection artifact.
 It preserves embedded document slot identity in the generic shell projection,
-while packaged rendering and actual window PNG capture remain blockers.
+and the split-target smoke asserts both Aetheria and `eve.world-smoke`
+`runtime.captureArtifacts[]` for `electron-shell` so the generic shell proof
+cannot collapse back into the Aetheria RTS client. Packaged rendering and
+actual window PNG capture remain blockers.
 EveUnity's UI Toolkit handoff does the same for Aetheria's Unity consumer
 boundary: Aetheria's Unity `Packages/manifest.json`, generated
 `GameCult.Eve.UnityUIToolkit.csproj`, assets root, daemon catalog client, and

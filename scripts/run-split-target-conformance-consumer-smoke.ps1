@@ -68,6 +68,8 @@ try {
     --expect-split-target-status EveElectron:incubating `
     --expect-split-target-proof "EveElectron:EveElectron split handoff is machine-readable" `
     --expect-split-target-proof "EveElectron:EveElectron lifecycle contract is machine-readable" `
+    --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:aetheria:aetheria.daemon.game `
+    --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:eve.world-smoke:eve.world-smoke.surface `
     --expect-split-target-blocker "EveElectron:runtime:electron-shell:status:pending" `
     --expect-split-target-blocker-record EveElectron:runtime-status:electron-shell `
     --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:current:exists:eve-electron-shell.mjs `

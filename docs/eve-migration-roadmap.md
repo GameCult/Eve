@@ -695,6 +695,11 @@ Recently cut:
   `eve.world-smoke` provider, proving the Unity lowerers are generic runtime
   clients before the remaining blocker narrows to owner-repo PNG/frame capture
   and release lifecycle.
+- The same split-target consumer now asserts EveElectron's generic
+  interactive-world shell controls. `electron-shell` must export
+  `runtime.captureArtifacts[]` for both Aetheria and `eve.world-smoke`, so the
+  Aetheria RTS web client remains provider pressure while the generic Electron
+  shell proof stays runtime-owned.
 - Conformance export now carries first-class `capabilityGaps[]` records derived
   from plugin errors, provider advertisement/scenario errors, runtime missing
   evidence, declared unsupported plugin projection, capture gaps, and split
