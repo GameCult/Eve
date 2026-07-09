@@ -1020,6 +1020,12 @@
           "capabilityManifestErrors": {
             "type": "array"
           },
+          "lifecycleManifestPath": {
+            "type": "string"
+          },
+          "lifecycleErrors": {
+            "type": "array"
+          },
           "splitHandoffPath": {
             "type": "string"
           },

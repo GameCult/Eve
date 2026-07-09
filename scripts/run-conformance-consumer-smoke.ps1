@@ -41,6 +41,7 @@ try {
     --expect-schema gamecult.eve.plugin_abi.response.v1 `
     --expect-schema gamecult.eve.runtime_release_request.v1 `
     --expect-schema gamecult.eve.runtime_capture_request.v1 `
+    --expect-schema gamecult.eve.runtime_lifecycle.v1 `
     --expect-schema gamecult.eve.runtime_split_handoff.v1 `
     --expect-schema gamecult.eve.plugin_handoff.v1 `
     --expect-schema gamecult.eve.provider_handoff.v1 `

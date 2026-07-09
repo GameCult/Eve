@@ -974,7 +974,7 @@ function validateRuntimeRecords(runtimes, errors) {
     for (const field of ["runtimeId", "status", "ownerRepo", "splitTarget", "captureStatus"]) {
       if (!runtime?.[field]) errors.push(`${label}:${field}:missing`);
     }
-    for (const field of ["supportedFeatures", "supportedPlugins", "unsupportedPlugins", "capabilityManifestErrors", "worldSurfaceLowering"]) {
+    for (const field of ["supportedFeatures", "supportedPlugins", "unsupportedPlugins", "capabilityManifestErrors", "lifecycleErrors", "worldSurfaceLowering"]) {
       if (!Array.isArray(runtime?.[field])) errors.push(`${label}:${field}:expected array`);
     }
   }

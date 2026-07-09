@@ -430,6 +430,13 @@ Recently cut:
   demand those contracts explicitly, so Sai, Norn, EvePlugins, Aetheria, and
   EveConformance can consume handoff shape without depending on Eve's local
   smoke script folklore.
+- Runtime lifecycle shape is now schema-backed as
+  `gamecult.eve.runtime_lifecycle.v1`. Flutter's standalone
+  `eveflutter-lifecycle.json` validates against that contract, embedded
+  release/test/capture lifecycle blocks in runtime capability manifests are
+  wrapped and validated through the same schema, and the conformance export
+  carries `lifecycleManifestPath` plus `lifecycleErrors` so runtime owners can
+  consume lifecycle status without guessing from prose.
 - EveElectron now has a pending split target and handoff at
   `runtimes/incubating/eve-electron/eveelectron-split-handoff.json`. It does
   claim a provider-agnostic Electron shell surface-tree projection and command

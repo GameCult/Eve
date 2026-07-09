@@ -224,6 +224,10 @@ Plugin, provider, and EveConformance handoff documents are also schema-backed:
 `gamecult.eve.plugin_handoff.v1`, `gamecult.eve.provider_handoff.v1`, and
 `gamecult.eve.conformance_handoff.v1` are exported through the schema catalog.
 Owner consumer smokes assert those schemas before trusting handoff paths.
+Runtime lifecycle records use `gamecult.eve.runtime_lifecycle.v1`. Standalone
+lifecycle documents such as `flutter/eve_parity/eveflutter-lifecycle.json` and
+embedded runtime capability lifecycle blocks validate against the same stage
+shape, and exported runtime records carry `lifecycleErrors`.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into

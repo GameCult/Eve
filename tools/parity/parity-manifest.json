@@ -20,6 +20,7 @@
     "gamecult.eve.plugin_advertisement.v1": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
     "gamecult.eve.plugin_handoff.v1": "schemas/gamecult.eve.plugin_handoff.v1.schema.json",
     "gamecult.eve.runtime_capability.v1": "schemas/gamecult.eve.runtime_capability.v1.schema.json",
+    "gamecult.eve.runtime_lifecycle.v1": "schemas/gamecult.eve.runtime_lifecycle.v1.schema.json",
     "gamecult.eve.runtime_split_handoff.v1": "schemas/gamecult.eve.runtime_split_handoff.v1.schema.json",
     "gamecult.eve.runtime_release_request.v1": "schemas/gamecult.eve.runtime_release_request.v1.schema.json",
     "gamecult.eve.runtime_capture_request.v1": "schemas/gamecult.eve.runtime_capture_request.v1.schema.json",
@@ -1120,6 +1121,10 @@
       "repoRole": "runtime-incubating",
       "splitTarget": "EveFlutter",
       "graduationTrigger": "Split when Flutter has provider picker, command transport, plugin projection adapters, and its own build/release lifecycle.",
+      "lifecycleManifest": {
+        "schemaPath": "schemas/gamecult.eve.runtime_lifecycle.v1.schema.json",
+        "manifestPath": "flutter/eve_parity/eveflutter-lifecycle.json"
+      },
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["embeddedDocuments"],
@@ -1171,6 +1176,10 @@
       "repoRole": "runtime-incubating",
       "splitTarget": "EveFlutter",
       "graduationTrigger": "Split with EveFlutter when Linux capture and runner health become runtime-owned.",
+      "lifecycleManifest": {
+        "schemaPath": "schemas/gamecult.eve.runtime_lifecycle.v1.schema.json",
+        "manifestPath": "flutter/eve_parity/eveflutter-lifecycle.json"
+      },
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["embeddedDocuments"],
@@ -1259,6 +1268,10 @@
       "repoRole": "runtime-incubating",
       "splitTarget": "EveFlutter",
       "graduationTrigger": "Split with EveFlutter when Android APK smoke, provider discovery, command transport, and plugin projection adapters are runtime-owned.",
+      "lifecycleManifest": {
+        "schemaPath": "schemas/gamecult.eve.runtime_lifecycle.v1.schema.json",
+        "manifestPath": "flutter/eve_parity/eveflutter-lifecycle.json"
+      },
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["embeddedDocuments"],

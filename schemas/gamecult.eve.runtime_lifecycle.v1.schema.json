@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.runtime_lifecycle.v1",
+  "title": "Eve Runtime Lifecycle",
+  "type": "object",
+  "required": [
+    "schema",
+    "splitTarget",
+    "ownerRepo",
+    "currentHostRepo",
+    "runtimes",
+    "release",
+    "test",
+    "capture"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.runtime_lifecycle.v1"
+    },
+    "splitTarget": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerRepo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "currentHostRepo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string"
+    },
+    "runtimes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "release": {
+      "type": "object",
+      "required": [
+        "ownerRepo",
+        "status",
+        "evidencePaths"
+      ],
+      "properties": {
+        "ownerRepo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "string"
+        },
+        "commands": {
+          "type": "array"
+        },
+        "releaseContract": {
+          "type": "object"
+        },
+        "evidencePaths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "pendingProofs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "test": {
+      "type": "object",
+      "required": [
+        "ownerRepo",
+        "status",
+        "evidencePaths"
+      ],
+      "properties": {
+        "ownerRepo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "string"
+        },
+        "commands": {
+          "type": "array"
+        },
+        "testContract": {
+          "type": "object"
+        },
+        "evidencePaths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "pendingProofs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "capture": {
+      "type": "object",
+      "required": [
+        "ownerRepo",
+        "status",
+        "evidencePaths"
+      ],
+      "properties": {
+        "ownerRepo": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "command": {
+          "type": "string"
+        },
+        "commands": {
+          "type": "array"
+        },
+        "captureContract": {
+          "type": "object"
+        },
+        "evidencePaths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "pendingProofs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "remainingSplitBlockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "additionalProperties": true
+}

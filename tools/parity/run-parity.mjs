@@ -310,6 +310,9 @@ async function evaluateRuntime(runtime, fixtureResults) {
   const commandTransportSmokeErrors = await validateRuntimeCommandTransportSmoke(runtime);
   const capabilityManifestErrors = await validateRuntimeCapabilityManifest(runtime);
   const capabilityManifestDocument = await readRuntimeCapabilityManifestDocument(runtime);
+  const lifecycleManifestDocument = await readRuntimeLifecycleManifestDocument(runtime);
+  const lifecycle = runtime.lifecycle || capabilityManifestDocument?.lifecycle || readLifecycleStages(lifecycleManifestDocument);
+  const lifecycleErrors = await validateRuntimeLifecycle(runtime, lifecycle, lifecycleManifestDocument);
   const splitHandoffPath = await readRuntimeSplitHandoffPath(runtime);
   const splitHandoffErrors = await validateRuntimeSplitHandoff(runtime, splitHandoffPath);
   const localProviderCatalogErrors = await validateRuntimeLocalProviderCatalog(runtime);
@@ -323,6 +326,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   if (runtime.kind === "active" && missingRequiredFeatures.length) status = "missing-required-feature";
   if (runtime.kind === "active" && commandTransportSmokeErrors.length) status = "missing-command-transport-smoke";
   if (runtime.kind === "active" && capabilityManifestErrors.length) status = "invalid-runtime-capability";
+  if (runtime.kind === "active" && lifecycleErrors.length) status = "invalid-runtime-lifecycle";
   if (runtime.kind === "active" && splitHandoffErrors.length) status = "invalid-runtime-split-handoff";
   if (runtime.kind === "active" && localProviderCatalogErrors.length) status = "invalid-local-provider-catalog";
   if (runtime.kind === "active" && missingIncubationFields.length) status = "missing-incubation-metadata";
@@ -361,11 +365,13 @@ async function evaluateRuntime(runtime, fixtureResults) {
     commandTransportSmokeErrors,
     capabilityManifest: runtime.capabilityManifest || null,
     capabilityManifestErrors,
+    lifecycleManifest: runtime.lifecycleManifest || null,
+    lifecycleErrors,
     splitHandoffPath,
     splitHandoffErrors,
     localProviderCatalog: runtime.localProviderCatalog || null,
     localProviderCatalogErrors,
-    lifecycle: runtime.lifecycle || capabilityManifestDocument?.lifecycle || null,
+    lifecycle,
     ownerRepo: runtime.ownerRepo || "",
     repoRole: runtime.repoRole || "",
     graduationTrigger: runtime.graduationTrigger || "",
@@ -391,6 +397,82 @@ async function readRuntimeCapabilityManifestDocument(runtime) {
   } catch {
     return null;
   }
+}
+
+async function readRuntimeLifecycleManifestDocument(runtime) {
+  const lifecyclePath = runtime.lifecycleManifest?.manifestPath;
+  if (!lifecyclePath) return null;
+  try {
+    return await readJsonDocument(lifecyclePath);
+  } catch {
+    return null;
+  }
+}
+
+function readLifecycleStages(lifecycleDocument) {
+  if (!lifecycleDocument) return null;
+  return {
+    release: lifecycleDocument.release,
+    test: lifecycleDocument.test,
+    capture: lifecycleDocument.capture,
+  };
+}
+
+async function validateRuntimeLifecycle(runtime, lifecycle, lifecycleDocument) {
+  if (!lifecycle && !runtime.lifecycleManifest) return [];
+
+  const schemaPath = runtime.lifecycleManifest?.schemaPath || manifest.schemas?.["gamecult.eve.runtime_lifecycle.v1"];
+  const errors = [];
+  if (runtime.lifecycleManifest?.manifestPath) {
+    errors.push(...await validateJsonDocument(schemaPath, runtime.lifecycleManifest.manifestPath, {
+      schema: "gamecult.eve.runtime_lifecycle.v1",
+    }));
+    if (!lifecycleDocument) {
+      errors.push(`${runtime.lifecycleManifest.manifestPath}:unreadable`);
+    } else if (!Array.isArray(lifecycleDocument.runtimes) || !lifecycleDocument.runtimes.includes(runtime.id)) {
+      errors.push(`${runtime.lifecycleManifest.manifestPath}:runtimes:${runtime.id}:missing`);
+    }
+  }
+
+  if (!lifecycle) {
+    errors.push("lifecycle:missing");
+    return errors;
+  }
+
+  const ownerRepo = lifecycleDocument?.ownerRepo
+    || lifecycle.release?.ownerRepo
+    || lifecycle.test?.ownerRepo
+    || lifecycle.capture?.ownerRepo
+    || runtime.splitTarget
+    || runtime.ownerRepo
+    || "";
+  const currentHostRepo = lifecycleDocument?.currentHostRepo || runtime.ownerRepo || "Eve";
+  const lifecycleEnvelope = {
+    schema: "gamecult.eve.runtime_lifecycle.v1",
+    splitTarget: lifecycleDocument?.splitTarget || runtime.splitTarget || runtime.id,
+    ownerRepo,
+    currentHostRepo,
+    status: lifecycleDocument?.status || runtime.status || "",
+    runtimes: lifecycleDocument?.runtimes || [runtime.id],
+    release: lifecycle.release,
+    test: lifecycle.test,
+    capture: lifecycle.capture,
+    remainingSplitBlockers: lifecycleDocument?.remainingSplitBlockers || [],
+  };
+
+  const schemaErrors = await validateJsonDocumentAgainstSchemaPath(schemaPath, lifecycleEnvelope, `runtimeLifecycle:${runtime.id}`);
+  errors.push(...schemaErrors);
+
+  for (const stage of ["release", "test", "capture"]) {
+    const stageDocument = lifecycle[stage];
+    for (const evidencePath of stageDocument?.evidencePaths || []) {
+      if (!existsSync(path.join(repoRoot, evidencePath))) {
+        errors.push(`lifecycle.${stage}.evidence:${evidencePath}:missing`);
+      }
+    }
+  }
+
+  return errors;
 }
 
 async function validateRuntimeLocalProviderCatalog(runtime) {
@@ -1116,6 +1198,23 @@ async function validateJsonDocument(schemaPath, documentPath, expected = {}) {
   return errors;
 }
 
+async function validateJsonDocumentAgainstSchemaPath(schemaPath, document, label) {
+  const errors = [];
+  if (!schemaPath) return ["schemaPath:missing"];
+
+  const absoluteSchemaPath = path.join(repoRoot, schemaPath);
+  if (!existsSync(absoluteSchemaPath)) return [`${schemaPath}:missing`];
+
+  try {
+    const schema = JSON.parse(await readFile(absoluteSchemaPath, "utf8"));
+    errors.push(...validateSchemaSubset(schema, document, label));
+  } catch (error) {
+    errors.push(`${label}:invalid-json:${error instanceof Error ? error.message : String(error)}`);
+  }
+
+  return errors;
+}
+
 function extractProviderSchemaIds(schemas) {
   return schemas.map(schema => {
     if (typeof schema === "string") return schema;
@@ -1783,15 +1882,18 @@ function buildConformanceExport(report) {
           requiredFixtures: runtime.requiredFixtures,
           pluginFixtures: runtime.pluginFixtures,
           capabilityManifestPath: runtime.capabilityManifest?.manifestPath || "",
+          lifecycleManifestPath: runtime.lifecycleManifest?.manifestPath || "",
           commandTransportSchema: runtimeCommandTransportSchema(runtime),
           captureStatus: runtime.capture?.status || "",
-      lifecycle: runtime.lifecycle,
-      missingEvidence: [
+          lifecycle: runtime.lifecycle,
+          lifecycleErrors: runtime.lifecycleErrors || [],
+          missingEvidence: [
             ...runtime.missingPaths,
             ...runtime.missingRequiredFixtures.map(id => `fixture:${id}`),
             ...runtime.missingRequiredFeatures.map(id => `feature:${id}`),
             ...runtime.commandTransportSmokeErrors.map(id => `command-smoke:${id}`),
             ...runtime.capabilityManifestErrors.map(id => `runtime-capability:${id}`),
+            ...runtime.lifecycleErrors.map(id => `runtime-lifecycle:${id}`),
             ...runtime.localProviderCatalogErrors.map(id => `local-provider-catalog:${id}`),
           ],
         }))
@@ -1874,6 +1976,8 @@ function buildConformanceExport(report) {
       unsupportedPlugins: runtime.unsupportedPlugins,
       capabilityManifestPath: runtime.capabilityManifest?.manifestPath || "",
       capabilityManifestErrors: runtime.capabilityManifestErrors || [],
+      lifecycleManifestPath: runtime.lifecycleManifest?.manifestPath || "",
+      lifecycleErrors: runtime.lifecycleErrors || [],
       splitHandoffPath: runtime.splitHandoffPath || "",
       splitHandoffErrors: runtime.splitHandoffErrors || [],
       splitHandoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
@@ -2049,6 +2153,7 @@ function collectCapabilityGaps(report) {
       ...(runtime.missingRequiredFeatures || []).map(id => `feature:${id}`),
       ...(runtime.commandTransportSmokeErrors || []).map(id => `command-smoke:${id}`),
       ...(runtime.capabilityManifestErrors || []).map(id => `runtime-capability:${id}`),
+      ...(runtime.lifecycleErrors || []).map(id => `runtime-lifecycle:${id}`),
       ...(runtime.splitHandoffErrors || []).map(id => `runtime-split-handoff:${id}`),
       ...(runtime.localProviderCatalogErrors || []).map(id => `local-provider-catalog:${id}`),
       ...(runtime.pluginCapabilityGaps || []).map(id => `plugin-capability:${id}`),

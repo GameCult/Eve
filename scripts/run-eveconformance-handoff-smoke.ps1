@@ -91,6 +91,7 @@ foreach ($contract in @(
   "gamecult.eve.provider_advertisement.v1",
   "gamecult.eve.provider_handoff.v1",
   "gamecult.eve.runtime_capability.v1",
+  "gamecult.eve.runtime_lifecycle.v1",
   "gamecult.eve.runtime_split_handoff.v1"
 )) {
   if (-not (@($handoff.contractInputs) -contains $contract)) {
@@ -124,6 +125,7 @@ if (Test-Path -LiteralPath (Join-Path $absoluteExportDirectory "index.json")) {
     "gamecult.eve.provider_advertisement.v1",
     "gamecult.eve.provider_handoff.v1",
     "gamecult.eve.runtime_capability.v1",
+    "gamecult.eve.runtime_lifecycle.v1",
     "gamecult.eve.runtime_split_handoff.v1",
     "gamecult.eve.command_receipt.v1",
     "gamecult.eve.plugin.v1",
