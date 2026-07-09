@@ -13,25 +13,28 @@
       "smokeCommand": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-eveelectron-split-handoff-smoke.ps1"
     }
   },
-  "supportedFeatures": [],
+  "supportedFeatures": [
+    "providerAdvertisements",
+    "commandTransport"
+  ],
   "supportedPlugins": [],
   "unsupportedPlugins": [
     {
       "pluginId": "sai.vn",
-      "reason": "Electron has no generic runtime body yet; Sai projection belongs behind provider/plugin advertisements once EveElectron exists."
+      "reason": "Electron provider-shell skeleton exists, but no Sai projection adapter exists in this runtime."
     },
     {
       "pluginId": "norn.graph",
-      "reason": "Electron has no generic runtime body yet; Norn graph projection belongs behind provider/plugin advertisements once EveElectron exists."
+      "reason": "Electron provider-shell skeleton exists, but no Norn graph projection adapter exists in this runtime."
     },
     {
       "pluginId": "tex.math",
-      "reason": "Electron has no generic runtime body yet; TeX projection belongs behind provider/plugin advertisements once EveElectron exists."
+      "reason": "Electron provider-shell skeleton exists, but no TeX projection adapter exists in this runtime."
     }
   ],
   "commandTransport": {
     "schema": "gamecult.eve.command.v1",
-    "status": "pending-runtime-body",
+    "status": "provider-shell-contract-skeleton",
     "emitter": "EveElectronShell.EmitCommand",
     "clientId": "electron-shell",
     "authority": "Electron emits command intents through provider-advertised command boundaries; providers accept, deny, and publish receipts."
@@ -50,6 +53,8 @@
         "publishProof": "Packaged Electron release is created from the EveElectron repo and references the provider-agnostic shell package root."
       },
       "evidencePaths": [
+        "runtimes/incubating/eve-electron/package.json",
+        "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
         "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
         "scripts/run-eveelectron-split-handoff-smoke.ps1"
       ],
@@ -59,25 +64,29 @@
     },
     "test": {
       "ownerRepo": "EveElectron",
-      "status": "pending-provider-advertisement-shell-smoke",
+      "status": "provider-shell-contract-skeleton",
       "testContract": {
         "ownerRepo": "EveElectron",
         "runnerKind": "electron-provider-shell-smoke",
         "runnerScript": "scripts/run-eveelectron-provider-shell-smoke.ps1",
         "consumerProject": "E:\\Projects\\Aetheria",
         "packageName": "eve-electron",
-        "testAssembly": "EveElectron.ProviderShell",
-        "testPlatform": "Electron",
+        "testAssembly": "eve-electron-shell.test.mjs",
+        "testPlatform": "Node contract skeleton",
         "resultsArtifact": "artifacts/eveelectron-provider-shell/{stamp}/provider-shell-results.json",
         "logArtifact": "artifacts/eveelectron-provider-shell/{stamp}/provider-shell.log",
         "manifestMutation": "None; the shell consumes provider advertisements and must not mutate provider product manifests."
       },
       "evidencePaths": [
+        "runtimes/incubating/eve-electron/package.json",
+        "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+        "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
         "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
-        "scripts/run-eveelectron-split-handoff-smoke.ps1"
+        "scripts/run-eveelectron-split-handoff-smoke.ps1",
+        "scripts/run-eveelectron-provider-shell-smoke.ps1"
       ],
       "pendingProofs": [
-        "Electron provider-advertisement shell smoke runs from EveElectron without importing Aetheria source layout."
+        "Electron provider-advertisement smoke runs from EveElectron in a packaged Electron window without importing Aetheria source layout."
       ]
     },
     "capture": {

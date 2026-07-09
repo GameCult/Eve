@@ -641,12 +641,21 @@
             "scripts/run-eveelectron-lifecycle-smoke.ps1",
             "scripts/run-eveelectron-provider-shell-smoke.ps1"
           ]
+        },
+        {
+          "description": "EveElectron provider-shell skeleton selects advertised surfaces and emits Eve command intents.",
+          "status": "passed",
+          "evidencePaths": [
+            "runtimes/incubating/eve-electron/package.json",
+            "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+            "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
+            "scripts/run-eveelectron-provider-shell-smoke.ps1"
+          ]
         }
       ],
       "pendingProofs": [
-        "Electron shell runtime body exists outside Aetheria product code.",
-        "Electron consumes provider advertisements without Aetheria source-layout knowledge.",
-        "Electron emits gamecult.eve.command.v1 through provider command boundaries.",
+        "Electron shell runtime body graduates to EveElectron outside Aetheria product code.",
+        "Electron renders embedded Eve documents in a packaged Electron window.",
         "Electron capture artifacts are attached to conformance output."
       ]
     },
@@ -705,27 +714,40 @@
       "splitHandoffPath": "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
       "requiredFixtures": ["embedded-surface", "aetheria-world"],
       "pluginFixtures": [],
-      "supportedFeatures": [],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport"],
       "supportedPlugins": [],
       "unsupportedPlugins": [
         {
           "pluginId": "sai.vn",
-          "reason": "Electron has no generic runtime body yet; Sai projection belongs behind provider/plugin advertisements once EveElectron exists."
+          "reason": "Electron provider-shell skeleton exists, but no Sai projection adapter exists in this runtime."
         },
         {
           "pluginId": "norn.graph",
-          "reason": "Electron has no generic runtime body yet; Norn graph projection belongs behind provider/plugin advertisements once EveElectron exists."
+          "reason": "Electron provider-shell skeleton exists, but no Norn graph projection adapter exists in this runtime."
         },
         {
           "pluginId": "tex.math",
-          "reason": "Electron has no generic runtime body yet; TeX projection belongs behind provider/plugin advertisements once EveElectron exists."
+          "reason": "Electron provider-shell skeleton exists, but no TeX projection adapter exists in this runtime."
         }
       ],
       "expectedPaths": [
+        "runtimes/incubating/eve-electron/package.json",
+        "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+        "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
         "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
         "runtimes/incubating/eve-electron/eve-runtime-capability.json",
         "scripts/run-eveelectron-lifecycle-smoke.ps1",
         "scripts/run-eveelectron-provider-shell-smoke.ps1"
+      ],
+      "expectedSourceSymbols": [
+        {
+          "path": "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+          "contains": ["EveElectronShell", "selectSurface", "createCommandIntent", "worldInteraction", "commandBoundary", "receiptSchema", "electron-shell"]
+        },
+        {
+          "path": "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
+          "contains": ["selects the active advertised provider surface", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+        }
       ],
       "capture": {
         "status": "missing",

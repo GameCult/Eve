@@ -39,8 +39,10 @@ if (-not $manifest.incubation.splitHandoff.manifestPath) {
   throw "EveElectron manifest missing split handoff path"
 }
 
-if (@($manifest.supportedFeatures).Count -ne 0) {
-  throw "EveElectron must not claim supported runtime features before the generic shell body exists"
+foreach ($feature in @("providerAdvertisements", "commandTransport")) {
+  if (-not (@($manifest.supportedFeatures) -contains $feature)) {
+    throw "EveElectron manifest missing provider-shell feature: $feature"
+  }
 }
 if (@($manifest.supportedPlugins).Count -ne 0) {
   throw "EveElectron must not claim plugin projection before the generic shell body exists"
@@ -56,7 +58,7 @@ foreach ($pluginId in @("sai.vn", "norn.graph", "tex.math")) {
 if ($manifest.commandTransport.schema -ne "gamecult.eve.command.v1") {
   throw "Unexpected EveElectron command schema: $($manifest.commandTransport.schema)"
 }
-if ($manifest.commandTransport.status -ne "pending-runtime-body") {
+if ($manifest.commandTransport.status -ne "provider-shell-contract-skeleton") {
   throw "Unexpected EveElectron command transport status: $($manifest.commandTransport.status)"
 }
 
@@ -119,5 +121,6 @@ foreach ($field in @("ownerRepo", "runtimeId", "captureKind", "artifactKind", "a
 }
 
 & (Join-Path $projectRoot "scripts\run-eveelectron-split-handoff-smoke.ps1")
+& (Join-Path $projectRoot "scripts\run-eveelectron-provider-shell-smoke.ps1")
 
 Write-Host "EveElectron lifecycle smoke passed: $absoluteManifestPath"

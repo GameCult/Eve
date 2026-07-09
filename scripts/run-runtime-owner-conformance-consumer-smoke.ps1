@@ -55,6 +55,8 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature unity-uitoolkit:embeddedDocuments `
   --expect-runtime-feature unity-scene:providerAdvertisements `
   --expect-runtime-feature unity-scene:commandTransport `
+  --expect-runtime-feature electron-shell:providerAdvertisements `
+  --expect-runtime-feature electron-shell:commandTransport `
   --expect-runtime-feature direct2d:embeddedDocuments `
   --expect-runtime-world-target web:web-reference `
   --expect-runtime-world-field web:web-reference:supportLevel:reference-dom-canvas-command-boundary `
@@ -129,10 +131,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.captureKind:unity-scene-frame-png" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-status electron-shell:release:pending-electron-package `
-  --expect-runtime-lifecycle-status electron-shell:test:pending-provider-advertisement-shell-smoke `
+  --expect-runtime-lifecycle-status electron-shell:test:provider-shell-contract-skeleton `
   --expect-runtime-lifecycle-status electron-shell:capture:pending-electron-window-capture `
   --expect-runtime-lifecycle-pending "electron-shell:release:Electron packaged app release" `
-  --expect-runtime-lifecycle-pending "electron-shell:test:Electron provider-advertisement shell smoke" `
+  --expect-runtime-lifecycle-pending "electron-shell:test:Electron provider-advertisement smoke runs from EveElectron in a packaged Electron window" `
   --expect-runtime-lifecycle-pending "electron-shell:capture:Electron window capture artifact" `
   --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.artifactKind:electron-app" `
   --expect-runtime-lifecycle-field "electron-shell:test:testContract.runnerKind:electron-provider-shell-smoke" `

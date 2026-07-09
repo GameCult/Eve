@@ -59,10 +59,12 @@ try {
     --expect-split-target-proof "EveElectron:EveElectron lifecycle contract is machine-readable" `
     --expect-split-target-blocker "EveElectron:runtime:electron-shell:status:pending" `
     --expect-split-target-blocker-record EveElectron:runtime-status:electron-shell `
-    --expect-split-target-blocker-record EveElectron:runtime-feature:electron-shell:providerAdvertisements `
+    --expect-split-target-blocker-record EveElectron:runtime-feature:electron-shell:embeddedDocuments `
+    --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:current:exists:eve-electron-shell.mjs `
+    --expect-split-handoff-move EveElectron:electron-shell:electron-command-transport:current:exists:eve-electron-shell.mjs `
     --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:observed-provider:exists:Aetheria.Rts.Web/Electron `
     --expect-split-handoff-move EveElectron:electron-shell:electron-command-transport:observed-provider:exists:Aetheria.Rts.Web/Client/app.ts `
-    --expect-split-target-blocker "EveElectron:Electron shell runtime body exists outside Aetheria product code" `
+    --expect-split-target-blocker "EveElectron:Electron shell runtime body graduates to EveElectron outside Aetheria product code" `
     --expect-split-target EveTui `
     --expect-split-target-status EveTui:incubating `
     --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `

@@ -12,7 +12,11 @@
     {
       "id": "electron-shell-runtime",
       "stage": "runtime-body",
-      "currentPaths": [],
+      "currentPaths": [
+        "runtimes/incubating/eve-electron/package.json",
+        "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+        "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs"
+      ],
       "observedProviderPaths": [
         "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\Electron",
         "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\Client",
@@ -24,7 +28,10 @@
     {
       "id": "electron-command-transport",
       "stage": "command",
-      "currentPaths": [],
+      "currentPaths": [
+        "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+        "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs"
+      ],
       "observedProviderPaths": [
         "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\Client\\app.ts",
         "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\Electron\\preload.cjs",
@@ -58,6 +65,7 @@
   ],
   "requiredExternalProofs": [
     "EveElectron publishes a runtime capability manifest with provider advertisement consumption and command transport.",
+    "EveElectron owns a provider-shell contract skeleton that selects advertised provider surfaces and emits gamecult.eve.command.v1 intents.",
     "EveElectron lowers at least one generic Eve provider surface that is not Aetheria.",
     "EveElectron lowers Aetheria world/editor surfaces through provider advertisements without importing Aetheria internals.",
     "Aetheria keeps Starbridge-specific UI, assets, authored flows, and receipts in the Aetheria repo.",

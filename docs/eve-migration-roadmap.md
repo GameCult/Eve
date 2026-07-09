@@ -331,6 +331,11 @@ Recently cut:
   `worldInteraction` boundary, creates `gamecult.eve.command.v1` requests with
   command boundary and receipt schema fields, and has a runnable smoke without
   claiming full `unity-scene` world lowering or capture evidence.
+- EveElectron now has a provider-shell contract skeleton under
+  `runtimes/incubating/eve-electron`. The shell selects advertised provider
+  surfaces, emits `gamecult.eve.command.v1` intents with provider command
+  boundary and receipt schema fields, and has a runnable Node smoke without
+  claiming embedded document rendering, packaged Electron lifecycle, or capture.
 - The conformance export carries `splitHandoffMoveCoverage[]`, joining runtime
   split handoff move sets to source path status. EveElectron now exposes the
   existing Aetheria `Aetheria.Rts.Web/Electron` and command transport paths as
