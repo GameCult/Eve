@@ -143,6 +143,18 @@
       "replacementProof": "Unity scene input emits gamecult.eve.command.v1 intents through typed provider surface documents, a provider-snapshot client session, IEveUnitySceneProviderSurfaceSource, IEveUnitySceneCommandSink, IEveUnitySceneCommandReceiptSource, and advertised command boundaries, then observes provider receipts and refreshes from provider documents/snapshots instead of mutating local world truth."
     },
     {
+      "id": "aetheria-playable-world-consumer-proof",
+      "stage": "observed-provider-proof",
+      "observedProviderPaths": [
+        "E:\\Projects\\Aetheria\\Assets\\Scripts\\Tests\\DaemonRuntimeDocumentTests.cs",
+        "E:\\Projects\\Aetheria\\Packages\\org.gamecult.aetheria.eve-runtime\\Runtime\\AetheriaEveUnitySceneProviderBridge.cs",
+        "E:\\Projects\\Aetheria\\Packages\\org.gamecult.aetheria.state\\Runtime\\AetheriaRuntimeDaemonGameSurfaceBuilder.cs",
+        "E:\\Projects\\Aetheria\\Packages\\org.gamecult.aetheria.state\\Runtime\\AetheriaRuntimeDaemonOperationsClient.cs"
+      ],
+      "destinationOwner": "Aetheria",
+      "replacementProof": "Aetheria proves a generic EveUnity playable-world runtime can lower the daemon-published 3D ARPG surface, resolve provider-owned asset refs, submit movement through the advertised command boundary, observe provider receipts, and refresh from provider-owned daemon snapshots without making EveUnity import Aetheria product code."
+    },
+    {
       "id": "unity-scene-capture-lifecycle",
       "stage": "capture",
       "currentPaths": [

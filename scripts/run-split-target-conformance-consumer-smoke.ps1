@@ -43,6 +43,7 @@ try {
     --expect-split-target-proof "EveUnity:EveUnity split handoff is machine-readable" `
     --expect-split-target-proof "EveUnity:Unity scene split handoff is machine-readable" `
     --expect-split-target-proof "EveUnity:Unity scene lifecycle contract is machine-readable" `
+    --expect-split-target-proof "EveUnity:Aetheria daemon 3D ARPG world lowers through a generic EveUnity playable-world client" `
     --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:aetheria:aetheria.daemon.game `
     --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:eve.world-smoke:eve.world-smoke.surface `
     --expect-runtime-capture-artifact unity-scene:json-projection:gamecult.eve.unity_scene_projection.v1:aetheria:aetheria.daemon.game `
@@ -59,6 +60,10 @@ try {
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-norn-plugin-projection:current:exists:NornGraphUnitySceneProjectionAdapter.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-tex-plugin-projection:current:exists:TeXMathUnitySceneProjectionAdapter.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneSurfaceLowerer.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:Assets/Scripts/Tests/DaemonRuntimeDocumentTests.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:Packages/org.gamecult.aetheria.eve-runtime/Runtime/AetheriaEveUnitySceneProviderBridge.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:AetheriaRuntimeDaemonGameSurfaceBuilder.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:AetheriaRuntimeDaemonOperationsClient.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-capture-lifecycle:current:exists:eveunity-capture-contract.mjs `
     --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:Packages/manifest.json `
     --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:GameCult.Eve.UnityUIToolkit.csproj `

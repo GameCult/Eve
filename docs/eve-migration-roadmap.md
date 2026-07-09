@@ -986,6 +986,18 @@ Recently cut:
   bootstrap, input, camera, scene sink, and command-envelope tests compile and
   run through the Aetheria consumer project without making the Unity client
   Aetheria-specific.
+- Aetheria now also carries the real provider-side proof for the target shape:
+  a generic `EveUnityPlayableWorldRuntime` lowers the daemon-published 3D ARPG
+  world surface through the Aetheria Eve provider bridge, resolves
+  provider-owned playable-world asset refs, submits movement through the
+  advertised `gamecult.eve.command.v1` boundary, observes provider-owned
+  receipts, and refreshes from daemon snapshots without importing Aetheria
+  product authority into EveUnity. Eve records this as the
+  `aetheria-playable-world-consumer-proof` observed-provider move set in
+  `runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json`, and
+  the split-target plus Aetheria consumer smokes assert it from the conformance
+  export. The remaining blocker is live transport/rendered-frame proof from
+  the future EveUnity owner repo, not whether the Unity client is generic.
 - Aetheria now has repeatable Unity package consumer-build evidence for the
   Eve UI Toolkit runtime. `scripts/run-aetheria-unity-package-smoke.ps1`
   verifies Aetheria's Unity `Packages/manifest.json` consumes Eve's surface and

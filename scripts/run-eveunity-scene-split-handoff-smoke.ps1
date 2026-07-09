@@ -50,6 +50,7 @@ $expectedMoveSets = @{
   "unity-scene-norn-plugin-projection" = "plugin-projection"
   "unity-scene-tex-plugin-projection" = "plugin-projection"
   "unity-scene-command-transport" = "command"
+  "aetheria-playable-world-consumer-proof" = "observed-provider-proof"
   "unity-scene-capture-lifecycle" = "capture"
 }
 
@@ -61,7 +62,8 @@ foreach ($id in $expectedMoveSets.Keys) {
   if ($moveSet.stage -ne $expectedMoveSets[$id]) {
     throw "EveUnity scene split handoff move set $id has unexpected stage: $($moveSet.stage)"
   }
-  if ($moveSet.destinationOwner -ne "EveUnity") {
+  $expectedDestinationOwner = if ($id -eq "aetheria-playable-world-consumer-proof") { "Aetheria" } else { "EveUnity" }
+  if ($moveSet.destinationOwner -ne $expectedDestinationOwner) {
     throw "EveUnity scene split handoff move set $id has unexpected destination owner: $($moveSet.destinationOwner)"
   }
   if (-not $moveSet.replacementProof) {
@@ -81,7 +83,29 @@ foreach ($id in $expectedMoveSets.Keys) {
     }
   }
   if ($observedProviderPaths.Count -ne 0) {
-    throw "EveUnity scene split handoff move set $id must not treat provider product paths as generic scene runtime source"
+    if ($id -ne "aetheria-playable-world-consumer-proof") {
+      throw "EveUnity scene split handoff move set $id must not treat provider product paths as generic scene runtime source"
+    }
+    foreach ($providerPath in $observedProviderPaths) {
+      if (-not [System.IO.Path]::IsPathRooted($providerPath)) {
+        throw "Aetheria playable-world consumer proof path must be absolute: $providerPath"
+      }
+      if (-not (Test-Path -LiteralPath $providerPath)) {
+        throw "Aetheria playable-world consumer proof path is missing: $providerPath"
+      }
+    }
+  }
+}
+
+$aetheriaConsumerProof = $moveSets | Where-Object { $_.id -eq "aetheria-playable-world-consumer-proof" } | Select-Object -First 1
+foreach ($requiredObservedPath in @(
+  "E:\Projects\Aetheria\Assets\Scripts\Tests\DaemonRuntimeDocumentTests.cs",
+  "E:\Projects\Aetheria\Packages\org.gamecult.aetheria.eve-runtime\Runtime\AetheriaEveUnitySceneProviderBridge.cs",
+  "E:\Projects\Aetheria\Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonGameSurfaceBuilder.cs",
+  "E:\Projects\Aetheria\Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonOperationsClient.cs"
+)) {
+  if (-not (@($aetheriaConsumerProof.observedProviderPaths) -contains $requiredObservedPath)) {
+    throw "Aetheria playable-world consumer proof missing required observed provider path: $requiredObservedPath"
   }
 }
 

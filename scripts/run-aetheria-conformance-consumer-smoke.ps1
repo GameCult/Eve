@@ -80,6 +80,7 @@ try {
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:unity-uitoolkit:covered:EveUnity:unity-uitoolkit `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:electron-shell:covered:EveElectron:electron-shell `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:tui:covered:EveTui:tui `
+    --expect-split-target-proof "EveUnity:Aetheria daemon 3D ARPG world lowers through a generic EveUnity playable-world client" `
     --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:aetheria:aetheria.daemon.game `
     --expect-runtime-capture-artifact unity-scene:json-projection:gamecult.eve.unity_scene_projection.v1:aetheria:aetheria.daemon.game `
     --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:aetheria:aetheria.daemon.game `
@@ -94,6 +95,10 @@ try {
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-world-surface-lowering:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneSurfaceLowerer.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:Assets/Scripts/Tests/DaemonRuntimeDocumentTests.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:Packages/org.gamecult.aetheria.eve-runtime/Runtime/AetheriaEveUnitySceneProviderBridge.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:AetheriaRuntimeDaemonGameSurfaceBuilder.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:AetheriaRuntimeDaemonOperationsClient.cs `
     --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:Packages/manifest.json `
     --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:GameCult.Eve.UnityUIToolkit.csproj `
     --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:Aetheria.State.Unity/AetheriaRuntimeCatalogClient.cs `

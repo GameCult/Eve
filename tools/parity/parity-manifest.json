@@ -661,6 +661,15 @@
           ]
         },
         {
+          "description": "Aetheria daemon 3D ARPG world lowers through a generic EveUnity playable-world client without Aetheria runtime authority.",
+          "status": "passed",
+          "evidencePaths": [
+            "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
+            "scripts/run-eveunity-scene-split-handoff-smoke.ps1",
+            "scripts/run-aetheria-unity-scene-editmode-tests.ps1"
+          ]
+        },
+        {
           "description": "Unity scene graph projection lowerer plus Sai, Norn, and TeX projection adapters exist without claiming provider simulation, plugin semantics, or capture ownership.",
           "status": "passed",
           "evidencePaths": [
