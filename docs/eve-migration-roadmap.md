@@ -568,10 +568,12 @@ Recently cut:
   `gamecult.eve.runtime_release_request.v1` request from the runtime capability
   manifest and UPM package manifest, deriving the `eveunity-uitoolkit-v{version}`
   tag, package dependency set, required package dependency owners, and UPM
-  artifact path. The lifecycle smoke validates that contract against the package
-  manifest, parity compares it against the ledger, and the runtime-owner
-  consumer smoke asserts the exported release fields without pretending the
-  tagged EveUnity release already exists.
+  artifact path. `tools/eveunity/eveunity-release-artifact.mjs` consumes that
+  request and runs `npm pack` against the declared package root, producing the
+  declared UPM `.tgz` artifact as local smoke evidence. The lifecycle smoke
+  validates that contract against the package manifest, parity compares it
+  against the ledger, and the runtime-owner consumer smoke asserts the exported
+  release fields without pretending the tagged EveUnity release already exists.
 - EveUnity capture lifecycle now carries a structured pending capture contract.
   `captureContract` names the Unity UI Toolkit runtime, capture kind, PNG
   artifact pattern, conformance attachment point, required Aetheria provider

@@ -436,7 +436,9 @@ exist. The current lifecycle proof is deliberately split:
 - release: `tools/eveunity/eveunity-release-contract.mjs` builds a typed
   `gamecult.eve.runtime_release_request.v1` request from the runtime capability
   manifest and UPM package manifest, including required package dependency
-  owners; the tagged EveUnity release remains a split blocker;
+  owners. `tools/eveunity/eveunity-release-artifact.mjs` then packs the
+  declared package root into the declared UPM `.tgz` artifact. The tagged
+  EveUnity release remains a split blocker;
 - test: package-owned EditMode tests run through Aetheria in Unity batchmode,
   and Aetheria can build the package through Unity's generated project. The
   test contract names CultLib-owned NuGet/precompiled assembly inputs without

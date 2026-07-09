@@ -174,7 +174,7 @@ node $consumerScript $consumerExport `
   --expect-screenshot-metric unity-scene:aetheria-world:bounding-boxes:pending-capture `
   --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
   --expect-screenshot-metric tui:aetheria-world:bounding-boxes:terminal-grid-capture `
-  --expect-runtime-lifecycle-status unity-uitoolkit:release:incubating-upm-package `
+  --expect-runtime-lifecycle-status unity-uitoolkit:release:upm-package-artifact-smoke `
   --expect-runtime-lifecycle-status unity-uitoolkit:test:batchmode-editmode-tests-and-consumer-build-smoke `
   --expect-runtime-lifecycle-status unity-uitoolkit:capture:pending-editor-capture `
   --expect-runtime-lifecycle-pending "unity-uitoolkit:release:Tagged UPM release" `
@@ -184,6 +184,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.artifactKind:upm-package" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.requestSchema:gamecult.eve.runtime_release_request.v1" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.requestBuilder:tools/eveunity/eveunity-release-contract.mjs" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.artifactBuilder:tools/eveunity/eveunity-release-artifact.mjs" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.artifactPattern:artifacts/eveunity-uitoolkit-release/{version}/org.gamecult.eve.unity-uitoolkit-{version}.tgz" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.tagPattern:eveunity-uitoolkit-v{version}" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.packageRoot:packages/org.gamecult.eve.unity-uitoolkit" `

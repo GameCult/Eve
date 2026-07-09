@@ -1606,7 +1606,7 @@ function compareReleaseContract(expected, actual, label) {
   const errors = [];
   if (!expected) return errors;
   if (!actual) return [`${label}:missing`];
-  for (const key of ["ownerRepo", "packageName", "packageRoot", "versionSource", "tagPattern", "artifactKind", "requestSchema", "requestBuilder", "artifactPattern", "publishProof"]) {
+  for (const key of ["ownerRepo", "packageName", "packageRoot", "versionSource", "tagPattern", "artifactKind", "requestSchema", "requestBuilder", "artifactBuilder", "artifactPattern", "publishProof"]) {
     if ((expected[key] || "") !== (actual[key] || "")) {
       errors.push(`${label}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
     }
@@ -1614,7 +1614,7 @@ function compareReleaseContract(expected, actual, label) {
   if (actual.requestSchema && !manifest.schemas?.[actual.requestSchema]) {
     errors.push(`${label}.requestSchema:${actual.requestSchema}:missing-schema-catalog-entry`);
   }
-  for (const key of ["packageRoot", "versionSource", "requestBuilder"]) {
+  for (const key of ["packageRoot", "versionSource", "requestBuilder", "artifactBuilder"]) {
     if (actual[key] && !existsSync(path.join(repoRoot, actual[key]))) {
       errors.push(`${label}.${key}:${actual[key]}:missing`);
     }

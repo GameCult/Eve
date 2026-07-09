@@ -38,7 +38,8 @@ The runtime capability manifest is
 `eve-runtime-capability.json`. Its lifecycle section records the current split
 evidence:
 
-- release: typed UPM release request contract and incubating package identity;
+- release: typed UPM release request contract, UPM `.tgz` artifact smoke, and
+  incubating package identity;
 - test: package-owned EditMode tests run through Aetheria in Unity batchmode,
   plus Aetheria consumer-build smoke through Unity's generated project;
 - capture: typed capture request contract and pending Unity editor or
@@ -54,6 +55,10 @@ manifest and UPM package manifest. The request names the package version, tag,
 artifact path, dependency set, required package dependency owners, and target
 `GameCult/EveUnity` repository without pretending Eve has published the tagged
 release.
+`tools/eveunity/eveunity-release-artifact.mjs` consumes that request and runs
+`npm pack` against the declared package root, producing the declared
+`org.gamecult.eve.unity-uitoolkit-{version}.tgz` artifact as local smoke
+evidence. The tagged release still belongs in the EveUnity repo.
 
 The test stage declares the Unity EditMode runner contract: the current runner
 is `scripts/run-aetheria-unity-editmode-tests.ps1`, runs
@@ -103,11 +108,12 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-eveunity-lifecycle-smoke.
 ```
 
 That smoke validates `eve-runtime-capability.json`, checks lifecycle evidence
-paths, runs the Aetheria Unity package consumer-build smoke, and verifies the
-split handoff manifest. Pass `-RunUnityEditMode` when the local Unity editor
-should also execute the incubating batchmode EditMode test runner. The final
-tagged UPM release, batchmode runner ownership, and capture artifact still
-graduate to `EveUnity`. The capture contract smoke is:
+paths, builds the UPM artifact smoke, runs the Aetheria Unity package
+consumer-build smoke, and verifies the split handoff manifest. Pass
+`-RunUnityEditMode` when the local Unity editor should also execute the
+incubating batchmode EditMode test runner. The final tagged UPM release,
+batchmode runner ownership, and capture artifact still graduate to `EveUnity`.
+The capture contract smoke is:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\run-eveunity-capture-contract-smoke.ps1
@@ -123,6 +129,12 @@ The release contract smoke is:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\run-eveunity-release-contract-smoke.ps1
+```
+
+The release artifact smoke is:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-eveunity-release-artifact-smoke.ps1
 ```
 
 For Aetheria, the Unity evidence path is:

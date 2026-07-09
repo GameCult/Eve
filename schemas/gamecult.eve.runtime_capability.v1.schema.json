@@ -247,6 +247,10 @@
                   "type": "string",
                   "minLength": 1
                 },
+                "artifactBuilder": {
+                  "type": "string",
+                  "minLength": 1
+                },
                 "artifactPattern": {
                   "type": "string",
                   "minLength": 1

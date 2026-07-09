@@ -110,7 +110,7 @@ if (-not ($releaseContract.tagPattern -match "\{version\}")) {
 if (-not ($releaseContract.artifactPattern -match "\{version\}")) {
   throw "EveUnity release contract artifact pattern must include {version}: $($releaseContract.artifactPattern)"
 }
-foreach ($pathProperty in @("packageRoot", "versionSource", "requestBuilder")) {
+foreach ($pathProperty in @("packageRoot", "versionSource", "requestBuilder", "artifactBuilder")) {
   $relativePath = $releaseContract.$pathProperty
   if (-not $relativePath) {
     throw "EveUnity release contract missing $pathProperty"
@@ -144,6 +144,11 @@ if ($surfaceDependency.version -ne $packageManifest.dependencies."org.gamecult.e
 & (Join-Path $projectRoot "scripts\run-eveunity-release-contract-smoke.ps1")
 if ($LASTEXITCODE -ne 0) {
   throw "EveUnity release contract smoke failed with exit code $LASTEXITCODE"
+}
+
+& (Join-Path $projectRoot "scripts\run-eveunity-release-artifact-smoke.ps1")
+if ($LASTEXITCODE -ne 0) {
+  throw "EveUnity release artifact smoke failed with exit code $LASTEXITCODE"
 }
 
 $testContract = $manifest.lifecycle.test.testContract

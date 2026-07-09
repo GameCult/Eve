@@ -69,7 +69,7 @@
   "lifecycle": {
     "release": {
       "ownerRepo": "EveUnity",
-      "status": "incubating-upm-package",
+      "status": "upm-package-artifact-smoke",
       "packageName": "org.gamecult.eve.unity-uitoolkit",
       "packageManifest": "packages/org.gamecult.eve.unity-uitoolkit/package.json",
       "releaseContract": {
@@ -81,6 +81,7 @@
         "artifactKind": "upm-package",
         "requestSchema": "gamecult.eve.runtime_release_request.v1",
         "requestBuilder": "tools/eveunity/eveunity-release-contract.mjs",
+        "artifactBuilder": "tools/eveunity/eveunity-release-artifact.mjs",
         "artifactPattern": "artifacts/eveunity-uitoolkit-release/{version}/org.gamecult.eve.unity-uitoolkit-{version}.tgz",
         "publishProof": "Tagged UPM release is created from the EveUnity repo and references this package root.",
         "requiredPackageDependencies": [
@@ -98,7 +99,10 @@
         "packages/org.gamecult.eve.unity-uitoolkit/README.md",
         "tools/eveunity/eveunity-release-contract.mjs",
         "tools/eveunity/eveunity-release-contract.test.mjs",
+        "tools/eveunity/eveunity-release-artifact.mjs",
+        "tools/eveunity/eveunity-release-artifact.test.mjs",
         "scripts/run-eveunity-release-contract-smoke.ps1",
+        "scripts/run-eveunity-release-artifact-smoke.ps1",
         "scripts/run-aetheria-unity-package-smoke.ps1"
       ],
       "pendingProofs": [
