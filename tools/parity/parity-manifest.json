@@ -853,8 +853,11 @@
         "scripts/run-evetui-lifecycle-smoke.ps1",
         "scripts/run-evetui-provider-shell-smoke.ps1",
         "scripts/run-evetui-capture-contract-smoke.ps1",
+        "scripts/run-evetui-release-contract-smoke.ps1",
         "tools/evetui/evetui-capture-contract.mjs",
-        "tools/evetui/evetui-capture-contract.test.mjs"
+        "tools/evetui/evetui-capture-contract.test.mjs",
+        "tools/evetui/evetui-release-contract.mjs",
+        "tools/evetui/evetui-release-contract.test.mjs"
       ],
       "expectedSourceSymbols": [
         {
@@ -872,6 +875,14 @@
         {
           "path": "tools/evetui/evetui-capture-contract.test.mjs",
           "contains": ["builds TUI capture request from provider advertisement", "rejects capture request when the surface does not advertise TUI", "artifacts/evetui-capture/smoke/tui-transcript.ansi"]
+        },
+        {
+          "path": "tools/evetui/evetui-release-contract.mjs",
+          "contains": ["buildTuiReleaseRequest", "gamecult.eve.runtime_release_request.v1", "evetui-release", "writeReleaseRequest"]
+        },
+        {
+          "path": "tools/evetui/evetui-release-contract.test.mjs",
+          "contains": ["builds EveTui release request from package manifest", "evetui-v0.1.0", "artifacts/evetui-release/0.1.0/eve-tui-0.1.0.tgz"]
         }
       ],
       "capture": {

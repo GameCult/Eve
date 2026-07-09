@@ -467,6 +467,14 @@ Recently cut:
   `scripts/run-evetui-capture-contract-smoke.ps1`. Plugin projection, terminal
   package release, and actual transcript/cell-grid capture artifacts remain
   pending.
+- EveTui release lifecycle now carries a structured pending release request
+  contract. The runtime capability manifest reads version truth from
+  `runtimes/incubating/eve-tui/package.json`, names the
+  `gamecult.eve.runtime_release_request.v1` request schema, and proves the
+  `evetui-v{version}` tag plus terminal runtime artifact path through
+  `tools/evetui/evetui-release-contract.mjs` and
+  `scripts/run-evetui-release-contract-smoke.ps1`. This proves the request
+  shape without pretending the EveTui package has been published.
 - Aetheria interactive world surfaces now carry a structured provider-owned
   `worldInteraction` contract. The provider advertisement names projection
   kind, provider state schemas, daemon command boundary, receipt schema,

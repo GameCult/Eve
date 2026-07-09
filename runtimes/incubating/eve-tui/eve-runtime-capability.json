@@ -64,15 +64,21 @@
         "ownerRepo": "EveTui",
         "packageName": "eve-tui",
         "packageRoot": "runtimes/incubating/eve-tui",
-        "versionSource": "runtimes/incubating/eve-tui/eve-runtime-capability.json",
+        "versionSource": "runtimes/incubating/eve-tui/package.json",
         "tagPattern": "evetui-v{version}",
         "artifactKind": "terminal-runtime",
+        "requestSchema": "gamecult.eve.runtime_release_request.v1",
+        "requestBuilder": "tools/evetui/evetui-release-contract.mjs",
+        "artifactPattern": "artifacts/evetui-release/{version}/eve-tui-{version}.tgz",
         "publishProof": "Terminal runtime release is created from the EveTui repo and references the provider-agnostic TUI package root."
       },
       "evidencePaths": [
         "runtimes/incubating/eve-tui/package.json",
         "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
         "runtimes/incubating/eve-tui/evetui-split-handoff.json",
+        "tools/evetui/evetui-release-contract.mjs",
+        "tools/evetui/evetui-release-contract.test.mjs",
+        "scripts/run-evetui-release-contract-smoke.ps1",
         "scripts/run-evetui-split-handoff-smoke.ps1"
       ],
       "pendingProofs": [

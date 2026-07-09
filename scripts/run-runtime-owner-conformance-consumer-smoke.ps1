@@ -191,6 +191,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-pending "tui:test:TUI provider-advertisement smoke runs from EveTui with durable terminal transcript or cell-grid artifacts" `
   --expect-runtime-lifecycle-pending "tui:capture:TUI terminal transcript or cell-grid capture artifact" `
   --expect-runtime-lifecycle-field "tui:release:releaseContract.artifactKind:terminal-runtime" `
+  --expect-runtime-lifecycle-field "tui:release:releaseContract.versionSource:runtimes/incubating/eve-tui/package.json" `
+  --expect-runtime-lifecycle-field "tui:release:releaseContract.requestSchema:gamecult.eve.runtime_release_request.v1" `
+  --expect-runtime-lifecycle-field "tui:release:releaseContract.requestBuilder:tools/evetui/evetui-release-contract.mjs" `
+  --expect-runtime-lifecycle-field "tui:release:releaseContract.artifactPattern:artifacts/evetui-release/{version}/eve-tui-{version}.tgz" `
   --expect-runtime-lifecycle-field "tui:test:testContract.runnerKind:terminal-provider-shell-smoke" `
   --expect-runtime-lifecycle-field "tui:test:testContract.runnerScript:scripts/run-evetui-provider-shell-smoke.ps1" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.captureKind:terminal-transcript-or-cell-grid" `

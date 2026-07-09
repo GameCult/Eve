@@ -103,12 +103,22 @@ foreach ($stage in @("release", "test", "capture")) {
 }
 
 $releaseContract = $manifest.lifecycle.release.releaseContract
-foreach ($field in @("ownerRepo", "packageName", "packageRoot", "versionSource", "tagPattern", "artifactKind", "publishProof")) {
+foreach ($field in @("ownerRepo", "packageName", "packageRoot", "versionSource", "tagPattern", "artifactKind", "requestSchema", "requestBuilder", "artifactPattern", "publishProof")) {
   if (-not $releaseContract.$field) {
     throw "EveTui release contract missing $field"
   }
 }
+if ($releaseContract.requestSchema -ne "gamecult.eve.runtime_release_request.v1") {
+  throw "EveTui release contract has unexpected request schema: $($releaseContract.requestSchema)"
+}
 foreach ($pathProperty in @("packageRoot", "versionSource")) {
+  $relativePath = $releaseContract.$pathProperty
+  $absolutePath = Join-Path $projectRoot $relativePath
+  if (-not (Test-Path -LiteralPath $absolutePath)) {
+    throw "EveTui release contract $pathProperty does not exist: $relativePath"
+  }
+}
+foreach ($pathProperty in @("requestBuilder")) {
   $relativePath = $releaseContract.$pathProperty
   $absolutePath = Join-Path $projectRoot $relativePath
   if (-not (Test-Path -LiteralPath $absolutePath)) {
@@ -161,6 +171,7 @@ foreach ($pathProperty in @("requestBuilder", "advertisementPath")) {
 }
 
 & (Join-Path $projectRoot "scripts\run-evetui-split-handoff-smoke.ps1")
+& (Join-Path $projectRoot "scripts\run-evetui-release-contract-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-evetui-provider-shell-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-evetui-capture-contract-smoke.ps1")
 
