@@ -58,17 +58,16 @@ try {
     --expect-interactive-world-surface aetheria:aetheria.daemon.editor:unity-uitoolkit:Aetheria `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:web-reference:claimed:Eve:web `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `
-    --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-scene:missing-claim:EveUnity:unity-scene `
+    --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-scene:claimed:EveUnity:unity-scene `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.editor:web-reference:claimed:Eve:web `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.editor:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.editor:tui:missing-claim:EveTui:tui `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.game:web-reference:covered:Eve:web `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.game:unity-uitoolkit:covered:EveUnity:unity-uitoolkit `
-    --expect-command-boundary-coverage aetheria:aetheria.daemon.game:unity-scene:missing-runtime-claim:EveUnity:unity-scene `
+    --expect-command-boundary-coverage aetheria:aetheria.daemon.game:unity-scene:covered:EveUnity:unity-scene `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:web-reference:covered:Eve:web `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:unity-uitoolkit:covered:EveUnity:unity-uitoolkit `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:tui:missing-runtime-claim:EveTui:tui `
-    --expect-world-lowering-gap aetheria:aetheria.daemon.game:unity-scene:EveUnity:unity-scene `
     --expect-world-lowering-gap aetheria:aetheria.daemon.editor:tui:EveTui:tui `
     --expect-split-handoff-move EveTui:tui:tui-runtime-body:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-command-transport:current:exists:eve-tui-shell.mjs `
@@ -76,7 +75,8 @@ try {
     --expect-split-target-blocker "EveElectron:Electron shell runtime body graduates to EveElectron outside Aetheria product code" `
     --expect-split-target-blocker "EveTui:TUI runtime body graduates to EveTui outside provider product code" `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnitySceneSurfaceLowerer.cs `
-    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:replacement-required:no-source-paths:none `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-world-surface-lowering:current:exists:EveUnitySceneSurfaceLowerer.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:current:exists:eve-electron-shell.mjs `
     --expect-split-handoff-move EveElectron:electron-shell:electron-command-transport:current:exists:eve-electron-shell.mjs `
     --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:observed-provider:exists:Aetheria.Rts.Web/Electron `

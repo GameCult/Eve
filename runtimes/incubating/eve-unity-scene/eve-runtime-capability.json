@@ -15,27 +15,42 @@
   },
   "supportedFeatures": [
     "providerAdvertisements",
-    "commandTransport"
+    "commandTransport",
+    "sceneGraphProjection"
   ],
   "supportedPlugins": [],
   "unsupportedPlugins": [
     {
       "pluginId": "sai.vn",
-      "reason": "Unity scene has no generic runtime body yet; Sai projection must enter through provider/plugin advertisements once scene lowering exists."
+      "reason": "Unity scene graph projection exists, but no Sai VN scene projection adapter or sidecar bridge exists in this runtime."
     },
     {
       "pluginId": "norn.graph",
-      "reason": "Unity scene has no generic runtime body yet; Norn graph projection needs explicit scene-space or UI overlay semantics once scene lowering exists."
+      "reason": "Unity scene graph projection exists, but no Norn graph scene-space or UI overlay adapter exists in this runtime."
     },
     {
       "pluginId": "tex.math",
-      "reason": "Unity scene has no generic runtime body yet; TeX projection needs explicit scene-space or UI overlay semantics once scene lowering exists."
+      "reason": "Unity scene graph projection exists, but no TeX scene-space or UI overlay adapter exists in this runtime."
+    }
+  ],
+  "worldSurfaceLowering": [
+    {
+      "targetId": "unity-scene",
+      "surfaceKinds": ["interactive-world"],
+      "projectionKinds": ["provider-authored-world-surface"],
+      "supportLevel": "unity-scene-graph-command-surface",
+      "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
+      "evidencePaths": [
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
+        "web/fixtures/aetheria.provider-advertisement.json"
+      ]
     }
   ],
   "commandTransport": {
     "schema": "gamecult.eve.command.v1",
     "status": "provider-shell-contract-skeleton",
-    "emitter": "EveUnitySceneSurfaceLowerer.EmitCommand",
+    "emitter": "EveUnitySceneSurfaceLowerer.CreateCommandIntent",
     "clientId": "unity-scene",
     "authority": "Unity scene input emits command intents through provider-advertised command boundaries; providers accept, deny, and publish receipts."
   },
@@ -115,6 +130,6 @@
   },
   "capture": {
     "status": "missing",
-    "note": "Unity scene capture is a split blocker until EveUnity owns a provider-agnostic scene lowerer."
+    "note": "Unity scene capture is a split blocker until EveUnity attaches provider-agnostic scene frame artifacts."
   }
 }

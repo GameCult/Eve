@@ -27,7 +27,8 @@ namespace GameCult.Eve.UnityScene
                 advertisedSurface.WorldInteraction.ProjectionKind,
                 advertisedSurface.WorldInteraction.CommandBoundary,
                 advertisedSurface.WorldInteraction.ReceiptSchema,
-                advertisedSurface.WorldInteraction.Ownership);
+                advertisedSurface.WorldInteraction.Ownership,
+                BuildSceneGraph(document.Surface.Root));
         }
 
         public EveSurfaceCommandRequest CreateCommandIntent(
@@ -65,6 +66,43 @@ namespace GameCult.Eve.UnityScene
 
             return CultMesh.OperationInvocation(command);
         }
+
+        private static EveUnitySceneNode BuildSceneGraph(EveSurfaceComponent component)
+        {
+            var children = new List<EveUnitySceneNode>(component.Children.Count);
+            foreach (var child in component.Children)
+            {
+                children.Add(BuildSceneGraph(child));
+            }
+
+            return new EveUnitySceneNode(
+                component.Id,
+                component.Kind,
+                SceneObjectKind(component.Kind),
+                component.Props,
+                component.Layout,
+                component.Style,
+                component.StateBindings.Count,
+                component.EmbeddedDocuments.Count,
+                children);
+        }
+
+        private static string SceneObjectKind(string componentKind)
+        {
+            if (string.IsNullOrWhiteSpace(componentKind))
+                return "empty";
+            if (componentKind.StartsWith("control.", StringComparison.Ordinal))
+                return "command-control";
+            if (componentKind.StartsWith("embed.", StringComparison.Ordinal))
+                return "plugin-placeholder";
+            if (string.Equals(componentKind, "surface.slot", StringComparison.Ordinal))
+                return "embedded-surface-slot";
+            if (componentKind.StartsWith("world.", StringComparison.Ordinal))
+                return "world-projection-node";
+            if (componentKind.StartsWith("text.", StringComparison.Ordinal) || string.Equals(componentKind, "label", StringComparison.Ordinal))
+                return "scene-label";
+            return "scene-node";
+        }
     }
 
     public sealed class EveUnitySceneProjection
@@ -75,7 +113,8 @@ namespace GameCult.Eve.UnityScene
             string projectionKind,
             string commandBoundary,
             string receiptSchema,
-            string ownership)
+            string ownership,
+            EveUnitySceneNode root)
         {
             ProviderId = providerId ?? "";
             SurfaceId = surfaceId ?? "";
@@ -83,6 +122,7 @@ namespace GameCult.Eve.UnityScene
             CommandBoundary = commandBoundary ?? "";
             ReceiptSchema = receiptSchema ?? "";
             Ownership = ownership ?? "";
+            Root = root ?? throw new ArgumentNullException(nameof(root));
         }
 
         public string ProviderId { get; }
@@ -96,6 +136,51 @@ namespace GameCult.Eve.UnityScene
         public string ReceiptSchema { get; }
 
         public string Ownership { get; }
+
+        public EveUnitySceneNode Root { get; }
+    }
+
+    public sealed class EveUnitySceneNode
+    {
+        public EveUnitySceneNode(
+            string id,
+            string componentKind,
+            string sceneObjectKind,
+            IReadOnlyDictionary<string, string> props,
+            IReadOnlyDictionary<string, string> layout,
+            IReadOnlyDictionary<string, string> style,
+            int stateBindingCount,
+            int embeddedDocumentCount,
+            IReadOnlyList<EveUnitySceneNode> children)
+        {
+            Id = id ?? "";
+            ComponentKind = componentKind ?? "";
+            SceneObjectKind = sceneObjectKind ?? "";
+            Props = props ?? new Dictionary<string, string>(StringComparer.Ordinal);
+            Layout = layout ?? new Dictionary<string, string>(StringComparer.Ordinal);
+            Style = style ?? new Dictionary<string, string>(StringComparer.Ordinal);
+            StateBindingCount = stateBindingCount;
+            EmbeddedDocumentCount = embeddedDocumentCount;
+            Children = children ?? Array.Empty<EveUnitySceneNode>();
+        }
+
+        public string Id { get; }
+
+        public string ComponentKind { get; }
+
+        public string SceneObjectKind { get; }
+
+        public IReadOnlyDictionary<string, string> Props { get; }
+
+        public IReadOnlyDictionary<string, string> Layout { get; }
+
+        public IReadOnlyDictionary<string, string> Style { get; }
+
+        public int StateBindingCount { get; }
+
+        public int EmbeddedDocumentCount { get; }
+
+        public IReadOnlyList<EveUnitySceneNode> Children { get; }
     }
 
     public sealed class EveUnitySceneProviderSurfaceAdvertisement

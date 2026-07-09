@@ -55,6 +55,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature unity-uitoolkit:embeddedDocuments `
   --expect-runtime-feature unity-scene:providerAdvertisements `
   --expect-runtime-feature unity-scene:commandTransport `
+  --expect-runtime-feature unity-scene:sceneGraphProjection `
   --expect-runtime-feature electron-shell:providerAdvertisements `
   --expect-runtime-feature electron-shell:commandTransport `
   --expect-runtime-feature tui:providerAdvertisements `
@@ -67,6 +68,9 @@ node $consumerScript $consumerExport `
   --expect-runtime-world-target unity-uitoolkit:unity-uitoolkit `
   --expect-runtime-world-field unity-uitoolkit:unity-uitoolkit:supportLevel:ui-toolkit-semantic-command-surface `
   --expect-runtime-world-field unity-uitoolkit:unity-uitoolkit:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
+  --expect-runtime-world-target unity-scene:unity-scene `
+  --expect-runtime-world-field unity-scene:unity-scene:supportLevel:unity-scene-graph-command-surface `
+  --expect-runtime-world-field unity-scene:unity-scene:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
   --expect-runtime-plugin-projection unity-uitoolkit:sai.vn:supported:EveUnity `
   --expect-runtime-plugin-projection unity-uitoolkit:norn.graph:supported:EveUnity `
   --expect-runtime-plugin-projection unity-uitoolkit:tex.math:unsupported:EveUnity `
@@ -82,6 +86,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-plugin-gap unity-uitoolkit:tex.math:EveUnity `
   --expect-runtime-plugin-gap unity-scene:sai.vn:EveUnity `
   --expect-runtime-plugin-gap unity-scene:norn.graph:EveUnity `
+  --expect-runtime-plugin-gap unity-scene:tex.math:EveUnity `
   --expect-runtime-plugin-gap electron-shell:sai.vn:EveElectron `
   --expect-runtime-plugin-gap electron-shell:norn.graph:EveElectron `
   --expect-runtime-handoff unity-uitoolkit `

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using GameCult.Eve.Surface;
+using GameCult.Mesh;
 using NUnit.Framework;
 
 #nullable enable
@@ -21,6 +22,24 @@ namespace GameCult.Eve.UnityScene.Tests
             Assert.That(projection.CommandBoundary, Is.EqualTo("aetheria.daemon.commands"));
             Assert.That(projection.ReceiptSchema, Is.EqualTo("aetheria.eve_command_acceptance_status.v1"));
             Assert.That(projection.Ownership, Is.EqualTo("provider-owns-world-state-assets-command-acceptance-and-receipts"));
+            Assert.That(projection.Root.Id, Is.EqualTo("aetheria.daemon.game.root"));
+            Assert.That(projection.Root.SceneObjectKind, Is.EqualTo("scene-node"));
+        }
+
+        [Test]
+        public void LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree()
+        {
+            var lowerer = new EveUnitySceneSurfaceLowerer();
+            var projection = lowerer.Lower(Document("aetheria.daemon.game"), Advertisement("aetheria.daemon.game"));
+
+            Assert.That(projection.Root.Children.Count, Is.EqualTo(3));
+            Assert.That(projection.Root.Children[0].SceneObjectKind, Is.EqualTo("world-projection-node"));
+            Assert.That(projection.Root.Children[0].Props["binding"], Is.EqualTo("cultmesh://aetheria/world/entities"));
+            Assert.That(projection.Root.Children[0].StateBindingCount, Is.EqualTo(1));
+            Assert.That(projection.Root.Children[1].SceneObjectKind, Is.EqualTo("command-control"));
+            Assert.That(projection.Root.Children[1].Props["command"], Is.EqualTo("aetheria.daemon.focus"));
+            Assert.That(projection.Root.Children[2].SceneObjectKind, Is.EqualTo("plugin-placeholder"));
+            Assert.That(projection.Root.Children[2].EmbeddedDocumentCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -60,7 +79,43 @@ namespace GameCult.Eve.UnityScene.Tests
                         $"{surfaceId}.root",
                         "surface",
                         new Dictionary<string, string>(StringComparer.Ordinal),
-                        Array.Empty<EveSurfaceComponent>()),
+                        new[]
+                        {
+                            new EveSurfaceComponent(
+                                $"{surfaceId}.entities",
+                                "world.entities",
+                                new Dictionary<string, string>(StringComparer.Ordinal)
+                                {
+                                    ["binding"] = "cultmesh://aetheria/world/entities"
+                                },
+                                Array.Empty<EveSurfaceComponent>(),
+                                new[]
+                                {
+                                    new CultMeshStateBindingDescriptor("entities", "cultmesh://aetheria/world/entities")
+                                }),
+                            new EveSurfaceComponent(
+                                $"{surfaceId}.focus",
+                                "control.button",
+                                new Dictionary<string, string>(StringComparer.Ordinal)
+                                {
+                                    ["command"] = "aetheria.daemon.focus"
+                                },
+                                Array.Empty<EveSurfaceComponent>()),
+                            new EveSurfaceComponent(
+                                $"{surfaceId}.norn",
+                                "embed.norn",
+                                new Dictionary<string, string>(StringComparer.Ordinal),
+                                Array.Empty<EveSurfaceComponent>(),
+                                Array.Empty<CultMeshStateBindingDescriptor>(),
+                                new[]
+                                {
+                                    new EveEmbeddedDocumentSlot(
+                                        "norn.map",
+                                        "cultmesh://aetheria/norn/map",
+                                        "gamecult.eve.surface.v1",
+                                        "scene-overlay")
+                                })
+                        }),
                     Array.Empty<EveStyleToken>()),
                 Array.Empty<EveCommandTemplate>());
         }

@@ -294,8 +294,8 @@ Recently cut:
   lower provider-owned world state without owning it. Parity compares those
   claims against the ledger, exports them through runtime records and
   `packs/runtime.json`, the runtime-owner smoke asserts them, and the generic
-  conformance smoke now reports the advertised but unclaimed `unity-scene`
-  lowering target as an explicit capability gap.
+  conformance smoke now treats `unity-scene` as a narrow Unity scene graph
+  command-surface claim while capture and release remain split blockers.
 - Missing provider-advertised world-surface lowering targets are now assigned
   to their pending runtime owner when one exists. `unity-scene` gaps point at
   EveUnity's pending `unity-scene` runtime, and `tui` gaps point at EveTui's
@@ -308,14 +308,14 @@ Recently cut:
 - The conformance export also carries `worldSurfaceLoweringCoverage[]`, a full
   provider-surface-to-target ledger that marks each advertised lowering target
   as `claimed`, `missing-claim`, or `missing-runtime`. The generic conformance
-  consumer now asserts Aetheria's claimed web/UI Toolkit targets and missing
-  Unity scene/TUI targets from the same typed surface.
+  consumer now asserts Aetheria's claimed web, UI Toolkit, and Unity scene graph
+  targets plus the missing TUI targets from the same typed surface.
 - The conformance export carries `commandBoundaryCoverage[]`, joining each
   provider-owned interactive world surface target to its runtime owner,
   provider command boundary, receipt schema, and runtime command envelope. Web
-  and Unity UI Toolkit are `covered` because they advertise
-  `gamecult.eve.command.v1`; Unity scene and TUI stay visible as
-  `missing-runtime-claim` until their generic lowerers exist.
+  Unity UI Toolkit, and Unity scene are `covered` because they advertise
+  `gamecult.eve.command.v1`; TUI stays visible as `missing-runtime-claim`
+  until its generic terminal lowerer exists.
 - The browser reference lowerer now carries the active provider surface's
   advertised `worldInteraction.commandBoundary` and
   `worldInteraction.receiptSchema` into each `gamecult.eve.command.v1` intent.
@@ -329,8 +329,10 @@ Recently cut:
 - Unity scene now has a provider-shell contract skeleton under
   `runtimes/incubating/eve-unity-scene`. The skeleton consumes an advertised
   `worldInteraction` boundary, creates `gamecult.eve.command.v1` requests with
-  command boundary and receipt schema fields, and has a runnable smoke without
-  claiming full `unity-scene` world lowering or capture evidence.
+  command boundary and receipt schema fields, builds a provider-agnostic Unity
+  scene graph DTO from the surface tree, and claims only the `unity-scene`
+  graph command-surface target. It still does not own provider simulation,
+  plugin projection adapters, release, or capture evidence.
 - EveElectron now has a provider-shell contract skeleton under
   `runtimes/incubating/eve-electron`. The shell selects advertised provider
   surfaces, emits `gamecult.eve.command.v1` intents with provider command
@@ -346,8 +348,9 @@ Recently cut:
   split handoff move sets to source path status. EveElectron now exposes the
   existing Aetheria `Aetheria.Rts.Web/Electron` and command transport paths as
   `observed-provider` sources that must be replaced by a provider-agnostic
-  shell; Unity scene exposes `replacement-required` move sets because no
-  generic scene body or command transport source exists yet.
+  shell; Unity scene now exposes current incubation paths for its generic scene
+  graph body, world-surface lowering claim, and command transport, while scene
+  capture remains replacement-required.
 - The conformance export schema and consumer smoke now require minimum typed
   item shapes for plugins, providers, runtimes, and split targets. Owner repos
   can rely on exported ids, owners, statuses, split targets, manifest or
@@ -393,22 +396,23 @@ Recently cut:
   `runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json`.
   The active `unity-uitoolkit` runtime remains a semantic UI surface lowerer;
   it is not treated as full scene/world projection. The pending `unity-scene`
-  runtime keeps the missing provider-agnostic scene body, command transport,
-  scene capture, and advertised `unity-scene` lowering proof visible as
-  EveUnity blockers.
+  runtime now names current scene graph and command-transport source paths,
+  while release, capture, non-Aetheria provider proof, and runtime graduation
+  remain EveUnity blockers.
 - Unity scene now has a pending runtime capability manifest at
   `runtimes/incubating/eve-unity-scene/eve-runtime-capability.json` and a
   lifecycle smoke at `scripts/run-eveunity-scene-lifecycle-smoke.ps1`. The
-  manifest does not claim a scene lowerer yet; it types the package release,
-  provider-advertisement scene smoke, command boundary, and scene capture
-  contracts so EveUnity can consume the gap without importing Aetheria product
-  code or pretending UI Toolkit is full world projection.
+  manifest claims a provider-agnostic scene graph command surface for
+  `unity-scene`, types the package release, provider-advertisement scene smoke,
+  command boundary, and scene capture contracts, and keeps plugin projection
+  adapters unsupported until Sai, Norn, or TeX sidecar projection support exists
+  in the Unity scene runtime.
 - Unity scene now has a direct split handoff smoke at
   `scripts/run-eveunity-scene-split-handoff-smoke.ps1`. The smoke verifies the
-  scene runtime owns no current Eve source paths, does not treat Aetheria
-  product paths as generic runtime source, names the required Eve contracts,
-  and keeps the scene body, command transport, lowering claim, and capture as
-  external proofs until EveUnity owns them.
+  scene runtime's current source paths for runtime body, scene graph lowering,
+  and command transport, does not treat Aetheria product paths as generic
+  runtime source, names the required Eve contracts, and keeps capture as an
+  external proof until EveUnity owns it.
 - EveElectron now has a pending split target and handoff at
   `runtimes/incubating/eve-electron/eveelectron-split-handoff.json`. It does
   not claim an Electron runtime body yet. The handoff draws the line between a

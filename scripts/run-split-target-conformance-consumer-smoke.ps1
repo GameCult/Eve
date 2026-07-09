@@ -48,7 +48,8 @@ try {
     --expect-split-target-blocker-record EveUnity:runtime-plugin-projection:unity-scene:sai.vn `
     --expect-split-target-blocker-record "EveUnity:pending-proof:Unity scene runtime body graduates to EveUnity outside Aetheria product code." `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnitySceneSurfaceLowerer.cs `
-    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:replacement-required:no-source-paths:none `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-world-surface-lowering:current:exists:EveUnitySceneSurfaceLowerer.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target-blocker "EveUnity:Unity batchmode EditMode runner" `
     --expect-split-target-blocker "EveUnity:Unity batchmode or editor capture artifact" `

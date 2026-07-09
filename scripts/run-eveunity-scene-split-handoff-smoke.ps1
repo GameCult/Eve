@@ -65,14 +65,14 @@ foreach ($id in $expectedMoveSets.Keys) {
   }
   $currentPaths = if ($null -eq $moveSet.currentPaths) { @() } else { @($moveSet.currentPaths) }
   $observedProviderPaths = if ($null -eq $moveSet.observedProviderPaths) { @() } else { @($moveSet.observedProviderPaths) }
-  if ($id -eq "unity-scene-runtime-body") {
+  if ($id -in @("unity-scene-runtime-body", "unity-scene-world-surface-lowering", "unity-scene-command-transport")) {
     if ($currentPaths.Count -eq 0) {
-      throw "EveUnity scene split handoff runtime body must name the provider-shell skeleton paths"
+      throw "EveUnity scene split handoff move set $id must name current Eve incubation paths"
     }
     foreach ($relativePath in $currentPaths) {
       $absolutePath = Join-Path $projectRoot $relativePath
       if (-not (Test-Path -LiteralPath $absolutePath)) {
-        throw "EveUnity scene split handoff runtime body path missing: $relativePath"
+        throw "EveUnity scene split handoff move set $id path missing: $relativePath"
       }
     }
   } elseif ($currentPaths.Count -ne 0) {

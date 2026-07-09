@@ -330,7 +330,7 @@
       "graduationTrigger": "Move this advertisement-shaped VN fixture to Sai when sai-vn-plugin owns VN/Ink semantics and conformance packs.",
       "schemaPath": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
       "advertisementPath": "web/fixtures/sai-vn.provider-advertisement.json",
-      "requiredFixtures": ["sai-vn"],
+      "requiredFixtures": [],
       "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "sai.vn.story_session.v1"],
       "expectedSurfaces": ["sai.visual_novel.surface"],
       "expectedCommands": ["story.continue", "story.choose", "story.jump", "style.patch"]
@@ -426,7 +426,7 @@
           "stateAuthority": "proposes-plugin-state-only-provider-accepts"
         }
       },
-      "requiredFixtures": ["sai-vn"],
+      "requiredFixtures": [],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
       "manifestPath": "plugins/incubating/norn-graph.plugin.json",
       "abiFixturePath": "plugins/incubating/norn-graph.plugin-abi-fixture.json",
@@ -465,7 +465,7 @@
           "stateAuthority": "emits-render-results-only-provider-owns-source-state"
         }
       },
-      "requiredFixtures": ["sai-vn"],
+      "requiredFixtures": [],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
       "manifestPath": "plugins/incubating/tex-math.plugin.json",
       "abiFixturePath": "plugins/incubating/tex-math.plugin-abi-fixture.json",
@@ -595,7 +595,7 @@
           ]
         },
         {
-          "description": "Unity scene provider-shell skeleton exists without claiming full world-surface lowering.",
+          "description": "Unity scene graph projection lowerer exists without claiming provider simulation, plugin projection, or capture ownership.",
           "status": "passed",
           "evidencePaths": [
             "runtimes/incubating/eve-unity-scene/package.json",
@@ -610,7 +610,7 @@
         "Unity batchmode EditMode runner is owned by EveUnity rather than Eve incubation.",
         "Unity batchmode or editor capture artifact is attached to the runtime conformance report.",
         "Unity scene runtime body graduates to EveUnity outside Aetheria product code.",
-        "Unity scene claims provider-advertised unity-scene world-surface lowering with real scene capture evidence."
+        "Unity scene screenshot or frame-capture artifact is attached to the runtime conformance report."
       ]
     },
     {
@@ -833,20 +833,34 @@
       "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
       "requiredFixtures": ["aetheria-world"],
       "pluginFixtures": [],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "sceneGraphProjection"],
       "supportedPlugins": [],
       "unsupportedPlugins": [
         {
           "pluginId": "sai.vn",
-          "reason": "Unity scene has no generic runtime body yet; Sai projection must enter through provider/plugin advertisements once scene lowering exists."
+          "reason": "Unity scene graph projection exists, but no Sai VN scene projection adapter or sidecar bridge exists in this runtime."
         },
         {
           "pluginId": "norn.graph",
-          "reason": "Unity scene has no generic runtime body yet; Norn graph projection needs explicit scene-space or UI overlay semantics once scene lowering exists."
+          "reason": "Unity scene graph projection exists, but no Norn graph scene-space or UI overlay adapter exists in this runtime."
         },
         {
           "pluginId": "tex.math",
-          "reason": "Unity scene has no generic runtime body yet; TeX projection needs explicit scene-space or UI overlay semantics once scene lowering exists."
+          "reason": "Unity scene graph projection exists, but no TeX scene-space or UI overlay adapter exists in this runtime."
+        }
+      ],
+      "worldSurfaceLowering": [
+        {
+          "targetId": "unity-scene",
+          "surfaceKinds": ["interactive-world"],
+          "projectionKinds": ["provider-authored-world-surface"],
+          "supportLevel": "unity-scene-graph-command-surface",
+          "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
+          "evidencePaths": [
+            "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+            "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
+            "web/fixtures/aetheria.provider-advertisement.json"
+          ]
         }
       ],
       "expectedPaths": [
@@ -863,16 +877,16 @@
       "expectedSourceSymbols": [
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
-          "contains": ["EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "unity-scene"]
+          "contains": ["EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "EveUnitySceneNode", "SceneObjectKind", "unity-scene"]
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
-          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "plugin-placeholder", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
         }
       ],
       "capture": {
         "status": "missing",
-        "note": "Unity scene capture is a split blocker until EveUnity owns a provider-agnostic scene lowerer."
+        "note": "Unity scene capture is a split blocker until EveUnity attaches provider-agnostic scene frame artifacts."
       }
     },
     {

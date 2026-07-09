@@ -24,12 +24,37 @@ if ($manifest.lifecycle.test.status -ne "provider-shell-contract-skeleton") {
   throw "Unexpected EveUnity scene provider shell status: $($manifest.lifecycle.test.status)"
 }
 
-$worldSurfaceLoweringClaims = if ($null -eq $manifest.worldSurfaceLowering) { @() } else { @($manifest.worldSurfaceLowering) }
-if ($worldSurfaceLoweringClaims.Count -ne 0) {
-  throw "EveUnity scene must not claim provider world-surface lowering until real scene projection and capture evidence exist"
+$worldSurfaceLoweringClaims = @()
+if ($null -ne $manifest.worldSurfaceLowering) {
+  $worldSurfaceLoweringClaims = @($manifest.worldSurfaceLowering)
+}
+if ($worldSurfaceLoweringClaims.Count -ne 1) {
+  throw "EveUnity scene must claim exactly one provider world-surface lowering target"
+}
+$worldSurfaceLoweringClaim = $worldSurfaceLoweringClaims | Where-Object { $_.targetId -eq "unity-scene" } | Select-Object -First 1
+if (-not $worldSurfaceLoweringClaim) {
+  throw "EveUnity scene missing unity-scene world-surface lowering claim"
+}
+if (-not (@($worldSurfaceLoweringClaim.surfaceKinds) -contains "interactive-world")) {
+  throw "EveUnity scene world-surface claim must support interactive-world surfaces"
+}
+if (-not (@($worldSurfaceLoweringClaim.projectionKinds) -contains "provider-authored-world-surface")) {
+  throw "EveUnity scene world-surface claim must support provider-authored-world-surface projections"
+}
+if ($worldSurfaceLoweringClaim.supportLevel -ne "unity-scene-graph-command-surface") {
+  throw "Unexpected EveUnity scene support level: $($worldSurfaceLoweringClaim.supportLevel)"
+}
+if ($worldSurfaceLoweringClaim.ownership -ne "runtime-lowers-provider-world-surface-without-owning-world-state") {
+  throw "Unexpected EveUnity scene ownership: $($worldSurfaceLoweringClaim.ownership)"
+}
+foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
+  $absoluteEvidencePath = Join-Path $projectRoot $evidencePath
+  if (-not (Test-Path -LiteralPath $absoluteEvidencePath)) {
+    throw "EveUnity scene world-surface claim missing evidence path: $evidencePath"
+  }
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "sceneGraphProjection")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveUnity scene provider shell missing supported feature: $feature"
   }
@@ -51,14 +76,14 @@ foreach ($relativePath in $expectedFiles) {
 }
 
 $lowererSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneSurfaceLowerer.cs") -Raw
-foreach ($symbol in @("EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "unity-scene")) {
+foreach ($symbol in @("EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "EveUnitySceneNode", "SceneObjectKind", "unity-scene")) {
   if (-not $lowererSource.Contains($symbol)) {
     throw "EveUnity scene provider shell lowerer missing symbol: $symbol"
   }
 }
 
 $testSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Tests\Editor\EveUnitySceneSurfaceLowererTests.cs") -Raw
-foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
+foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "plugin-placeholder", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
   if (-not $testSource.Contains($symbol)) {
     throw "EveUnity scene provider shell tests missing symbol: $symbol"
   }

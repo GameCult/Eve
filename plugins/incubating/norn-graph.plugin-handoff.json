@@ -26,7 +26,7 @@
         "web/fixtures/sai-vn-surface.json",
         "web/fixtures/sai-vn-surface.conformance.json"
       ],
-      "replacementProof": "Norn owns embed.norn layout, interaction, fallback, and ABI conformance cases."
+      "replacementProof": "Norn owns embed.norn layout, interaction, fallback, and ABI conformance cases; the Sai fixture is only optional nested placement evidence."
     }
   ],
   "contractInputs": [
@@ -38,7 +38,7 @@
   ],
   "forbiddenImports": [
     "Aetheria provider state",
-    "Sai story session internals",
+    "Sai story session internals or VN command authority",
     "renderer-native projection internals",
     "provider command acceptance or receipt authority"
   ],

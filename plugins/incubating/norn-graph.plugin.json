@@ -53,7 +53,9 @@
     {
       "fixtureId": "sai-vn",
       "schema": "gamecult.eve.surface.v1",
-      "path": "web/fixtures/sai-vn-surface.json"
+      "path": "web/fixtures/sai-vn-surface.json",
+      "role": "optional-nested-placement-evidence",
+      "authority": "Norn semantics remain plugin-owned; the Sai fixture only proves a surface can nest embed.norn when norn.graph is available."
     }
   ],
   "abiFixtures": [

@@ -39,17 +39,36 @@ if ($manifest.incubation.splitHandoff.manifestPath -ne "runtimes/incubating/eve-
   throw "EveUnity scene manifest missing split handoff path"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "sceneGraphProjection")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveUnity scene manifest missing provider-shell feature: $feature"
   }
 }
 if (@($manifest.supportedPlugins).Count -ne 0) {
-  throw "EveUnity scene must not claim plugin projection before the generic scene lowerer exists"
+  throw "EveUnity scene must not claim plugin projection before runtime adapters or sidecar bridges exist"
 }
-$worldSurfaceLoweringClaims = if ($null -eq $manifest.worldSurfaceLowering) { @() } else { @($manifest.worldSurfaceLowering) }
-if ($worldSurfaceLoweringClaims.Count -ne 0) {
-  throw "EveUnity scene must not claim world-surface lowering before real scene projection evidence exists"
+$worldSurfaceLoweringClaims = @()
+if ($null -ne $manifest.worldSurfaceLowering) {
+  $worldSurfaceLoweringClaims = @($manifest.worldSurfaceLowering)
+}
+if ($worldSurfaceLoweringClaims.Count -ne 1) {
+  throw "EveUnity scene must claim exactly one world-surface lowering target"
+}
+$worldSurfaceLoweringClaim = $worldSurfaceLoweringClaims | Where-Object { $_.targetId -eq "unity-scene" } | Select-Object -First 1
+if (-not $worldSurfaceLoweringClaim) {
+  throw "EveUnity scene manifest missing unity-scene world-surface lowering claim"
+}
+if ($worldSurfaceLoweringClaim.supportLevel -ne "unity-scene-graph-command-surface") {
+  throw "Unexpected EveUnity scene world-surface support level: $($worldSurfaceLoweringClaim.supportLevel)"
+}
+if ($worldSurfaceLoweringClaim.ownership -ne "runtime-lowers-provider-world-surface-without-owning-world-state") {
+  throw "Unexpected EveUnity scene world-surface ownership: $($worldSurfaceLoweringClaim.ownership)"
+}
+foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
+  $absoluteEvidencePath = Join-Path $projectRoot $evidencePath
+  if (-not (Test-Path -LiteralPath $absoluteEvidencePath)) {
+    throw "EveUnity scene world-surface claim missing evidence path: $evidencePath"
+  }
 }
 
 foreach ($pluginId in @("sai.vn", "norn.graph", "tex.math")) {

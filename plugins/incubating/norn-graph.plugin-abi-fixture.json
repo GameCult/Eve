@@ -5,6 +5,8 @@
   "ownerRepo": "Norn",
   "contract": "gamecult.eve.plugin_abi.v1",
   "sourceFixture": "sai-vn",
+  "sourceFixtureRole": "optional-nested-placement-evidence",
+  "authority": "Norn owns graph semantics independently; the Sai fixture only proves a provider surface can nest embed.norn when norn.graph is available.",
   "operations": [
     {
       "operation": "describe",
