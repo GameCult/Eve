@@ -280,6 +280,13 @@ Exit criteria:
 
 Recently cut:
 
+- EveFlutter now has a provider-catalog picker primitive. `EveProviderCatalog`
+  parses conformance-export provider entries, including Sai/Norn/TeX plugin
+  requirements, and `EveProviderPicker` selects those provider ids without
+  reading web fixture paths. The Flutter smoke test proves provider selection
+  from an export-shaped provider list, so the split-readiness report records the
+  provider-picker proof as passed while leaving release/capture lifecycle
+  ownership as the remaining EveFlutter blocker.
 - EveFlutter now has a conformance consumer smoke at
   `scripts/run-eveflutter-conformance-consumer-smoke.ps1`. It runs from
   `flutter/eve_parity`, consumes the exported conformance pack, and asserts the

@@ -122,6 +122,49 @@ void main() {
     expect(intents.single.clientId, 'flutter-parity');
     expect(intents.single.payload['action']['operation'], 'focus_entity');
   });
+
+  testWidgets('provider picker consumes conformance export providers', (
+    tester,
+  ) async {
+    final catalog = EveProviderCatalog.fromConformanceExport(
+      _providerCatalogExport,
+    );
+    var selected = 'aetheria';
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StatefulBuilder(
+          builder: (context, setState) {
+            return EveProviderPicker(
+              catalog: catalog,
+              selectedProviderId: selected,
+              onSelected: (providerId) {
+                setState(() => selected = providerId);
+              },
+            );
+          },
+        ),
+      ),
+    );
+
+    expect(catalog.providers, hasLength(2));
+    expect(catalog.findProvider('gamecult.home.vn')?.ownerRepo, 'Sai');
+    expect(
+      catalog
+          .findProvider('gamecult.home.vn')
+          ?.pluginRequirements
+          .map((requirement) => requirement.pluginId),
+      containsAll(['sai.vn', 'norn.graph', 'tex.math']),
+    );
+    expect(find.text('aetheria'), findsOneWidget);
+
+    await tester.tap(find.byType(DropdownButton<String>));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('gamecult.home.vn').last);
+    await tester.pumpAndSettle();
+
+    expect(selected, 'gamecult.home.vn');
+  });
 }
 
 const fixtureId = String.fromEnvironment(
@@ -142,3 +185,48 @@ class _Viewport {
   final double width;
   final double height;
 }
+
+const _providerCatalogExport = {
+  'schema': 'gamecult.eve.conformance_export.v1',
+  'providers': [
+    {
+      'providerId': 'aetheria',
+      'status': 'advertised',
+      'ownerRepo': 'Aetheria',
+      'advertisementPath': 'web/fixtures/aetheria.provider-advertisement.json',
+      'surfaces': ['aetheria.daemon.game'],
+      'commands': ['aetheria.daemon.commands'],
+      'pluginRequirements': [],
+    },
+    {
+      'providerId': 'gamecult.home.vn',
+      'status': 'advertised',
+      'ownerRepo': 'Sai',
+      'advertisementPath': 'web/fixtures/sai-vn.provider-advertisement.json',
+      'surfaces': ['sai.visual_novel.surface'],
+      'commands': ['story.choose', 'story.continue', 'story.jump'],
+      'pluginRequirements': [
+        {
+          'surfaceId': 'sai.visual_novel.surface',
+          'pluginId': 'sai.vn',
+          'requiredCapabilities': [
+            'vn.stage',
+            'story.choose',
+            'story.continue',
+            'story.jump',
+          ],
+        },
+        {
+          'surfaceId': 'sai.visual_novel.surface',
+          'pluginId': 'norn.graph',
+          'requiredCapabilities': ['embed.norn'],
+        },
+        {
+          'surfaceId': 'sai.visual_novel.surface',
+          'pluginId': 'tex.math',
+          'requiredCapabilities': ['embed.tex'],
+        },
+      ],
+    },
+  ],
+};

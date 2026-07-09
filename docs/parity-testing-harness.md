@@ -120,6 +120,11 @@ That script runs the export consumer from `flutter/eve_parity` and asserts the
 runtime pack, Sai provider fixture, Flutter runtime targets, and `EveFlutter`
 split target without reading `tools/parity/parity-manifest.json`.
 
+The Flutter widget smoke also exercises `EveProviderCatalog` and
+`EveProviderPicker` against a conformance-export-shaped provider list. That is
+the runtime-side provider picker proof; it consumes provider entries and plugin
+requirements without reading web fixture paths.
+
 Aetheria Unity package consumer smoke:
 
 ```powershell

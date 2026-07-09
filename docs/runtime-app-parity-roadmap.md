@@ -155,6 +155,9 @@ First cuts:
 - Scaffold a generic Eve Flutter app with the same provider picker as web.
 - Load the same local provider advertisements and local fixture surfaces during
   development.
+- Consume conformance-export provider entries through `EveProviderCatalog` and
+  select them through `EveProviderPicker`; this is the split-ready provider
+  picker input shape, distinct from web-local fallback fixture discovery.
 - Lower `surface.root` recursively into Flutter widgets/custom painters.
 - Lower CultUI partitions, `fieldRow`, labels, cards, buttons, metrics, and
   slider anatomy from `control.box`, `control.part`, and `control.hitArea`.

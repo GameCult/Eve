@@ -122,6 +122,126 @@ class EveSurfaceState {
   }
 }
 
+class EveProviderCatalog {
+  const EveProviderCatalog({required this.providers});
+
+  final List<EveProviderEntry> providers;
+
+  factory EveProviderCatalog.fromConformanceExport(Map<String, dynamic> json) {
+    final providers = ((json['providers'] as List<dynamic>?) ?? const [])
+        .map((provider) {
+          return EveProviderEntry.fromJson(provider as Map<String, dynamic>);
+        })
+        .toList(growable: false);
+    return EveProviderCatalog(providers: providers);
+  }
+
+  EveProviderEntry? findProvider(String providerId) {
+    for (final provider in providers) {
+      if (provider.providerId == providerId) return provider;
+    }
+    return null;
+  }
+}
+
+class EveProviderEntry {
+  const EveProviderEntry({
+    required this.providerId,
+    required this.status,
+    required this.ownerRepo,
+    required this.advertisementPath,
+    required this.surfaces,
+    required this.commands,
+    required this.pluginRequirements,
+  });
+
+  final String providerId;
+  final String status;
+  final String ownerRepo;
+  final String advertisementPath;
+  final List<String> surfaces;
+  final List<String> commands;
+  final List<EvePluginRequirement> pluginRequirements;
+
+  factory EveProviderEntry.fromJson(Map<String, dynamic> json) {
+    return EveProviderEntry(
+      providerId: (json['providerId'] ?? '').toString(),
+      status: (json['status'] ?? '').toString(),
+      ownerRepo: (json['ownerRepo'] ?? '').toString(),
+      advertisementPath: (json['advertisementPath'] ?? '').toString(),
+      surfaces: _stringList(json['surfaces']),
+      commands: _stringList(json['commands']),
+      pluginRequirements:
+          ((json['pluginRequirements'] as List<dynamic>?) ?? const [])
+              .map(
+                (requirement) => EvePluginRequirement.fromJson(
+                  requirement as Map<String, dynamic>,
+                ),
+              )
+              .toList(growable: false),
+    );
+  }
+}
+
+class EvePluginRequirement {
+  const EvePluginRequirement({
+    required this.surfaceId,
+    required this.pluginId,
+    required this.requiredCapabilities,
+  });
+
+  final String surfaceId;
+  final String pluginId;
+  final List<String> requiredCapabilities;
+
+  factory EvePluginRequirement.fromJson(Map<String, dynamic> json) {
+    return EvePluginRequirement(
+      surfaceId: (json['surfaceId'] ?? '').toString(),
+      pluginId: (json['pluginId'] ?? '').toString(),
+      requiredCapabilities: _stringList(json['requiredCapabilities']),
+    );
+  }
+}
+
+List<String> _stringList(Object? value) {
+  return ((value as List<dynamic>?) ?? const [])
+      .map((item) => item.toString())
+      .toList(growable: false);
+}
+
+class EveProviderPicker extends StatelessWidget {
+  const EveProviderPicker({
+    required this.catalog,
+    required this.selectedProviderId,
+    required this.onSelected,
+    super.key,
+  });
+
+  final EveProviderCatalog catalog;
+  final String selectedProviderId;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<String>(
+      value: catalog.findProvider(selectedProviderId) == null
+          ? null
+          : selectedProviderId,
+      hint: const Text('Select provider'),
+      items: [
+        for (final provider in catalog.providers)
+          DropdownMenuItem<String>(
+            value: provider.providerId,
+            child: Text(provider.providerId),
+          ),
+      ],
+      onChanged: (value) {
+        if (value != null) onSelected(value);
+      },
+    );
+  }
+}
+
 class EveNode {
   EveNode({
     required this.id,

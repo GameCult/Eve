@@ -442,6 +442,15 @@
       ],
       "proofs": [
         {
+          "description": "Provider picker consumes provider advertisements without Eve source-layout knowledge.",
+          "status": "passed",
+          "evidencePaths": [
+            "flutter/eve_parity/lib/main.dart",
+            "flutter/eve_parity/test/parity_smoke_test.dart",
+            "tools/parity/run-parity.mjs"
+          ]
+        },
+        {
           "description": "Conformance pack can be consumed without depending on Eve's local harness layout.",
           "status": "passed",
           "evidencePaths": [
@@ -452,7 +461,6 @@
         }
       ],
       "pendingProofs": [
-        "Provider picker consumes provider advertisements without Eve source-layout knowledge.",
         "Flutter build, release, and capture lifecycle can run from EveFlutter."
       ]
     },
@@ -617,7 +625,7 @@
       "expectedSourceSymbols": [
         {
           "path": "flutter/eve_parity/lib/main.dart",
-          "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot"]
+          "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot", "EveProviderCatalog", "EveProviderPicker"]
         }
       ],
       "commandTransportSmoke": {
@@ -668,7 +676,7 @@
       "expectedSourceSymbols": [
         {
           "path": "flutter/eve_parity/lib/main.dart",
-          "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot"]
+          "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot", "EveProviderCatalog", "EveProviderPicker"]
         }
       ],
       "commandTransportSmoke": {
@@ -756,7 +764,7 @@
       "expectedSourceSymbols": [
         {
           "path": "flutter/eve_parity/lib/main.dart",
-          "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot"]
+          "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot", "EveProviderCatalog", "EveProviderPicker"]
         }
       ],
       "commandTransportSmoke": {
