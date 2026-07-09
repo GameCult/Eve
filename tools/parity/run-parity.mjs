@@ -28,11 +28,15 @@ const pluginResults = await Promise.all((manifest.pluginManifests || []).map(plu
 const providerResults = await Promise.all((manifest.providerAdvertisements || []).map(provider => evaluateProvider(provider, fixtureResults, pluginResults)));
 const runtimeResults = await Promise.all(manifest.runtimes.map(runtime => evaluateRuntime(runtime, fixtureResults)));
 const splitTargetResults = evaluateSplitTargets(manifest.splitTargets || [], runtimeResults);
+const conformanceHandoffErrors = await validateConformanceHandoff(manifest.repoStrategy?.conformanceHandoffPath || "");
 const report = {
   schema: "gamecult.eve.parity_report.v1",
   generatedAt: new Date().toISOString(),
   manifest: path.relative(repoRoot, manifestPath).replaceAll("\\", "/"),
-  repoStrategy: manifest.repoStrategy || {},
+  repoStrategy: {
+    ...(manifest.repoStrategy || {}),
+    conformanceHandoffErrors,
+  },
   conformancePacks: manifest.conformancePacks || [],
   responsiveCases: manifest.responsiveCases || [],
   summary: summarize(fixtureResults, runtimeResults, pluginResults, providerResults, splitTargetResults),
@@ -60,7 +64,9 @@ console.log(`Parity report: ${path.relative(repoRoot, path.join(runDirectory, "p
 console.log(`Conformance export: ${path.relative(repoRoot, path.join(conformanceOutputRoot, "latest", "index.md"))}`);
 for (const error of conformanceExportErrors) console.error(`Conformance export error: ${error}`);
 if (report.summary.failedFixtures > 0) process.exitCode = 1;
+if (report.summary.failedPlugins > 0) process.exitCode = 1;
 if (report.summary.failedProviders > 0) process.exitCode = 1;
+if (conformanceHandoffErrors.length > 0) process.exitCode = 1;
 if (conformanceExportErrors.length > 0) process.exitCode = 1;
 
 async function evaluateFixture(fixture) {
@@ -452,6 +458,19 @@ async function validateRuntimeSplitHandoff(runtime, splitHandoffPath) {
   );
 }
 
+async function validateConformanceHandoff(handoffPath) {
+  if (!handoffPath) return ["handoffPath:missing"];
+  return validateJsonDocument(
+    manifest.schemas?.["gamecult.eve.conformance_handoff.v1"],
+    handoffPath,
+    {
+      schema: "gamecult.eve.conformance_handoff.v1",
+      splitTarget: "EveConformance",
+      ownerRepo: "EveConformance",
+    },
+  );
+}
+
 function normalizePath(candidate) {
   return candidate.replaceAll("\\", "/").replace(/^\.\//, "");
 }
@@ -482,6 +501,7 @@ async function evaluatePlugin(plugin, fixtureResults) {
   const abiOperations = await readPluginAbiOperations(plugin.abiFixturePath);
   const abiOperationContracts = await readPluginAbiOperationContracts(plugin.abiFixturePath);
   const abiErrors = await validatePluginAbiFixture(plugin);
+  const handoffErrors = await validatePluginHandoff(plugin);
   const status = missingPaths.length
     ? "missing-body"
     : missingRequiredFixtures.length
@@ -496,9 +516,11 @@ async function evaluatePlugin(plugin, fixtureResults) {
               ? "invalid-plugin-runtime-boundary"
               : abiErrors.length
               ? "invalid-plugin-abi-fixture"
-              : plugin.kind === "incubating"
-                ? "incubating"
-                : "external-owner-planned";
+              : handoffErrors.length
+                ? "invalid-plugin-handoff"
+                : plugin.kind === "incubating"
+                  ? "incubating"
+                  : "external-owner-planned";
 
   return {
     pluginId: plugin.pluginId,
@@ -518,6 +540,7 @@ async function evaluatePlugin(plugin, fixtureResults) {
     manifestPath: plugin.manifestPath || "",
     abiFixturePath: plugin.abiFixturePath || "",
     handoffPath: plugin.handoffPath || "",
+    handoffErrors,
     abiOperations,
     abiOperationContracts,
     advertisementSchemaPath: plugin.advertisementSchemaPath || "",
@@ -530,6 +553,19 @@ async function evaluatePlugin(plugin, fixtureResults) {
     missingIncubationFields,
     status,
   };
+}
+
+async function validatePluginHandoff(plugin) {
+  if (!plugin.handoffPath) return [];
+  return validateJsonDocument(
+    manifest.schemas?.["gamecult.eve.plugin_handoff.v1"],
+    plugin.handoffPath,
+    {
+      schema: "gamecult.eve.plugin_handoff.v1",
+      pluginId: plugin.pluginId,
+      ownerRepo: plugin.ownerRepo,
+    },
+  );
 }
 
 async function readPluginAbiOperations(abiFixturePath) {
@@ -703,6 +739,7 @@ async function evaluateProvider(provider, fixtureResults, pluginResults) {
   const missingCommands = (provider.expectedCommands || []).filter(command => !commandIds.includes(command));
   const scenarioErrors = await validateProviderScenario(provider, advertisement, fixtureResults, advertisedSchemaIds, surfaceIds, commandIds);
   const scenario = scenarioErrors.length || !provider.scenarioPath ? null : await readJsonDocument(provider.scenarioPath);
+  const handoffErrors = await validateProviderHandoff(provider);
   const status = missingPaths.length
     ? "missing-body"
     : missingRequiredFixtures.length
@@ -715,7 +752,9 @@ async function evaluateProvider(provider, fixtureResults, pluginResults) {
             ? "capability-gap"
             : scenarioErrors.length
               ? "invalid-provider-scenario"
-              : "advertised";
+              : handoffErrors.length
+                ? "invalid-provider-handoff"
+                : "advertised";
 
   return {
     providerId: provider.providerId,
@@ -730,6 +769,7 @@ async function evaluateProvider(provider, fixtureResults, pluginResults) {
     advertisementPath: provider.advertisementPath || "",
     scenarioPath: provider.scenarioPath || "",
     handoffPath: provider.handoffPath || "",
+    handoffErrors,
     advertisementErrors,
     scenarioErrors,
     expectedPaths,
@@ -756,6 +796,19 @@ async function evaluateProvider(provider, fixtureResults, pluginResults) {
     scenarioReceiptStates: scenario ? [...new Set((scenario.expectedReceipts || []).map(receipt => receipt.state).filter(Boolean))].sort() : [],
     status,
   };
+}
+
+async function validateProviderHandoff(provider) {
+  if (!provider.handoffPath) return [];
+  return validateJsonDocument(
+    manifest.schemas?.["gamecult.eve.provider_handoff.v1"],
+    provider.handoffPath,
+    {
+      schema: "gamecult.eve.provider_handoff.v1",
+      providerId: provider.providerId,
+      ownerRepo: provider.ownerRepo,
+    },
+  );
 }
 
 function collectProviderPluginRequirements(advertisement) {
@@ -1687,6 +1740,7 @@ function summarize(fixtures, runtimes, plugins, providers, splitTargets) {
     failedFixtures: fixtures.filter(fixture => fixture.status !== "pass").length,
     totalPlugins: plugins.length,
     healthyPlugins: plugins.filter(plugin => plugin.status === "incubating" || plugin.status === "external-owner-planned").length,
+    failedPlugins: plugins.filter(plugin => plugin.status !== "incubating" && plugin.status !== "external-owner-planned").length,
     totalProviders: providers.length,
     advertisedProviders: providers.filter(provider => provider.status === "advertised").length,
     failedProviders: providers.filter(provider => provider.status !== "advertised").length,
@@ -1784,6 +1838,7 @@ function buildConformanceExport(report) {
       manifestPath: plugin.manifestPath,
       advertisementPath: plugin.advertisementPath,
       handoffPath: plugin.handoffPath,
+      handoffErrors: plugin.handoffErrors || [],
       handoffExportPath: makeHandoffExportPath("plugin", plugin.pluginId, plugin.handoffPath),
       abiFixturePath: plugin.abiFixturePath,
       abiOperations: plugin.abiOperations || [],
@@ -1799,6 +1854,7 @@ function buildConformanceExport(report) {
       advertisementPath: provider.advertisementPath,
       scenarioPath: provider.scenarioPath,
       handoffPath: provider.handoffPath,
+      handoffErrors: provider.handoffErrors || [],
       handoffExportPath: makeHandoffExportPath("provider", provider.providerId, provider.handoffPath),
       scenarioId: provider.scenarioId,
       receiptStates: provider.scenarioReceiptStates || [],
@@ -1938,6 +1994,7 @@ function collectCapabilityGaps(report) {
       ...(plugin.advertisementErrors || []).map(id => `advertisement:${id}`),
       ...(plugin.runtimeBoundaryErrors || []).map(id => `runtime-boundary:${id}`),
       ...(plugin.abiErrors || []).map(id => `abi:${id}`),
+      ...(plugin.handoffErrors || []).map(id => `handoff:${id}`),
     ]) {
       addGap({
         kind: "plugin",
@@ -1961,6 +2018,7 @@ function collectCapabilityGaps(report) {
       ...(provider.missingSurfaceKinds || []).map(id => `surface-kind:${id}`),
       ...(provider.missingCommands || []).map(id => `command:${id}`),
       ...(provider.pluginRequirementErrors || []).map(id => `plugin:${id}`),
+      ...(provider.handoffErrors || []).map(id => `handoff:${id}`),
     ]) {
       addGap({
         kind: "provider",
@@ -2035,6 +2093,16 @@ function collectCapabilityGaps(report) {
         severity: "blocker",
       });
     }
+  }
+
+  for (const error of report.repoStrategy?.conformanceHandoffErrors || []) {
+    addGap({
+      kind: "conformance",
+      ownerRepo: "EveConformance",
+      subjectId: "EveConformance",
+      gap: `handoff:${error}`,
+      severity: "blocker",
+    });
   }
 
   return gaps;

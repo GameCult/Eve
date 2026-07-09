@@ -220,6 +220,10 @@ Runtime split handoff documents themselves use
 `gamecult.eve.runtime_split_handoff.v1`; the parity runner validates the
 handoff document shape and exports any `splitHandoffErrors` on the runtime
 record.
+Plugin, provider, and EveConformance handoff documents are also schema-backed:
+`gamecult.eve.plugin_handoff.v1`, `gamecult.eve.provider_handoff.v1`, and
+`gamecult.eve.conformance_handoff.v1` are exported through the schema catalog.
+Owner consumer smokes assert those schemas before trusting handoff paths.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into

@@ -34,6 +34,7 @@ node $consumerScript $consumerExport `
   --expect-pack plugin `
   --expect-schema gamecult.eve.plugin.v1 `
   --expect-schema gamecult.eve.plugin_advertisement.v1 `
+  --expect-schema gamecult.eve.plugin_handoff.v1 `
   --expect-schema gamecult.eve.plugin_abi_fixture.v1 `
   --expect-schema gamecult.eve.plugin_abi.request.v1 `
   --expect-schema gamecult.eve.plugin_abi.response.v1 `

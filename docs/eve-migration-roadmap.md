@@ -423,6 +423,13 @@ Recently cut:
   so runtime owner repos can consume split target, move set, contract input,
   forbidden import, and external proof shape without trusting only ad hoc smoke
   script checks.
+- Plugin, provider, and conformance handoff documents are now schema-backed as
+  `gamecult.eve.plugin_handoff.v1`, `gamecult.eve.provider_handoff.v1`, and
+  `gamecult.eve.conformance_handoff.v1`. The parity runner validates the
+  documents, exports the schema catalog entries, and owner-consumer smokes now
+  demand those contracts explicitly, so Sai, Norn, EvePlugins, Aetheria, and
+  EveConformance can consume handoff shape without depending on Eve's local
+  smoke script folklore.
 - EveElectron now has a pending split target and handoff at
   `runtimes/incubating/eve-electron/eveelectron-split-handoff.json`. It does
   claim a provider-agnostic Electron shell surface-tree projection and command

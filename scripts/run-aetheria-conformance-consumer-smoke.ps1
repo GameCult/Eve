@@ -38,6 +38,7 @@ Push-Location $AetheriaRoot
 try {
   node $consumerScript $consumerExport `
     --expect-pack provider `
+    --expect-schema gamecult.eve.provider_handoff.v1 `
     --expect-fixture aetheria-world `
     --expect-provider aetheria `
     --expect-scenario aetheria-world-command-replay `

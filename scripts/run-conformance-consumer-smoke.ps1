@@ -33,6 +33,7 @@ try {
   node .\tools\conformance\consume-export.mjs $consumerExport `
     --expect-capability-matrix `
     --expect-schema gamecult.eve.conformance_export.v1 `
+    --expect-schema gamecult.eve.conformance_handoff.v1 `
     --expect-schema gamecult.eve.capability_matrix.v1 `
     --expect-schema gamecult.eve.command_receipt.v1 `
     --expect-schema gamecult.eve.plugin_receipt.v1 `
@@ -41,6 +42,8 @@ try {
     --expect-schema gamecult.eve.runtime_release_request.v1 `
     --expect-schema gamecult.eve.runtime_capture_request.v1 `
     --expect-schema gamecult.eve.runtime_split_handoff.v1 `
+    --expect-schema gamecult.eve.plugin_handoff.v1 `
+    --expect-schema gamecult.eve.provider_handoff.v1 `
     --expect-capability-gap runtime:Fensalir:direct2d:capture:missing `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:web-reference:claimed:Eve:web `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `

@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.plugin_handoff.v1",
+  "title": "Eve Plugin Handoff",
+  "type": "object",
+  "required": [
+    "schema",
+    "pluginId",
+    "ownerRepo",
+    "currentHostRepo",
+    "splitTarget",
+    "manifestPath",
+    "advertisementPath",
+    "abiFixturePath",
+    "authorityBoundary",
+    "moveSets",
+    "contractInputs",
+    "forbiddenImports",
+    "requiredExternalProofs"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.plugin_handoff.v1"
+    },
+    "pluginId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerRepo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "currentHostRepo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "splitTarget": {
+      "type": "string",
+      "minLength": 1
+    },
+    "manifestPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "advertisementPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "abiFixturePath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authorityBoundary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "moveSets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "destinationOwner",
+          "currentPaths",
+          "replacementProof"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "destinationOwner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "currentPaths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "replacementProof": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "contractInputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "forbiddenImports": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "requiredExternalProofs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "additionalProperties": true
+}
