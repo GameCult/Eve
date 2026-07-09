@@ -106,9 +106,21 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-aetheria-conformance-cons
 
 That script runs the same export consumer from `E:\Projects\Aetheria` and
 asserts the provider pack, `aetheria-world` fixture, `aetheria` provider entry,
-and `aetheria-world-command-replay` scenario. Generated copies remain under
-Eve's `artifacts/aetheria-conformance-consumer-smoke` so the provider worktree
-does not become dirty merely by proving the boundary.
+`aetheria-world-command-replay` scenario, and provider handoff path. Generated
+copies remain under Eve's `artifacts/aetheria-conformance-consumer-smoke` so
+the provider worktree does not become dirty merely by proving the boundary.
+
+Aetheria provider handoff smoke:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-aetheria-provider-handoff-smoke.ps1
+```
+
+That script validates `web/fixtures/aetheria-provider-handoff.json` against the
+provider advertisement and scenario. The handoff names the advertisement,
+interactive world surface fixture, provider scenario, Eve contracts, forbidden
+imports, and external proofs that must become Aetheria-owned before the
+provider pack leaves Eve incubation.
 
 EveFlutter consumer smoke:
 

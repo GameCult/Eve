@@ -344,11 +344,16 @@
       "schemaPath": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
       "advertisementPath": "web/fixtures/aetheria.provider-advertisement.json",
       "scenarioPath": "web/fixtures/aetheria-world-scenario.json",
+      "handoffPath": "web/fixtures/aetheria-provider-handoff.json",
       "requiredFixtures": ["aetheria-world"],
       "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "aetheria.runtime.daemon.frame.v1"],
       "expectedSurfaces": ["aetheria.daemon.game", "aetheria.daemon.editor"],
       "expectedCommands": ["aetheria.daemon.commands"],
-      "expectedPaths": ["web/fixtures/aetheria-world-scenario.json"]
+      "expectedPaths": [
+        "web/fixtures/aetheria-world-scenario.json",
+        "web/fixtures/aetheria-provider-handoff.json",
+        "scripts/run-aetheria-provider-handoff-smoke.ps1"
+      ]
     }
   ],
   "pluginManifests": [

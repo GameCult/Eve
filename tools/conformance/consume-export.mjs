@@ -21,6 +21,7 @@ if (!exportDirectory) {
     "  --expect-provider-surface <providerId:surfaceId>",
     "  --expect-provider-command <providerId:command>",
     "  --expect-provider-receipt-state <providerId:state>",
+    "  --expect-provider-handoff <providerId>",
     "  --expect-runtime-status <runtimeId:status>",
     "  --expect-runtime-feature <runtimeId:feature>",
     "  --expect-runtime-command-schema <runtimeId:schema>",
@@ -162,6 +163,16 @@ function validateIndex(index, directory, expectations, errors) {
       errors.push(`providers:${expectation.providerId}:receiptState:${expectation.state}:missing`);
     }
   }
+  for (const expectedProvider of expectations.providerHandoffs) {
+    const provider = providers.find(candidate => candidate.providerId === expectedProvider);
+    if (!provider) {
+      errors.push(`providers:${expectedProvider}:missing`);
+      continue;
+    }
+    if (!provider.handoffPath) {
+      errors.push(`providers:${expectedProvider}:handoffPath:missing`);
+    }
+  }
   for (const expectedRuntime of expectations.runtimes) {
     if (!runtimes.some(runtime => runtime.runtimeId === expectedRuntime)) errors.push(`runtimes:${expectedRuntime}:missing`);
   }
@@ -277,6 +288,7 @@ function parseArguments(args) {
     providerSurfaces: [],
     providerCommands: [],
     providerReceiptStates: [],
+    providerHandoffs: [],
     runtimes: [],
     runtimeStatuses: [],
     runtimeFeatures: [],
@@ -301,6 +313,7 @@ function parseArguments(args) {
     ["--expect-provider-surface", expectations.providerSurfaces],
     ["--expect-provider-command", expectations.providerCommands],
     ["--expect-provider-receipt-state", expectations.providerReceiptStates],
+    ["--expect-provider-handoff", expectations.providerHandoffs],
     ["--expect-runtime-status", expectations.runtimeStatuses],
     ["--expect-runtime-feature", expectations.runtimeFeatures],
     ["--expect-runtime-command-schema", expectations.runtimeCommandSchemas],
@@ -332,6 +345,8 @@ function parseArguments(args) {
       target.push(parseProviderExpectation(value, "command"));
     } else if (option === "--expect-provider-receipt-state") {
       target.push(parseProviderExpectation(value, "state"));
+    } else if (option === "--expect-provider-handoff") {
+      target.push(value);
     } else if (option === "--expect-runtime-status") {
       target.push(parseRuntimeExpectation(value, "status"));
     } else if (option === "--expect-runtime-feature") {

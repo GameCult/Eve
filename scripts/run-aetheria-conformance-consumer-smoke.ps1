@@ -45,7 +45,8 @@ try {
     --expect-provider-surface aetheria:aetheria.daemon.editor `
     --expect-provider-command aetheria:aetheria.daemon.commands `
     --expect-provider-receipt-state aetheria:accepted `
-    --expect-provider-receipt-state aetheria:reconciled
+    --expect-provider-receipt-state aetheria:reconciled `
+    --expect-provider-handoff aetheria
   if ($LASTEXITCODE -ne 0) {
     throw "Aetheria conformance consumer smoke failed with exit code $LASTEXITCODE"
   }
