@@ -32,6 +32,11 @@ $consumerScript = Join-Path $projectRoot "tools\conformance\consume-export.mjs"
 
 node $consumerScript $consumerExport `
   --expect-pack plugin `
+  --expect-schema gamecult.eve.plugin.v1 `
+  --expect-schema gamecult.eve.plugin_advertisement.v1 `
+  --expect-schema gamecult.eve.plugin_abi_fixture.v1 `
+  --expect-schema gamecult.eve.plugin_abi.request.v1 `
+  --expect-schema gamecult.eve.plugin_abi.response.v1 `
   --expect-fixture sai-vn `
   --expect-plugin sai.vn `
   --expect-plugin norn.graph `

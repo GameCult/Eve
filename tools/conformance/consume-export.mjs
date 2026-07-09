@@ -17,6 +17,7 @@ if (!exportDirectory) {
     "  --expect-scenario <id>",
     "  --expect-split-target <id>",
     "  --expect-capability-matrix",
+    "  --expect-schema <schemaId>",
     "  --expect-capability-gap <substring>",
     "  --expect-runtime-plugin-projection <runtimeId:pluginId:status:ownerRepo>",
     "  --expect-provider-runtime-plugin-projection <providerId:surfaceId:runtimeId:pluginId:status:runtimeOwnerRepo>",
@@ -85,6 +86,7 @@ function validateIndex(index, directory, expectations, errors) {
   const packIds = new Set(packs.map(pack => pack.id));
   const fixtureIds = new Set();
   const exportedRuntimeTargets = [];
+  validateSchemaCatalog(index.schemaCatalog, directory, expectations.schemas, errors);
   for (const requiredPack of ["core", "plugin", "provider", "runtime"]) {
     if (!packIds.has(requiredPack)) errors.push(`pack:${requiredPack}:missing`);
   }
@@ -990,6 +992,32 @@ function validateSplitTargetRecords(splitTargets, errors) {
   }
 }
 
+function validateSchemaCatalog(schemaCatalog, directory, expectedSchemas, errors) {
+  if (!Array.isArray(schemaCatalog)) {
+    errors.push("schemaCatalog:missing");
+    return;
+  }
+  for (const [index, schema] of schemaCatalog.entries()) {
+    const label = `schemaCatalog:${index}`;
+    for (const field of ["schemaId", "path", "exportPath"]) {
+      if (!schema?.[field]) errors.push(`${label}:${field}:missing`);
+    }
+    if (schema?.exportPath && !existsSync(path.join(directory, schema.exportPath))) {
+      errors.push(`${label}:exportPath:${schema.exportPath}:missing`);
+    }
+  }
+  for (const schemaId of expectedSchemas) {
+    const schema = schemaCatalog.find(candidate => candidate.schemaId === schemaId);
+    if (!schema) {
+      errors.push(`schemaCatalog:${schemaId}:missing`);
+      continue;
+    }
+    if (!schema.exportPath || !existsSync(path.join(directory, schema.exportPath))) {
+      errors.push(`schemaCatalog:${schemaId}:exportPath:missing`);
+    }
+  }
+}
+
 function capabilityGapText(gap) {
   return [
     gap.kind,
@@ -1005,6 +1033,7 @@ function parseArguments(args) {
   const exportPath = args[0] ? path.resolve(args[0]) : "";
   const expectations = {
     packs: [],
+    schemas: [],
     fixtures: [],
     plugins: [],
     pluginOperations: [],
@@ -1055,6 +1084,7 @@ function parseArguments(args) {
   };
   const optionTargets = new Map([
     ["--expect-pack", expectations.packs],
+    ["--expect-schema", expectations.schemas],
     ["--expect-fixture", expectations.fixtures],
     ["--expect-plugin", expectations.plugins],
     ["--expect-provider", expectations.providers],

@@ -825,6 +825,11 @@ Recently cut:
   TeX ABI fixtures must name those same schemas, and parity fails if a sidecar
   advertises a request/response schema that is missing from the contract
   catalog.
+- Conformance export now carries a root `schemaCatalog` and copies schema
+  documents under `schemas/` in the export. Plugin owners can assert
+  `gamecult.eve.plugin_abi.request.v1` and
+  `gamecult.eve.plugin_abi.response.v1` from the exported pack instead of
+  reading Eve's parity manifest to discover contract paths.
 - Split-readiness reporting now exists for `EveFlutter` and `EveUnity`. The
   parity report lists member runtime health, required plugin capability claims,
   pending proofs, and blockers before either repo can graduate out of Eve

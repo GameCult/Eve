@@ -11,6 +11,7 @@
     "plugins",
     "providers",
     "runtimes",
+    "schemaCatalog",
     "pluginAbiOperationCoverage",
     "providerPluginRequirementCoverage",
     "runtimePluginProjectionCoverage",
@@ -97,6 +98,32 @@
             "minLength": 1
           },
           "severity": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "schemaCatalog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "schemaId",
+          "path",
+          "exportPath"
+        ],
+        "properties": {
+          "schemaId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "exportPath": {
             "type": "string",
             "minLength": 1
           }

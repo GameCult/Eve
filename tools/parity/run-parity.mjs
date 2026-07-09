@@ -1728,6 +1728,7 @@ function buildConformanceExport(report) {
     sourceManifest: report.manifest,
     boundaryRule: report.repoStrategy.boundaryRule || "",
     incubationPolicy: report.repoStrategy.incubationPolicy || "",
+    schemaCatalog: buildSchemaCatalog(),
     conformanceHandoffPath: report.repoStrategy.conformanceHandoffPath || "",
     conformanceHandoffExportPath: makeHandoffExportPath("conformance", "EveConformance", report.repoStrategy.conformanceHandoffPath || ""),
     packs,
@@ -1796,6 +1797,16 @@ function buildConformanceExport(report) {
     })),
     splitTargets: report.splitTargets || [],
   };
+}
+
+function buildSchemaCatalog() {
+  return Object.entries(manifest.schemas || {})
+    .map(([schemaId, schemaPath]) => ({
+      schemaId,
+      path: schemaPath,
+      exportPath: `schemas/${path.basename(schemaPath)}`,
+    }))
+    .sort((left, right) => left.schemaId.localeCompare(right.schemaId));
 }
 
 function buildCapabilityMatrix(report) {
@@ -2422,10 +2433,19 @@ function buildWorldSurfaceLoweringTargetIndex(report) {
 async function writeConformanceExport(conformanceExport, directory) {
   await mkdir(path.join(directory, "packs"), { recursive: true });
   await mkdir(path.join(directory, "handoffs"), { recursive: true });
+  await mkdir(path.join(directory, "schemas"), { recursive: true });
   await writeFile(path.join(directory, "index.json"), `${JSON.stringify(conformanceExport, null, 2)}\n`);
   await writeFile(path.join(directory, "index.md"), renderConformanceExportMarkdown(conformanceExport));
   for (const pack of conformanceExport.packs) {
     await writeFile(path.join(directory, "packs", `${pack.id}.json`), `${JSON.stringify(pack, null, 2)}\n`);
+  }
+  for (const schema of conformanceExport.schemaCatalog || []) {
+    if (!schema.path || !schema.exportPath) continue;
+    const sourcePath = path.join(repoRoot, schema.path);
+    if (!existsSync(sourcePath)) continue;
+    const destinationPath = path.join(directory, schema.exportPath);
+    await mkdir(path.dirname(destinationPath), { recursive: true });
+    await writeFile(destinationPath, await readFile(sourcePath, "utf8"));
   }
   for (const handoff of collectConformanceHandoffs(conformanceExport)) {
     if (!handoff.sourcePath || !handoff.exportPath) continue;
