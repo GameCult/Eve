@@ -1588,6 +1588,7 @@ function buildConformanceExport(report) {
     conformanceHandoffExportPath: makeHandoffExportPath("conformance", "EveConformance", report.repoStrategy.conformanceHandoffPath || ""),
     packs,
     capabilityMatrix: buildCapabilityMatrix(report),
+    worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
     capabilityGaps: collectCapabilityGaps(report),
     plugins: (report.plugins || []).map(plugin => ({
       pluginId: plugin.pluginId,
@@ -1815,33 +1816,15 @@ function collectCapabilityGaps(report) {
     }
   }
 
-  const worldLoweringTargets = new Set();
-  const runtimeByWorldTarget = new Map();
-  for (const runtime of report.runtimes || []) {
-    if (runtime.id) runtimeByWorldTarget.set(runtime.id, runtime);
-    for (const claim of runtime.worldSurfaceLowering || []) {
-      if (claim.targetId) worldLoweringTargets.add(claim.targetId);
-      if (claim.targetId) runtimeByWorldTarget.set(claim.targetId, runtime);
-    }
-  }
-  for (const provider of report.providers || []) {
-    for (const surface of provider.surfaceContracts || []) {
-      for (const targetId of surface.worldInteraction?.loweringTargets || []) {
-        if (!worldLoweringTargets.has(targetId)) {
-          const targetRuntime = runtimeByWorldTarget.get(targetId);
-          addGap({
-            kind: "runtime",
-            ownerRepo: targetRuntime?.ownerRepo || "Eve",
-            subjectId: targetRuntime?.id || "world-surface-lowering",
-            gap: `provider:${provider.providerId}:surface:${surface.surfaceId}:world-lowering-target:${targetId}:missing-runtime`,
-            severity: "blocker",
-            detail: targetRuntime
-              ? `splitTarget:${targetRuntime.splitTarget || ""}:status:${targetRuntime.status || ""}`
-              : "no-runtime-target-declared",
-          });
-        }
-      }
-    }
+  for (const gap of collectWorldSurfaceLoweringGaps(report)) {
+    addGap({
+      kind: "runtime",
+      ownerRepo: gap.ownerRepo,
+      subjectId: gap.runtimeId,
+      gap: `provider:${gap.providerId}:surface:${gap.surfaceId}:world-lowering-target:${gap.targetId}:missing-runtime`,
+      severity: gap.severity,
+      detail: gap.detail,
+    });
   }
 
   for (const target of report.splitTargets || []) {
@@ -1856,6 +1839,46 @@ function collectCapabilityGaps(report) {
     }
   }
 
+  return gaps;
+}
+
+function collectWorldSurfaceLoweringGaps(report) {
+  const claimedTargets = new Set();
+  const runtimeByWorldTarget = new Map();
+  for (const runtime of report.runtimes || []) {
+    if (runtime.id) runtimeByWorldTarget.set(runtime.id, runtime);
+    for (const claim of runtime.worldSurfaceLowering || []) {
+      if (!claim.targetId) continue;
+      claimedTargets.add(claim.targetId);
+      runtimeByWorldTarget.set(claim.targetId, runtime);
+    }
+  }
+
+  const gaps = [];
+  for (const provider of report.providers || []) {
+    for (const surface of provider.surfaceContracts || []) {
+      for (const targetId of surface.worldInteraction?.loweringTargets || []) {
+        if (claimedTargets.has(targetId)) continue;
+        const targetRuntime = runtimeByWorldTarget.get(targetId);
+        gaps.push({
+          providerId: provider.providerId,
+          providerOwnerRepo: provider.ownerRepo || "",
+          surfaceId: surface.surfaceId,
+          surfaceKind: surface.surfaceKind || "",
+          projectionKind: surface.worldInteraction?.projectionKind || "",
+          targetId,
+          ownerRepo: targetRuntime?.ownerRepo || "Eve",
+          runtimeId: targetRuntime?.id || "world-surface-lowering",
+          splitTarget: targetRuntime?.splitTarget || "",
+          runtimeStatus: targetRuntime?.status || "",
+          severity: "blocker",
+          detail: targetRuntime
+            ? `splitTarget:${targetRuntime.splitTarget || ""}:status:${targetRuntime.status || ""}`
+            : "no-runtime-target-declared",
+        });
+      }
+    }
+  }
   return gaps;
 }
 

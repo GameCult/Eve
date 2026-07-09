@@ -18,6 +18,7 @@ if (!exportDirectory) {
     "  --expect-split-target <id>",
     "  --expect-capability-matrix",
     "  --expect-capability-gap <substring>",
+    "  --expect-world-lowering-gap <providerId:surfaceId:targetId:ownerRepo:runtimeId>",
     "  --expect-conformance-handoff",
     "  --expect-plugin-operation <pluginId:operation>",
     "  --expect-plugin-capability <pluginId:capability>",
@@ -120,6 +121,7 @@ function validateIndex(index, directory, expectations, errors) {
   const runtimes = mergeRuntimeRecords(Array.isArray(index.runtimes) ? index.runtimes : [], exportedRuntimeTargets);
   const splitTargets = Array.isArray(index.splitTargets) ? index.splitTargets : [];
   const capabilityGaps = Array.isArray(index.capabilityGaps) ? index.capabilityGaps : [];
+  const worldSurfaceLoweringGaps = Array.isArray(index.worldSurfaceLoweringGaps) ? index.worldSurfaceLoweringGaps : [];
 
   if (expectations.conformanceHandoff && !index.conformanceHandoffPath) {
     errors.push("conformanceHandoffPath:missing");
@@ -131,9 +133,26 @@ function validateIndex(index, directory, expectations, errors) {
     validateCapabilityMatrix(index.capabilityMatrix, packs, plugins, providers, runtimes, splitTargets, errors);
   }
   validateCapabilityGaps(index.capabilityGaps, errors);
+  validateWorldSurfaceLoweringGaps(index.worldSurfaceLoweringGaps, errors);
   for (const expectedGap of expectations.capabilityGaps) {
     if (!capabilityGaps.some(gap => capabilityGapText(gap).includes(expectedGap))) {
       errors.push(`capabilityGaps:${expectedGap}:missing`);
+    }
+  }
+  for (const expectation of expectations.worldLoweringGaps) {
+    const gap = worldSurfaceLoweringGaps.find(candidate =>
+      candidate.providerId === expectation.providerId &&
+      candidate.surfaceId === expectation.surfaceId &&
+      candidate.targetId === expectation.targetId);
+    if (!gap) {
+      errors.push(`worldSurfaceLoweringGaps:${expectation.providerId}:${expectation.surfaceId}:${expectation.targetId}:missing`);
+      continue;
+    }
+    if (gap.ownerRepo !== expectation.ownerRepo) {
+      errors.push(`worldSurfaceLoweringGaps:${expectation.providerId}:${expectation.surfaceId}:${expectation.targetId}:ownerRepo:expected ${expectation.ownerRepo} got ${gap.ownerRepo || ""}`);
+    }
+    if (gap.runtimeId !== expectation.runtimeId) {
+      errors.push(`worldSurfaceLoweringGaps:${expectation.providerId}:${expectation.surfaceId}:${expectation.targetId}:runtimeId:expected ${expectation.runtimeId} got ${gap.runtimeId || ""}`);
     }
   }
 
@@ -535,6 +554,18 @@ function validateCapabilityGaps(gaps, errors) {
   }
 }
 
+function validateWorldSurfaceLoweringGaps(gaps, errors) {
+  if (!Array.isArray(gaps)) {
+    errors.push("worldSurfaceLoweringGaps:missing");
+    return;
+  }
+  for (const [index, gap] of gaps.entries()) {
+    for (const field of ["providerId", "surfaceId", "targetId", "ownerRepo", "runtimeId", "severity"]) {
+      if (!gap?.[field]) errors.push(`worldSurfaceLoweringGaps:${index}:${field}:missing`);
+    }
+  }
+}
+
 function capabilityGapText(gap) {
   return [
     gap.kind,
@@ -584,6 +615,7 @@ function parseArguments(args) {
     splitTargetProofs: [],
     capabilityMatrix: false,
     capabilityGaps: [],
+    worldLoweringGaps: [],
     conformanceHandoff: false,
   };
   const optionTargets = new Map([
@@ -621,6 +653,7 @@ function parseArguments(args) {
     ["--expect-split-target-blocker", expectations.splitTargetBlockers],
     ["--expect-split-target-proof", expectations.splitTargetProofs],
     ["--expect-capability-gap", expectations.capabilityGaps],
+    ["--expect-world-lowering-gap", expectations.worldLoweringGaps],
   ]);
 
   for (let index = 1; index < args.length; index += 1) {
@@ -695,6 +728,8 @@ function parseArguments(args) {
       target.push(parseSplitTargetExpectation(value, "blocker"));
     } else if (option === "--expect-split-target-proof") {
       target.push(parseSplitTargetExpectation(value, "proof"));
+    } else if (option === "--expect-world-lowering-gap") {
+      target.push(parseWorldLoweringGapExpectation(value));
     } else {
       target.push(value);
     }
@@ -702,6 +737,21 @@ function parseArguments(args) {
   }
 
   return { exportDirectory: exportPath, expectations };
+}
+
+function parseWorldLoweringGapExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 5 || parts.some(part => !part)) {
+    console.error(`Expected world lowering gap in <providerId:surfaceId:targetId:ownerRepo:runtimeId> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    providerId: parts[0],
+    surfaceId: parts[1],
+    targetId: parts[2],
+    ownerRepo: parts[3],
+    runtimeId: parts[4],
+  };
 }
 
 function parsePluginExpectation(value, field) {

@@ -95,6 +95,65 @@
         "additionalProperties": true
       }
     },
+    "worldSurfaceLoweringGaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "providerId",
+          "surfaceId",
+          "targetId",
+          "ownerRepo",
+          "runtimeId",
+          "severity"
+        ],
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "providerOwnerRepo": {
+            "type": "string"
+          },
+          "surfaceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceKind": {
+            "type": "string"
+          },
+          "projectionKind": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "splitTarget": {
+            "type": "string"
+          },
+          "runtimeStatus": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "detail": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "plugins": {
       "type": "array"
     },

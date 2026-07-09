@@ -104,6 +104,10 @@ When a provider advertises a world-surface lowering target that no runtime
 claims, the gap is assigned to the matching pending runtime owner when one
 exists, such as `unity-scene` -> EveUnity or `tui` -> EveTui. Eve only owns the
 gap when no runtime target has been declared at all.
+The same facts are also exported as `worldSurfaceLoweringGaps[]` so runtime
+owners can consume provider id, surface id, target id, owner repo, runtime id,
+split target, and runtime status as typed fields instead of parsing the generic
+gap text.
 
 The conformance export includes runtime `capabilityManifestPath` and
 `capabilityManifestErrors` fields so external consumers can distinguish a

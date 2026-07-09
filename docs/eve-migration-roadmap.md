@@ -295,6 +295,10 @@ Recently cut:
   EveUnity's pending `unity-scene` runtime, and `tui` gaps point at EveTui's
   pending `tui` runtime. Eve only owns a world-lowering gap when no runtime
   target has been declared.
+- The conformance export now carries `worldSurfaceLoweringGaps[]` as typed
+  data in addition to the generic `capabilityGaps[]` ledger. Runtime owners can
+  consume provider id, surface id, target id, owner repo, runtime id, split
+  target, and runtime status without scraping prose or gap strings.
 - EveUnity now has a pending Unity scene handoff at
   `runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json`.
   The active `unity-uitoolkit` runtime remains a semantic UI surface lowerer;

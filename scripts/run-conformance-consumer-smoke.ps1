@@ -35,6 +35,9 @@ try {
     --expect-capability-gap runtime:Fensalir:direct2d:capture:missing `
     --expect-capability-gap "runtime:EveUnity:unity-scene:provider:aetheria:surface:aetheria.daemon.game:world-lowering-target:unity-scene:missing-runtime" `
     --expect-capability-gap "runtime:EveTui:tui:provider:aetheria:surface:aetheria.daemon.game:world-lowering-target:tui:missing-runtime" `
+    --expect-world-lowering-gap aetheria:aetheria.daemon.game:unity-scene:EveUnity:unity-scene `
+    --expect-world-lowering-gap aetheria:aetheria.daemon.game:tui:EveTui:tui `
+    --expect-world-lowering-gap aetheria:aetheria.daemon.editor:tui:EveTui:tui `
     --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release" `
     --expect-conformance-handoff
   if ($LASTEXITCODE -ne 0) {
