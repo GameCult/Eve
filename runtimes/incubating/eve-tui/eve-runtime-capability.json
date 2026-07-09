@@ -18,23 +18,41 @@
     "commandTransport",
     "terminalGridSummary",
     "terminalGridLowering",
-    "embeddedDocuments"
+    "embeddedDocuments",
+    "pluginProjection"
   ],
-  "supportedPlugins": [],
-  "unsupportedPlugins": [
+  "supportedPlugins": [
     {
       "pluginId": "sai.vn",
-      "reason": "TUI provider-shell skeleton exists, but no terminal adapter exists for Sai sidecar-advertised VN projection in this runtime."
+      "capabilities": [
+        "vn.stage",
+        "story.choose",
+        "story.continue",
+        "story.jump"
+      ],
+      "projectionAdapter": "EveTuiShell.buildPluginProjection",
+      "lossiness": "terminal-summary"
     },
     {
       "pluginId": "norn.graph",
-      "reason": "TUI provider-shell skeleton exists, but no terminal fallback exists for Norn sidecar-advertised graph projection in this runtime."
+      "capabilities": [
+        "embed.norn"
+      ],
+      "projectionAdapter": "EveTuiShell.buildPluginProjection",
+      "lossiness": "terminal-outline"
     },
     {
       "pluginId": "tex.math",
-      "reason": "TUI provider-shell skeleton exists, but no terminal fallback exists for TeX sidecar-advertised math projection in this runtime."
+      "capabilities": [
+        "embed.tex",
+        "tex.inline",
+        "tex.block"
+      ],
+      "projectionAdapter": "EveTuiShell.buildPluginProjection",
+      "lossiness": "source-text"
     }
   ],
+  "unsupportedPlugins": [],
   "worldSurfaceLowering": [
     {
       "targetId": "tui",
@@ -46,6 +64,7 @@
       "evidencePaths": [
         "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
         "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
+        "web/fixtures/sai-vn-surface.json",
         "web/fixtures/aetheria.provider-advertisement.json"
       ]
     }

@@ -393,8 +393,8 @@ Recently cut:
   `runtimePluginProjectionCoverage[]` records. Runtime-owner smokes assert
   Unity UI Toolkit support for `sai.vn`, `norn.graph`, and `tex.math`, Unity
   scene support for the same three plugin capabilities, and Electron shell
-  support for the same sidecar plugin projection shells without importing
-  plugin semantics.
+  and TUI support for the same sidecar plugin projection shells without
+  importing plugin semantics.
 - Provider/runtime/plugin projection coverage is now exported as
   `providerRuntimePluginProjectionCoverage[]`. The runtime-owner smoke proves
   the Sai VN provider surface lowers fully in web, lowers in Unity UI Toolkit
@@ -404,7 +404,7 @@ Recently cut:
   projection.
 - Runtime/plugin projection gaps are now exported as
   `runtimePluginProjectionGaps[]`. The runtime-owner smoke asserts remaining
-  device-edge and TUI plugin gaps as typed records, so missing Sai, Norn, or TeX
+  device-edge plugin gaps as typed records, so missing Sai, Norn, or TeX
   projection support is owned by the runtime split target and does not imply
   those plugin semantics should move into Eve core or Aetheria product code.
 - Split target blockers are now exported as `splitTargetBlockers[]` and as
@@ -501,23 +501,25 @@ Recently cut:
 - EveTui now has a pending split target and handoff at
   `runtimes/incubating/eve-tui/evetui-split-handoff.json`. It claims the
   advertised `tui` world-surface lowering target as a lossy terminal-grid
-  command surface. The handoff draws the line between the provider-agnostic
-  terminal/grid lowerer and provider-owned TUI surfaces, and the split-target
-  consumer smoke keeps runtime graduation and transcript/cell-grid capture
-  visible as blockers.
+  command surface and carries compact Sai, Norn, and TeX sidecar plugin
+  fallback shells. The handoff draws the line between the provider-agnostic
+  terminal/grid lowerer, plugin-owned semantics, and provider-owned TUI
+  surfaces, while the split-target consumer smoke keeps runtime graduation and
+  transcript/cell-grid capture ownership visible as blockers.
 - EveTui now has a direct split handoff smoke at
   `scripts/run-evetui-split-handoff-smoke.ps1`, a pending runtime capability
   manifest at `runtimes/incubating/eve-tui/eve-runtime-capability.json`, and a
   lifecycle smoke at `scripts/run-evetui-lifecycle-smoke.ps1`. The manifest
   declares provider advertisement consumption, command transport, terminal-grid
-  summary, terminal-grid lowering, and the `tui` world/editor lowering claim;
-  it now carries an executable terminal capture request contract through
+  summary, terminal-grid lowering, sidecar plugin fallback projection, and the
+  `tui` world/editor lowering claim; it now carries an executable terminal
+  capture request contract through
   `tools/evetui/evetui-capture-contract.mjs` and
   `scripts/run-evetui-capture-contract-smoke.ps1`, plus a deterministic
   `gamecult.eve.tui_grid.v1` JSON capture artifact through
   `tools/evetui/evetui-capture-artifact.mjs` and
-  `scripts/run-evetui-capture-smoke.ps1`. Plugin projection, terminal package
-  release, and owner-repo production of the capture path remain pending.
+  `scripts/run-evetui-capture-smoke.ps1`. Terminal package release and
+  owner-repo production of the capture path remain pending.
 - EveTui release lifecycle now carries a structured pending release request
   contract. The runtime capability manifest reads version truth from
   `runtimes/incubating/eve-tui/package.json`, names the
@@ -866,11 +868,11 @@ Recently cut:
 - The parity harness now emits an `EveConformance`-shaped export under
   `artifacts/conformance/latest`, with a top-level index and per-pack JSON
   files for core, plugin, provider, and runtime consumers.
-- Unity and Electron plugin projection capability gaps are now explicitly
-  demoted. UI Toolkit, Unity scene, and Electron runtimes own generic projection
-  and command requests, while Sai, Norn, and TeX semantics remain sidecar-plugin
-  responsibilities. Runtimes only add projection shells for capabilities a
-  plugin advertises through Eve.
+- Unity, Electron, and TUI plugin projection capability gaps are now explicitly
+  demoted. UI Toolkit, Unity scene, Electron, and compact TUI runtimes own
+  generic projection and command requests, while Sai, Norn, and TeX semantics
+  remain sidecar-plugin responsibilities. Runtimes only add projection shells or
+  lossy terminal fallbacks for capabilities a plugin advertises through Eve.
 - Flutter and Unity now have runtime command-transport smoke evidence in the
   parity report. Flutter emits `gamecult.eve.command.v1` intents from lowered
   controls, and Unity command requests now carry the same command schema.

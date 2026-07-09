@@ -42,6 +42,7 @@ $expectedMoveSets = @{
   "tui-runtime-body" = "runtime-body"
   "tui-world-surface-lowering" = "world-surface-lowering"
   "tui-command-transport" = "command"
+  "tui-plugin-projection" = "plugin-projection"
   "tui-capture-lifecycle" = "capture"
 }
 $moveSets = @($handoff.moveSets)
@@ -61,7 +62,7 @@ foreach ($id in $expectedMoveSets.Keys) {
   }
   $currentPaths = if ($null -eq $moveSet.currentPaths) { @() } else { @($moveSet.currentPaths) }
   $observedProviderPaths = if ($null -eq $moveSet.observedProviderPaths) { @() } else { @($moveSet.observedProviderPaths) }
-  if ($id -in @("tui-runtime-body", "tui-world-surface-lowering", "tui-command-transport", "tui-capture-lifecycle")) {
+  if ($id -in @("tui-runtime-body", "tui-world-surface-lowering", "tui-command-transport", "tui-plugin-projection", "tui-capture-lifecycle")) {
     if ($currentPaths.Count -eq 0) {
       throw "EveTui split handoff move set $id must name provider-shell skeleton paths"
     }
@@ -94,11 +95,24 @@ foreach ($forbiddenImport in @(
   "provider internals as TUI runtime authority",
   "renderer-local product state as provider truth",
   "terminal-only command routes that bypass gamecult.eve.command.v1",
-  "plugin semantic internals",
+  "Sai story state, VN/Ink semantics, or story command interpretation as TUI runtime authority",
+  "Norn graph layout, graph state, or command semantics as TUI runtime authority",
+  "TeX parsing, typesetting, baseline metrics, or render-cache semantics as TUI runtime authority",
   "lossy text summaries pretending to be provider state"
 )) {
   if (-not (@($handoff.forbiddenImports) -contains $forbiddenImport)) {
     throw "EveTui split handoff missing forbidden import: $forbiddenImport"
+  }
+}
+
+$pluginMoveSet = $moveSets | Where-Object { $_.id -eq "tui-plugin-projection" } | Select-Object -First 1
+foreach ($relativePath in @(
+  "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
+  "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
+  "web/fixtures/sai-vn-surface.json"
+)) {
+  if (-not (@($pluginMoveSet.currentPaths) -contains $relativePath)) {
+    throw "EveTui plugin projection move set missing current path: $relativePath"
   }
 }
 

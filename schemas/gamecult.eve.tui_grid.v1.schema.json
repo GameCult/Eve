@@ -81,6 +81,57 @@
         "additionalProperties": true
       }
     },
+    "pluginProjections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "ownerId",
+          "pluginId",
+          "projectionKind",
+          "semanticOwner",
+          "fallbackKind"
+        ],
+        "properties": {
+          "ownerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pluginId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "projectionKind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "abiSchema": {
+            "type": "string"
+          },
+          "commandBoundary": {
+            "type": "string"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "documentId": {
+            "type": "string"
+          },
+          "semanticOwner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fallbackKind": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "lossiness": {
       "type": "string",
       "minLength": 1

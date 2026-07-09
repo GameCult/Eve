@@ -80,6 +80,7 @@ try {
     --expect-split-handoff-move EveTui:tui:tui-runtime-body:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-world-surface-lowering:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-command-transport:current:exists:eve-tui-shell.mjs `
+    --expect-split-handoff-move EveTui:tui:tui-plugin-projection:current:exists:sai-vn-surface.json `
     --expect-split-handoff-move EveTui:tui:tui-capture-lifecycle:current:exists:evetui-capture-contract.mjs `
     --expect-split-target-blocker "EveTui:TUI runtime body graduates to EveTui outside provider product code"
   if ($LASTEXITCODE -ne 0) {

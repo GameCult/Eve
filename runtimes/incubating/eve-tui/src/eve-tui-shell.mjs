@@ -82,6 +82,7 @@ export class EveTuiShell {
       width: this.width,
       lines,
       embeddedDocumentSlots: collectEmbeddedDocumentSlots(document.root),
+      pluginProjections: collectPluginProjections(document.root),
       lossiness: "terminal-grid-command-surface; summarizes provider-authored world surface without owning provider state",
     };
   }
@@ -154,7 +155,11 @@ function buildComponentLines(component, width, depth = 0) {
   const props = objectValue(source.props);
   const label = firstString(props.label, props.title, props.text, props.bind, props.command, props.fieldId);
   const indent = "  ".repeat(Math.min(depth, 6));
-  const ownLine = fitLine(`${indent}${terminalElementKind(kind)} ${id}${label ? ` ${label}` : ""}`, width);
+  const pluginProjection = buildPluginProjection(kind, source);
+  const pluginSuffix = pluginProjection
+    ? ` [${pluginProjection.pluginId}:${pluginProjection.semanticOwner}]`
+    : "";
+  const ownLine = fitLine(`${indent}${terminalElementKind(kind)} ${id}${label ? ` ${label}` : ""}${pluginSuffix}`, width);
   const children = Array.isArray(source.children) ? source.children : [];
   const embeddedDocuments = normalizeEmbeddedDocuments(source.embeddedDocuments);
   return [
@@ -176,6 +181,21 @@ function collectEmbeddedDocumentSlots(component, slots = []) {
   return slots;
 }
 
+function collectPluginProjections(component, projections = []) {
+  const source = objectValue(component);
+  const projection = buildPluginProjection(firstString(source.kind), source);
+  if (projection) {
+    projections.push({
+      ownerId: firstString(source.id),
+      ...projection,
+    });
+  }
+  for (const child of Array.isArray(source.children) ? source.children : []) {
+    collectPluginProjections(child, projections);
+  }
+  return projections;
+}
+
 function normalizeEmbeddedDocuments(value) {
   return Array.isArray(value)
     ? value
@@ -192,6 +212,9 @@ function normalizeEmbeddedDocuments(value) {
 
 function terminalElementKind(componentKind) {
   if (!componentKind) return "empty";
+  if (componentKind === "vn.stage") return "sai-vn";
+  if (componentKind === "embed.norn") return "norn";
+  if (componentKind === "embed.tex") return "tex";
   if (componentKind.startsWith("control.")) return "command";
   if (componentKind.startsWith("embed.")) return "plugin";
   if (componentKind === "surface.slot") return "slot";
@@ -199,6 +222,57 @@ function terminalElementKind(componentKind) {
   if (componentKind.startsWith("text.") || componentKind === "text" || componentKind === "label") return "text";
   if (componentKind === "metric") return "metric";
   return componentKind;
+}
+
+function buildPluginProjection(componentKind, component) {
+  const props = objectValue(component.props);
+  if (componentKind === "vn.stage") {
+    return {
+      pluginId: "sai.vn",
+      projectionKind: "sai-vn-terminal-stage-summary",
+      abiSchema: "gamecult.eve.plugin_abi.v1",
+      commandBoundary: "sidecar-advertised-plugin-abi",
+      capabilities: ["vn.stage", "story.choose", "story.continue", "story.jump"],
+      documentId: firstString(props.storyId, component.id),
+      semanticOwner: "Sai",
+      fallbackKind: "terminal-summary",
+    };
+  }
+
+  if (componentKind === "embed.norn") {
+    return {
+      pluginId: "norn.graph",
+      projectionKind: "norn-graph-terminal-outline",
+      abiSchema: "gamecult.eve.plugin_abi.v1",
+      commandBoundary: "sidecar-advertised-plugin-abi",
+      capabilities: ["embed.norn"],
+      documentId: firstString(props.sourceUri, props.documentId, component.id),
+      semanticOwner: "Norn",
+      fallbackKind: "terminal-outline",
+    };
+  }
+
+  if (componentKind === "embed.tex") {
+    return {
+      pluginId: "tex.math",
+      projectionKind: texProjectionKind(props),
+      abiSchema: "gamecult.eve.plugin_abi.v1",
+      commandBoundary: "sidecar-advertised-plugin-abi",
+      capabilities: ["embed.tex", "tex.inline", "tex.block"],
+      documentId: firstString(props.sourceUri, props.source, component.id),
+      semanticOwner: "EvePlugins",
+      fallbackKind: "source-text",
+    };
+  }
+
+  return null;
+}
+
+function texProjectionKind(props) {
+  const display = firstString(props.display, "inline");
+  if (display === "block") return "tex-math-terminal-block-source";
+  if (display === "page") return "tex-math-terminal-page-source";
+  return "tex-math-terminal-inline-source";
 }
 
 function fitLine(value, width) {

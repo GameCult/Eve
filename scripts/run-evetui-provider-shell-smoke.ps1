@@ -24,9 +24,16 @@ if ($manifest.lifecycle.test.status -ne "provider-shell-contract-skeleton") {
   throw "Unexpected EveTui provider shell status: $($manifest.lifecycle.test.status)"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering", "pluginProjection")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveTui provider shell missing supported feature: $feature"
+  }
+}
+
+foreach ($pluginId in @("sai.vn", "norn.graph", "tex.math")) {
+  $supported = @($manifest.supportedPlugins) | Where-Object { $_.pluginId -eq $pluginId } | Select-Object -First 1
+  if (-not $supported) {
+    throw "EveTui provider shell missing supported plugin projection: $pluginId"
   }
 }
 
@@ -78,14 +85,14 @@ foreach ($relativePath in $expectedFiles) {
 }
 
 $shellSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-tui\src\eve-tui-shell.mjs") -Raw
-foreach ($symbol in @("EveTuiShell", "selectSurface", "lowerSurface", "normalizeSurfaceDocument", "buildComponentLines", "terminalElementKind", "createCommandIntent", "renderSummary", "gamecult.eve.tui_grid.v1", "commandBoundary", "receiptSchema")) {
+foreach ($symbol in @("EveTuiShell", "selectSurface", "lowerSurface", "normalizeSurfaceDocument", "buildComponentLines", "buildPluginProjection", "collectPluginProjections", "terminalElementKind", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "createCommandIntent", "renderSummary", "gamecult.eve.tui_grid.v1", "commandBoundary", "receiptSchema")) {
   if (-not $shellSource.Contains($symbol)) {
     throw "EveTui provider shell source missing symbol: $symbol"
   }
 }
 
 $testSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-tui\test\eve-tui-shell.test.mjs") -Raw
-foreach ($symbol in @("selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "lowers provider surface trees into a terminal grid", "rejects surface documents that do not match the advertised TUI target", "aetheria.daemon.commands")) {
+foreach ($symbol in @("selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "lowers provider surface trees into a terminal grid", "lowers Sai, Norn, and TeX plugin surfaces into compact terminal fallbacks", "pluginProjections", "sai-vn-terminal-stage-summary", "norn-graph-terminal-outline", "tex-math-terminal-block-source", "rejects surface documents that do not match the advertised TUI target", "aetheria.daemon.commands")) {
   if (-not $testSource.Contains($symbol)) {
     throw "EveTui provider shell test missing symbol: $symbol"
   }

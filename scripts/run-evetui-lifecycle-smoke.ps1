@@ -36,13 +36,30 @@ if ($manifest.incubation.splitTarget -ne "EveTui") {
   throw "Unexpected EveTui split target: $($manifest.incubation.splitTarget)"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering", "embeddedDocuments")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering", "embeddedDocuments", "pluginProjection")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveTui manifest missing provider-shell feature: $feature"
   }
 }
-if (@($manifest.supportedPlugins).Count -ne 0) {
-  throw "EveTui must not claim plugin projection before terminal projection adapters for sidecar-advertised capabilities exist"
+
+$expectedPlugins = @{
+  "sai.vn" = @("vn.stage", "story.choose", "story.continue", "story.jump")
+  "norn.graph" = @("embed.norn")
+  "tex.math" = @("embed.tex", "tex.inline", "tex.block")
+}
+foreach ($pluginId in $expectedPlugins.Keys) {
+  $supported = @($manifest.supportedPlugins) | Where-Object { $_.pluginId -eq $pluginId } | Select-Object -First 1
+  if (-not $supported) {
+    throw "EveTui manifest missing supported plugin declaration: $pluginId"
+  }
+  foreach ($capability in $expectedPlugins[$pluginId]) {
+    if (-not (@($supported.capabilities) -contains $capability)) {
+      throw "EveTui supported plugin $pluginId missing capability: $capability"
+    }
+  }
+  if ($supported.projectionAdapter -ne "EveTuiShell.buildPluginProjection") {
+    throw "EveTui supported plugin $pluginId has unexpected projection adapter: $($supported.projectionAdapter)"
+  }
 }
 
 $worldSurfaceLoweringClaims = @()
@@ -69,10 +86,10 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
   }
 }
 
-foreach ($pluginId in @("sai.vn", "norn.graph", "tex.math")) {
+foreach ($pluginId in $expectedPlugins.Keys) {
   $unsupported = @($manifest.unsupportedPlugins) | Where-Object { $_.pluginId -eq $pluginId } | Select-Object -First 1
-  if (-not $unsupported) {
-    throw "EveTui manifest missing unsupported plugin declaration: $pluginId"
+  if ($unsupported) {
+    throw "EveTui manifest must not report $pluginId unsupported while terminal fallback projection is declared"
   }
 }
 

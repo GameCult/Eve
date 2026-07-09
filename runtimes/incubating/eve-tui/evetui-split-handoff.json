@@ -15,7 +15,8 @@
       "currentPaths": [
         "runtimes/incubating/eve-tui/package.json",
         "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
-        "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs"
+        "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
+        "web/fixtures/sai-vn-surface.json"
       ],
       "destinationOwner": "EveTui",
       "replacementProof": "EveTui hosts a provider-agnostic TUI lowerer that consumes provider advertisements and Eve surface documents without importing provider internals."
@@ -40,6 +41,18 @@
       ],
       "destinationOwner": "EveTui",
       "replacementProof": "TUI actions emit gamecult.eve.command.v1 intents through provider-advertised command boundaries and render provider receipts instead of mutating local state."
+    },
+    {
+      "id": "tui-plugin-projection",
+      "stage": "plugin-projection",
+      "currentPaths": [
+        "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
+        "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
+        "runtimes/incubating/eve-tui/eve-runtime-capability.json",
+        "web/fixtures/sai-vn-surface.json"
+      ],
+      "destinationOwner": "EveTui",
+      "replacementProof": "EveTui owns lossy terminal fallback shells for Sai, Norn, and TeX sidecar-advertised components; Sai keeps story state, Norn keeps graph layout/state, and EvePlugins keeps TeX rendering semantics."
     },
     {
       "id": "tui-capture-lifecycle",
@@ -68,12 +81,15 @@
     "provider internals as TUI runtime authority",
     "renderer-local product state as provider truth",
     "terminal-only command routes that bypass gamecult.eve.command.v1",
-    "plugin semantic internals",
+    "Sai story state, VN/Ink semantics, or story command interpretation as TUI runtime authority",
+    "Norn graph layout, graph state, or command semantics as TUI runtime authority",
+    "TeX parsing, typesetting, baseline metrics, or render-cache semantics as TUI runtime authority",
     "lossy text summaries pretending to be provider state"
   ],
   "requiredExternalProofs": [
     "EveTui publishes a runtime capability manifest with terminal/grid capabilities.",
     "EveTui owns a provider-shell contract skeleton that selects advertised provider surfaces, lowers Eve surface trees, emits gamecult.eve.command.v1 intents, and produces an explicitly lossy terminal grid.",
+    "EveTui projects Sai, Norn, and TeX sidecar plugin fallback shells without importing plugin semantic internals.",
     "EveTui owns the provider-agnostic terminal grid lowerer outside Eve incubation.",
     "EveTui consumes at least one non-Aetheria provider advertisement.",
     "EveTui consumes Aetheria's agent-facing TUI surface through provider advertisements without importing Aetheria internals.",

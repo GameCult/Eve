@@ -830,23 +830,23 @@
       },
       "splitHandoffPath": "runtimes/incubating/eve-tui/evetui-split-handoff.json",
       "requiredFixtures": ["embedded-surface", "aetheria-world"],
-      "pluginFixtures": [],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering", "embeddedDocuments"],
-      "supportedPlugins": [],
-      "unsupportedPlugins": [
+      "pluginFixtures": ["sai-vn"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "terminalGridSummary", "terminalGridLowering", "embeddedDocuments", "pluginProjection"],
+      "supportedPlugins": [
         {
           "pluginId": "sai.vn",
-          "reason": "TUI provider-shell skeleton exists, but no terminal adapter exists for Sai sidecar-advertised VN projection in this runtime."
+          "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"]
         },
         {
           "pluginId": "norn.graph",
-          "reason": "TUI provider-shell skeleton exists, but no terminal fallback exists for Norn sidecar-advertised graph projection in this runtime."
+          "capabilities": ["embed.norn"]
         },
         {
           "pluginId": "tex.math",
-          "reason": "TUI provider-shell skeleton exists, but no terminal fallback exists for TeX sidecar-advertised math projection in this runtime."
+          "capabilities": ["embed.tex", "tex.inline", "tex.block"]
         }
       ],
+      "unsupportedPlugins": [],
       "worldSurfaceLowering": [
         {
           "targetId": "tui",
@@ -858,6 +858,7 @@
           "evidencePaths": [
             "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
             "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
+            "web/fixtures/sai-vn-surface.json",
             "web/fixtures/aetheria.provider-advertisement.json"
           ]
         }
@@ -884,11 +885,11 @@
       "expectedSourceSymbols": [
         {
           "path": "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
-          "contains": ["EveTuiShell", "selectSurface", "lowerSurface", "normalizeSurfaceDocument", "buildComponentLines", "collectEmbeddedDocumentSlots", "normalizeEmbeddedDocuments", "embeddedDocumentSlots", "terminalElementKind", "createCommandIntent", "renderSummary", "gamecult.eve.tui_grid.v1", "commandBoundary", "receiptSchema"]
+          "contains": ["EveTuiShell", "selectSurface", "lowerSurface", "normalizeSurfaceDocument", "buildComponentLines", "buildPluginProjection", "collectPluginProjections", "collectEmbeddedDocumentSlots", "normalizeEmbeddedDocuments", "embeddedDocumentSlots", "pluginProjections", "terminalElementKind", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "createCommandIntent", "renderSummary", "gamecult.eve.tui_grid.v1", "commandBoundary", "receiptSchema"]
         },
         {
           "path": "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
-          "contains": ["selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "lowers provider surface trees into a terminal grid", "embeddedDocumentSlots", "norn.map", "rejects surface documents that do not match the advertised TUI target", "aetheria.daemon.commands"]
+          "contains": ["selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "lowers provider surface trees into a terminal grid", "lowers Sai, Norn, and TeX plugin surfaces into compact terminal fallbacks", "embeddedDocumentSlots", "pluginProjections", "norn.map", "sai-vn-terminal-stage-summary", "norn-graph-terminal-outline", "tex-math-terminal-block-source", "rejects surface documents that do not match the advertised TUI target", "aetheria.daemon.commands"]
         },
         {
           "path": "tools/evetui/evetui-capture-contract.mjs",

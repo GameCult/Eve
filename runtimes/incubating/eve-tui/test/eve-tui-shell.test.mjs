@@ -74,8 +74,21 @@ test("lowers provider surface trees into a terminal grid", () => {
   assert.ok(grid.lines.every(line => line.length <= 44));
   assert.ok(grid.lines.some(line => line.includes("world aetheria.daemon.game.gravity")));
   assert.ok(grid.lines.some(line => line.includes("command aetheria.daemon.game.focus")));
-  assert.ok(grid.lines.some(line => line.includes("plugin aetheria.daemon.game.norn")));
+  assert.ok(grid.lines.some(line => line.includes("norn aetheria.daemon.game.norn")));
   assert.ok(grid.lines.some(line => line.includes("slot norn.map")));
+  assert.deepEqual(grid.pluginProjections, [
+    {
+      ownerId: "aetheria.daemon.game.norn",
+      pluginId: "norn.graph",
+      projectionKind: "norn-graph-terminal-outline",
+      abiSchema: "gamecult.eve.plugin_abi.v1",
+      commandBoundary: "sidecar-advertised-plugin-abi",
+      capabilities: ["embed.norn"],
+      documentId: "aetheria.daemon.game.norn",
+      semanticOwner: "Norn",
+      fallbackKind: "terminal-outline",
+    },
+  ]);
   assert.deepEqual(grid.embeddedDocumentSlots, [
     {
       ownerId: "aetheria.daemon.game.norn",
@@ -93,6 +106,36 @@ test("rejects surface documents that do not match the advertised TUI target", ()
     () => shell.lowerSurface(surfaceDocument("aetheria.daemon.game"), advertisement(), "aetheria.daemon.editor"),
     /does not match advertised TUI surface/,
   );
+});
+
+test("lowers Sai, Norn, and TeX plugin surfaces into compact terminal fallbacks", () => {
+  const shell = new EveTuiShell({ width: 72 });
+  const saiSurface = JSON.parse(readFileSync(path.join(repoRoot, "web/fixtures/sai-vn-surface.json"), "utf8"));
+  const grid = shell.lowerSurface(saiSurface, saiAdvertisement(), "sai.visual_novel.surface");
+
+  assert.deepEqual(validateSchemaSubset(tuiGridSchema, grid), []);
+  assert.equal(grid.providerId, "gamecult.home.vn");
+  assert.equal(grid.surfaceId, "sai.visual_novel.surface");
+  assert.ok(grid.lines.every(line => line.length <= 72));
+  assert.ok(grid.lines.some(line => line.includes("sai-vn sai.root")));
+  assert.ok(grid.lines.some(line => line.includes("norn sai.graph")));
+  assert.ok(grid.lines.some(line => line.includes("tex sai.tex.log-power")));
+
+  const byPlugin = new Map(grid.pluginProjections.map(projection => [projection.pluginId, projection]));
+  assert.equal(byPlugin.get("sai.vn").semanticOwner, "Sai");
+  assert.equal(byPlugin.get("sai.vn").projectionKind, "sai-vn-terminal-stage-summary");
+  assert.deepEqual(byPlugin.get("sai.vn").capabilities, [
+    "vn.stage",
+    "story.choose",
+    "story.continue",
+    "story.jump",
+  ]);
+  assert.equal(byPlugin.get("norn.graph").semanticOwner, "Norn");
+  assert.equal(byPlugin.get("norn.graph").fallbackKind, "terminal-outline");
+  assert.equal(byPlugin.get("tex.math").semanticOwner, "EvePlugins");
+  assert.equal(byPlugin.get("tex.math").projectionKind, "tex-math-terminal-block-source");
+  assert.equal(byPlugin.get("tex.math").fallbackKind, "source-text");
+  assert.equal(byPlugin.get("tex.math").documentId, "\\\\mathrm{votes}(p)=1+\\\\lfloor\\\\log_b(1+p)\\\\rfloor");
 });
 
 function advertisement() {
@@ -121,6 +164,27 @@ function advertisement() {
           commandBoundary: "aetheria.daemon.commands",
           receiptSchema: "aetheria.eve_command_acceptance_status.v1",
           ownership: "provider-owns-editor-state-assets-command-acceptance-and-receipts",
+        },
+      },
+    ],
+  };
+}
+
+function saiAdvertisement() {
+  return {
+    schema: "gamecult.eve.provider_advertisement.v1",
+    providerId: "gamecult.home.vn",
+    title: "GameCult Compound VN",
+    surfaces: [
+      {
+        surfaceId: "sai.visual_novel.surface",
+        transport: "local-json",
+        url: "web/fixtures/sai-vn-surface.json",
+        worldInteraction: {
+          projectionKind: "provider-authored-world-surface",
+          commandBoundary: "sai.vn.plugin.commands",
+          receiptSchema: "gamecult.eve.command_receipt.v1",
+          ownership: "provider-owns-story-state-plugin-sidecars-own-nested-semantics",
         },
       },
     ],
