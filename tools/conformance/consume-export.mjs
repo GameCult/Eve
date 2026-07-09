@@ -16,6 +16,8 @@ if (!exportDirectory) {
     "  --expect-runtime <id>",
     "  --expect-scenario <id>",
     "  --expect-split-target <id>",
+    "  --expect-plugin-operation <pluginId:operation>",
+    "  --expect-plugin-capability <pluginId:capability>",
   ].join("\n"));
   process.exit(2);
 }
@@ -95,6 +97,26 @@ function validateIndex(index, directory, expectations, errors) {
   for (const expectedPlugin of expectations.plugins) {
     if (!plugins.some(plugin => plugin.pluginId === expectedPlugin)) errors.push(`plugins:${expectedPlugin}:missing`);
   }
+  for (const expectation of expectations.pluginOperations) {
+    const plugin = plugins.find(candidate => candidate.pluginId === expectation.pluginId);
+    if (!plugin) {
+      errors.push(`plugins:${expectation.pluginId}:missing`);
+      continue;
+    }
+    if (!Array.isArray(plugin.abiOperations) || !plugin.abiOperations.includes(expectation.operation)) {
+      errors.push(`plugins:${expectation.pluginId}:operation:${expectation.operation}:missing`);
+    }
+  }
+  for (const expectation of expectations.pluginCapabilities) {
+    const plugin = plugins.find(candidate => candidate.pluginId === expectation.pluginId);
+    if (!plugin) {
+      errors.push(`plugins:${expectation.pluginId}:missing`);
+      continue;
+    }
+    if (!Array.isArray(plugin.capabilities) || !plugin.capabilities.includes(expectation.capability)) {
+      errors.push(`plugins:${expectation.pluginId}:capability:${expectation.capability}:missing`);
+    }
+  }
   for (const expectedProvider of expectations.providers) {
     if (!providers.some(provider => provider.providerId === expectedProvider)) errors.push(`providers:${expectedProvider}:missing`);
   }
@@ -132,6 +154,8 @@ function parseArguments(args) {
     packs: [],
     fixtures: [],
     plugins: [],
+    pluginOperations: [],
+    pluginCapabilities: [],
     providers: [],
     runtimes: [],
     scenarios: [],
@@ -145,6 +169,8 @@ function parseArguments(args) {
     ["--expect-runtime", expectations.runtimes],
     ["--expect-scenario", expectations.scenarios],
     ["--expect-split-target", expectations.splitTargets],
+    ["--expect-plugin-operation", expectations.pluginOperations],
+    ["--expect-plugin-capability", expectations.pluginCapabilities],
   ]);
 
   for (let index = 1; index < args.length; index += 1) {
@@ -159,9 +185,27 @@ function parseArguments(args) {
       console.error(`Missing value for option: ${option}`);
       process.exit(2);
     }
-    target.push(value);
+    if (option === "--expect-plugin-operation") {
+      target.push(parsePluginExpectation(value, "operation"));
+    } else if (option === "--expect-plugin-capability") {
+      target.push(parsePluginExpectation(value, "capability"));
+    } else {
+      target.push(value);
+    }
     index += 1;
   }
 
   return { exportDirectory: exportPath, expectations };
+}
+
+function parsePluginExpectation(value, field) {
+  const separator = value.indexOf(":");
+  if (separator <= 0 || separator === value.length - 1) {
+    console.error(`Expected plugin ${field} in <pluginId:${field}> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    pluginId: value.slice(0, separator),
+    [field]: value.slice(separator + 1),
+  };
 }

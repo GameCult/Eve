@@ -15,6 +15,7 @@ Push-Location $projectRoot
 try {
   node .\tools\parity\run-parity.mjs
   & (Join-Path $PSScriptRoot "run-conformance-consumer-smoke.ps1")
+  & (Join-Path $PSScriptRoot "run-plugin-owner-conformance-consumer-smoke.ps1")
 } finally {
   Pop-Location
 }

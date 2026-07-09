@@ -1341,8 +1341,13 @@ function buildConformanceExport(report) {
       pluginId: plugin.pluginId,
       status: plugin.status,
       ownerRepo: plugin.ownerRepo,
+      splitTarget: plugin.splitTarget,
+      graduationTrigger: plugin.graduationTrigger,
+      manifestPath: plugin.manifestPath,
+      advertisementPath: plugin.advertisementPath,
       abiFixturePath: plugin.abiFixturePath,
       abiOperations: plugin.abiOperations || [],
+      optionalPlugins: plugin.optionalPlugins || [],
       capabilities: plugin.capabilities,
     })),
     providers: (report.providers || []).map(provider => ({
