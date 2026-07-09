@@ -4,6 +4,7 @@ import {
   renderEveSurface,
 } from "../packages/eve-browser-lowering/dist/index.js";
 import { compileEveDsl } from "./eve-dsl.js";
+import { mergeProviderAdvertisement } from "./provider-advertisements.mjs";
 
 const statusEl = document.querySelector("#status");
 const app = document.querySelector("#app");
@@ -89,12 +90,7 @@ async function loadProviderAdvertisement(provider) {
   if (!provider.advertisement) return provider;
   const response = await fetch(provider.advertisement);
   const advertisement = await response.json();
-  return {
-    ...advertisement,
-    ...provider,
-    surfaces: provider.surfaces || advertisement.surfaces || [],
-    localAdvertisement: advertisement,
-  };
+  return mergeProviderAdvertisement(provider, advertisement);
 }
 
 async function openProvider(provider) {

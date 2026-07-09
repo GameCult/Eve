@@ -1,5 +1,6 @@
 import { renderEveSurface } from "../packages/eve-browser-lowering/dist/index.js";
 import { compileEveDsl } from "./eve-dsl.js";
+import { findProviderCatalogEntry, mergeProviderAdvertisement } from "./provider-advertisements.mjs";
 
 const app = document.querySelector("#app");
 const output = document.querySelector("#eve-layout-probe-output");
@@ -40,17 +41,11 @@ try {
 async function loadProvider(requestedProviderId) {
   const response = await fetch("./local-provider-catalog.json", { cache: "no-store" });
   const catalog = await response.json();
-  const provider = (catalog.providers || []).find(candidate =>
-    candidate.providerId === requestedProviderId || candidate.aliases?.includes(requestedProviderId));
+  const provider = findProviderCatalogEntry(catalog, requestedProviderId);
   if (!provider) throw new Error(`Unknown local provider: ${requestedProviderId}`);
   if (!provider.advertisement) return provider;
   const advertisement = await (await fetch(provider.advertisement, { cache: "no-store" })).json();
-  return {
-    ...advertisement,
-    ...provider,
-    surfaces: provider.surfaces || advertisement.surfaces || [],
-    localAdvertisement: advertisement,
-  };
+  return mergeProviderAdvertisement(provider, advertisement);
 }
 
 async function loadSurface(surface) {

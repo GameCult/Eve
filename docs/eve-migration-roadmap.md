@@ -980,6 +980,12 @@ Recently cut:
   capability claims; the local schema subset validators now resolve `$ref` and
   enforce enum values so missing availability cannot hide in recursive runtime
   capture trees.
+- Browser reference fallback discovery now merges local catalog transport/URL
+  stubs with provider advertisement surface metadata instead of letting the
+  local stub erase semantics. `web/provider-advertisements.mjs` preserves
+  advertised `worldInteraction` and `requiresPlugins` for Aetheria and Sai
+  while keeping fixture-local loading paths, and both `web/surface.js` and the
+  layout probe consume that shared merge path.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
   project, lower, measure, and apply behavior. The parity harness validates
   those fixtures against plugin manifests, so Eve proves the ABI shape without
