@@ -239,6 +239,42 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes()
+        {
+            var manifest = new EveUnityPlayableWorldAssetManifest(
+                "cultmesh://aetheria/assets/manifest",
+                new[]
+                {
+                    new EveUnityPlayableWorldAssetManifestEntry(
+                        "cultmesh://aetheria/assets/map/entity/player",
+                        "player",
+                        "resources://Aetheria/Entities/Vanguard.prefab",
+                        "aetheria.vanguard"),
+                    new EveUnityPlayableWorldAssetManifestEntry(
+                        "",
+                        "enemy",
+                        "Resources/Aetheria/Entities/Raider.prefab",
+                        "aetheria.raider")
+                });
+
+            var player = manifest.Find(new EveUnityPlayableWorldAssetBinding(
+                "cultmesh://aetheria/assets/map/entity/player",
+                "player",
+                "provider-asset-ref"));
+            Assert.That(player, Is.Not.Null);
+            Assert.That(player!.ResourcesPath, Is.EqualTo("Aetheria/Entities/Vanguard"));
+            Assert.That(player.PrefabKey, Is.EqualTo("aetheria.vanguard"));
+
+            var enemy = manifest.Find(new EveUnityPlayableWorldAssetBinding(
+                "cultmesh://aetheria/assets/map/entity/missing-raider",
+                "enemy",
+                "provider-asset-ref"));
+            Assert.That(enemy, Is.Not.Null);
+            Assert.That(enemy!.ResourcesPath, Is.EqualTo("Aetheria/Entities/Raider"));
+            Assert.That(enemy.PrefabKey, Is.EqualTo("aetheria.raider"));
+        }
+
+        [Test]
         public void SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState()
         {
             var lowerer = new EveUnitySceneSurfaceLowerer();

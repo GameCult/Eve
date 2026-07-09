@@ -491,9 +491,12 @@ removing entities absent from later provider snapshots. The runtime now also
 declares `unityGameObjectSceneSink`: `EveUnityGameObjectPlayableWorldSceneSink`
 creates or updates generic `GameObject` instances, attaches
 `EveUnityPlayableWorldEntityMarker`, and resolves prefabs through a swappable
-asset-provider hook. The remaining blocker is the live adapter, provider asset
-resolution against CultMesh/CultCache manifests, and Unity screenshot or
-frame-capture PNG production from EveUnity.
+asset-provider hook. The runtime now also declares
+`providerAssetManifestResolution`: `EveUnityPlayableWorldAssetManifest` and
+`EveUnityManifestGameObjectAssetProvider` map provider-authored asset refs and
+entity kinds to Unity resource/prefab keys through data. The remaining blocker
+is the live adapter, loading provider asset manifests from CultMesh/CultCache,
+and Unity screenshot or frame-capture PNG production from EveUnity.
 
 Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
 Each record joins runtime status, capture owner, lifecycle capture contract,

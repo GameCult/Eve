@@ -171,15 +171,18 @@ disappear from later provider snapshots. `EveUnityGameObjectPlayableWorldSceneSi
 is the first Unity-native implementation: it creates or updates generic
 `GameObject` instances, applies transforms/radii, attaches an
 `EveUnityPlayableWorldEntityMarker`, and resolves provider asset refs through an
-`IEveUnityGameObjectAssetProvider` hook. Aetheria-specific names appear only as
+`IEveUnityGameObjectAssetProvider` hook. `EveUnityPlayableWorldAssetManifest`
+and `EveUnityManifestGameObjectAssetProvider` add the provider-manifest mapping
+step: provider asset refs and entity kinds become Unity resource/prefab keys
+through data rather than Aetheria code. Aetheria-specific names appear only as
 provider-authored data and command ids; the Unity client code does not import
 Aetheria runtime types, prefab classes, or apply movement locally.
 
 This is not yet the final playable client. The remaining cut is a live
 CultMesh/CultNet provider subscription adapter implementing those source/sink
-ports, provider asset resolution against CultMesh/CultCache manifests, and proof
-that daemon receipts drive the next rendered Unity frame rather than
-renderer-local state.
+ports, loading the provider asset manifest from CultMesh/CultCache instead of a
+local constructed manifest object, and proof that daemon receipts drive the next
+rendered Unity frame rather than renderer-local state.
 
 ## Non-Goals
 

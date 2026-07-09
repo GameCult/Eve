@@ -122,31 +122,10 @@ namespace GameCult.Eve.UnityScene
         public GameObject? ResolvePrefab(EveUnityPlayableWorldAssetBinding asset)
         {
             if (asset == null) throw new ArgumentNullException(nameof(asset));
-            var resourcesPath = NormalizeResourcesPath(asset.AssetRef);
+            var resourcesPath = EveUnityPlayableWorldAssetManifestEntry.NormalizeResourcesPath(asset.AssetRef);
             return string.IsNullOrWhiteSpace(resourcesPath)
                 ? null
                 : Resources.Load<GameObject>(resourcesPath);
-        }
-
-        private static string NormalizeResourcesPath(string assetRef)
-        {
-            if (string.IsNullOrWhiteSpace(assetRef))
-                return "";
-
-            var path = assetRef.Trim();
-            foreach (var prefix in new[] { "resources://", "resource://", "Resources/" })
-            {
-                if (path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    path = path.Substring(prefix.Length);
-                    break;
-                }
-            }
-
-            if (path.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase))
-                path = path.Substring(0, path.Length - ".prefab".Length);
-
-            return path;
         }
     }
 
