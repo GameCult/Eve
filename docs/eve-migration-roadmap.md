@@ -310,6 +310,12 @@ Recently cut:
   and Unity UI Toolkit are `covered` because they advertise
   `gamecult.eve.command.v1`; Unity scene and TUI stay visible as
   `missing-runtime-claim` until their generic lowerers exist.
+- The conformance export carries `splitHandoffMoveCoverage[]`, joining runtime
+  split handoff move sets to source path status. EveElectron now exposes the
+  existing Aetheria `Aetheria.Rts.Web/Electron` and command transport paths as
+  `observed-provider` sources that must be replaced by a provider-agnostic
+  shell; Unity scene exposes `replacement-required` move sets because no
+  generic scene body or command transport source exists yet.
 - The conformance export schema and consumer smoke now require minimum typed
   item shapes for plugins, providers, runtimes, and split targets. Owner repos
   can rely on exported ids, owners, statuses, split targets, manifest or

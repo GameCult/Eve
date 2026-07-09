@@ -53,6 +53,7 @@ if (!exportDirectory) {
     "  --expect-split-target-status <targetId:status>",
     "  --expect-split-target-blocker <targetId:blocker-substring>",
     "  --expect-split-target-blocker-record <targetId:kind:subject>",
+    "  --expect-split-handoff-move <splitTarget:runtimeId:moveSetId:pathKind:status:path-substring>",
     "  --expect-split-target-proof <targetId:proof-substring>",
   ].join("\n"));
   process.exit(2);
@@ -136,6 +137,7 @@ function validateIndex(index, directory, expectations, errors) {
   const worldSurfaceLoweringCoverage = Array.isArray(index.worldSurfaceLoweringCoverage) ? index.worldSurfaceLoweringCoverage : [];
   const commandBoundaryCoverage = Array.isArray(index.commandBoundaryCoverage) ? index.commandBoundaryCoverage : [];
   const splitTargetBlockers = Array.isArray(index.splitTargetBlockers) ? index.splitTargetBlockers : [];
+  const splitHandoffMoveCoverage = Array.isArray(index.splitHandoffMoveCoverage) ? index.splitHandoffMoveCoverage : [];
   const worldSurfaceLoweringGaps = Array.isArray(index.worldSurfaceLoweringGaps) ? index.worldSurfaceLoweringGaps : [];
 
   validatePluginRecords(plugins, errors);
@@ -158,6 +160,7 @@ function validateIndex(index, directory, expectations, errors) {
   validateCapabilityGaps(index.capabilityGaps, errors);
   validateRuntimePluginProjectionGaps(index.runtimePluginProjectionGaps, errors);
   validateSplitTargetBlockers(index.splitTargetBlockers, errors);
+  validateSplitHandoffMoveCoverage(index.splitHandoffMoveCoverage, errors);
   validateWorldSurfaceLoweringCoverage(index.worldSurfaceLoweringCoverage, errors);
   validateCommandBoundaryCoverage(index.commandBoundaryCoverage, errors);
   validateWorldSurfaceLoweringGaps(index.worldSurfaceLoweringGaps, errors);
@@ -609,6 +612,18 @@ function validateIndex(index, directory, expectations, errors) {
       errors.push(`splitTargetBlockers:${expectation.targetId}:${expectation.kind}:${expectation.subject}:missing`);
     }
   }
+  for (const expectation of expectations.splitHandoffMoves) {
+    const record = splitHandoffMoveCoverage.find(candidate =>
+      candidate.splitTarget === expectation.splitTarget &&
+      candidate.runtimeId === expectation.runtimeId &&
+      candidate.moveSetId === expectation.moveSetId &&
+      candidate.pathKind === expectation.pathKind &&
+      candidate.status === expectation.status &&
+      candidate.sourcePath?.includes(expectation.pathSubstring));
+    if (!record) {
+      errors.push(`splitHandoffMoveCoverage:${expectation.splitTarget}:${expectation.runtimeId}:${expectation.moveSetId}:${expectation.pathKind}:${expectation.status}:${expectation.pathSubstring}:missing`);
+    }
+  }
   for (const expectation of expectations.splitTargetProofs) {
     const target = splitTargets.find(candidate => candidate.id === expectation.targetId);
     if (!target) {
@@ -732,6 +747,21 @@ function validateSplitTargetBlockers(blockers, errors) {
   for (const [index, blocker] of blockers.entries()) {
     for (const field of ["targetId", "ownerRepo", "kind", "severity", "subject", "text"]) {
       if (!blocker?.[field]) errors.push(`splitTargetBlockers:${index}:${field}:missing`);
+    }
+  }
+}
+
+function validateSplitHandoffMoveCoverage(records, errors) {
+  if (!Array.isArray(records)) {
+    errors.push("splitHandoffMoveCoverage:missing");
+    return;
+  }
+  for (const [index, record] of records.entries()) {
+    for (const field of ["splitTarget", "runtimeId", "runtimeOwnerRepo", "handoffPath", "handoffExportPath", "moveSetId", "stage", "destinationOwner", "replacementProof", "pathKind", "sourcePath", "status", "severity"]) {
+      if (!record?.[field]) errors.push(`splitHandoffMoveCoverage:${index}:${field}:missing`);
+    }
+    if (typeof record?.pathExists !== "boolean") {
+      errors.push(`splitHandoffMoveCoverage:${index}:pathExists:expected boolean`);
     }
   }
 }
@@ -931,6 +961,7 @@ function parseArguments(args) {
     splitTargetStatuses: [],
     splitTargetBlockers: [],
     splitTargetBlockerRecords: [],
+    splitHandoffMoves: [],
     splitTargetProofs: [],
     capabilityMatrix: false,
     capabilityGaps: [],
@@ -978,6 +1009,7 @@ function parseArguments(args) {
     ["--expect-split-target-status", expectations.splitTargetStatuses],
     ["--expect-split-target-blocker", expectations.splitTargetBlockers],
     ["--expect-split-target-blocker-record", expectations.splitTargetBlockerRecords],
+    ["--expect-split-handoff-move", expectations.splitHandoffMoves],
     ["--expect-split-target-proof", expectations.splitTargetProofs],
     ["--expect-capability-gap", expectations.capabilityGaps],
     ["--expect-runtime-plugin-gap", expectations.runtimePluginGaps],
@@ -1066,6 +1098,8 @@ function parseArguments(args) {
       target.push(parseSplitTargetExpectation(value, "blocker"));
     } else if (option === "--expect-split-target-blocker-record") {
       target.push(parseSplitTargetBlockerRecordExpectation(value));
+    } else if (option === "--expect-split-handoff-move") {
+      target.push(parseSplitHandoffMoveExpectation(value));
     } else if (option === "--expect-split-target-proof") {
       target.push(parseSplitTargetExpectation(value, "proof"));
     } else if (option === "--expect-world-lowering-gap") {
@@ -1155,6 +1189,22 @@ function parseSplitTargetBlockerRecordExpectation(value) {
     targetId: parts[0],
     kind: parts[1],
     subject: parts.slice(2).join(":"),
+  };
+}
+
+function parseSplitHandoffMoveExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length < 6 || parts.slice(0, 5).some(part => !part) || !parts.slice(5).join(":")) {
+    console.error(`Expected split handoff move in <splitTarget:runtimeId:moveSetId:pathKind:status:path-substring> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    splitTarget: parts[0],
+    runtimeId: parts[1],
+    moveSetId: parts[2],
+    pathKind: parts[3],
+    status: parts[4],
+    pathSubstring: parts.slice(5).join(":"),
   };
 }
 

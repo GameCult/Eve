@@ -45,6 +45,8 @@ try {
     --expect-split-target-blocker-record EveUnity:runtime-status:unity-scene `
     --expect-split-target-blocker-record EveUnity:runtime-plugin-projection:unity-scene:sai.vn `
     --expect-split-target-blocker-record "EveUnity:pending-proof:Unity scene runtime body exists outside Aetheria product code." `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:replacement-required:no-source-paths:none `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:replacement-required:no-source-paths:none `
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target-blocker "EveUnity:Unity batchmode EditMode runner" `
     --expect-split-target-blocker "EveUnity:Unity batchmode or editor capture artifact" `
@@ -55,6 +57,8 @@ try {
     --expect-split-target-blocker "EveElectron:runtime:electron-shell:status:pending" `
     --expect-split-target-blocker-record EveElectron:runtime-status:electron-shell `
     --expect-split-target-blocker-record EveElectron:runtime-feature:electron-shell:providerAdvertisements `
+    --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:observed-provider:exists:Aetheria.Rts.Web/Electron `
+    --expect-split-handoff-move EveElectron:electron-shell:electron-command-transport:observed-provider:exists:Aetheria.Rts.Web/Client/app.ts `
     --expect-split-target-blocker "EveElectron:Electron shell runtime body exists outside Aetheria product code" `
     --expect-split-target EveTui `
     --expect-split-target-status EveTui:incubating `

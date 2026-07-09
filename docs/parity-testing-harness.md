@@ -183,6 +183,15 @@ typed `blockerRecords[]` / root `splitTargetBlockers[]` entries. Split-target
 consumers can assert blocker kind and subject with
 `--expect-split-target-blocker-record <targetId:kind:subject>` instead of
 scraping prose from handoff notes.
+Runtime split handoff move/source coverage is exported as
+`splitHandoffMoveCoverage[]`. Each record joins a split target, runtime id,
+handoff move set, destination owner, replacement proof, and source path status.
+`current` paths are Eve-incubated code that still needs to leave,
+`observed-provider` paths are provider-owned pressure sources such as
+Aetheria's current Electron client, and `replacement-required` records mark
+move sets where no generic runtime source exists yet. Consumer smokes can
+assert them with
+`--expect-split-handoff-move <splitTarget:runtimeId:moveSetId:pathKind:status:path-substring>`.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into
@@ -266,12 +275,16 @@ target being present is not enough; future owner repos must be able to consume
 why it is or is not ready to leave Eve incubation. EveElectron is intentionally
 pending: its handoff names the generic Electron shell boundary, while the
 Starbridge RTS client remains Aetheria-owned product code until a
-provider-agnostic shell exists. EveTui is also intentionally pending: Aetheria
-advertises `tui` as an agent-facing lowering target, but Eve should not claim
-that target until a real terminal/grid lowerer and transcript capture exist.
-EveUnity includes both the active `unity-uitoolkit` package proof and the
-pending `unity-scene` runtime boundary; UI Toolkit support is not treated as
-full Unity scene/world lowering.
+provider-agnostic shell exists. The same smoke asserts that the Aetheria
+Electron source paths named by the handoff currently exist as
+`observed-provider` sources, so the extraction pressure is visible without
+turning those paths into EveElectron authority. EveTui is also intentionally
+pending: Aetheria advertises `tui` as an agent-facing lowering target, but Eve
+should not claim that target until a real terminal/grid lowerer and transcript
+capture exist. EveUnity includes both the active `unity-uitoolkit` package proof
+and the pending `unity-scene` runtime boundary; UI Toolkit support is not
+treated as full Unity scene/world lowering, and `unity-scene` move sets remain
+`replacement-required` until a generic scene body exists.
 
 The Flutter widget smoke also exercises `EveProviderCatalog` and
 `EveProviderPicker` against a conformance-export-shaped provider list. That is

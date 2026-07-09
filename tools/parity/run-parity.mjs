@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileEveDsl } from "../../web/eve-dsl.js";
@@ -1675,6 +1675,7 @@ function buildConformanceExport(report) {
     commandBoundaryCoverage: collectCommandBoundaryCoverage(report),
     worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
     splitTargetBlockers: collectSplitTargetBlockers(report),
+    splitHandoffMoveCoverage: collectSplitHandoffMoveCoverage(report),
     pluginAbiOperationCoverage: collectPluginAbiOperationCoverage(report),
     providerPluginRequirementCoverage: collectProviderPluginRequirementCoverage(report),
     capabilityGaps: collectCapabilityGaps(report),
@@ -2015,6 +2016,74 @@ function collectProviderPluginRequirementCoverage(report) {
 
 function collectSplitTargetBlockers(report) {
   return (report.splitTargets || []).flatMap(target => target.blockerRecords || []);
+}
+
+function collectSplitHandoffMoveCoverage(report) {
+  const records = [];
+  for (const runtime of report.runtimes || []) {
+    if (!runtime.splitHandoffPath) continue;
+    const absoluteHandoffPath = path.join(repoRoot, runtime.splitHandoffPath);
+    if (!existsSync(absoluteHandoffPath)) continue;
+
+    let handoff;
+    try {
+      handoff = JSON.parse(readFileSync(absoluteHandoffPath, "utf8"));
+    } catch {
+      continue;
+    }
+
+    for (const moveSet of handoff.moveSets || []) {
+      const currentPaths = Array.isArray(moveSet.currentPaths) ? moveSet.currentPaths : [];
+      const observedProviderPaths = Array.isArray(moveSet.observedProviderPaths) ? moveSet.observedProviderPaths : [];
+      for (const sourcePath of currentPaths) {
+        const absoluteSourcePath = path.join(repoRoot, sourcePath);
+        records.push(buildSplitHandoffMoveRecord(runtime, handoff, moveSet, {
+          pathKind: "current",
+          sourcePath,
+          pathExists: existsSync(absoluteSourcePath),
+        }));
+      }
+      for (const sourcePath of observedProviderPaths) {
+        records.push(buildSplitHandoffMoveRecord(runtime, handoff, moveSet, {
+          pathKind: "observed-provider",
+          sourcePath,
+          pathExists: existsSync(sourcePath),
+        }));
+      }
+      if (!currentPaths.length && !observedProviderPaths.length) {
+        records.push(buildSplitHandoffMoveRecord(runtime, handoff, moveSet, {
+          pathKind: "replacement-required",
+          sourcePath: "(none)",
+          pathExists: false,
+        }));
+      }
+    }
+  }
+  return records.sort((left, right) =>
+    `${left.splitTarget}:${left.runtimeId}:${left.moveSetId}:${left.pathKind}:${left.sourcePath}`
+      .localeCompare(`${right.splitTarget}:${right.runtimeId}:${right.moveSetId}:${right.pathKind}:${right.sourcePath}`));
+}
+
+function buildSplitHandoffMoveRecord(runtime, handoff, moveSet, source) {
+  const status = source.pathKind === "replacement-required"
+    ? "no-source-paths"
+    : source.pathExists ? "exists" : "missing";
+  return {
+    splitTarget: handoff.splitTarget || runtime.splitTarget || "",
+    runtimeId: handoff.runtimeId || runtime.id || "",
+    runtimeOwnerRepo: handoff.ownerRepo || resolveRuntimeProjectionOwnerRepo(runtime),
+    handoffPath: runtime.splitHandoffPath || "",
+    handoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
+    moveSetId: moveSet.id || "",
+    stage: moveSet.stage || "",
+    destinationOwner: moveSet.destinationOwner || "",
+    replacementProof: moveSet.replacementProof || "",
+    pathKind: source.pathKind,
+    sourcePath: normalizePath(source.sourcePath),
+    pathExists: source.pathExists,
+    status,
+    severity: "blocker",
+  };
 }
 
 function collectInteractiveWorldSurfaces(report) {

@@ -17,6 +17,7 @@
     "worldSurfaceLoweringCoverage",
     "commandBoundaryCoverage",
     "splitTargetBlockers",
+    "splitHandoffMoveCoverage",
     "splitTargets"
   ],
   "properties": {
@@ -833,6 +834,85 @@
           },
           "worldSurfaceLowering": {
             "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "splitHandoffMoveCoverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "splitTarget",
+          "runtimeId",
+          "runtimeOwnerRepo",
+          "handoffPath",
+          "handoffExportPath",
+          "moveSetId",
+          "stage",
+          "destinationOwner",
+          "replacementProof",
+          "pathKind",
+          "sourcePath",
+          "status",
+          "severity"
+        ],
+        "properties": {
+          "splitTarget": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeOwnerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "handoffPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "handoffExportPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "moveSetId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stage": {
+            "type": "string",
+            "minLength": 1
+          },
+          "destinationOwner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "replacementProof": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pathKind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sourcePath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pathExists": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": true
