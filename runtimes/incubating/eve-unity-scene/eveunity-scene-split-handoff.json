@@ -16,6 +16,7 @@
         "runtimes/incubating/eve-unity-scene/package.json",
         "runtimes/incubating/eve-unity-scene/Runtime/GameCult.Eve.UnityScene.asmdef",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/GameCult.Eve.UnityScene.Tests.asmdef",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs"
@@ -28,12 +29,25 @@
       "stage": "world-surface-lowering",
       "currentPaths": [
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
       "destinationOwner": "EveUnity",
       "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic scene graph projection and command boundary evidence; capture remains a separate lifecycle proof."
+    },
+    {
+      "id": "unity-scene-sai-plugin-projection",
+      "stage": "plugin-projection",
+      "currentPaths": [
+        "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
+        "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
+      ],
+      "destinationOwner": "EveUnity",
+      "replacementProof": "EveUnity owns only the Unity scene projection adapter for Sai's sidecar-advertised VN capabilities; Sai keeps story state, VN/Ink semantics, and story command interpretation."
     },
     {
       "id": "unity-scene-norn-plugin-projection",
@@ -83,12 +97,14 @@
     "provider-specific scene components that bypass gamecult.eve.command.v1",
     "renderer-local world simulation as provider truth",
     "product assets bundled as Eve runtime contract",
+    "Sai story state, VN/Ink semantics, or story command interpretation as Unity scene runtime authority",
     "Norn graph layout, graph state, or command semantics as Unity scene runtime authority"
   ],
   "requiredExternalProofs": [
     "EveUnity publishes a Unity scene runtime capability manifest.",
     "EveUnity owns a provider-agnostic scene graph lowerer that consumes advertised worldInteraction boundaries without importing Aetheria internals.",
     "EveUnity owns the provider-agnostic scene graph lowerer outside Eve incubation.",
+    "EveUnity owns the Unity scene Sai projection adapter outside Eve incubation without importing Sai story state or VN/Ink internals.",
     "EveUnity owns the Unity scene Norn projection adapter outside Eve incubation without importing Norn implementation state.",
     "EveUnity lowers at least one non-Aetheria provider-authored world surface into Unity scene objects.",
     "EveUnity lowers Aetheria's game world surface through provider advertisements without importing Aetheria internals.",

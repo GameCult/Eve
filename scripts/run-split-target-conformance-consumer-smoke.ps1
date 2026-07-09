@@ -45,10 +45,10 @@ try {
     --expect-split-target-proof "EveUnity:Unity scene lifecycle contract is machine-readable" `
     --expect-split-target-blocker "EveUnity:runtime:unity-scene:status:pending" `
     --expect-split-target-blocker-record EveUnity:runtime-status:unity-scene `
-    --expect-split-target-blocker-record EveUnity:runtime-plugin-projection:unity-scene:sai.vn `
     --expect-split-target-blocker-record "EveUnity:pending-proof:Unity scene runtime body graduates to EveUnity outside Aetheria product code." `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-world-surface-lowering:current:exists:EveUnitySceneSurfaceLowerer.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-sai-plugin-projection:current:exists:SaiVisualNovelUnitySceneProjectionAdapter.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-norn-plugin-projection:current:exists:NornGraphUnitySceneProjectionAdapter.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-capture-lifecycle:current:exists:eveunity-capture-contract.mjs `

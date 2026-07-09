@@ -610,11 +610,12 @@
           ]
         },
         {
-          "description": "Unity scene graph projection lowerer and Norn projection adapter exist without claiming provider simulation, Norn semantics, or capture ownership.",
+          "description": "Unity scene graph projection lowerer plus Sai and Norn projection adapters exist without claiming provider simulation, plugin semantics, or capture ownership.",
           "status": "passed",
           "evidencePaths": [
             "runtimes/incubating/eve-unity-scene/package.json",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+            "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
             "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
             "scripts/run-eveunity-scene-provider-shell-smoke.ps1"
@@ -942,9 +943,14 @@
       },
       "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
       "requiredFixtures": ["aetheria-world"],
-      "pluginFixtures": [],
+      "pluginFixtures": ["sai-vn"],
       "supportedFeatures": ["providerAdvertisements", "commandTransport", "sceneGraphProjection", "embeddedDocuments"],
       "supportedPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"],
+          "projectionAdapter": "SaiVisualNovelUnitySceneProjectionAdapter"
+        },
         {
           "pluginId": "norn.graph",
           "capabilities": ["embed.norn"],
@@ -952,10 +958,6 @@
         }
       ],
       "unsupportedPlugins": [
-        {
-          "pluginId": "sai.vn",
-          "reason": "Unity scene graph projection exists, but no scene adapter exists for Sai sidecar-advertised VN projection in this runtime."
-        },
         {
           "pluginId": "tex.math",
           "reason": "Unity scene graph projection exists, but no scene-space or UI overlay adapter exists for TeX sidecar-advertised math projection in this runtime."
@@ -970,6 +972,7 @@
           "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
           "evidencePaths": [
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+            "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
             "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
             "web/fixtures/aetheria.provider-advertisement.json"
@@ -980,6 +983,7 @@
         "runtimes/incubating/eve-unity-scene/package.json",
         "runtimes/incubating/eve-unity-scene/Runtime/GameCult.Eve.UnityScene.asmdef",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/GameCult.Eve.UnityScene.Tests.asmdef",
         "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
@@ -997,7 +1001,11 @@
       "expectedSourceSymbols": [
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
-          "contains": ["EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "BuildEmbeddedDocumentSlots", "BuildPluginProjection", "EveUnitySceneEmbeddedDocumentSlot", "EveUnityScenePluginProjection", "EveUnitySceneNode", "SceneObjectKind", "unity-scene"]
+          "contains": ["EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "BuildEmbeddedDocumentSlots", "BuildPluginProjection", "SaiVisualNovelUnitySceneProjectionAdapter", "EveUnitySceneEmbeddedDocumentSlot", "EveUnityScenePluginProjection", "EveUnitySceneNode", "SceneObjectKind", "unity-scene"]
+        },
+        {
+          "path": "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
+          "contains": ["SaiVisualNovelUnitySceneProjectionAdapter", "sai.vn", "vn.stage", "story.choose", "story.continue", "story.jump", "gamecult.eve.plugin_abi.v1", "sidecar-advertised-plugin-abi", "Sai"]
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
@@ -1005,7 +1013,7 @@
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
-          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "norn-graph-scene-projection", "norn.map", "cultmesh://aetheria/norn/map", "norn.graph", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "sai-vn-scene-stage", "norn-graph-scene-projection", "norn.map", "cultmesh://aetheria/norn/map", "sai.vn", "norn.graph", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
         },
         {
           "path": "tools/eveunity/eveunity-capture-contract.test.mjs",

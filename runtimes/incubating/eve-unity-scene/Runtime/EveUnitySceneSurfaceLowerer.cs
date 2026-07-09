@@ -9,6 +9,7 @@ namespace GameCult.Eve.UnityScene
 {
     public sealed class EveUnitySceneSurfaceLowerer
     {
+        private static readonly SaiVisualNovelUnitySceneProjectionAdapter SaiVisualNovelAdapter = new SaiVisualNovelUnitySceneProjectionAdapter();
         private static readonly NornGraphUnitySceneProjectionAdapter NornGraphAdapter = new NornGraphUnitySceneProjectionAdapter();
 
         public EveUnitySceneProjection Lower(
@@ -93,6 +94,8 @@ namespace GameCult.Eve.UnityScene
 
         private static EveUnityScenePluginProjection? BuildPluginProjection(EveSurfaceComponent component)
         {
+            if (SaiVisualNovelAdapter.CanProject(component))
+                return SaiVisualNovelAdapter.Project(component);
             if (NornGraphAdapter.CanProject(component))
                 return NornGraphAdapter.Project(component);
             return null;
@@ -117,6 +120,13 @@ namespace GameCult.Eve.UnityScene
         {
             if (string.IsNullOrWhiteSpace(componentKind))
                 return "empty";
+            if (string.Equals(componentKind, "vn.stage", StringComparison.Ordinal))
+                return "sai-vn-scene-stage";
+            if (string.Equals(componentKind, "panel.dialogue", StringComparison.Ordinal) ||
+                string.Equals(componentKind, "text.dialogue", StringComparison.Ordinal))
+                return "sai-vn-scene-dialogue";
+            if (string.Equals(componentKind, "rail.actions", StringComparison.Ordinal))
+                return "sai-vn-scene-action-rail";
             if (componentKind.StartsWith("control.", StringComparison.Ordinal))
                 return "command-control";
             if (string.Equals(componentKind, "embed.norn", StringComparison.Ordinal))

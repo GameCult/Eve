@@ -392,8 +392,8 @@ Recently cut:
 - Runtime/plugin projection claims are now exported as root
   `runtimePluginProjectionCoverage[]` records. Runtime-owner smokes assert
   Unity UI Toolkit support for `sai.vn` and `norn.graph`, Unity scene support
-  for `norn.graph`, the declared TeX gaps, and the pending Unity
-  scene/Electron unsupported Sai projection until their generic lowerers exist.
+  for `sai.vn` and `norn.graph`, the declared TeX gaps, and the pending
+  Electron unsupported Sai projection until its generic lowerer exists.
 - Provider/runtime/plugin projection coverage is now exported as
   `providerRuntimePluginProjectionCoverage[]`. The runtime-owner smoke proves
   the Sai VN provider surface lowers fully in web, lowers in Unity UI Toolkit
@@ -430,16 +430,16 @@ Recently cut:
   `scripts/run-eveunity-scene-capture-contract-smoke.ps1`, while the actual
   Unity scene PNG/frame artifact remains pending. The scene graph now preserves
   embedded document slot identity for resolver-backed child surfaces without
-  owning the nested plugin semantics. Plugin projection adapters stay
-  unsupported for Sai and TeX until those sidecar projection adapters exist in
-  the Unity scene runtime.
+  owning the nested plugin semantics. Sai and Norn scene projection adapters now
+  exist; TeX stays unsupported until a scene-space or UI overlay adapter exists
+  in the Unity scene runtime.
 - Unity scene now has a direct split handoff smoke at
   `scripts/run-eveunity-scene-split-handoff-smoke.ps1`. The smoke verifies the
   scene runtime's current source paths for runtime body, scene graph lowering,
-  Norn plugin projection, and command transport, does not treat Aetheria
-  product paths or Norn implementation state as generic runtime source, names
-  the required Eve contracts, and keeps capture as an external proof until
-  EveUnity owns it.
+  Sai/Norn plugin projection, and command transport, does not treat Aetheria
+  product paths, Sai story state, or Norn implementation state as generic
+  runtime source, names the required Eve contracts, and keeps capture as an
+  external proof until EveUnity owns it.
 - Runtime split handoff documents now have a catalog-backed schema,
   `gamecult.eve.runtime_split_handoff.v1`. EveConformance exports that schema
   so runtime owner repos can consume split target, move set, contract input,

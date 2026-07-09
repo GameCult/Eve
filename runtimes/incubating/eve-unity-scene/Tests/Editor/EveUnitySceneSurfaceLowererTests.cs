@@ -58,6 +58,39 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState()
+        {
+            var lowerer = new EveUnitySceneSurfaceLowerer();
+            var projection = lowerer.Lower(SaiDocument(), Advertisement("sai.visual_novel.surface"));
+
+            Assert.That(projection.ProviderId, Is.EqualTo("gamecult.home.vn"));
+            Assert.That(projection.SurfaceId, Is.EqualTo("sai.visual_novel.surface"));
+            Assert.That(projection.Root.SceneObjectKind, Is.EqualTo("sai-vn-scene-stage"));
+            Assert.That(projection.Root.PluginProjection, Is.Not.Null);
+            Assert.That(projection.Root.PluginProjection!.PluginId, Is.EqualTo("sai.vn"));
+            Assert.That(projection.Root.PluginProjection.ProjectionKind, Is.EqualTo("sai-vn-scene-stage-shell"));
+            Assert.That(projection.Root.PluginProjection.AbiSchema, Is.EqualTo("gamecult.eve.plugin_abi.v1"));
+            Assert.That(projection.Root.PluginProjection.CommandBoundary, Is.EqualTo("sidecar-advertised-plugin-abi"));
+            Assert.That(projection.Root.PluginProjection.Capabilities, Does.Contain("vn.stage"));
+            Assert.That(projection.Root.PluginProjection.Capabilities, Does.Contain("story.choose"));
+            Assert.That(projection.Root.PluginProjection.DocumentId, Is.EqualTo("gamecult-compound"));
+            Assert.That(projection.Root.PluginProjection.SemanticOwner, Is.EqualTo("Sai"));
+
+            var dialogue = projection.Root.Children[0];
+            Assert.That(dialogue.SceneObjectKind, Is.EqualTo("sai-vn-scene-dialogue"));
+            Assert.That(dialogue.PluginProjection!.ProjectionKind, Is.EqualTo("sai-vn-scene-dialogue-shell"));
+            Assert.That(dialogue.PluginProjection.SemanticOwner, Is.EqualTo("Sai"));
+
+            var choice = projection.Root.Children[1].Children[0];
+            Assert.That(choice.SceneObjectKind, Is.EqualTo("command-control"));
+            Assert.That(choice.PluginProjection, Is.Not.Null);
+            Assert.That(choice.PluginProjection!.PluginId, Is.EqualTo("sai.vn"));
+            Assert.That(choice.PluginProjection.ProjectionKind, Is.EqualTo("sai-vn-scene-story-command-shell"));
+            Assert.That(choice.PluginProjection.Command, Is.EqualTo("story.choose"));
+            Assert.That(choice.PluginProjection.SemanticOwner, Is.EqualTo("Sai"));
+        }
+
+        [Test]
         public void CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts()
         {
             var lowerer = new EveUnitySceneSurfaceLowerer();
@@ -137,6 +170,60 @@ namespace GameCult.Eve.UnityScene.Tests
                         }),
                     Array.Empty<EveStyleToken>()),
                 Array.Empty<EveCommandTemplate>());
+        }
+
+        private static EveSurfaceDocument SaiDocument()
+        {
+            return new EveSurfaceDocument(
+                "gamecult.home.vn",
+                "sai.visual_novel",
+                "GameCult Compound VN",
+                1,
+                "2026-07-09T00:00:00Z",
+                new EveSurfaceTree(
+                    "sai.visual_novel.surface",
+                    new EveSurfaceComponent(
+                        "sai.root",
+                        "vn.stage",
+                        new Dictionary<string, string>(StringComparer.Ordinal)
+                        {
+                            ["storyId"] = "gamecult-compound",
+                            ["currentPath"] = "hub"
+                        },
+                        new[]
+                        {
+                            new EveSurfaceComponent(
+                                "sai.dialogue",
+                                "panel.dialogue",
+                                new Dictionary<string, string>(StringComparer.Ordinal)
+                                {
+                                    ["speaker"] = "Void",
+                                    ["text"] = "Pick a door."
+                                },
+                                Array.Empty<EveSurfaceComponent>()),
+                            new EveSurfaceComponent(
+                                "sai.choices",
+                                "rail.actions",
+                                new Dictionary<string, string>(StringComparer.Ordinal),
+                                new[]
+                                {
+                                    new EveSurfaceComponent(
+                                        "sai.choice.eve",
+                                        "control.button",
+                                        new Dictionary<string, string>(StringComparer.Ordinal)
+                                        {
+                                            ["label"] = "What is Eve?",
+                                            ["action.command"] = "story.choose",
+                                            ["targetPath"] = "eve"
+                                        },
+                                        Array.Empty<EveSurfaceComponent>())
+                                })
+                        }),
+                    Array.Empty<EveStyleToken>()),
+                new[]
+                {
+                    new EveCommandTemplate(CultMesh.OperationBinding("story.choose", "Choose"))
+                });
         }
 
         private static EveUnitySceneProviderSurfaceAdvertisement Advertisement(string surfaceId)

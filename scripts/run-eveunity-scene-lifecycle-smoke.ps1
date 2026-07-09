@@ -44,8 +44,20 @@ foreach ($feature in @("providerAdvertisements", "commandTransport", "sceneGraph
     throw "EveUnity scene manifest missing provider-shell feature: $feature"
   }
 }
-if (@($manifest.supportedPlugins).Count -ne 1) {
-  throw "EveUnity scene must claim exactly one plugin projection adapter"
+if (@($manifest.supportedPlugins).Count -ne 2) {
+  throw "EveUnity scene must claim exactly two plugin projection adapters"
+}
+$saiProjection = @($manifest.supportedPlugins) | Where-Object { $_.pluginId -eq "sai.vn" } | Select-Object -First 1
+if (-not $saiProjection) {
+  throw "EveUnity scene manifest missing supported Sai projection adapter"
+}
+if ($saiProjection.projectionAdapter -ne "SaiVisualNovelUnitySceneProjectionAdapter") {
+  throw "Unexpected EveUnity scene Sai projection adapter: $($saiProjection.projectionAdapter)"
+}
+foreach ($capability in @("vn.stage", "story.choose", "story.continue", "story.jump")) {
+  if (-not (@($saiProjection.capabilities) -contains $capability)) {
+    throw "EveUnity scene Sai projection adapter must claim $capability"
+  }
 }
 $nornProjection = @($manifest.supportedPlugins) | Where-Object { $_.pluginId -eq "norn.graph" } | Select-Object -First 1
 if (-not $nornProjection) {
@@ -81,11 +93,14 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
   }
 }
 
-foreach ($pluginId in @("sai.vn", "tex.math")) {
+foreach ($pluginId in @("tex.math")) {
   $unsupported = @($manifest.unsupportedPlugins) | Where-Object { $_.pluginId -eq $pluginId } | Select-Object -First 1
   if (-not $unsupported) {
     throw "EveUnity scene manifest missing unsupported plugin declaration: $pluginId"
   }
+}
+if (@($manifest.unsupportedPlugins) | Where-Object { $_.pluginId -eq "sai.vn" } | Select-Object -First 1) {
+  throw "EveUnity scene must not report sai.vn unsupported while the projection adapter is declared"
 }
 if (@($manifest.unsupportedPlugins) | Where-Object { $_.pluginId -eq "norn.graph" } | Select-Object -First 1) {
   throw "EveUnity scene must not report norn.graph unsupported while the projection adapter is declared"
