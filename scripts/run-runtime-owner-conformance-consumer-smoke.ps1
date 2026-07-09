@@ -179,7 +179,13 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.testPlatform:EditMode" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.0.ownerRepo:CultLib" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.0.packageManager:nuget" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.0.dependencyContract.sourceAuthority:CultLib" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.0.dependencyContract.packageSource:nuget" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.0.dependencyContract.packageId:GameCult.Caching" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.1.packageId:GameCult.Mesh" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.1.dependencyContract.sourceAuthority:CultLib" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.1.dependencyContract.packageSource:nuget" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.1.dependencyContract.packageId:GameCult.Mesh" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.captureKind:unity-editor-or-batchmode-png" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.artifactKind:png" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.targetId:unity-uitoolkit" `

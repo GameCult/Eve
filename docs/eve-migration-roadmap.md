@@ -986,6 +986,14 @@ Recently cut:
   advertised `worldInteraction` and `requiresPlugins` for Aetheria and Sai
   while keeping fixture-local loading paths, and both `web/surface.js` and the
   layout probe consume that shared merge path.
+- EveUnity's managed dependency story is now explicit machine-readable
+  lifecycle data instead of only prose. Each CultLib-owned Unity precompiled
+  dependency under `testContract.managedAssemblyDependencies[]` carries a
+  nested `dependencyContract` naming CultLib as source authority, NuGet as the
+  package source, the package/assembly identity, version policy, Unity
+  incubation resolution, and the EveUnity split handoff requirement. The
+  runtime capability schema, parity comparator, lifecycle smoke, and
+  runtime-owner conformance smoke all verify that boundary.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
   project, lower, measure, and apply behavior. The parity harness validates
   those fixtures against plugin manifests, so Eve proves the ABI shape without

@@ -10,12 +10,13 @@ component kinds degrade to inert containers instead of gaining local semantics.
 Plugin semantics enter through plugin ABI sidecars and advertisements, not
 through Unity. This package includes first-party projection adapters for the
 `sai.vn` projection surface (`vn.stage`, dialogue panels, action rails, and
-story command requests) and the `norn.graph` projection surface (`embed.norn`).
-Sai still owns story state and command semantics. Norn still owns graph layout
-and graph semantics. Unity only owns native projection of already-declared
-plugin capabilities and emits `gamecult.eve.command.v1` requests. `tex.math`
-still passes through as generic Eve component structure until it gains an
-explicit Unity projection adapter.
+story command requests), the `norn.graph` projection surface (`embed.norn`),
+and the `tex.math` source-fallback projection surface (`embed.tex`,
+`tex.inline`, and `tex.block`). Sai still owns story state and command
+semantics. Norn still owns graph layout and graph semantics. TeX still owns
+parsing, typesetting, baseline metrics, and cached render semantics. Unity only
+owns native projection of already-declared plugin capabilities and emits
+`gamecult.eve.command.v1` requests.
 
 This package lives in the Eve repository as the shared Unity lowering target.
 Aetheria and other Unity consumers should import it from Eve instead of
@@ -62,6 +63,12 @@ under `artifacts/aetheria-unity-editmode/{stamp}`, and temporarily adds
 Unity package consumption proof. The test contract names the CultLib-owned
 NuGet/precompiled assembly inputs Unity needs during incubation; CultLib still
 owns the .NET/NuGet dependency story for its assemblies.
+Each managed dependency record carries a nested `dependencyContract` naming
+CultLib as `sourceAuthority`, `nuget` as `packageSource`, the package id,
+assembly name, version policy, Unity incubation resolution mode, and the
+handoff requirement for EveUnity. This is not Eve inventing a second dependency
+system. It is EveUnity declaring the assemblies it consumes while CultLib keeps
+the package authority.
 
 The capture stage declares `gamecult.eve.runtime_capture_request.v1` request
 construction through `tools/eveunity/eveunity-capture-contract.mjs`. That

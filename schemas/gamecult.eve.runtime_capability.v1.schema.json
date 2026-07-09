@@ -396,7 +396,8 @@
                       "packageId",
                       "packageManager",
                       "ownerRepo",
-                      "resolutionMode"
+                      "resolutionMode",
+                      "dependencyContract"
                     ],
                     "properties": {
                       "assemblyName": {
@@ -418,6 +419,49 @@
                       "resolutionMode": {
                         "type": "string",
                         "minLength": 1
+                      },
+                      "dependencyContract": {
+                        "type": "object",
+                        "required": [
+                          "sourceAuthority",
+                          "packageSource",
+                          "packageId",
+                          "assemblyName",
+                          "versionPolicy",
+                          "unityResolution",
+                          "handoffRequirement"
+                        ],
+                        "properties": {
+                          "sourceAuthority": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "packageSource": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "packageId": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "assemblyName": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "versionPolicy": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "unityResolution": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "handoffRequirement": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        },
+                        "additionalProperties": true
                       }
                     },
                     "additionalProperties": true

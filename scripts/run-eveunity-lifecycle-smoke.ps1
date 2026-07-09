@@ -180,6 +180,20 @@ foreach ($dependency in @(
   if ($record.packageId -ne $dependency.packageId -or $record.packageManager -ne "nuget" -or $record.ownerRepo -ne "CultLib") {
     throw "EveUnity test contract has unexpected managed dependency record for $($dependency.assemblyName)"
   }
+  if ($null -eq $record.dependencyContract) {
+    throw "EveUnity test contract missing dependency contract for $($dependency.assemblyName)"
+  }
+  if ($record.dependencyContract.sourceAuthority -ne "CultLib" -or $record.dependencyContract.packageSource -ne "nuget") {
+    throw "EveUnity test contract has unexpected dependency source for $($dependency.assemblyName): $($record.dependencyContract.sourceAuthority)/$($record.dependencyContract.packageSource)"
+  }
+  if ($record.dependencyContract.packageId -ne $dependency.packageId -or $record.dependencyContract.assemblyName -ne $dependency.assemblyName) {
+    throw "EveUnity test contract dependency contract does not match managed dependency identity for $($dependency.assemblyName)"
+  }
+  foreach ($field in @("versionPolicy", "unityResolution", "handoffRequirement")) {
+    if (-not $record.dependencyContract.$field) {
+      throw "EveUnity test contract dependency contract missing $field for $($dependency.assemblyName)"
+    }
+  }
   if (-not (@($testAssemblyDefinition.precompiledReferences) -contains $dependency.assemblyName)) {
     throw "EveUnity test asmdef missing managed dependency precompiled reference: $($dependency.assemblyName)"
   }

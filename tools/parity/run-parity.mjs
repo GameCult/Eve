@@ -1574,7 +1574,20 @@ function compareTestContract(expected, actual, label) {
     expected.managedAssemblyDependencies || [],
     actual.managedAssemblyDependencies || [],
     `${label}.managedAssemblyDependencies`,
-    ["assemblyName", "packageId", "packageManager", "ownerRepo", "resolutionMode"],
+    [
+      "assemblyName",
+      "packageId",
+      "packageManager",
+      "ownerRepo",
+      "resolutionMode",
+      "dependencyContract.sourceAuthority",
+      "dependencyContract.packageSource",
+      "dependencyContract.packageId",
+      "dependencyContract.assemblyName",
+      "dependencyContract.versionPolicy",
+      "dependencyContract.unityResolution",
+      "dependencyContract.handoffRequirement",
+    ],
   ));
   return errors;
 }
@@ -1615,12 +1628,18 @@ function compareDependencyRecords(expectedRecords, actualRecords, label, keys) {
       continue;
     }
     for (const key of keys) {
-      if ((expected[key] || "") !== (actual[key] || "")) {
-        errors.push(`${label}:${expected[identityKey]}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
+      const expectedValue = getByPath(expected, key) || "";
+      const actualValue = getByPath(actual, key) || "";
+      if (expectedValue !== actualValue) {
+        errors.push(`${label}:${expected[identityKey]}.${key}:expected ${expectedValue} got ${actualValue}`);
       }
     }
   }
   return errors;
+}
+
+function getByPath(record, dottedPath) {
+  return dottedPath.split(".").reduce((current, segment) => current?.[segment], record);
 }
 
 function comparePluginCapabilityClaims(expectedPlugins, actualPlugins, label) {

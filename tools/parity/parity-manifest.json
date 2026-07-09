@@ -1625,21 +1625,48 @@
                 "packageId": "GameCult.Caching",
                 "packageManager": "nuget",
                 "ownerRepo": "CultLib",
-                "resolutionMode": "Unity precompiled reference during EveUnity incubation."
+                "resolutionMode": "Unity precompiled reference during EveUnity incubation.",
+                "dependencyContract": {
+                  "sourceAuthority": "CultLib",
+                  "packageSource": "nuget",
+                  "packageId": "GameCult.Caching",
+                  "assemblyName": "GameCult.Caching.dll",
+                  "versionPolicy": "CultLib-owned package version stream.",
+                  "unityResolution": "EveUnity consumes this as a Unity precompiled reference during incubation.",
+                  "handoffRequirement": "EveUnity split must resolve this through CultLib's NuGet/package feed or a documented Unity import without vendoring CultLib ownership into Eve."
+                }
               },
               {
                 "assemblyName": "GameCult.Mesh.dll",
                 "packageId": "GameCult.Mesh",
                 "packageManager": "nuget",
                 "ownerRepo": "CultLib",
-                "resolutionMode": "Unity precompiled reference during EveUnity incubation."
+                "resolutionMode": "Unity precompiled reference during EveUnity incubation.",
+                "dependencyContract": {
+                  "sourceAuthority": "CultLib",
+                  "packageSource": "nuget",
+                  "packageId": "GameCult.Mesh",
+                  "assemblyName": "GameCult.Mesh.dll",
+                  "versionPolicy": "CultLib-owned package version stream.",
+                  "unityResolution": "EveUnity consumes this as a Unity precompiled reference during incubation.",
+                  "handoffRequirement": "EveUnity split must resolve this through CultLib's NuGet/package feed or a documented Unity import without vendoring CultLib ownership into Eve."
+                }
               },
               {
                 "assemblyName": "MessagePack.Annotations.dll",
                 "packageId": "MessagePack.Annotations",
                 "packageManager": "nuget",
                 "ownerRepo": "CultLib",
-                "resolutionMode": "Unity precompiled reference during EveUnity incubation."
+                "resolutionMode": "Unity precompiled reference during EveUnity incubation.",
+                "dependencyContract": {
+                  "sourceAuthority": "CultLib",
+                  "packageSource": "nuget",
+                  "packageId": "MessagePack.Annotations",
+                  "assemblyName": "MessagePack.Annotations.dll",
+                  "versionPolicy": "CultLib-owned transitive package version stream.",
+                  "unityResolution": "EveUnity consumes this as a Unity precompiled reference during incubation.",
+                  "handoffRequirement": "EveUnity split must resolve this through CultLib's NuGet/package feed or a documented Unity import without vendoring CultLib ownership into Eve."
+                }
               }
             ]
           },
