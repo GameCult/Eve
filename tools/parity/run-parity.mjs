@@ -1184,12 +1184,39 @@ function buildConformanceExport(report) {
         asserts: fixture.metadata?.asserts || [],
         requiredPlugins: fixture.requiredPlugins || [],
       }));
+    const runtimeTargets = pack.id === "runtime"
+      ? (report.runtimes || []).map(runtime => ({
+          runtimeId: runtime.id,
+          title: runtime.title,
+          status: runtime.status,
+          ownerRepo: runtime.ownerRepo,
+          splitTarget: runtime.splitTarget,
+          repoRole: runtime.repoRole,
+          supportedFeatures: runtime.supportedFeatures,
+          supportedPlugins: runtime.supportedPlugins,
+          unsupportedPlugins: runtime.unsupportedPlugins,
+          requiredFixtures: runtime.requiredFixtures,
+          pluginFixtures: runtime.pluginFixtures,
+          capabilityManifestPath: runtime.capabilityManifest?.manifestPath || "",
+          commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
+          captureStatus: runtime.capture?.status || "",
+          lifecycle: runtime.lifecycle,
+          missingEvidence: [
+            ...runtime.missingPaths,
+            ...runtime.missingRequiredFixtures.map(id => `fixture:${id}`),
+            ...runtime.missingRequiredFeatures.map(id => `feature:${id}`),
+            ...runtime.commandTransportSmokeErrors.map(id => `command-smoke:${id}`),
+            ...runtime.capabilityManifestErrors.map(id => `runtime-capability:${id}`),
+          ],
+        }))
+      : [];
 
     return {
       id: pack.id,
       ownerRepo: pack.ownerRepo || "",
       exitCriteria: pack.exitCriteria || "",
       fixtures,
+      ...(runtimeTargets.length ? { runtimeTargets } : {}),
     };
   });
 
@@ -1259,7 +1286,9 @@ function renderConformanceExportMarkdown(conformanceExport) {
   ];
 
   for (const pack of conformanceExport.packs) {
-    lines.push(`| ${pack.id} | ${pack.ownerRepo} | ${pack.fixtures.length} | ${pack.exitCriteria} |`);
+    const runtimeTargets = (pack.runtimeTargets || []).length;
+    const evidenceCount = runtimeTargets ? `${pack.fixtures.length} fixtures, ${runtimeTargets} runtimes` : `${pack.fixtures.length}`;
+    lines.push(`| ${pack.id} | ${pack.ownerRepo} | ${evidenceCount} | ${pack.exitCriteria} |`);
   }
 
   lines.push("", "## Fixtures", "", "| Pack | Fixture | Status | Owner | Surface | Metadata |", "| --- | --- | --- | --- | --- | --- |");
@@ -1270,9 +1299,12 @@ function renderConformanceExportMarkdown(conformanceExport) {
   }
 
   lines.push("", "## Runtime Targets", "", "| Runtime | Status | Split Target | Command Schema | Unsupported Plugins |", "| --- | --- | --- | --- | --- |");
-  for (const runtime of conformanceExport.runtimes) {
+  const runtimePack = conformanceExport.packs.find(pack => pack.id === "runtime");
+  const runtimeTargets = runtimePack?.runtimeTargets?.length ? runtimePack.runtimeTargets : conformanceExport.runtimes;
+  for (const runtime of runtimeTargets) {
     const unsupported = (runtime.unsupportedPlugins || []).map(plugin => plugin.pluginId).join(", ");
-    lines.push(`| ${runtime.runtimeId} | ${runtime.status} | ${runtime.splitTarget || ""} | ${runtime.commandTransportSchema || ""} | ${unsupported} |`);
+    const commandSchema = runtime.commandTransportSchema || "";
+    lines.push(`| ${runtime.runtimeId} | ${runtime.status} | ${runtime.splitTarget || ""} | ${commandSchema} | ${unsupported} |`);
   }
 
   return `${lines.join("\n")}\n`;

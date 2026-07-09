@@ -49,6 +49,9 @@
           },
           "fixtures": {
             "type": "array"
+          },
+          "runtimeTargets": {
+            "type": "array"
           }
         },
         "additionalProperties": true

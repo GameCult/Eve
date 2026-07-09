@@ -280,6 +280,11 @@ Exit criteria:
 
 Recently cut:
 
+- The conformance runtime pack now exports `runtimeTargets` in
+  `artifacts/conformance/latest/packs/runtime.json`. Runtime repos can consume
+  runtime status, feature/plugin claims, command schema, lifecycle, capture
+  status, capability manifest path, and missing evidence without depending on
+  Eve's parity manifest layout.
 - Sai, Norn, and TeX plugin ABI fixtures now cover `lower` and `measure` in
   addition to `describe`, `validate`, `project`, and `apply`. Eve validates the
   operation shape, preserved component kinds, measurement outputs, and provider

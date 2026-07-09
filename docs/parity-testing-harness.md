@@ -85,6 +85,12 @@ The conformance export includes runtime `capabilityManifestPath` and
 generic projection runtime from a runtime that can project plugin-declared
 capabilities.
 
+The runtime conformance pack is evidence-shaped, not fixture-shaped. Its
+`packs/runtime.json` document includes `runtimeTargets` so runtime repos can
+consume status, supported features, plugin support, command schema, lifecycle,
+capture status, and missing evidence without reading Eve's local parity
+manifest.
+
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into
 `artifacts/conformance-consumer-smoke/export` and runs

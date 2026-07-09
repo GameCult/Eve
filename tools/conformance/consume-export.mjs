@@ -72,6 +72,16 @@ function validateIndex(index, directory, expectations, errors) {
       if (!fixture.surface?.path) errors.push(`pack-file:${pack.id}:fixture:${fixture.fixtureId || "unknown"}:surface.path:missing`);
       if (!fixture.metadataPath) errors.push(`pack-file:${pack.id}:fixture:${fixture.fixtureId || "unknown"}:metadataPath:missing`);
     }
+
+    if (pack.id === "runtime") {
+      const runtimeTargets = Array.isArray(packDocument.runtimeTargets) ? packDocument.runtimeTargets : [];
+      if (!runtimeTargets.length) errors.push("pack-file:runtime:runtimeTargets:missing");
+      for (const runtime of runtimeTargets) {
+        if (!runtime.runtimeId) errors.push("pack-file:runtime:runtimeTarget:runtimeId:missing");
+        if (!runtime.status) errors.push(`pack-file:runtime:runtimeTarget:${runtime.runtimeId || "unknown"}:status:missing`);
+        if (!runtime.ownerRepo) errors.push(`pack-file:runtime:runtimeTarget:${runtime.runtimeId || "unknown"}:ownerRepo:missing`);
+      }
+    }
   }
 
   const plugins = Array.isArray(index.plugins) ? index.plugins : [];
