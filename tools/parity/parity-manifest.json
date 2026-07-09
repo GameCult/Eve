@@ -1040,7 +1040,7 @@
       "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
       "requiredFixtures": ["aetheria-world", "eve-world-smoke"],
       "pluginFixtures": ["sai-vn"],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "sceneGraphProjection", "embeddedDocuments"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "sceneGraphProjection", "playableWorldProjection", "embeddedDocuments"],
       "supportedPlugins": [
         {
           "pluginId": "sai.vn",
@@ -1064,7 +1064,7 @@
           "targetId": "unity-scene",
           "surfaceKinds": ["interactive-world"],
           "projectionKinds": ["provider-authored-world-surface"],
-          "supportLevel": "unity-scene-graph-command-surface",
+          "supportLevel": "unity-playable-world-scene-command-surface",
           "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
           "evidencePaths": [
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
@@ -1106,7 +1106,7 @@
       "expectedSourceSymbols": [
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
-          "contains": ["EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "BuildEmbeddedDocumentSlots", "BuildPluginProjection", "SaiVisualNovelUnitySceneProjectionAdapter", "TeXMathUnitySceneProjectionAdapter", "EveUnitySceneEmbeddedDocumentSlot", "EveUnityScenePluginProjection", "EveUnitySceneNode", "SceneObjectKind", "unity-scene"]
+          "contains": ["EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "BuildPlayableWorld", "EveUnityPlayableWorldProjection", "EveUnityPlayableWorldEntity", "BuildEmbeddedDocumentSlots", "BuildPluginProjection", "SaiVisualNovelUnitySceneProjectionAdapter", "TeXMathUnitySceneProjectionAdapter", "EveUnitySceneEmbeddedDocumentSlot", "EveUnityScenePluginProjection", "EveUnitySceneNode", "SceneObjectKind", "playable-world-root", "unity-scene"]
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/SaiVisualNovelUnitySceneProjectionAdapter.cs",
@@ -1122,7 +1122,7 @@
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
-          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "norn.map", "cultmesh://aetheria/norn/map", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "norn.map", "cultmesh://aetheria/norn/map", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
         },
         {
           "path": "tools/eveunity/eveunity-capture-contract.test.mjs",
@@ -1130,11 +1130,11 @@
         },
         {
           "path": "tools/eveunity/eveunity-scene-capture-artifact.mjs",
-          "contains": ["buildUnitySceneCaptureArtifact", "buildUnitySceneProjection", "gamecult.eve.unity_scene_projection.v1", "unity-scene-projection-json", "writeUnitySceneCaptureArtifact", "request-output"]
+          "contains": ["buildUnitySceneCaptureArtifact", "buildUnitySceneProjection", "buildPlayableWorld", "gamecult.eve.unity_scene_projection.v1", "unity-scene-projection-json", "writeUnitySceneCaptureArtifact", "request-output"]
         },
         {
           "path": "tools/eveunity/eveunity-scene-capture-artifact.test.mjs",
-          "contains": ["builds Unity scene projection capture artifact", "builds Unity scene capture artifact for a generic world provider", "marks Sai required and Norn TeX optional sidecar plugin projections", "gamecult.eve.unity_scene_projection.v1", "unity-scene-projection-json", "optional-nested", "eve.world-smoke.commands"]
+          "contains": ["builds Unity scene projection capture artifact", "builds Unity scene capture artifact for a generic world provider", "marks Sai required and Norn TeX optional sidecar plugin projections", "playableWorld", "arpg-third-person", "aetheria.daemon.move_intent", "gamecult.eve.unity_scene_projection.v1", "unity-scene-projection-json", "optional-nested", "eve.world-smoke.commands"]
         },
         {
           "path": "tools/eveunity/eveunity-release-contract.test.mjs",

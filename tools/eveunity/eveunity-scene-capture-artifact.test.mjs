@@ -34,7 +34,19 @@ test("builds Unity scene projection capture artifact from provider advertisement
   assert.equal(projection.artifactKind, "json-projection");
   assert.equal(projection.captureKind, "unity-scene-projection-json");
   assert.equal(projection.root.id, "aetheria.daemon.game.root");
-  assert.equal(projection.root.children[1].children[0].sceneObjectKind, "world-projection-node");
+  assert.equal(projection.playableWorld.worldRootId, "aetheria.daemon.game.playable");
+  assert.equal(projection.playableWorld.statePointerId, "cultmesh://aetheria/run/current");
+  assert.equal(projection.playableWorld.assetManifest, "cultmesh://aetheria/assets/manifest");
+  assert.equal(projection.playableWorld.inputProfile, "arpg-third-person");
+  assert.equal(projection.playableWorld.cameraRig, "third-person-orbit");
+  assert.equal(projection.playableWorld.playerEntityId, "player-vanguard");
+  assert.equal(projection.playableWorld.movementCommand, "aetheria.daemon.move_intent");
+  assert.equal(projection.playableWorld.entityCount, 3);
+  const player = projection.playableWorld.entities.find(entity => entity.entityId === "player-vanguard");
+  assert.equal(player.assetRef, "cultmesh://aetheria/assets/map/entity/player");
+  assert.deepEqual(player.position, { x: 0, y: 0, z: 0 });
+  assert.equal(player.controllable, true);
+  assert.equal(projection.root.children[1].children[0].sceneObjectKind, "playable-world-root");
 });
 
 test("builds Unity scene capture artifact for a generic world provider", () => {

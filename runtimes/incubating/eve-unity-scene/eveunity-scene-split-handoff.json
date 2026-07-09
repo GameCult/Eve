@@ -55,7 +55,7 @@
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic scene graph projection and command boundary evidence; capture remains a separate lifecycle proof."
+      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
     },
     {
       "id": "unity-scene-sai-plugin-projection",
@@ -116,7 +116,7 @@
         "scripts/run-eveunity-scene-capture-smoke.ps1"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "EveUnity builds a provider-advertisement-backed Unity scene capture request and deterministic gamecult.eve.unity_scene_projection.v1 JSON projection artifact now; the split is not complete until EveUnity attaches Unity scene screenshot or frame-capture PNG artifacts to conformance output for at least one provider-authored world surface."
+      "replacementProof": "EveUnity builds a provider-advertisement-backed Unity scene capture request and deterministic gamecult.eve.unity_scene_projection.v1 JSON projection artifact with playableWorld evidence now; the split is not complete until EveUnity attaches Unity scene screenshot or frame-capture PNG artifacts to conformance output for at least one provider-authored world surface."
     }
   ],
   "contractInputs": [
@@ -140,12 +140,13 @@
     "EveUnity publishes a Unity scene runtime capability manifest.",
     "EveUnity builds the provider-agnostic Unity scene UPM package artifact.",
     "EveUnity owns a provider-agnostic scene graph lowerer that consumes advertised worldInteraction boundaries without importing Aetheria internals.",
-    "EveUnity owns the provider-agnostic scene graph lowerer outside Eve incubation.",
+    "EveUnity owns the provider-agnostic playable-world scene lowerer outside Eve incubation.",
     "EveUnity owns the Unity scene Sai projection adapter outside Eve incubation without importing Sai story state or VN/Ink internals.",
     "EveUnity owns the Unity scene Norn projection adapter outside Eve incubation without importing Norn implementation state.",
     "EveUnity owns the Unity scene TeX projection adapter outside Eve incubation without importing TeX implementation state.",
     "EveUnity lowers at least one non-Aetheria provider-authored world surface into Unity scene objects.",
-    "EveUnity lowers Aetheria's game world surface through provider advertisements without importing Aetheria internals.",
+    "EveUnity lowers Aetheria's game world surface into generic playableWorld projection data through provider advertisements without importing Aetheria internals.",
+    "A generic EveUnity scene client subscribes to the live Aetheria daemon surface over CultMesh/CultNet without Aetheria project code.",
     "Unity scene input emits gamecult.eve.command.v1 intents and renders provider receipts.",
     "Unity scene screenshot or frame-capture PNG artifacts are attached to conformance output."
   ]

@@ -48,6 +48,99 @@
           },
           "children": [
             {
+              "id": "aetheria.daemon.game.playable",
+              "kind": "world.scene3d",
+              "props": {
+                "label": "Daemon ARPG View",
+                "statePointerId": "cultmesh://aetheria/run/current",
+                "assetManifest": "cultmesh://aetheria/assets/manifest",
+                "inputProfile": "arpg-third-person",
+                "cameraRig": "third-person-orbit",
+                "playerEntityId": "player-vanguard",
+                "movementCommand": "aetheria.daemon.move_intent",
+                "focusCommand": "aetheria.daemon.focus",
+                "targetCommand": "aetheria.daemon.target",
+                "actionCommand": "aetheria.daemon.use_equipment"
+              },
+              "stateBindings": [
+                {
+                  "target": "run",
+                  "pointerId": "cultmesh://aetheria/run/current"
+                },
+                {
+                  "target": "assets",
+                  "pointerId": "cultmesh://aetheria/assets/manifest"
+                }
+              ],
+              "children": [
+                {
+                  "id": "aetheria.daemon.game.entity.player",
+                  "kind": "world.entity3d",
+                  "props": {
+                    "entityId": "player-vanguard",
+                    "entityKind": "player",
+                    "label": "Vanguard",
+                    "faction": "player",
+                    "assetRef": "cultmesh://aetheria/assets/map/entity/player",
+                    "position": "0,0,0",
+                    "rotationY": "35",
+                    "radius": "1.15",
+                    "selectable": "true",
+                    "controllable": "true",
+                    "focusCommand": "aetheria.daemon.focus",
+                    "moveCommand": "aetheria.daemon.move_intent"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "aetheria.daemon.game.entity.raider",
+                  "kind": "world.entity3d",
+                  "props": {
+                    "entityId": "raider-scout",
+                    "entityKind": "enemy",
+                    "label": "Raider Scout",
+                    "faction": "raider",
+                    "assetRef": "cultmesh://aetheria/assets/map/entity/ship",
+                    "position": "9,0,14",
+                    "rotationY": "220",
+                    "radius": "0.9",
+                    "selectable": "true",
+                    "targetCommand": "aetheria.daemon.target"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "aetheria.daemon.game.entity.station",
+                  "kind": "world.entity3d",
+                  "props": {
+                    "entityId": "anchor-station",
+                    "entityKind": "station",
+                    "label": "Anchor Station",
+                    "faction": "neutral",
+                    "assetRef": "cultmesh://aetheria/assets/map/entity/station",
+                    "position": "-18,0,6",
+                    "rotationY": "0",
+                    "radius": "3.4",
+                    "selectable": "true",
+                    "focusCommand": "aetheria.daemon.focus"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "aetheria.daemon.game.flow",
+                  "kind": "field.vector3d",
+                  "props": {
+                    "label": "Volumetric Flow",
+                    "fieldId": "aetheria.zone.flow",
+                    "bind": "aetheria.daemon.soaView.flowField3d",
+                    "visualizer": "particles",
+                    "bounds": "-32,0,-32,32,24,32"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
               "id": "aetheria.daemon.game.gravity",
               "kind": "field.surface2d",
               "props": {

@@ -65,6 +65,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature unity-scene:providerAdvertisements `
   --expect-runtime-feature unity-scene:commandTransport `
   --expect-runtime-feature unity-scene:sceneGraphProjection `
+  --expect-runtime-feature unity-scene:playableWorldProjection `
   --expect-runtime-feature electron-shell:providerAdvertisements `
   --expect-runtime-feature electron-shell:commandTransport `
   --expect-runtime-feature electron-shell:surfaceTreeProjection `
@@ -85,7 +86,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-world-field unity-uitoolkit:unity-uitoolkit:supportLevel:ui-toolkit-semantic-command-surface `
   --expect-runtime-world-field unity-uitoolkit:unity-uitoolkit:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
   --expect-runtime-world-target unity-scene:unity-scene `
-  --expect-runtime-world-field unity-scene:unity-scene:supportLevel:unity-scene-graph-command-surface `
+  --expect-runtime-world-field unity-scene:unity-scene:supportLevel:unity-playable-world-scene-command-surface `
   --expect-runtime-world-field unity-scene:unity-scene:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
   --expect-runtime-world-target electron-shell:electron-shell `
   --expect-runtime-world-field electron-shell:electron-shell:supportLevel:electron-shell-surface-tree-command-surface `

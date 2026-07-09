@@ -32,6 +32,7 @@ namespace GameCult.Eve.UnityScene
                 advertisedSurface.WorldInteraction.CommandBoundary,
                 advertisedSurface.WorldInteraction.ReceiptSchema,
                 advertisedSurface.WorldInteraction.Ownership,
+                BuildPlayableWorld(document.Surface.Root),
                 BuildSceneGraph(document.Surface.Root));
         }
 
@@ -93,6 +94,103 @@ namespace GameCult.Eve.UnityScene
                 children);
         }
 
+        private static EveUnityPlayableWorldProjection? BuildPlayableWorld(EveSurfaceComponent root)
+        {
+            var worldRoot = FindFirst(root, component => string.Equals(component.Kind, "world.scene3d", StringComparison.Ordinal));
+            if (worldRoot == null)
+                return null;
+
+            var entities = new List<EveUnityPlayableWorldEntity>();
+            foreach (var component in Flatten(worldRoot))
+            {
+                if (string.Equals(component.Kind, "world.entity3d", StringComparison.Ordinal))
+                    entities.Add(BuildPlayableEntity(component));
+            }
+
+            return new EveUnityPlayableWorldProjection(
+                worldRoot.Id,
+                worldRoot.GetProp("statePointerId", worldRoot.GetProp("worldStatePointerId")),
+                worldRoot.GetProp("assetManifest", worldRoot.GetProp("assetManifestUri")),
+                worldRoot.GetProp("inputProfile"),
+                worldRoot.GetProp("cameraRig"),
+                worldRoot.GetProp("playerEntityId"),
+                worldRoot.GetProp("movementCommand"),
+                worldRoot.GetProp("focusCommand"),
+                worldRoot.GetProp("targetCommand"),
+                worldRoot.GetProp("actionCommand"),
+                entities);
+        }
+
+        private static EveUnityPlayableWorldEntity BuildPlayableEntity(EveSurfaceComponent component)
+        {
+            var position = ParseVector3(component.GetProp("position"));
+            return new EveUnityPlayableWorldEntity(
+                component.Id,
+                component.GetProp("entityId", component.Id),
+                component.GetProp("entityKind", component.GetProp("kind")),
+                component.GetProp("label", component.GetProp("name")),
+                component.GetProp("faction"),
+                component.GetProp("assetRef", component.GetProp("meshRef", component.GetProp("prefabRef"))),
+                position.x,
+                position.y,
+                position.z,
+                ParseFloat(component.GetProp("rotationY", component.GetProp("yaw")), 0f),
+                ParseFloat(component.GetProp("radius"), 0f),
+                ParseBoolean(component.GetProp("selectable")),
+                ParseBoolean(component.GetProp("controllable")),
+                component.GetProp("focusCommand"),
+                component.GetProp("moveCommand"),
+                component.GetProp("targetCommand"),
+                component.GetProp("actionCommand"));
+        }
+
+        private static EveSurfaceComponent? FindFirst(
+            EveSurfaceComponent component,
+            Predicate<EveSurfaceComponent> predicate)
+        {
+            if (predicate(component))
+                return component;
+            foreach (var child in component.Children)
+            {
+                var found = FindFirst(child, predicate);
+                if (found != null)
+                    return found;
+            }
+            return null;
+        }
+
+        private static IEnumerable<EveSurfaceComponent> Flatten(EveSurfaceComponent component)
+        {
+            yield return component;
+            foreach (var child in component.Children)
+            {
+                foreach (var nested in Flatten(child))
+                    yield return nested;
+            }
+        }
+
+        private static (float x, float y, float z) ParseVector3(string value)
+        {
+            var parts = (value ?? "").Split(',');
+            return (
+                parts.Length > 0 ? ParseFloat(parts[0], 0f) : 0f,
+                parts.Length > 1 ? ParseFloat(parts[1], 0f) : 0f,
+                parts.Length > 2 ? ParseFloat(parts[2], 0f) : 0f);
+        }
+
+        private static float ParseFloat(string value, float fallback)
+        {
+            return float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var parsed)
+                ? parsed
+                : fallback;
+        }
+
+        private static bool ParseBoolean(string value)
+        {
+            return string.Equals(value, "true", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(value, "1", StringComparison.Ordinal);
+        }
+
         private static EveUnityScenePluginProjection? BuildPluginProjection(EveSurfaceComponent component)
         {
             if (SaiVisualNovelAdapter.CanProject(component))
@@ -123,6 +221,13 @@ namespace GameCult.Eve.UnityScene
         {
             if (string.IsNullOrWhiteSpace(componentKind))
                 return "empty";
+            if (string.Equals(componentKind, "world.scene3d", StringComparison.Ordinal))
+                return "playable-world-root";
+            if (string.Equals(componentKind, "world.entity3d", StringComparison.Ordinal))
+                return "playable-world-entity";
+            if (string.Equals(componentKind, "field.vector3d", StringComparison.Ordinal) ||
+                string.Equals(componentKind, "field.scalar3d", StringComparison.Ordinal))
+                return "world-field-3d";
             if (string.Equals(componentKind, "vn.stage", StringComparison.Ordinal))
                 return "sai-vn-scene-stage";
             if (string.Equals(componentKind, "panel.dialogue", StringComparison.Ordinal) ||
@@ -140,7 +245,8 @@ namespace GameCult.Eve.UnityScene
                 return "plugin-placeholder";
             if (string.Equals(componentKind, "surface.slot", StringComparison.Ordinal))
                 return "embedded-surface-slot";
-            if (componentKind.StartsWith("world.", StringComparison.Ordinal))
+            if (componentKind.StartsWith("world.", StringComparison.Ordinal) ||
+                componentKind.StartsWith("field.", StringComparison.Ordinal))
                 return "world-projection-node";
             if (componentKind.StartsWith("text.", StringComparison.Ordinal) || string.Equals(componentKind, "label", StringComparison.Ordinal))
                 return "scene-label";
@@ -157,6 +263,7 @@ namespace GameCult.Eve.UnityScene
             string commandBoundary,
             string receiptSchema,
             string ownership,
+            EveUnityPlayableWorldProjection? playableWorld,
             EveUnitySceneNode root)
         {
             ProviderId = providerId ?? "";
@@ -165,6 +272,7 @@ namespace GameCult.Eve.UnityScene
             CommandBoundary = commandBoundary ?? "";
             ReceiptSchema = receiptSchema ?? "";
             Ownership = ownership ?? "";
+            PlayableWorld = playableWorld;
             Root = root ?? throw new ArgumentNullException(nameof(root));
         }
 
@@ -180,7 +288,137 @@ namespace GameCult.Eve.UnityScene
 
         public string Ownership { get; }
 
+        public EveUnityPlayableWorldProjection? PlayableWorld { get; }
+
         public EveUnitySceneNode Root { get; }
+    }
+
+    public sealed class EveUnityPlayableWorldProjection
+    {
+        public EveUnityPlayableWorldProjection(
+            string worldRootId,
+            string statePointerId,
+            string assetManifest,
+            string inputProfile,
+            string cameraRig,
+            string playerEntityId,
+            string movementCommand,
+            string focusCommand,
+            string targetCommand,
+            string actionCommand,
+            IReadOnlyList<EveUnityPlayableWorldEntity> entities)
+        {
+            WorldRootId = worldRootId ?? "";
+            StatePointerId = statePointerId ?? "";
+            AssetManifest = assetManifest ?? "";
+            InputProfile = inputProfile ?? "";
+            CameraRig = cameraRig ?? "";
+            PlayerEntityId = playerEntityId ?? "";
+            MovementCommand = movementCommand ?? "";
+            FocusCommand = focusCommand ?? "";
+            TargetCommand = targetCommand ?? "";
+            ActionCommand = actionCommand ?? "";
+            Entities = entities ?? Array.Empty<EveUnityPlayableWorldEntity>();
+        }
+
+        public string WorldRootId { get; }
+
+        public string StatePointerId { get; }
+
+        public string AssetManifest { get; }
+
+        public string InputProfile { get; }
+
+        public string CameraRig { get; }
+
+        public string PlayerEntityId { get; }
+
+        public string MovementCommand { get; }
+
+        public string FocusCommand { get; }
+
+        public string TargetCommand { get; }
+
+        public string ActionCommand { get; }
+
+        public int EntityCount => Entities.Count;
+
+        public IReadOnlyList<EveUnityPlayableWorldEntity> Entities { get; }
+    }
+
+    public sealed class EveUnityPlayableWorldEntity
+    {
+        public EveUnityPlayableWorldEntity(
+            string nodeId,
+            string entityId,
+            string entityKind,
+            string label,
+            string faction,
+            string assetRef,
+            float positionX,
+            float positionY,
+            float positionZ,
+            float rotationY,
+            float radius,
+            bool selectable,
+            bool controllable,
+            string focusCommand,
+            string moveCommand,
+            string targetCommand,
+            string actionCommand)
+        {
+            NodeId = nodeId ?? "";
+            EntityId = entityId ?? "";
+            EntityKind = entityKind ?? "";
+            Label = label ?? "";
+            Faction = faction ?? "";
+            AssetRef = assetRef ?? "";
+            PositionX = positionX;
+            PositionY = positionY;
+            PositionZ = positionZ;
+            RotationY = rotationY;
+            Radius = radius;
+            Selectable = selectable;
+            Controllable = controllable;
+            FocusCommand = focusCommand ?? "";
+            MoveCommand = moveCommand ?? "";
+            TargetCommand = targetCommand ?? "";
+            ActionCommand = actionCommand ?? "";
+        }
+
+        public string NodeId { get; }
+
+        public string EntityId { get; }
+
+        public string EntityKind { get; }
+
+        public string Label { get; }
+
+        public string Faction { get; }
+
+        public string AssetRef { get; }
+
+        public float PositionX { get; }
+
+        public float PositionY { get; }
+
+        public float PositionZ { get; }
+
+        public float RotationY { get; }
+
+        public float Radius { get; }
+
+        public bool Selectable { get; }
+
+        public bool Controllable { get; }
+
+        public string FocusCommand { get; }
+
+        public string MoveCommand { get; }
+
+        public string TargetCommand { get; }
+
+        public string ActionCommand { get; }
     }
 
     public sealed class EveUnitySceneNode

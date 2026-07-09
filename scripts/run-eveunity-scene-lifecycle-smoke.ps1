@@ -39,7 +39,7 @@ if ($manifest.incubation.splitHandoff.manifestPath -ne "runtimes/incubating/eve-
   throw "EveUnity scene manifest missing split handoff path"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "sceneGraphProjection", "embeddedDocuments")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "sceneGraphProjection", "playableWorldProjection", "embeddedDocuments")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveUnity scene manifest missing provider-shell feature: $feature"
   }
@@ -92,7 +92,7 @@ $worldSurfaceLoweringClaim = $worldSurfaceLoweringClaims | Where-Object { $_.tar
 if (-not $worldSurfaceLoweringClaim) {
   throw "EveUnity scene manifest missing unity-scene world-surface lowering claim"
 }
-if ($worldSurfaceLoweringClaim.supportLevel -ne "unity-scene-graph-command-surface") {
+if ($worldSurfaceLoweringClaim.supportLevel -ne "unity-playable-world-scene-command-surface") {
   throw "Unexpected EveUnity scene world-surface support level: $($worldSurfaceLoweringClaim.supportLevel)"
 }
 if ($worldSurfaceLoweringClaim.ownership -ne "runtime-lowers-provider-world-surface-without-owning-world-state") {

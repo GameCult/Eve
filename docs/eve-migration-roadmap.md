@@ -603,6 +603,16 @@ Recently cut:
   Norn, and TeX remain sidecar plugin projections when a visual-novel surface
   is lowered. The remaining EveUnity blocker is an owner-repo Unity screenshot
   or frame-capture PNG, not absence of semantic scene projection evidence.
+- Unity scene lowering now extracts a provider-authored playable ARPG world
+  model from the Aetheria daemon game surface without importing Aetheria runtime
+  types. The Aetheria fixture carries generic `world.scene3d`,
+  `world.entity3d`, asset-manifest, input-profile, camera, movement, focus, and
+  target command affordances; `EveUnitySceneSurfaceLowerer` exposes them as a
+  `PlayableWorld` projection, and the JSON capture artifact exports the same
+  `playableWorld` shape under `gamecult.eve.unity_scene_projection.v1`. The
+  next blocker is the live generic Unity client loop: subscribe to the Aetheria
+  daemon surface over CultMesh/CultNet, instantiate the projected world, emit
+  `gamecult.eve.command.v1` input, and wait for provider receipts/next frames.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria

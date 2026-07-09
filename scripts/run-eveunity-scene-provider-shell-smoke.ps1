@@ -41,7 +41,7 @@ if (-not (@($worldSurfaceLoweringClaim.surfaceKinds) -contains "interactive-worl
 if (-not (@($worldSurfaceLoweringClaim.projectionKinds) -contains "provider-authored-world-surface")) {
   throw "EveUnity scene world-surface claim must support provider-authored-world-surface projections"
 }
-if ($worldSurfaceLoweringClaim.supportLevel -ne "unity-scene-graph-command-surface") {
+if ($worldSurfaceLoweringClaim.supportLevel -ne "unity-playable-world-scene-command-surface") {
   throw "Unexpected EveUnity scene support level: $($worldSurfaceLoweringClaim.supportLevel)"
 }
 if ($worldSurfaceLoweringClaim.ownership -ne "runtime-lowers-provider-world-surface-without-owning-world-state") {
@@ -54,7 +54,7 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
   }
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "sceneGraphProjection")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "sceneGraphProjection", "playableWorldProjection")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveUnity scene provider shell missing supported feature: $feature"
   }
@@ -79,7 +79,7 @@ foreach ($relativePath in $expectedFiles) {
 }
 
 $lowererSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneSurfaceLowerer.cs") -Raw
-foreach ($symbol in @("EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "BuildPluginProjection", "SaiVisualNovelUnitySceneProjectionAdapter", "TeXMathUnitySceneProjectionAdapter", "EveUnityScenePluginProjection", "EveUnitySceneNode", "SceneObjectKind", "unity-scene")) {
+foreach ($symbol in @("EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfaceAdvertisement", "WorldInteraction", "CommandBoundary", "ReceiptSchema", "EveSurfaceCommandRequest", "BuildSceneGraph", "BuildPlayableWorld", "EveUnityPlayableWorldProjection", "EveUnityPlayableWorldEntity", "BuildPluginProjection", "SaiVisualNovelUnitySceneProjectionAdapter", "TeXMathUnitySceneProjectionAdapter", "EveUnityScenePluginProjection", "EveUnitySceneNode", "SceneObjectKind", "playable-world-root", "unity-scene")) {
   if (-not $lowererSource.Contains($symbol)) {
     throw "EveUnity scene provider shell lowerer missing symbol: $symbol"
   }
@@ -107,7 +107,7 @@ foreach ($symbol in @("TeXMathUnitySceneProjectionAdapter", "tex.math", "embed.t
 }
 
 $testSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Tests\Editor\EveUnitySceneSurfaceLowererTests.cs") -Raw
-foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
+foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
   if (-not $testSource.Contains($symbol)) {
     throw "EveUnity scene provider shell tests missing symbol: $symbol"
   }

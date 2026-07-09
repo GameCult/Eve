@@ -474,9 +474,12 @@ Unity scene semantic capture evidence follows the same rule without pretending
 it is a rendered Unity frame. `tools/eveunity/eveunity-scene-capture-artifact.mjs`
 lowers the Aetheria world surface into `gamecult.eve.unity_scene_projection.v1`
 and writes `artifacts/eveunity-scene-capture/latest/unity-scene-projection.json`.
-It records scene graph projection, embedded slots, and sidecar plugin projection
-metadata. The remaining blocker is Unity screenshot or frame-capture PNG
-production from EveUnity.
+It records scene graph projection, embedded slots, sidecar plugin projection
+metadata, and a `playableWorld` extraction for generic `world.scene3d` /
+`world.entity3d` ARPG data: state pointer, asset manifest, camera/input profile,
+entity transforms, asset refs, and daemon command affordances. The remaining
+blocker is a live generic Unity client loop and Unity screenshot or
+frame-capture PNG production from EveUnity.
 
 Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
 Each record joins runtime status, capture owner, lifecycle capture contract,

@@ -49,11 +49,156 @@
       "type": "string",
       "minLength": 1
     },
+    "playableWorld": {
+      "$ref": "#/$defs/playableWorld"
+    },
     "root": {
       "$ref": "#/$defs/sceneNode"
     }
   },
   "$defs": {
+    "vector3": {
+      "type": "object",
+      "required": ["x", "y", "z"],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+    "playableEntity": {
+      "type": "object",
+      "required": [
+        "nodeId",
+        "entityId",
+        "entityKind",
+        "assetRef",
+        "position",
+        "selectable",
+        "controllable"
+      ],
+      "properties": {
+        "nodeId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entityId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entityKind": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "faction": {
+          "type": "string"
+        },
+        "assetRef": {
+          "type": "string"
+        },
+        "position": {
+          "$ref": "#/$defs/vector3"
+        },
+        "rotationY": {
+          "type": "number"
+        },
+        "radius": {
+          "type": "number"
+        },
+        "selectable": {
+          "type": "boolean"
+        },
+        "controllable": {
+          "type": "boolean"
+        },
+        "focusCommand": {
+          "type": "string"
+        },
+        "moveCommand": {
+          "type": "string"
+        },
+        "targetCommand": {
+          "type": "string"
+        },
+        "actionCommand": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "playableWorld": {
+      "type": "object",
+      "required": [
+        "worldRootId",
+        "statePointerId",
+        "assetManifest",
+        "inputProfile",
+        "cameraRig",
+        "playerEntityId",
+        "movementCommand",
+        "entityCount",
+        "entities"
+      ],
+      "properties": {
+        "worldRootId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "statePointerId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assetManifest": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inputProfile": {
+          "type": "string",
+          "minLength": 1
+        },
+        "cameraRig": {
+          "type": "string",
+          "minLength": 1
+        },
+        "playerEntityId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "movementCommand": {
+          "type": "string",
+          "minLength": 1
+        },
+        "focusCommand": {
+          "type": "string"
+        },
+        "targetCommand": {
+          "type": "string"
+        },
+        "actionCommand": {
+          "type": "string"
+        },
+        "entityCount": {
+          "type": "number"
+        },
+        "entities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/playableEntity"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
     "embeddedDocument": {
       "type": "object",
       "required": [

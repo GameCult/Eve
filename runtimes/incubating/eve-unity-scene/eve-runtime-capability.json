@@ -17,6 +17,7 @@
     "providerAdvertisements",
     "commandTransport",
     "sceneGraphProjection",
+    "playableWorldProjection",
     "embeddedDocuments"
   ],
   "supportedPlugins": [
@@ -54,7 +55,7 @@
       "targetId": "unity-scene",
       "surfaceKinds": ["interactive-world"],
       "projectionKinds": ["provider-authored-world-surface"],
-      "supportLevel": "unity-scene-graph-command-surface",
+      "supportLevel": "unity-playable-world-scene-command-surface",
       "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
       "evidencePaths": [
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",

@@ -42,6 +42,7 @@ export function buildUnitySceneProjection(surfaceDocument, providerAdvertisement
   if (document.surfaceId !== selected.surfaceId) {
     throw new Error(`Surface document ${document.surfaceId} does not match advertised Unity scene surface ${selected.surfaceId}.`);
   }
+  const playableWorld = buildPlayableWorld(document.root);
 
   return {
     type: "unity-scene-projection",
@@ -53,6 +54,7 @@ export function buildUnitySceneProjection(surfaceDocument, providerAdvertisement
     commandBoundary: selected.worldInteraction.commandBoundary,
     receiptSchema: selected.worldInteraction.receiptSchema,
     ownership: selected.worldInteraction.ownership,
+    ...(playableWorld ? { playableWorld } : {}),
     root: buildSceneNode(document.root),
   };
 }
@@ -153,6 +155,9 @@ function normalizeEmbeddedDocuments(value) {
 
 function sceneObjectKind(componentKind) {
   if (!componentKind) return "empty";
+  if (componentKind === "world.scene3d") return "playable-world-root";
+  if (componentKind === "world.entity3d") return "playable-world-entity";
+  if (componentKind === "field.vector3d" || componentKind === "field.scalar3d") return "world-field-3d";
   if (componentKind === "vn.stage") return "sai-vn-scene-stage";
   if (componentKind === "panel.dialogue" || componentKind === "text.dialogue") return "sai-vn-scene-dialogue";
   if (componentKind === "rail.actions") return "sai-vn-scene-action-rail";
@@ -164,6 +169,87 @@ function sceneObjectKind(componentKind) {
   if (componentKind.startsWith("field.") || componentKind.startsWith("world.")) return "world-projection-node";
   if (componentKind.startsWith("text.") || componentKind === "text" || componentKind === "label") return "scene-label";
   return "scene-node";
+}
+
+function buildPlayableWorld(root) {
+  const world = findComponent(root, component => firstString(component?.kind) === "world.scene3d");
+  if (!world) return null;
+  const props = objectValue(world.props);
+  const entities = flattenComponents(world)
+    .filter(component => firstString(component.kind) === "world.entity3d")
+    .map(component => buildPlayableEntity(component));
+  return {
+    worldRootId: firstString(world.id),
+    statePointerId: firstString(props.statePointerId, props.worldStatePointerId),
+    assetManifest: firstString(props.assetManifest, props.assetManifestUri),
+    inputProfile: firstString(props.inputProfile),
+    cameraRig: firstString(props.cameraRig),
+    playerEntityId: firstString(props.playerEntityId),
+    movementCommand: firstString(props.movementCommand),
+    focusCommand: firstString(props.focusCommand),
+    targetCommand: firstString(props.targetCommand),
+    actionCommand: firstString(props.actionCommand),
+    entityCount: entities.length,
+    entities,
+  };
+}
+
+function buildPlayableEntity(component) {
+  const props = objectValue(component.props);
+  const [x, y, z] = parseVector3(firstString(props.position));
+  return {
+    nodeId: firstString(component.id),
+    entityId: firstString(props.entityId, component.id),
+    entityKind: firstString(props.entityKind, props.kind),
+    label: firstString(props.label, props.name),
+    faction: firstString(props.faction),
+    assetRef: firstString(props.assetRef, props.meshRef, props.prefabRef),
+    position: { x, y, z },
+    rotationY: parseNumber(firstString(props.rotationY, props.yaw), 0),
+    radius: parseNumber(firstString(props.radius), 0),
+    selectable: parseBoolean(props.selectable),
+    controllable: parseBoolean(props.controllable),
+    focusCommand: firstString(props.focusCommand),
+    moveCommand: firstString(props.moveCommand),
+    targetCommand: firstString(props.targetCommand),
+    actionCommand: firstString(props.actionCommand),
+  };
+}
+
+function findComponent(component, predicate) {
+  const source = objectValue(component);
+  if (predicate(source)) return source;
+  for (const child of Array.isArray(source.children) ? source.children : []) {
+    const found = findComponent(child, predicate);
+    if (found) return found;
+  }
+  return null;
+}
+
+function flattenComponents(component) {
+  const source = objectValue(component);
+  return [
+    source,
+    ...((Array.isArray(source.children) ? source.children : []).flatMap(flattenComponents)),
+  ];
+}
+
+function parseVector3(value) {
+  const values = String(value || "")
+    .split(",")
+    .map(part => parseNumber(part.trim(), 0));
+  return [values[0] || 0, values[1] || 0, values[2] || 0];
+}
+
+function parseNumber(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function parseBoolean(value) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  return String(value || "").toLowerCase() === "true";
 }
 
 function buildPluginProjection(componentKind, component) {
