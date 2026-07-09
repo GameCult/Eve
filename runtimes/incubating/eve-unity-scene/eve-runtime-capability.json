@@ -19,6 +19,7 @@
     "providerSurfaceSession",
     "providerSurfaceSource",
     "providerSurfaceDocumentSource",
+    "liveProviderTransportBridge",
     "livePlayableWorldClient",
     "providerCommandReceipts",
     "providerAssetManifestDocumentSource",
@@ -76,6 +77,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneLiveProviderBridge.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldClientHost.cs",
@@ -134,6 +136,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneLiveProviderBridge.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldClientHost.cs",
@@ -181,6 +184,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneLiveProviderBridge.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldClientHost.cs",
@@ -204,7 +208,7 @@
       ],
       "pendingProofs": [
         "Unity scene EditMode runner is owned by EveUnity rather than Eve incubation.",
-        "Live CultMesh/CultNet provider subscription adapter implements IEveUnitySceneProviderSurfaceDocumentSource/IEveUnitySceneProviderSurfaceSource and feeds EveUnitySceneClientSession snapshots from provider-owned documents instead of Eve-local fixture documents."
+        "Live CultMesh/CultNet provider subscription adapter implements IEveUnitySceneLiveProviderTransport and feeds EveUnitySceneLiveProviderBridge from provider-owned documents, manifests, commands, and receipts instead of Eve-local fixture documents."
       ]
     },
     "capture": {

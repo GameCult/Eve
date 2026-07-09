@@ -350,6 +350,82 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void LiveProviderBridgeFeedsPlayableWorldRuntimeThroughTransportPorts()
+        {
+            var transport = new FakeLiveProviderTransport(
+                new EveUnitySceneProviderSurfaceDocument(
+                    PlayableArpgDocument(),
+                    Advertisement("aetheria.daemon.game"),
+                    "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                    1),
+                new EveUnityPlayableWorldAssetManifestDocument(
+                    "cultmesh://aetheria/assets/manifest",
+                    new[]
+                    {
+                        new EveUnityPlayableWorldAssetManifestDocumentEntry(
+                            "cultmesh://aetheria/assets/map/entity/player",
+                            "player",
+                            "Resources/Aetheria/Entities/Vanguard.prefab",
+                            "aetheria.vanguard")
+                    },
+                    "aetheria"));
+            using var bridge = new EveUnitySceneLiveProviderBridge(transport);
+            var sceneSink = new FakePlayableWorldSceneSink();
+
+            bridge.Connect();
+            using var runtime = new EveUnityPlayableWorldRuntime(
+                bridge,
+                bridge,
+                sceneSink,
+                bridge,
+                bridge);
+
+            var initialPresentation = runtime.Connect();
+
+            Assert.That(transport.ConnectCount, Is.EqualTo(1));
+            Assert.That(bridge.TransportKind, Is.EqualTo("cultmesh-cultnet-provider-transport"));
+            Assert.That(bridge.SurfacePointer, Is.EqualTo("cultmesh://aetheria/eve/surfaces/aetheria.daemon.game"));
+            Assert.That(bridge.AssetManifestPointer, Is.EqualTo("cultmesh://aetheria/assets/manifest"));
+            Assert.That(initialPresentation.ActiveEntities, Is.EqualTo(3));
+            Assert.That(runtime.ActiveWorld, Is.Not.Null);
+            Assert.That(runtime.AssetManifests.GetForWorld(runtime.ActiveWorld!), Is.Not.Null);
+
+            var moveIntent = runtime.SubmitMoveVectorIntent(
+                "player-vanguard",
+                0.5f,
+                1f,
+                0.75f,
+                DateTimeOffset.Parse("2026-07-09T00:00:00Z"));
+
+            Assert.That(transport.Submitted.Count, Is.EqualTo(1));
+            Assert.That(transport.Submitted[0], Is.SameAs(moveIntent));
+            Assert.That(moveIntent.CommandBoundary, Is.EqualTo("aetheria.daemon.commands"));
+
+            transport.PublishSurface(new EveUnitySceneProviderSurfaceDocument(
+                PlayableArpgDocument(includeRaider: false, playerPosition: "6,0,2"),
+                Advertisement("aetheria.daemon.game"),
+                "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                2));
+
+            Assert.That(runtime.ActiveVersion, Is.EqualTo(2));
+            Assert.That(runtime.LastPresentation, Is.Not.Null);
+            Assert.That(runtime.LastPresentation!.ActiveEntities, Is.EqualTo(2));
+            Assert.That(sceneSink.RemovedEntityIds, Does.Contain("raider-scout"));
+
+            transport.PublishReceipt(new EveUnitySceneCommandReceipt(
+                "aetheria.daemon.move_intent.accepted",
+                "aetheria.daemon.commands",
+                "aetheria.daemon.move_intent",
+                "accepted",
+                "Aetheria",
+                "provider-owned-daemon"));
+
+            Assert.That(runtime.LastReceipt, Is.Not.Null);
+            Assert.That(runtime.LastReceipt!.IsProviderOwned, Is.True);
+            Assert.That(transport.RefreshCount, Is.EqualTo(1));
+        }
+
+        [Test]
         public void PlayableWorldClientHostMountsInterfaceProviderWithoutProviderTypes()
         {
             var rootObject = new GameObject("generic-eve-world-root");
@@ -1454,6 +1530,78 @@ namespace GameCult.Eve.UnityScene.Tests
             {
                 CurrentDocument = document;
                 DocumentAvailable?.Invoke(document);
+            }
+        }
+
+        private sealed class FakeLiveProviderTransport : IEveUnitySceneLiveProviderTransport
+        {
+            public FakeLiveProviderTransport(
+                EveUnitySceneProviderSurfaceDocument surfaceDocument,
+                EveUnityPlayableWorldAssetManifestDocument assetManifestDocument)
+            {
+                CurrentSurfaceDocument = surfaceDocument;
+                CurrentAssetManifestDocument = assetManifestDocument;
+            }
+
+            public string TransportKind => "cultmesh-cultnet-provider-transport";
+
+            public string SurfacePointer => CurrentSurfaceDocument.SourcePointer;
+
+            public string AssetManifestPointer => CurrentAssetManifestDocument.ManifestRef;
+
+            public EveUnitySceneProviderSurfaceDocument CurrentSurfaceDocument { get; private set; }
+
+            public EveUnityPlayableWorldAssetManifestDocument CurrentAssetManifestDocument { get; private set; }
+
+            public List<EveSurfaceCommandRequest> Submitted { get; } = new List<EveSurfaceCommandRequest>();
+
+            public int ConnectCount { get; private set; }
+
+            public int DisconnectCount { get; private set; }
+
+            public int RefreshCount { get; private set; }
+
+            public event Action<EveUnitySceneProviderSurfaceDocument>? SurfaceDocumentAvailable;
+
+            public event Action<EveUnityPlayableWorldAssetManifestDocument>? AssetManifestDocumentAvailable;
+
+            public event Action<EveUnitySceneCommandReceipt>? CommandReceiptAvailable;
+
+            public void Connect()
+            {
+                ConnectCount++;
+            }
+
+            public void Disconnect()
+            {
+                DisconnectCount++;
+            }
+
+            public void Refresh()
+            {
+                RefreshCount++;
+            }
+
+            public void SubmitCommand(EveSurfaceCommandRequest request)
+            {
+                Submitted.Add(request);
+            }
+
+            public void PublishSurface(EveUnitySceneProviderSurfaceDocument document)
+            {
+                CurrentSurfaceDocument = document;
+                SurfaceDocumentAvailable?.Invoke(document);
+            }
+
+            public void PublishAssetManifest(EveUnityPlayableWorldAssetManifestDocument document)
+            {
+                CurrentAssetManifestDocument = document;
+                AssetManifestDocumentAvailable?.Invoke(document);
+            }
+
+            public void PublishReceipt(EveUnitySceneCommandReceipt receipt)
+            {
+                CommandReceiptAvailable?.Invoke(receipt);
             }
         }
 

@@ -1051,7 +1051,7 @@
       "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
       "requiredFixtures": ["aetheria-world", "eve-world-smoke"],
       "pluginFixtures": ["sai-vn"],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "playableWorldClientHost", "playableWorldClientBootstrap", "playableWorldInputDriver", "playableWorldCameraRig", "providerAssetManifestSource", "sceneGraphProjection", "playableWorldProjection", "playableWorldRuntimeHost", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "embeddedDocuments"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "liveProviderTransportBridge", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "playableWorldClientHost", "playableWorldClientBootstrap", "playableWorldInputDriver", "playableWorldCameraRig", "providerAssetManifestSource", "sceneGraphProjection", "playableWorldProjection", "playableWorldRuntimeHost", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "embeddedDocuments"],
       "supportedPlugins": [
         {
           "pluginId": "sai.vn",
@@ -1081,6 +1081,7 @@
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+            "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneLiveProviderBridge.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldClientHost.cs",
@@ -1105,6 +1106,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneLiveProviderBridge.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldClientHost.cs",
@@ -1148,6 +1150,10 @@
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
           "contains": ["IEveUnitySceneProviderSurfaceSource", "IEveUnitySceneCommandSink", "IEveUnitySceneProviderSurfaceDocumentSource", "EveUnitySceneProviderSurfaceDocument", "EveUnitySceneProviderSurfaceDocumentSource", "ToSnapshot", "DocumentAvailable", "EveUnitySceneProviderConnection", "SnapshotAvailable", "CurrentSnapshot", "Connect", "Refresh", "SubmitMoveIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "Disconnect"]
+        },
+        {
+          "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneLiveProviderBridge.cs",
+          "contains": ["IEveUnitySceneLiveProviderTransport", "EveUnitySceneLiveProviderTransportBehaviour", "EveUnitySceneLiveProviderBridgeComponent", "EveUnitySceneLiveProviderBridge", "IEveUnitySceneProviderSurfaceDocumentSource", "IEveUnityPlayableWorldAssetManifestDocumentSource", "IEveUnitySceneCommandSink", "IEveUnitySceneCommandReceiptSource", "IEveUnityProviderRefreshSource", "SubmitCommand", "CommandReceiptAvailable", "ShouldRefreshProviderSurface", "transportBehaviour"]
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
@@ -1199,7 +1205,7 @@
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
-          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "ProviderSurfaceDocumentSourceFeedsPlayableClientWithoutAetheriaTypes", "PlayableWorldRuntimeComposesProviderDocumentsAssetsReceiptsAndSceneSink", "PlayableWorldClientHostMountsInterfaceProviderWithoutProviderTypes", "PlayableWorldClientBootstrapWiresGenericUnityClientFromProviderInterfaces", "PlayableWorldClientHostSubmitsProviderOwnedMoveVector", "PlayableWorldInputDriverBuildsCameraRelativeMoveVectorWithoutProviderTypes", "PlayableWorldCameraRigFollowsAdvertisedPlayerEntityWithoutProviderTypes", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "AssetManifestDocumentSourceFeedsCacheWithoutChangingSceneLowering", "FakeProviderSurfaceSource", "FakeProviderSurfaceDocumentSource", "FakeCommandReceiptSource", "FakeAssetManifestSource", "FakeAssetManifestDocumentSource", "FakeCommandSink", "FakePlayableWorldSceneSink", "FakePlayableWorldProviderComponent", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "pending", "reconciled", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "norn.map", "cultmesh://aetheria/norn/map", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "ProviderSurfaceDocumentSourceFeedsPlayableClientWithoutAetheriaTypes", "PlayableWorldRuntimeComposesProviderDocumentsAssetsReceiptsAndSceneSink", "LiveProviderBridgeFeedsPlayableWorldRuntimeThroughTransportPorts", "PlayableWorldClientHostMountsInterfaceProviderWithoutProviderTypes", "PlayableWorldClientBootstrapWiresGenericUnityClientFromProviderInterfaces", "PlayableWorldClientHostSubmitsProviderOwnedMoveVector", "PlayableWorldInputDriverBuildsCameraRelativeMoveVectorWithoutProviderTypes", "PlayableWorldCameraRigFollowsAdvertisedPlayerEntityWithoutProviderTypes", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "AssetManifestDocumentSourceFeedsCacheWithoutChangingSceneLowering", "FakeProviderSurfaceSource", "FakeProviderSurfaceDocumentSource", "FakeCommandReceiptSource", "FakeAssetManifestSource", "FakeAssetManifestDocumentSource", "FakeLiveProviderTransport", "FakeCommandSink", "FakePlayableWorldSceneSink", "FakePlayableWorldProviderComponent", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "pending", "reconciled", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "norn.map", "cultmesh://aetheria/norn/map", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
         },
         {
           "path": "tools/eveunity/eveunity-capture-contract.test.mjs",

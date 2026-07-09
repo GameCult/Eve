@@ -18,6 +18,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneLiveProviderBridge.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldClientHost.cs",
@@ -45,6 +46,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneLiveProviderBridge.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldClientHost.cs",
@@ -72,6 +74,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneLiveProviderBridge.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldClientHost.cs",
@@ -88,7 +91,7 @@
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, typed provider surface document loading, provider snapshot session, a playable-world runtime host, generic client bootstrap, movement input driver, camera rig, live playable-world client composition, provider command receipt observation, playable-world scene presentation, Unity GameObject scene sink, typed provider asset manifest document loading, provider asset manifest resolution, provider asset manifest source/cache, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
+      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, typed provider surface document loading, provider snapshot session, live provider transport bridge, a playable-world runtime host, generic client bootstrap, movement input driver, camera rig, live playable-world client composition, provider command receipt observation, playable-world scene presentation, Unity GameObject scene sink, typed provider asset manifest document loading, provider asset manifest resolution, provider asset manifest source/cache, and command boundary evidence; concrete CultMesh/CultNet transport and capture remain separate lifecycle proofs."
     },
     {
       "id": "unity-scene-sai-plugin-projection",
@@ -133,6 +136,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneLiveProviderBridge.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldClientHost.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldClientBootstrap.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldInputDriver.cs",
@@ -140,7 +144,7 @@
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "Unity scene input emits gamecult.eve.command.v1 intents through typed provider surface documents, a provider-snapshot client session, IEveUnitySceneProviderSurfaceSource, IEveUnitySceneCommandSink, IEveUnitySceneCommandReceiptSource, and advertised command boundaries, then observes provider receipts and refreshes from provider documents/snapshots instead of mutating local world truth."
+      "replacementProof": "Unity scene input emits gamecult.eve.command.v1 intents through typed provider surface documents, a provider-snapshot client session, IEveUnitySceneLiveProviderTransport, IEveUnitySceneCommandSink, IEveUnitySceneCommandReceiptSource, and advertised command boundaries, then observes provider receipts and refreshes from provider documents/snapshots instead of mutating local world truth."
     },
     {
       "id": "aetheria-playable-world-consumer-proof",
@@ -192,6 +196,7 @@
     "EveUnity owns a provider-agnostic scene graph lowerer that consumes advertised worldInteraction boundaries without importing Aetheria internals.",
     "EveUnity owns a provider-snapshot Unity scene client session that lowers Aetheria's surface and emits command intents without importing Aetheria project code.",
     "EveUnity owns typed provider surface document, provider surface source, and command sink ports that a live CultMesh/CultNet adapter can implement without changing scene lowering.",
+    "EveUnity owns a live provider transport bridge that adapts CultMesh/CultNet provider documents, asset manifests, command submission, receipts, and refresh requests into the runtime ports without importing provider internals.",
     "EveUnity owns a live playable-world client coordinator that applies provider snapshots through the presenter, observes provider command receipts, and emits command intents through the advertised provider command sink without local simulation.",
     "EveUnity owns a generic Unity client bootstrap that wires provider surface documents, command sink, asset manifest, input driver, camera rig, and scene root without importing provider internals.",
     "EveUnity owns generic playable-world movement input and camera rig components that emit provider-owned command intents and follow provider-advertised player entities without importing provider internals.",

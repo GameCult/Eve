@@ -661,11 +661,20 @@ Recently cut:
   the Eve interfaces can be mounted without Aetheria-specific client code,
   provider-authored entities are instantiated under a Unity scene root, camera
   and movement input are runtime-owned, and movement exits through the
-  provider-advertised `gamecult.eve.command.v1` boundary. The next blocker is
-  owner-repo live proof: implement the CultMesh/CultNet adapter, implement
-  concrete CultMesh/CultCache readers for provider surface and asset manifest
-  documents, and prove provider receipts plus daemon snapshots drive rendered
-  Unity frames rather than renderer-local simulation.
+  provider-advertised `gamecult.eve.command.v1` boundary.
+  `EveUnitySceneLiveProviderBridge` now names the runtime-owned live transport
+  port: a CultMesh/CultNet transport supplies provider surface documents, asset
+  manifest documents, command submission, receipts, and refresh requests through
+  `IEveUnitySceneLiveProviderTransport`, while the bridge exposes the existing
+  scene runtime source/sink/receipt interfaces without importing provider
+  internals. The Unity scene EditMode proof now includes
+  `LiveProviderBridgeFeedsPlayableWorldRuntimeThroughTransportPorts`, proving
+  the generic playable-world runtime can consume that transport-shaped boundary.
+  The next blocker is owner-repo live proof: implement the concrete
+  CultMesh/CultNet transport, implement concrete CultMesh/CultCache readers for
+  provider surface and asset manifest documents, and prove provider receipts plus
+  daemon snapshots drive rendered Unity frames rather than renderer-local
+  simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria

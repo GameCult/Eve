@@ -52,14 +52,17 @@ try {
     --expect-split-target-blocker-record EveUnity:runtime-status:unity-scene `
     --expect-split-target-blocker-record "EveUnity:pending-proof:Unity scene runtime body graduates to EveUnity outside Aetheria product code." `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnitySceneSurfaceLowerer.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnitySceneLiveProviderBridge.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnityPlayableWorldClientBootstrap.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-upm-package:current:exists:eveunity-release-artifact.mjs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-world-surface-lowering:current:exists:EveUnitySceneSurfaceLowerer.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-world-surface-lowering:current:exists:EveUnitySceneLiveProviderBridge.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-world-surface-lowering:current:exists:EveUnityPlayableWorldClientBootstrap.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-sai-plugin-projection:current:exists:SaiVisualNovelUnitySceneProjectionAdapter.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-norn-plugin-projection:current:exists:NornGraphUnitySceneProjectionAdapter.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-tex-plugin-projection:current:exists:TeXMathUnitySceneProjectionAdapter.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneSurfaceLowerer.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneLiveProviderBridge.cs `
     --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:Assets/Scripts/Tests/DaemonRuntimeDocumentTests.cs `
     --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:Packages/org.gamecult.aetheria.eve-runtime/Runtime/AetheriaEveUnitySceneProviderBridge.cs `
     --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:AetheriaRuntimeDaemonGameSurfaceBuilder.cs `

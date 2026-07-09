@@ -68,6 +68,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature unity-scene:providerSurfaceSession `
   --expect-runtime-feature unity-scene:providerSurfaceSource `
   --expect-runtime-feature unity-scene:providerSurfaceDocumentSource `
+  --expect-runtime-feature unity-scene:liveProviderTransportBridge `
   --expect-runtime-feature unity-scene:livePlayableWorldClient `
   --expect-runtime-feature unity-scene:providerCommandReceipts `
   --expect-runtime-feature unity-scene:providerAssetManifestDocumentSource `

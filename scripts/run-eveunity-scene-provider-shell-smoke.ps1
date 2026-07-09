@@ -54,7 +54,7 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
   }
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "playableWorldClientHost", "playableWorldClientBootstrap", "playableWorldInputDriver", "playableWorldCameraRig", "sceneGraphProjection", "playableWorldProjection", "playableWorldRuntimeHost", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "providerAssetManifestSource")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "liveProviderTransportBridge", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "playableWorldClientHost", "playableWorldClientBootstrap", "playableWorldInputDriver", "playableWorldCameraRig", "sceneGraphProjection", "playableWorldProjection", "playableWorldRuntimeHost", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "providerAssetManifestSource")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveUnity scene provider shell missing supported feature: $feature"
   }
@@ -66,6 +66,7 @@ $expectedFiles = @(
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneSurfaceLowerer.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneClientSession.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneProviderConnection.cs",
+  "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneLiveProviderBridge.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldLiveClient.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldRuntime.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldClientHost.cs",
@@ -109,6 +110,16 @@ foreach ($symbol in @("IEveUnitySceneProviderSurfaceSource", "IEveUnitySceneComm
   if (-not $providerConnectionSource.Contains($symbol)) {
     throw "EveUnity scene provider connection missing symbol: $symbol"
   }
+}
+
+$liveProviderBridgeSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneLiveProviderBridge.cs") -Raw
+foreach ($symbol in @("IEveUnitySceneLiveProviderTransport", "EveUnitySceneLiveProviderTransportBehaviour", "EveUnitySceneLiveProviderBridgeComponent", "EveUnitySceneLiveProviderBridge", "IEveUnitySceneProviderSurfaceDocumentSource", "IEveUnityPlayableWorldAssetManifestDocumentSource", "IEveUnitySceneCommandSink", "IEveUnitySceneCommandReceiptSource", "IEveUnityProviderRefreshSource", "SubmitCommand", "CommandReceiptAvailable", "ShouldRefreshProviderSurface", "transportBehaviour")) {
+  if (-not $liveProviderBridgeSource.Contains($symbol)) {
+    throw "EveUnity scene live provider bridge missing symbol: $symbol"
+  }
+}
+if ($liveProviderBridgeSource.Contains("Aetheria")) {
+  throw "EveUnity scene live provider bridge must remain provider-agnostic and cannot reference Aetheria"
 }
 
 $liveClientSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldLiveClient.cs") -Raw
@@ -215,7 +226,7 @@ foreach ($symbol in @("TeXMathUnitySceneProjectionAdapter", "tex.math", "embed.t
 }
 
 $testSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Tests\Editor\EveUnitySceneSurfaceLowererTests.cs") -Raw
-foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "ProviderSurfaceDocumentSourceFeedsPlayableClientWithoutAetheriaTypes", "PlayableWorldRuntimeComposesProviderDocumentsAssetsReceiptsAndSceneSink", "PlayableWorldClientHostMountsInterfaceProviderWithoutProviderTypes", "PlayableWorldClientBootstrapWiresGenericUnityClientFromProviderInterfaces", "PlayableWorldClientHostSubmitsProviderOwnedMoveVector", "PlayableWorldInputDriverBuildsCameraRelativeMoveVectorWithoutProviderTypes", "PlayableWorldCameraRigFollowsAdvertisedPlayerEntityWithoutProviderTypes", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "AssetManifestDocumentSourceFeedsCacheWithoutChangingSceneLowering", "FakeProviderSurfaceSource", "FakeProviderSurfaceDocumentSource", "FakeCommandReceiptSource", "FakeAssetManifestSource", "FakeAssetManifestDocumentSource", "FakeCommandSink", "FakePlayableWorldSceneSink", "FakePlayableWorldProviderComponent", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "pending", "reconciled", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
+foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "ProviderSurfaceDocumentSourceFeedsPlayableClientWithoutAetheriaTypes", "PlayableWorldRuntimeComposesProviderDocumentsAssetsReceiptsAndSceneSink", "LiveProviderBridgeFeedsPlayableWorldRuntimeThroughTransportPorts", "PlayableWorldClientHostMountsInterfaceProviderWithoutProviderTypes", "PlayableWorldClientBootstrapWiresGenericUnityClientFromProviderInterfaces", "PlayableWorldClientHostSubmitsProviderOwnedMoveVector", "PlayableWorldInputDriverBuildsCameraRelativeMoveVectorWithoutProviderTypes", "PlayableWorldCameraRigFollowsAdvertisedPlayerEntityWithoutProviderTypes", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "AssetManifestDocumentSourceFeedsCacheWithoutChangingSceneLowering", "FakeProviderSurfaceSource", "FakeProviderSurfaceDocumentSource", "FakeCommandReceiptSource", "FakeAssetManifestSource", "FakeAssetManifestDocumentSource", "FakeLiveProviderTransport", "FakeCommandSink", "FakePlayableWorldSceneSink", "FakePlayableWorldProviderComponent", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "pending", "reconciled", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
   if (-not $testSource.Contains($symbol)) {
     throw "EveUnity scene provider shell tests missing symbol: $symbol"
   }

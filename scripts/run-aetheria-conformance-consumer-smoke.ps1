@@ -93,8 +93,11 @@ try {
     --expect-split-target-blocker "EveTui:TUI package release is cut from EveTui rather than Eve incubation" `
     --expect-split-target-blocker "EveTui:TUI capture path is owned by EveTui rather than Eve incubation" `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnitySceneSurfaceLowerer.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnitySceneLiveProviderBridge.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-world-surface-lowering:current:exists:EveUnitySceneSurfaceLowerer.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-world-surface-lowering:current:exists:EveUnitySceneLiveProviderBridge.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneSurfaceLowerer.cs `
+    --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneLiveProviderBridge.cs `
     --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:Assets/Scripts/Tests/DaemonRuntimeDocumentTests.cs `
     --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:Packages/org.gamecult.aetheria.eve-runtime/Runtime/AetheriaEveUnitySceneProviderBridge.cs `
     --expect-split-handoff-move EveUnity:unity-scene:aetheria-playable-world-consumer-proof:observed-provider:exists:AetheriaRuntimeDaemonGameSurfaceBuilder.cs `

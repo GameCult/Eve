@@ -40,7 +40,7 @@ if ($manifest.incubation.splitHandoff.manifestPath -ne "runtimes/incubating/eve-
   throw "EveUnity scene manifest missing split handoff path"
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "playableWorldClientHost", "playableWorldClientBootstrap", "playableWorldInputDriver", "playableWorldCameraRig", "sceneGraphProjection", "playableWorldProjection", "playableWorldRuntimeHost", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "providerAssetManifestSource", "embeddedDocuments")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "liveProviderTransportBridge", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "playableWorldClientHost", "playableWorldClientBootstrap", "playableWorldInputDriver", "playableWorldCameraRig", "sceneGraphProjection", "playableWorldProjection", "playableWorldRuntimeHost", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "providerAssetManifestSource", "embeddedDocuments")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveUnity scene manifest missing provider-shell feature: $feature"
   }
