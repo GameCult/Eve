@@ -25,6 +25,7 @@ if (!exportDirectory) {
     "  --expect-world-lowering-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>",
     "  --expect-command-boundary-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>",
     "  --expect-world-lowering-gap <providerId:surfaceId:targetId:ownerRepo:runtimeId>",
+    "  --expect-screenshot-metric <runtimeId:fixtureId:metricKind:status>",
     "  --expect-conformance-handoff",
     "  --expect-plugin-operation <pluginId:operation>",
     "  --expect-plugin-capability <pluginId:capability>",
@@ -142,6 +143,7 @@ function validateIndex(index, directory, expectations, errors) {
   const interactiveWorldSurfaces = Array.isArray(index.interactiveWorldSurfaces) ? index.interactiveWorldSurfaces : [];
   const worldSurfaceLoweringCoverage = Array.isArray(index.worldSurfaceLoweringCoverage) ? index.worldSurfaceLoweringCoverage : [];
   const commandBoundaryCoverage = Array.isArray(index.commandBoundaryCoverage) ? index.commandBoundaryCoverage : [];
+  const screenshotComparisonMetrics = Array.isArray(index.screenshotComparisonMetrics) ? index.screenshotComparisonMetrics : [];
   const splitTargetBlockers = Array.isArray(index.splitTargetBlockers) ? index.splitTargetBlockers : [];
   const splitHandoffMoveCoverage = Array.isArray(index.splitHandoffMoveCoverage) ? index.splitHandoffMoveCoverage : [];
   const worldSurfaceLoweringGaps = Array.isArray(index.worldSurfaceLoweringGaps) ? index.worldSurfaceLoweringGaps : [];
@@ -171,6 +173,7 @@ function validateIndex(index, directory, expectations, errors) {
   validateSplitHandoffMoveCoverage(index.splitHandoffMoveCoverage, errors);
   validateWorldSurfaceLoweringCoverage(index.worldSurfaceLoweringCoverage, errors);
   validateCommandBoundaryCoverage(index.commandBoundaryCoverage, errors);
+  validateScreenshotComparisonMetrics(index.screenshotComparisonMetrics, errors);
   validateWorldSurfaceLoweringGaps(index.worldSurfaceLoweringGaps, errors);
   for (const expectedGap of expectations.capabilityGaps) {
     if (!capabilityGaps.some(gap => capabilityGapText(gap).includes(expectedGap))) {
@@ -276,6 +279,19 @@ function validateIndex(index, directory, expectations, errors) {
     }
     if (gap.runtimeId !== expectation.runtimeId) {
       errors.push(`worldSurfaceLoweringGaps:${expectation.providerId}:${expectation.surfaceId}:${expectation.targetId}:runtimeId:expected ${expectation.runtimeId} got ${gap.runtimeId || ""}`);
+    }
+  }
+  for (const expectation of expectations.screenshotMetrics) {
+    const metric = screenshotComparisonMetrics.find(candidate =>
+      candidate.runtimeId === expectation.runtimeId &&
+      candidate.fixtureId === expectation.fixtureId &&
+      candidate.metricKind === expectation.metricKind);
+    if (!metric) {
+      errors.push(`screenshotComparisonMetrics:${expectation.runtimeId}:${expectation.fixtureId}:${expectation.metricKind}:missing`);
+      continue;
+    }
+    if (metric.status !== expectation.status) {
+      errors.push(`screenshotComparisonMetrics:${expectation.runtimeId}:${expectation.fixtureId}:${expectation.metricKind}:status:expected ${expectation.status} got ${metric.status || ""}`);
     }
   }
 
@@ -875,6 +891,28 @@ function validateCommandBoundaryCoverage(records, errors) {
   }
 }
 
+function validateScreenshotComparisonMetrics(records, errors) {
+  if (!Array.isArray(records)) {
+    errors.push("screenshotComparisonMetrics:missing");
+    return;
+  }
+  if (!records.length) {
+    errors.push("screenshotComparisonMetrics:empty");
+    return;
+  }
+  for (const [index, record] of records.entries()) {
+    for (const field of ["runtimeId", "runtimeOwnerRepo", "fixtureId", "metricKind", "status", "evidenceLayer", "detail"]) {
+      if (!record?.[field]) errors.push(`screenshotComparisonMetrics:${index}:${field}:missing`);
+    }
+    if (typeof record?.score !== "number") {
+      errors.push(`screenshotComparisonMetrics:${index}:score:expected number`);
+    }
+    if (!["structure", "color-tokens", "bounding-boxes", "text-presence"].includes(record?.metricKind)) {
+      errors.push(`screenshotComparisonMetrics:${index}:metricKind:unexpected ${record?.metricKind || ""}`);
+    }
+  }
+}
+
 function validateWorldSurfaceLoweringGaps(gaps, errors) {
   if (!Array.isArray(gaps)) {
     errors.push("worldSurfaceLoweringGaps:missing");
@@ -1080,6 +1118,7 @@ function parseArguments(args) {
     worldLoweringCoverage: [],
     commandBoundaryCoverage: [],
     worldLoweringGaps: [],
+    screenshotMetrics: [],
     conformanceHandoff: false,
   };
   const optionTargets = new Map([
@@ -1130,6 +1169,7 @@ function parseArguments(args) {
     ["--expect-world-lowering-coverage", expectations.worldLoweringCoverage],
     ["--expect-command-boundary-coverage", expectations.commandBoundaryCoverage],
     ["--expect-world-lowering-gap", expectations.worldLoweringGaps],
+    ["--expect-screenshot-metric", expectations.screenshotMetrics],
   ]);
 
   for (let index = 1; index < args.length; index += 1) {
@@ -1222,6 +1262,8 @@ function parseArguments(args) {
       target.push(parseWorldLoweringCoverageExpectation(value));
     } else if (option === "--expect-command-boundary-coverage") {
       target.push(parseCommandBoundaryCoverageExpectation(value));
+    } else if (option === "--expect-screenshot-metric") {
+      target.push(parseScreenshotMetricExpectation(value));
     } else if (option === "--expect-runtime-plugin-gap") {
       target.push(parseRuntimePluginGapExpectation(value));
     } else if (option === "--expect-runtime-plugin-projection") {
@@ -1235,6 +1277,20 @@ function parseArguments(args) {
   }
 
   return { exportDirectory: exportPath, expectations };
+}
+
+function parseScreenshotMetricExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 4 || parts.some(part => !part)) {
+    console.error(`Expected screenshot metric in <runtimeId:fixtureId:metricKind:status> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    fixtureId: parts[1],
+    metricKind: parts[2],
+    status: parts[3],
+  };
 }
 
 function parseWorldLoweringGapExpectation(value) {

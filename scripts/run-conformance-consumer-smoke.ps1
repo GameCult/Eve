@@ -62,6 +62,11 @@ try {
     --expect-command-boundary-coverage aetheria:aetheria.daemon.game:tui:covered:EveTui:tui `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:electron-shell:covered:EveElectron:electron-shell `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:tui:covered:EveTui:tui `
+    --expect-screenshot-metric web:embedded-surface:structure:pass `
+    --expect-screenshot-metric web:embedded-surface:color-tokens:pass `
+    --expect-screenshot-metric web:embedded-surface:text-presence:pass `
+    --expect-screenshot-metric web:embedded-surface:bounding-boxes:pending-runtime-probe `
+    --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
     --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release" `
     --expect-conformance-handoff
   if ($LASTEXITCODE -ne 0) {

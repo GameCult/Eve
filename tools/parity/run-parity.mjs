@@ -97,6 +97,9 @@ async function evaluateFixture(fixture) {
   const authorityOwners = [...new Set(authorityWitnesses.map(witness => witness.owner))].filter(Boolean).sort();
   const receiptRefs = [...new Set(authorityWitnesses.map(witness => witness.receiptRef))].filter(Boolean).sort();
   const witnessRefs = [...new Set(authorityWitnesses.map(witness => witness.witnessRef))].filter(Boolean).sort();
+  const textNodeCount = nodes.filter(isTextLikeNode).length;
+  const nonEmptyTextNodeCount = nodes.filter(hasVisibleText).length;
+  const layoutBoxCount = nodes.filter(hasLayoutBox).length;
   const metadataResult = await evaluateFixtureMetadata(fixture);
   const checks = [];
 
@@ -250,6 +253,9 @@ async function evaluateFixture(fixture) {
     receiptRefs,
     witnessRefs,
     authorityWitnesses,
+    textNodeCount,
+    nonEmptyTextNodeCount,
+    layoutBoxCount,
     metadataPath: fixture.metadataPath || "",
     metadata: metadataResult.metadata,
     metadataErrors: metadataResult.errors,
@@ -1815,6 +1821,29 @@ function firstNonEmptyString(...values) {
   return "";
 }
 
+function hasVisibleText(node) {
+  const props = objectProps(node.props);
+  return isTextLikeNode(node) && Boolean(firstNonEmptyString(
+    node.text,
+    node.value,
+    props.text,
+    props.value,
+    props.label,
+    props.title,
+    props.body,
+  ));
+}
+
+function isTextLikeNode(node) {
+  const kind = typeof node.kind === "string" ? node.kind : "";
+  return kind === "text" || kind.startsWith("text.");
+}
+
+function hasLayoutBox(node) {
+  const layout = objectProps(node.layout);
+  return ["x", "y", "width", "height"].some(key => layout[key] !== undefined);
+}
+
 function objectProps(value) {
   return value && typeof value === "object" && !Array.isArray(value) ? value : {};
 }
@@ -1925,6 +1954,7 @@ function buildConformanceExport(report) {
     interactiveWorldSurfaces: collectInteractiveWorldSurfaces(report),
     worldSurfaceLoweringCoverage: collectWorldSurfaceLoweringCoverage(report),
     commandBoundaryCoverage: collectCommandBoundaryCoverage(report),
+    screenshotComparisonMetrics: collectScreenshotComparisonMetrics(report),
     worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
     splitTargetBlockers: collectSplitTargetBlockers(report),
     splitHandoffMoveCoverage: collectSplitHandoffMoveCoverage(report),
@@ -2415,6 +2445,132 @@ function collectProviderPluginRequirementCoverage(report) {
     }
   }
   return coverage;
+}
+
+function collectScreenshotComparisonMetrics(report) {
+  const fixtureById = new Map((report.fixtures || []).map(fixture => [fixture.id, fixture]));
+  const metrics = [];
+  for (const runtime of report.runtimes || []) {
+    const fixtureIds = [...new Set([
+      ...(runtime.requiredFixtures || []),
+      ...(runtime.pluginFixtures || []),
+    ])].sort();
+    for (const fixtureId of fixtureIds) {
+      const fixture = fixtureById.get(fixtureId);
+      if (!fixture) continue;
+      metrics.push(buildStructureMetric(runtime, fixture));
+      metrics.push(buildColorTokenMetric(runtime, fixture));
+      metrics.push(buildBoundingBoxMetric(runtime, fixture));
+      metrics.push(buildTextPresenceMetric(runtime, fixture));
+    }
+  }
+  return metrics.sort((left, right) =>
+    `${left.runtimeId}:${left.fixtureId}:${left.metricKind}`.localeCompare(`${right.runtimeId}:${right.fixtureId}:${right.metricKind}`));
+}
+
+function buildStructureMetric(runtime, fixture) {
+  const checks = (fixture.checks || []).filter(check =>
+    check.id.startsWith("component:")
+    || check.id.startsWith("minimum:")
+    || check.id.startsWith("controlPart:")
+    || check.id.startsWith("skin:")
+    || check.id.startsWith("embedded:"));
+  return buildScreenshotMetric(runtime, fixture, {
+    metricKind: "structure",
+    status: checks.length ? checks.every(check => check.pass) ? "pass" : "fail" : "not-required",
+    score: ratio(checks.filter(check => check.pass).length, checks.length),
+    expected: checks.map(check => check.id).sort(),
+    actual: {
+      kindCounts: fixture.kindCounts || {},
+      embeddedDocuments: fixture.embeddedDocuments || [],
+      controlParts: fixture.controlParts || [],
+      controlSkins: fixture.controlSkins || [],
+    },
+    detail: "Compares authored surface structure and slot/control anatomy, not byte-identical pixels.",
+  });
+}
+
+function buildColorTokenMetric(runtime, fixture) {
+  const checks = (fixture.checks || []).filter(check => check.id.startsWith("styleToken:"));
+  return buildScreenshotMetric(runtime, fixture, {
+    metricKind: "color-tokens",
+    status: checks.length ? checks.every(check => check.pass) ? "pass" : "fail" : "not-required",
+    score: ratio(checks.filter(check => check.pass).length, checks.length),
+    expected: checks.map(check => check.id.replace("styleToken:", "")).sort(),
+    actual: fixture.styleTokens || [],
+    detail: "Compares declared CultUI style token presence before runtime-specific color sampling exists.",
+  });
+}
+
+function buildBoundingBoxMetric(runtime, fixture) {
+  const captureStatus = runtime.capture?.status || "";
+  const runtimeHasCaptureBody = ["chrome-headless", "ssh-png", "adb-png", "golden", "ssh-golden"].includes(captureStatus);
+  let status = "pass";
+  let score = 1;
+  let detail = "Authored layout boxes are present in the surface evidence.";
+  if (!fixture.layoutBoxCount) {
+    status = runtimeHasCaptureBody ? "pending-runtime-probe" : "pending-capture";
+    score = 0;
+    detail = runtimeHasCaptureBody
+      ? "Runtime capture exists, but no exported layout/bounding-box probe is attached yet."
+      : "Bounding-box comparison is blocked until this runtime publishes capture or layout probe artifacts.";
+  }
+  return buildScreenshotMetric(runtime, fixture, {
+    metricKind: "bounding-boxes",
+    status,
+    score,
+    expected: {
+      source: runtimeHasCaptureBody ? "runtime layout/capture probe" : "runtime capture artifact",
+    },
+    actual: {
+      layoutBoxCount: fixture.layoutBoxCount || 0,
+      captureStatus,
+    },
+    detail,
+  });
+}
+
+function buildTextPresenceMetric(runtime, fixture) {
+  const expectedText = (fixture.textNodeCount || 0) > 0;
+  const status = expectedText
+    ? fixture.nonEmptyTextNodeCount > 0 ? "pass" : "fail"
+    : "not-required";
+  return buildScreenshotMetric(runtime, fixture, {
+    metricKind: "text-presence",
+    status,
+    score: expectedText ? ratio(fixture.nonEmptyTextNodeCount || 0, fixture.textNodeCount || 1) : 1,
+    expected: {
+      textNodes: fixture.textNodeCount || 0,
+    },
+    actual: {
+      nonEmptyTextNodes: fixture.nonEmptyTextNodeCount || 0,
+    },
+    detail: "Compares authored text presence before runtime OCR/text-layer extraction exists.",
+  });
+}
+
+function buildScreenshotMetric(runtime, fixture, metric) {
+  return {
+    runtimeId: runtime.id,
+    runtimeStatus: runtime.status || "",
+    runtimeOwnerRepo: resolveRuntimeProjectionOwnerRepo(runtime),
+    splitTarget: runtime.splitTarget || "",
+    fixtureId: fixture.id,
+    fixturePack: fixture.pack || "",
+    fixtureOwnerRepo: fixture.ownerRepo || "",
+    captureStatus: runtime.capture?.status || "",
+    metricKind: metric.metricKind,
+    status: metric.status,
+    score: Number(metric.score.toFixed(3)),
+    expected: metric.expected,
+    actual: metric.actual,
+    evidenceLayer: "surface-structure",
+    detail: metric.detail,
+  };
+}
+
+function ratio(numerator, denominator) {
+  return denominator ? Math.max(0, Math.min(1, numerator / denominator)) : 1;
 }
 
 function collectSplitTargetBlockers(report) {

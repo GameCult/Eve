@@ -419,11 +419,20 @@ The first pass is semantic and fixture-driven:
 - check required bindings;
 - check retained slider skins and control parts.
 - record the responsive viewport matrix used by screenshot smoke.
+- export `screenshotComparisonMetrics[]` records for structure, color tokens,
+  bounding boxes, and text presence.
 
 This already catches the most embarrassing class of parity lie: a runtime or
 fixture claiming to render CultUI while the retained tree no longer contains
 the partitions, bindings, tokens, or slider anatomy the renderer is supposed to
 lower.
+
+Screenshot comparison metrics are intentionally not byte-identical image
+checks. Structure and color-token scores come from the authored surface
+contract; text-presence scores come from authored text-bearing nodes; bounding
+box records name whether authored layout boxes exist or whether a runtime still
+owes a capture/layout probe. A missing Unity, Electron, TUI, or Direct2D capture
+body therefore appears as `pending-capture`, not as fake visual parity.
 
 The fixture matrix also includes `embedded-surface`, which proves that nested
 CultMesh document slots survive the shared surface contract. The web reference,
@@ -492,9 +501,9 @@ Pending runtimes are allowed. Silent fake parity is not.
 
 ## Next Cuts
 
-1. Add screenshot comparison metrics that score structure, color tokens,
-   bounding boxes, and text presence without pretending byte-identical pixels
-   are the goal.
+1. Attach runtime-owned image/layout probes to the screenshot comparison metric
+   lane so bounding-box records can move from `pending-runtime-probe` or
+   `pending-capture` to measured runtime evidence.
 2. Normalize text scale and font loading across web, Flutter Android, Flutter
    desktop, and iOS.
 3. Give iOS a real `vn.stage` scene compositor instead of compact stacked

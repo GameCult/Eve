@@ -123,6 +123,13 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-status electron-shell:missing `
   --expect-runtime-capture-status tui:missing `
   --expect-runtime-capture-status direct2d:missing `
+  --expect-screenshot-metric web:embedded-surface:structure:pass `
+  --expect-screenshot-metric web:embedded-surface:color-tokens:pass `
+  --expect-screenshot-metric web:embedded-surface:text-presence:pass `
+  --expect-screenshot-metric web:embedded-surface:bounding-boxes:pending-runtime-probe `
+  --expect-screenshot-metric unity-scene:aetheria-world:bounding-boxes:pending-capture `
+  --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
+  --expect-screenshot-metric tui:aetheria-world:bounding-boxes:pending-capture `
   --expect-runtime-lifecycle-status unity-uitoolkit:release:incubating-upm-package `
   --expect-runtime-lifecycle-status unity-uitoolkit:test:batchmode-editmode-tests-and-consumer-build-smoke `
   --expect-runtime-lifecycle-status unity-uitoolkit:capture:pending-editor-capture `

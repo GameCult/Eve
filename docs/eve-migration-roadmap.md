@@ -286,6 +286,13 @@ Exit criteria:
 
 Recently cut:
 
+- The conformance export now carries `screenshotComparisonMetrics[]` records.
+  Runtime owners get structure, color-token, bounding-box, and text-presence
+  metrics per runtime/fixture pair without relying on byte-identical screenshots
+  or Eve-local prose. Structure and token metrics are surface-contract evidence;
+  text presence is authored text evidence; bounding boxes stay
+  `pending-runtime-probe` or `pending-capture` until a runtime-owned capture or
+  layout probe attaches real visual evidence.
 - Runtime capability manifests now declare world-surface lowering targets.
   `web/eve-runtime-capability.json` claims `web-reference`, and
   `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`

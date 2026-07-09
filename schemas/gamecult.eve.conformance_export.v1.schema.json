@@ -19,6 +19,7 @@
     "interactiveWorldSurfaces",
     "worldSurfaceLoweringCoverage",
     "commandBoundaryCoverage",
+    "screenshotComparisonMetrics",
     "splitTargetBlockers",
     "splitHandoffMoveCoverage",
     "splitTargets"
@@ -679,6 +680,76 @@
           },
           "runtimeCommandSchema": {
             "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "screenshotComparisonMetrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "runtimeId",
+          "runtimeStatus",
+          "runtimeOwnerRepo",
+          "fixtureId",
+          "fixturePack",
+          "captureStatus",
+          "metricKind",
+          "status",
+          "score",
+          "evidenceLayer",
+          "detail"
+        ],
+        "properties": {
+          "runtimeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeStatus": {
+            "type": "string"
+          },
+          "runtimeOwnerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "splitTarget": {
+            "type": "string"
+          },
+          "fixtureId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fixturePack": {
+            "type": "string"
+          },
+          "fixtureOwnerRepo": {
+            "type": "string"
+          },
+          "captureStatus": {
+            "type": "string"
+          },
+          "metricKind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "score": {
+            "type": "number"
+          },
+          "expected": {},
+          "actual": {},
+          "evidenceLayer": {
+            "type": "string",
+            "minLength": 1
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 1
           }
         },
         "additionalProperties": true
