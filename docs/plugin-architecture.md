@@ -624,6 +624,11 @@ For Sai VN:
 - ABI fixture proving `describe`, `validate`, `project`, `lower`, `measure`,
   and `apply` publish the expected contract shape without direct imports.
 
+The Norn and TeX slots are composition evidence, not Sai-owned plugin
+semantics. A Sai surface may reserve space for `embed.norn` or `embed.tex` when
+those plugin advertisements are available, but Norn and TeX keep their own ABI,
+capability claims, conformance packs, and owner repos.
+
 The parity manifest should be extended so runtimes declare plugin support:
 
 ```json
@@ -661,4 +666,5 @@ Recommended path:
 
 Absorbing Sai into Eve is the fallback if the plugin boundary fails. It should
 not be the first move. The cleaner machine is Eve as kernel, Sai as VN plugin,
-Aetheria as provider, and renderer clients as separate bodies.
+Norn and TeX as independent plugins, Aetheria as provider, and renderer clients
+as separate bodies.

@@ -27,7 +27,7 @@
     {
       "kind": "plugin-fixture",
       "ref": "web/fixtures/sai-vn-surface.json",
-      "summary": "Advertisement-shaped provider entry for the Sai/Norn/TeX plugin conformance fixture."
+      "summary": "Advertisement-shaped provider entry for a Sai VN fixture that may nest independently-owned Norn and TeX plugin surfaces."
     },
     {
       "kind": "owner-repo",

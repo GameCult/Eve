@@ -8,7 +8,7 @@
     "transport": "local-json",
     "path": "web/fixtures/sai-vn-surface.json"
   },
-  "purpose": "Proves Sai visual-novel semantics with Norn and TeX embedded plugin surfaces before the plugins graduate.",
+  "purpose": "Proves Sai visual-novel semantics and optional nested placement of independently-owned Norn and TeX plugin surfaces before the plugins graduate.",
   "exitCriteria": "Move to Sai when VN/Ink story state, story commands, projection fixtures, and plugin ABI cases stabilize.",
   "asserts": [
     "vn.stage component",
