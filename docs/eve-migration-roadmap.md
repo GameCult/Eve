@@ -280,6 +280,14 @@ Exit criteria:
 
 Recently cut:
 
+- Runtime owner conformance consumption now verifies runtime target health
+  instead of only runtime presence. The generic consumer supports
+  `--expect-runtime-status`, `--expect-runtime-feature`,
+  `--expect-runtime-command-schema`, and `--expect-runtime-capture-status`; the
+  export carries top-level `captureStatus`; and the parity harness runs a
+  runtime-owner smoke that proves active Flutter/Unity/web targets while keeping
+  Fensalir Direct2D explicitly demoted as `external-adapter-spike` with missing
+  capture.
 - Provider owner conformance consumption now verifies the interactive-world
   contract instead of only provider presence. The generic conformance consumer
   supports `--expect-provider-surface`, `--expect-provider-command`, and

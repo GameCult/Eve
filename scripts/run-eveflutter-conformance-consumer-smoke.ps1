@@ -49,7 +49,14 @@ try {
     --expect-runtime windows-flutter `
     --expect-runtime linux-flutter `
     --expect-runtime android-flutter `
+    --expect-runtime-status windows-flutter:active `
+    --expect-runtime-feature windows-flutter:embeddedDocuments `
+    --expect-runtime-command-schema windows-flutter:gamecult.eve.command.v1 `
+    --expect-runtime-capture-status windows-flutter:golden `
     --expect-split-target EveFlutter
+  if ($LASTEXITCODE -ne 0) {
+    throw "EveFlutter conformance consumer smoke failed with exit code $LASTEXITCODE"
+  }
 } finally {
   Pop-Location
 }

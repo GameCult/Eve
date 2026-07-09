@@ -1373,6 +1373,7 @@ function buildConformanceExport(report) {
       capabilityManifestPath: runtime.capabilityManifest?.manifestPath || "",
       capabilityManifestErrors: runtime.capabilityManifestErrors || [],
       commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
+      captureStatus: runtime.capture?.status || "",
       lifecycle: runtime.lifecycle,
     })),
     splitTargets: report.splitTargets || [],

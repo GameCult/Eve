@@ -1,0 +1,63 @@
+param(
+  [string] $ExportDirectory = "artifacts\conformance\latest",
+  [string] $ConsumerDirectory = "artifacts\runtime-owner-conformance-consumer-smoke"
+)
+
+$ErrorActionPreference = "Stop"
+
+$projectRoot = Split-Path -Parent $PSScriptRoot
+$sourceExport = if ([System.IO.Path]::IsPathRooted($ExportDirectory)) {
+  $ExportDirectory
+} else {
+  Join-Path $projectRoot $ExportDirectory
+}
+$consumerRoot = if ([System.IO.Path]::IsPathRooted($ConsumerDirectory)) {
+  $ConsumerDirectory
+} else {
+  Join-Path $projectRoot $ConsumerDirectory
+}
+$consumerExport = Join-Path $consumerRoot "export"
+
+if (-not (Test-Path $sourceExport)) {
+  throw "Conformance export not found: $sourceExport"
+}
+
+if (Test-Path $consumerExport) {
+  Remove-Item -LiteralPath $consumerExport -Recurse -Force
+}
+New-Item -ItemType Directory -Force -Path $consumerRoot | Out-Null
+Copy-Item -LiteralPath $sourceExport -Destination $consumerExport -Recurse
+
+$consumerScript = Join-Path $projectRoot "tools\conformance\consume-export.mjs"
+
+node $consumerScript $consumerExport `
+  --expect-pack runtime `
+  --expect-runtime web `
+  --expect-runtime windows-flutter `
+  --expect-runtime linux-flutter `
+  --expect-runtime android-flutter `
+  --expect-runtime unity-uitoolkit `
+  --expect-runtime direct2d `
+  --expect-runtime-status web:active `
+  --expect-runtime-status windows-flutter:active `
+  --expect-runtime-status linux-flutter:active `
+  --expect-runtime-status android-flutter:active `
+  --expect-runtime-status unity-uitoolkit:active `
+  --expect-runtime-status direct2d:external-adapter-spike `
+  --expect-runtime-feature web:providerAdvertisements `
+  --expect-runtime-feature windows-flutter:embeddedDocuments `
+  --expect-runtime-feature unity-uitoolkit:embeddedDocuments `
+  --expect-runtime-feature direct2d:embeddedDocuments `
+  --expect-runtime-command-schema web:gamecult.eve.command.v1 `
+  --expect-runtime-command-schema windows-flutter:gamecult.eve.command.v1 `
+  --expect-runtime-command-schema unity-uitoolkit:gamecult.eve.command.v1 `
+  --expect-runtime-capture-status web:chrome-headless `
+  --expect-runtime-capture-status windows-flutter:golden `
+  --expect-runtime-capture-status linux-flutter:ssh-golden `
+  --expect-runtime-capture-status android-flutter:adb-png `
+  --expect-runtime-capture-status unity-uitoolkit:semantic `
+  --expect-runtime-capture-status direct2d:missing
+
+if ($LASTEXITCODE -ne 0) {
+  throw "Runtime owner conformance consumer smoke failed with exit code $LASTEXITCODE"
+}

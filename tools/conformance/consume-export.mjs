@@ -21,6 +21,10 @@ if (!exportDirectory) {
     "  --expect-provider-surface <providerId:surfaceId>",
     "  --expect-provider-command <providerId:command>",
     "  --expect-provider-receipt-state <providerId:state>",
+    "  --expect-runtime-status <runtimeId:status>",
+    "  --expect-runtime-feature <runtimeId:feature>",
+    "  --expect-runtime-command-schema <runtimeId:schema>",
+    "  --expect-runtime-capture-status <runtimeId:status>",
   ].join("\n"));
   process.exit(2);
 }
@@ -48,6 +52,7 @@ function validateIndex(index, directory, expectations, errors) {
   const packs = Array.isArray(index.packs) ? index.packs : [];
   const packIds = new Set(packs.map(pack => pack.id));
   const fixtureIds = new Set();
+  const exportedRuntimeTargets = [];
   for (const requiredPack of ["core", "plugin", "provider", "runtime"]) {
     if (!packIds.has(requiredPack)) errors.push(`pack:${requiredPack}:missing`);
   }
@@ -79,9 +84,10 @@ function validateIndex(index, directory, expectations, errors) {
     }
 
     if (pack.id === "runtime") {
-      const runtimeTargets = Array.isArray(packDocument.runtimeTargets) ? packDocument.runtimeTargets : [];
-      if (!runtimeTargets.length) errors.push("pack-file:runtime:runtimeTargets:missing");
-      for (const runtime of runtimeTargets) {
+      const packRuntimeTargets = Array.isArray(packDocument.runtimeTargets) ? packDocument.runtimeTargets : [];
+      if (!packRuntimeTargets.length) errors.push("pack-file:runtime:runtimeTargets:missing");
+      for (const runtime of packRuntimeTargets) {
+        exportedRuntimeTargets.push(runtime);
         if (!runtime.runtimeId) errors.push("pack-file:runtime:runtimeTarget:runtimeId:missing");
         if (!runtime.status) errors.push(`pack-file:runtime:runtimeTarget:${runtime.runtimeId || "unknown"}:status:missing`);
         if (!runtime.ownerRepo) errors.push(`pack-file:runtime:runtimeTarget:${runtime.runtimeId || "unknown"}:ownerRepo:missing`);
@@ -91,7 +97,7 @@ function validateIndex(index, directory, expectations, errors) {
 
   const plugins = Array.isArray(index.plugins) ? index.plugins : [];
   const providers = Array.isArray(index.providers) ? index.providers : [];
-  const runtimes = Array.isArray(index.runtimes) ? index.runtimes : [];
+  const runtimes = mergeRuntimeRecords(Array.isArray(index.runtimes) ? index.runtimes : [], exportedRuntimeTargets);
   const splitTargets = Array.isArray(index.splitTargets) ? index.splitTargets : [];
 
   for (const expectedFixture of expectations.fixtures) {
@@ -156,6 +162,46 @@ function validateIndex(index, directory, expectations, errors) {
   for (const expectedRuntime of expectations.runtimes) {
     if (!runtimes.some(runtime => runtime.runtimeId === expectedRuntime)) errors.push(`runtimes:${expectedRuntime}:missing`);
   }
+  for (const expectation of expectations.runtimeStatuses) {
+    const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!runtime) {
+      errors.push(`runtimes:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    if (runtime.status !== expectation.status) {
+      errors.push(`runtimes:${expectation.runtimeId}:status:expected ${expectation.status} got ${runtime.status || ""}`);
+    }
+  }
+  for (const expectation of expectations.runtimeFeatures) {
+    const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!runtime) {
+      errors.push(`runtimes:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    if (!Array.isArray(runtime.supportedFeatures) || !runtime.supportedFeatures.includes(expectation.feature)) {
+      errors.push(`runtimes:${expectation.runtimeId}:feature:${expectation.feature}:missing`);
+    }
+  }
+  for (const expectation of expectations.runtimeCommandSchemas) {
+    const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!runtime) {
+      errors.push(`runtimes:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    if (runtime.commandTransportSchema !== expectation.schema) {
+      errors.push(`runtimes:${expectation.runtimeId}:commandTransportSchema:expected ${expectation.schema} got ${runtime.commandTransportSchema || ""}`);
+    }
+  }
+  for (const expectation of expectations.runtimeCaptureStatuses) {
+    const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!runtime) {
+      errors.push(`runtimes:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    if (runtime.captureStatus !== expectation.status) {
+      errors.push(`runtimes:${expectation.runtimeId}:captureStatus:expected ${expectation.status} got ${runtime.captureStatus || ""}`);
+    }
+  }
   for (const expectedScenario of expectations.scenarios) {
     if (!providers.some(provider => provider.scenarioId === expectedScenario)) errors.push(`providers:scenario:${expectedScenario}:missing`);
   }
@@ -194,6 +240,10 @@ function parseArguments(args) {
     providerCommands: [],
     providerReceiptStates: [],
     runtimes: [],
+    runtimeStatuses: [],
+    runtimeFeatures: [],
+    runtimeCommandSchemas: [],
+    runtimeCaptureStatuses: [],
     scenarios: [],
     splitTargets: [],
   };
@@ -210,6 +260,10 @@ function parseArguments(args) {
     ["--expect-provider-surface", expectations.providerSurfaces],
     ["--expect-provider-command", expectations.providerCommands],
     ["--expect-provider-receipt-state", expectations.providerReceiptStates],
+    ["--expect-runtime-status", expectations.runtimeStatuses],
+    ["--expect-runtime-feature", expectations.runtimeFeatures],
+    ["--expect-runtime-command-schema", expectations.runtimeCommandSchemas],
+    ["--expect-runtime-capture-status", expectations.runtimeCaptureStatuses],
   ]);
 
   for (let index = 1; index < args.length; index += 1) {
@@ -234,6 +288,14 @@ function parseArguments(args) {
       target.push(parseProviderExpectation(value, "command"));
     } else if (option === "--expect-provider-receipt-state") {
       target.push(parseProviderExpectation(value, "state"));
+    } else if (option === "--expect-runtime-status") {
+      target.push(parseRuntimeExpectation(value, "status"));
+    } else if (option === "--expect-runtime-feature") {
+      target.push(parseRuntimeExpectation(value, "feature"));
+    } else if (option === "--expect-runtime-command-schema") {
+      target.push(parseRuntimeExpectation(value, "schema"));
+    } else if (option === "--expect-runtime-capture-status") {
+      target.push(parseRuntimeExpectation(value, "status"));
     } else {
       target.push(value);
     }
@@ -265,4 +327,31 @@ function parseProviderExpectation(value, field) {
     providerId: value.slice(0, separator),
     [field]: value.slice(separator + 1),
   };
+}
+
+function parseRuntimeExpectation(value, field) {
+  const separator = value.indexOf(":");
+  if (separator <= 0 || separator === value.length - 1) {
+    console.error(`Expected runtime ${field} in <runtimeId:${field}> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: value.slice(0, separator),
+    [field]: value.slice(separator + 1),
+  };
+}
+
+function mergeRuntimeRecords(topLevelRuntimes, runtimeTargets) {
+  const byId = new Map();
+  for (const runtime of runtimeTargets) {
+    if (runtime.runtimeId) byId.set(runtime.runtimeId, runtime);
+  }
+  for (const runtime of topLevelRuntimes) {
+    if (!runtime.runtimeId) continue;
+    byId.set(runtime.runtimeId, {
+      ...(byId.get(runtime.runtimeId) || {}),
+      ...runtime,
+    });
+  }
+  return [...byId.values()];
 }
