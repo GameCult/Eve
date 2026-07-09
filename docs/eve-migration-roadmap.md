@@ -689,6 +689,12 @@ Recently cut:
   That keeps a Sai surface free to deploy with Norn or TeX when available
   without turning either plugin into a Sai dependency or runtime-hosted
   semantic authority.
+- The split-target conformance consumer now asserts EveUnity's generic
+  interactive-world capture controls. `unity-uitoolkit` and `unity-scene` must
+  export `runtime.captureArtifacts[]` for both Aetheria and the non-product
+  `eve.world-smoke` provider, proving the Unity lowerers are generic runtime
+  clients before the remaining blocker narrows to owner-repo PNG/frame capture
+  and release lifecycle.
 - Conformance export now carries first-class `capabilityGaps[]` records derived
   from plugin errors, provider advertisement/scenario errors, runtime missing
   evidence, declared unsupported plugin projection, capture gaps, and split

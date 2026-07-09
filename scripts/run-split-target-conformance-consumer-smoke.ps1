@@ -43,6 +43,10 @@ try {
     --expect-split-target-proof "EveUnity:EveUnity split handoff is machine-readable" `
     --expect-split-target-proof "EveUnity:Unity scene split handoff is machine-readable" `
     --expect-split-target-proof "EveUnity:Unity scene lifecycle contract is machine-readable" `
+    --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:aetheria:aetheria.daemon.game `
+    --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:eve.world-smoke:eve.world-smoke.surface `
+    --expect-runtime-capture-artifact unity-scene:json-projection:gamecult.eve.unity_scene_projection.v1:aetheria:aetheria.daemon.game `
+    --expect-runtime-capture-artifact unity-scene:json-projection:gamecult.eve.unity_scene_projection.v1:eve.world-smoke:eve.world-smoke.surface `
     --expect-split-target-blocker "EveUnity:runtime:unity-scene:status:pending" `
     --expect-split-target-blocker-record EveUnity:runtime-status:unity-scene `
     --expect-split-target-blocker-record "EveUnity:pending-proof:Unity scene runtime body graduates to EveUnity outside Aetheria product code." `

@@ -358,7 +358,11 @@ boundary: Aetheria's Unity `Packages/manifest.json`, generated
 `GameCult.Eve.UnityUIToolkit.csproj`, assets root, daemon catalog client, and
 Unity smoke are exported as `observed-provider` paths. That proves a real game
 consumes the generic EveUnity package/contract while keeping product state,
-assets, generated projects, scenes, and receipts in Aetheria.
+assets, generated projects, scenes, and receipts in Aetheria. The same
+split-target smoke now asserts `runtime.captureArtifacts[]` for both Aetheria
+and the generic `eve.world-smoke` provider on `unity-uitoolkit` and
+`unity-scene`, so generic Unity lowering evidence cannot collapse back into an
+Aetheria-only proof.
 EveTui is now an active incubating runtime: it claims a lossy
 provider-advertised terminal-grid command surface, preserves embedded document
 slot identity in the grid artifact, projects Sai/Norn/TeX fallback shells, and
