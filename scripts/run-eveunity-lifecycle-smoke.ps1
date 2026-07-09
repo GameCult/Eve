@@ -158,6 +158,28 @@ foreach ($expectedText in @($testContract.packageName, $testContract.testAssembl
   }
 }
 
+$captureContract = $manifest.lifecycle.capture.captureContract
+if ($null -eq $captureContract) {
+  throw "EveUnity capture lifecycle missing captureContract"
+}
+if ($captureContract.ownerRepo -ne "EveUnity") {
+  throw "EveUnity capture contract has unexpected owner: $($captureContract.ownerRepo)"
+}
+if ($captureContract.runtimeId -ne "unity-uitoolkit") {
+  throw "EveUnity capture contract has unexpected runtime: $($captureContract.runtimeId)"
+}
+if ($captureContract.captureKind -ne "unity-editor-or-batchmode-png") {
+  throw "EveUnity capture contract has unexpected capture kind: $($captureContract.captureKind)"
+}
+if ($captureContract.artifactKind -ne "png") {
+  throw "EveUnity capture contract has unexpected artifact kind: $($captureContract.artifactKind)"
+}
+foreach ($field in @("artifactPattern", "conformanceAttachment", "requiredProvider", "requiredSurface", "authority", "publishProof")) {
+  if (-not $captureContract.$field) {
+    throw "EveUnity capture contract missing $field"
+  }
+}
+
 & (Join-Path $projectRoot "scripts\run-aetheria-unity-package-smoke.ps1")
 if ($LASTEXITCODE -ne 0) {
   throw "Aetheria Unity package smoke failed with exit code $LASTEXITCODE"

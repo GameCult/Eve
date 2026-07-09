@@ -378,6 +378,64 @@
             "command": {
               "type": "string"
             },
+            "captureContract": {
+              "type": "object",
+              "required": [
+                "ownerRepo",
+                "runtimeId",
+                "captureKind",
+                "artifactKind",
+                "artifactPattern",
+                "conformanceAttachment",
+                "requiredProvider",
+                "requiredSurface",
+                "authority",
+                "publishProof"
+              ],
+              "properties": {
+                "ownerRepo": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "runtimeId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "captureKind": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "artifactKind": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "artifactPattern": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "conformanceAttachment": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "requiredProvider": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "requiredSurface": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "authority": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "publishProof": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": true
+            },
             "evidencePaths": {
               "type": "array",
               "items": {

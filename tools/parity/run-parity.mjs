@@ -1254,11 +1254,35 @@ function compareRuntimeLifecycleClaims(expectedLifecycle, actualLifecycle, manif
     errors.push(...missingMembers(expected.pendingProofs || [], actual.pendingProofs || [], `${label}.pendingProofs`));
     errors.push(...compareReleaseContract(expected.releaseContract, actual.releaseContract, `${label}.releaseContract`));
     errors.push(...compareTestContract(expected.testContract, actual.testContract, `${label}.testContract`));
+    errors.push(...compareCaptureContract(expected.captureContract, actual.captureContract, `${label}.captureContract`));
 
     for (const evidencePath of actual.evidencePaths || []) {
       if (!existsSync(path.join(repoRoot, evidencePath))) {
         errors.push(`${label}.evidencePaths:${evidencePath}:missing`);
       }
+    }
+  }
+  return errors;
+}
+
+function compareCaptureContract(expected, actual, label) {
+  const errors = [];
+  if (!expected) return errors;
+  if (!actual) return [`${label}:missing`];
+  for (const key of [
+    "ownerRepo",
+    "runtimeId",
+    "captureKind",
+    "artifactKind",
+    "artifactPattern",
+    "conformanceAttachment",
+    "requiredProvider",
+    "requiredSurface",
+    "authority",
+    "publishProof",
+  ]) {
+    if ((expected[key] || "") !== (actual[key] || "")) {
+      errors.push(`${label}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
     }
   }
   return errors;

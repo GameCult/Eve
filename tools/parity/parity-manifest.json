@@ -1250,6 +1250,18 @@
         "capture": {
           "ownerRepo": "EveUnity",
           "status": "pending-editor-capture",
+          "captureContract": {
+            "ownerRepo": "EveUnity",
+            "runtimeId": "unity-uitoolkit",
+            "captureKind": "unity-editor-or-batchmode-png",
+            "artifactKind": "png",
+            "artifactPattern": "artifacts/eveunity-uitoolkit-capture/{stamp}/unity-uitoolkit.png",
+            "conformanceAttachment": "runtime.captureArtifacts[]",
+            "requiredProvider": "aetheria",
+            "requiredSurface": "aetheria.daemon.game",
+            "authority": "Capture observes runtime projection only; provider state, command acceptance, and receipts stay provider-owned.",
+            "publishProof": "Unity editor or batchmode capture artifact is attached to the runtime conformance report from EveUnity."
+          },
           "evidencePaths": [],
           "pendingProofs": [
             "Unity batchmode or editor capture artifact attached to the runtime conformance report."

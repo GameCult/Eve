@@ -421,6 +421,12 @@ Recently cut:
   compares it against the ledger, and the runtime-owner consumer smoke asserts
   the exported release fields without pretending the tagged EveUnity release
   already exists.
+- EveUnity capture lifecycle now carries a structured pending capture contract.
+  `captureContract` names the Unity UI Toolkit runtime, capture kind, PNG
+  artifact pattern, conformance attachment point, required Aetheria provider
+  surface, and authority rule. The lifecycle smoke and runtime-owner consumer
+  smoke assert those fields while keeping the actual capture artifact as a
+  split blocker for EveUnity.
 - Runtime-owner conformance consumption now asserts EveUnity lifecycle stage
   evidence directly. The generic consumer supports
   `--expect-runtime-lifecycle-status` and
