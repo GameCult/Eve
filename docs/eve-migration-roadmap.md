@@ -280,6 +280,11 @@ Exit criteria:
 
 Recently cut:
 
+- Sai, Norn, and TeX plugin ABI fixtures now cover `lower` and `measure` in
+  addition to `describe`, `validate`, `project`, and `apply`. Eve validates the
+  operation shape, preserved component kinds, measurement outputs, and provider
+  authority flag without importing plugin internals or deciding plugin
+  semantics.
 - The web reference now publishes a runtime capability manifest at
   `web/eve-runtime-capability.json`, and the parity harness validates it through
   the same runtime capability path as Unity. Web remains Eve's behavior oracle,
@@ -354,9 +359,9 @@ Recently cut:
   command boundary consumption, command intents, and provider-owned receipt
   states without importing Aetheria internals into Eve.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
-  project, and apply behavior. The parity harness validates those fixtures
-  against plugin manifests, so Eve proves the ABI shape without owning plugin
-  semantics.
+  project, lower, measure, and apply behavior. The parity harness validates
+  those fixtures against plugin manifests, so Eve proves the ABI shape without
+  owning plugin semantics.
 - Split-readiness reporting now exists for `EveFlutter` and `EveUnity`. The
   parity report lists member runtime health, required plugin capability claims,
   pending proofs, and blockers before either repo can graduate out of Eve

@@ -44,6 +44,32 @@
       }
     },
     {
+      "operation": "lower",
+      "input": {
+        "projection": "render-request",
+        "targetRuntimes": ["web"],
+        "componentKinds": ["embed.tex"]
+      },
+      "expect": {
+        "loweringKind": "typeset-fragment",
+        "preservedComponentKinds": ["embed.tex"],
+        "requiredSchemas": ["tex.math.render_request.v1", "tex.math.render_result.v1"],
+        "fallbackKind": "source-text"
+      }
+    },
+    {
+      "operation": "measure",
+      "input": {
+        "projection": "render-request",
+        "sourceSchema": "tex.math.source.v1"
+      },
+      "expect": {
+        "measurementKind": "typeset-baseline-metrics",
+        "measurementOutputs": ["baseline", "advance", "inkBounds", "fallbackBounds"],
+        "preservesProviderAuthority": true
+      }
+    },
+    {
       "operation": "apply",
       "input": {
         "stateSchemas": ["tex.math.source.v1", "tex.math.render_request.v1", "tex.math.render_result.v1"]

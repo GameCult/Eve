@@ -44,6 +44,32 @@
       }
     },
     {
+      "operation": "lower",
+      "input": {
+        "projection": "embedded-semantic-surface",
+        "targetRuntimes": ["web", "unity-uitoolkit"],
+        "componentKinds": ["embed.norn"]
+      },
+      "expect": {
+        "loweringKind": "graph-viewport",
+        "preservedComponentKinds": ["embed.norn"],
+        "requiredSchemas": ["norn.graph.document.v1", "norn.graph.layout_result.v1"],
+        "commandEnvelope": "gamecult.eve.command.v1"
+      }
+    },
+    {
+      "operation": "measure",
+      "input": {
+        "projection": "embedded-semantic-surface",
+        "layoutRequestSchema": "norn.graph.layout_request.v1"
+      },
+      "expect": {
+        "measurementKind": "graph-layout-metrics",
+        "measurementOutputs": ["nodeBounds", "edgeRoutes", "viewportBounds"],
+        "preservesProviderAuthority": true
+      }
+    },
+    {
       "operation": "apply",
       "input": {
         "commands": ["graph.node.activate", "graph.focus"]

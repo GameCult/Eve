@@ -44,6 +44,32 @@
       }
     },
     {
+      "operation": "lower",
+      "input": {
+        "projection": "semantic-surface",
+        "targetRuntimes": ["web", "unity-uitoolkit"],
+        "componentKinds": ["vn.stage", "panel.dialogue", "text.dialogue", "rail.actions"]
+      },
+      "expect": {
+        "loweringKind": "runtime-neutral-stage-parts",
+        "preservedComponentKinds": ["vn.stage", "panel.dialogue", "text.dialogue", "rail.actions"],
+        "delegatedPlugins": ["norn.graph", "tex.math"],
+        "commandEnvelope": "gamecult.eve.command.v1"
+      }
+    },
+    {
+      "operation": "measure",
+      "input": {
+        "projection": "semantic-surface",
+        "placementKinds": ["overlay", "keystone", "sprite-chromakey"]
+      },
+      "expect": {
+        "measurementKind": "scene-placement-hints",
+        "measurementOutputs": ["preferredBounds", "safeTextRegion", "embeddedSurfaceSlots"],
+        "preservesProviderAuthority": true
+      }
+    },
+    {
       "operation": "apply",
       "input": {
         "commands": ["story.continue", "story.choose", "story.jump"]

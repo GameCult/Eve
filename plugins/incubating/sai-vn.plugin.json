@@ -7,7 +7,7 @@
     "ownerRepo": "Sai",
     "currentHostRepo": "Eve",
     "splitTarget": "Sai/sai-vn-plugin",
-    "graduationTrigger": "Split when VN/Ink semantics, story command fixtures, and ABI validate/apply/project cases are stable."
+    "graduationTrigger": "Split when VN/Ink semantics, story command fixtures, and ABI describe/validate/project/lower/measure/apply cases are stable."
   },
   "componentKinds": [
     "vn.stage",

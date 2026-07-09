@@ -573,8 +573,8 @@ For Sai VN:
 - embedded surface slot fixture with optional Norn/TeX plugin dependencies;
 - degraded renderer fixture for clients without scene placement;
 - receipt round-trip fixture driven by a fake provider.
-- ABI fixture proving `validate`, `apply`, and `project` produce the expected
-  plugin results without direct imports.
+- ABI fixture proving `describe`, `validate`, `project`, `lower`, `measure`,
+  and `apply` publish the expected contract shape without direct imports.
 
 The parity manifest should be extended so runtimes declare plugin support:
 
