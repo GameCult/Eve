@@ -147,6 +147,9 @@
         "tools/eveunity/eveunity-capture-contract.mjs",
         "tools/eveunity/eveunity-capture-contract.test.mjs",
         "scripts/run-eveunity-capture-contract-smoke.ps1",
+        "tools/eveunity/eveunity-uitoolkit-capture-artifact.mjs",
+        "tools/eveunity/eveunity-uitoolkit-capture-artifact.test.mjs",
+        "scripts/run-eveunity-uitoolkit-capture-smoke.ps1",
         "web/fixtures/aetheria.provider-advertisement.json"
       ],
       "pendingProofs": [
@@ -155,7 +158,19 @@
     }
   },
   "capture": {
-    "status": "semantic",
-    "note": "Unity UI Toolkit lowers embedded document slots through a resolver-backed child surface host."
+    "status": "json-projection",
+    "note": "Unity UI Toolkit attaches a provider-advertisement-backed gamecult.eve.unity_uitoolkit_projection.v1 JSON projection artifact; Unity editor or batchmode PNG capture remains an EveUnity split blocker.",
+    "artifacts": [
+      {
+        "kind": "json-projection",
+        "schema": "gamecult.eve.unity_uitoolkit_projection.v1",
+        "path": "artifacts/eveunity-uitoolkit-capture/latest/unity-uitoolkit-projection.json",
+        "runtimeId": "unity-uitoolkit",
+        "providerId": "aetheria",
+        "surfaceId": "aetheria.daemon.game",
+        "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
+        "requestPath": "artifacts/eveunity-uitoolkit-capture/latest/capture-request.json"
+      }
+    ]
   }
 }

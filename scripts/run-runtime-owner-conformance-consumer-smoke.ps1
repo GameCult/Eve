@@ -46,6 +46,7 @@ node $consumerScript $consumerExport `
   --expect-schema gamecult.eve.runtime_lifecycle.v1 `
   --expect-schema gamecult.eve.runtime_split_handoff.v1 `
   --expect-schema gamecult.eve.electron_shell_projection.v1 `
+  --expect-schema gamecult.eve.unity_uitoolkit_projection.v1 `
   --expect-schema gamecult.eve.unity_scene_projection.v1 `
   --expect-schema gamecult.eve.tui_grid.v1 `
   --expect-schema gamecult.eve.web_layout_probe.v1 `
@@ -132,7 +133,8 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-status windows-flutter:golden `
   --expect-runtime-capture-status linux-flutter:ssh-golden `
   --expect-runtime-capture-status android-flutter:adb-png `
-  --expect-runtime-capture-status unity-uitoolkit:semantic `
+  --expect-runtime-capture-status unity-uitoolkit:json-projection `
+  --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-status unity-scene:json-projection `
   --expect-runtime-capture-artifact unity-scene:json-projection:gamecult.eve.unity_scene_projection.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-status electron-shell:json-projection `

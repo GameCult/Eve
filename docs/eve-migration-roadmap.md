@@ -575,6 +575,16 @@ Recently cut:
   `scripts/run-eveunity-capture-contract-smoke.ps1` proves that request path
   without pretending a Unity PNG has been captured. The actual capture artifact
   remains a split blocker for EveUnity.
+- Unity UI Toolkit now also has schema-backed semantic projection evidence.
+  `tools/eveunity/eveunity-uitoolkit-capture-artifact.mjs` lowers
+  `web/fixtures/aetheria-world-surface.json` into
+  `gamecult.eve.unity_uitoolkit_projection.v1`, writes
+  `artifacts/eveunity-uitoolkit-capture/latest/unity-uitoolkit-projection.json`,
+  and exports it as `runtime.captureArtifacts[]`. The builder also proves Sai,
+  Norn, and TeX stay sidecar plugin projections when a visual-novel surface is
+  lowered through UI Toolkit. The remaining EveUnity capture blocker is an
+  owner-repo Unity editor or batchmode PNG, not absence of a typed projection
+  artifact.
 - Unity scene capture now has the same semantic artifact boundary as Electron
   without pretending it is a rendered Unity frame. `tools/eveunity/eveunity-scene-capture-artifact.mjs`
   lowers `web/fixtures/aetheria-world-surface.json` into
@@ -853,6 +863,14 @@ Recently cut:
   `scripts/run-split-target-conformance-consumer-smoke.ps1`, and
   `scripts/run-aetheria-conformance-consumer-smoke.ps1` assert that boundary
   from the manifest/export.
+- Unity UI Toolkit now attaches a schema-backed semantic projection capture
+  artifact at
+  `artifacts/eveunity-uitoolkit-capture/latest/unity-uitoolkit-projection.json`.
+  Parity validates it against
+  `gamecult.eve.unity_uitoolkit_projection.v1`, exports it as
+  `runtime.captureArtifacts[]`, and the runtime-owner consumer smoke asserts it.
+  This proves the UI Toolkit command-surface projection is typed evidence while
+  leaving real Unity editor or batchmode PNG capture as the EveUnity blocker.
 - Unity UI Toolkit now has a first-party `norn.graph` projection-adapter proof
   for `embed.norn`. `NornGraphUiToolkitProjectionAdapter` owns the native
   embedded graph shell and graph command emission path, while the Norn sidecar

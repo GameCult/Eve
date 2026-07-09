@@ -400,7 +400,13 @@ exist. The current lifecycle proof is deliberately split:
 - capture: `tools/eveunity/eveunity-capture-contract.mjs` builds a typed
   `gamecult.eve.runtime_capture_request.v1` request from the runtime capability
   manifest and Aetheria provider advertisement; Unity editor or batchmode PNG
-  capture remains a split blocker.
+  capture remains a split blocker. `tools/eveunity/eveunity-uitoolkit-capture-artifact.mjs`
+  also writes a schema-backed
+  `gamecult.eve.unity_uitoolkit_projection.v1` JSON projection artifact at
+  `artifacts/eveunity-uitoolkit-capture/latest/unity-uitoolkit-projection.json`.
+  That artifact proves provider-advertised UI Toolkit projection, embedded
+  slots, and sidecar plugin projection metadata without pretending to be a
+  rendered Unity frame.
 
 TUI capture evidence is already typed even though EveTui remains incubating.
 `tools/evetui/evetui-capture-artifact.mjs` lowers the Aetheria world surface

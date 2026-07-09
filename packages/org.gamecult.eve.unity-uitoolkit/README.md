@@ -66,6 +66,10 @@ construction through `tools/eveunity/eveunity-capture-contract.mjs`. That
 request is derived from the runtime capability manifest and Aetheria's provider
 advertisement, then points at the PNG artifact EveUnity must produce later. It
 does not fake a screenshot; it makes the capture input contract executable.
+`tools/eveunity/eveunity-uitoolkit-capture-artifact.mjs` also emits a typed
+`gamecult.eve.unity_uitoolkit_projection.v1` JSON projection artifact for the
+Aetheria world surface. That artifact is runtime projection evidence, not
+provider state and not a Unity frame capture.
 
 The manifest also declares `worldSurfaceLowering` target `unity-uitoolkit`.
 That means this package can lower provider-advertised `interactive-world` and
@@ -98,6 +102,12 @@ graduate to `EveUnity`. The capture contract smoke is:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\run-eveunity-capture-contract-smoke.ps1
+```
+
+The semantic projection capture smoke is:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-eveunity-uitoolkit-capture-smoke.ps1
 ```
 
 The release contract smoke is:

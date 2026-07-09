@@ -216,6 +216,11 @@ if ($LASTEXITCODE -ne 0) {
   throw "EveUnity capture contract smoke failed with exit code $LASTEXITCODE"
 }
 
+& (Join-Path $projectRoot "scripts\run-eveunity-uitoolkit-capture-smoke.ps1")
+if ($LASTEXITCODE -ne 0) {
+  throw "EveUnity UI Toolkit capture smoke failed with exit code $LASTEXITCODE"
+}
+
 & (Join-Path $projectRoot "scripts\run-aetheria-unity-package-smoke.ps1")
 if ($LASTEXITCODE -ne 0) {
   throw "Aetheria Unity package smoke failed with exit code $LASTEXITCODE"

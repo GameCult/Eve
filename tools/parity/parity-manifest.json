@@ -30,6 +30,7 @@
     "gamecult.eve.provider_handoff.v1": "schemas/gamecult.eve.provider_handoff.v1.schema.json",
     "gamecult.eve.conformance_handoff.v1": "schemas/gamecult.eve.conformance_handoff.v1.schema.json",
     "gamecult.eve.electron_shell_projection.v1": "schemas/gamecult.eve.electron_shell_projection.v1.schema.json",
+    "gamecult.eve.unity_uitoolkit_projection.v1": "schemas/gamecult.eve.unity_uitoolkit_projection.v1.schema.json",
     "gamecult.eve.unity_scene_projection.v1": "schemas/gamecult.eve.unity_scene_projection.v1.schema.json",
     "gamecult.eve.tui_grid.v1": "schemas/gamecult.eve.tui_grid.v1.schema.json"
   },
@@ -1498,7 +1499,10 @@
         "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/EveUiToolkitSurfaceLowererTests.cs",
         "packages/org.gamecult.eve.unity-uitoolkit/eveunity-split-handoff.json",
         "scripts/run-aetheria-unity-editmode-tests.ps1",
-        "scripts/run-eveunity-split-handoff-smoke.ps1"
+        "scripts/run-eveunity-split-handoff-smoke.ps1",
+        "scripts/run-eveunity-uitoolkit-capture-smoke.ps1",
+        "tools/eveunity/eveunity-uitoolkit-capture-artifact.mjs",
+        "tools/eveunity/eveunity-uitoolkit-capture-artifact.test.mjs"
       ],
       "expectedSourceSymbols": [
         {
@@ -1524,6 +1528,14 @@
         {
           "path": "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/EveUiToolkitSurfaceLowererTests.cs",
           "contains": ["FindPluginProjectionAdapter", "SaiStageLowersThroughRuntimeProjectionAdapter", "NornGraphLowersThroughRuntimeProjectionAdapter", "TeXMathLowersThroughRuntimeProjectionAdapterAsSourceFallback", "EmbeddedDocumentSlotMountsResolverBackedChildSurface", "eve-plugin-projection"]
+        },
+        {
+          "path": "tools/eveunity/eveunity-uitoolkit-capture-artifact.mjs",
+          "contains": ["buildUnityUiToolkitCaptureArtifact", "buildUnityUiToolkitProjection", "gamecult.eve.unity_uitoolkit_projection.v1", "unity-uitoolkit-projection-json", "writeUnityUiToolkitCaptureArtifact", "request-output"]
+        },
+        {
+          "path": "tools/eveunity/eveunity-uitoolkit-capture-artifact.test.mjs",
+          "contains": ["builds Unity UI Toolkit projection capture artifact", "keeps Sai, Norn, and TeX semantics in sidecar plugin UI projections", "gamecult.eve.unity_uitoolkit_projection.v1", "unity-uitoolkit-projection-json"]
         }
       ],
       "commandTransportSmoke": {
@@ -1623,6 +1635,9 @@
             "tools/eveunity/eveunity-capture-contract.mjs",
             "tools/eveunity/eveunity-capture-contract.test.mjs",
             "scripts/run-eveunity-capture-contract-smoke.ps1",
+            "tools/eveunity/eveunity-uitoolkit-capture-artifact.mjs",
+            "tools/eveunity/eveunity-uitoolkit-capture-artifact.test.mjs",
+            "scripts/run-eveunity-uitoolkit-capture-smoke.ps1",
             "web/fixtures/aetheria.provider-advertisement.json"
           ],
           "pendingProofs": [
@@ -1631,8 +1646,20 @@
         }
       },
       "capture": {
-        "status": "semantic",
-        "note": "Unity UI Toolkit lowers embedded document slots through a resolver-backed child surface host."
+        "status": "json-projection",
+        "note": "Unity UI Toolkit attaches a provider-advertisement-backed gamecult.eve.unity_uitoolkit_projection.v1 JSON projection artifact; Unity editor or batchmode PNG capture remains an EveUnity split blocker.",
+        "artifacts": [
+          {
+            "kind": "json-projection",
+            "schema": "gamecult.eve.unity_uitoolkit_projection.v1",
+            "path": "artifacts/eveunity-uitoolkit-capture/latest/unity-uitoolkit-projection.json",
+            "runtimeId": "unity-uitoolkit",
+            "providerId": "aetheria",
+            "surfaceId": "aetheria.daemon.game",
+            "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
+            "requestPath": "artifacts/eveunity-uitoolkit-capture/latest/capture-request.json"
+          }
+        ]
       }
     },
     {
