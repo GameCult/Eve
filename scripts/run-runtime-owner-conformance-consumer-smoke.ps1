@@ -47,6 +47,7 @@ node $consumerScript $consumerExport `
   --expect-schema gamecult.eve.runtime_split_handoff.v1 `
   --expect-schema gamecult.eve.electron_shell_projection.v1 `
   --expect-schema gamecult.eve.tui_grid.v1 `
+  --expect-schema gamecult.eve.web_layout_probe.v1 `
   --expect-runtime-status web:active `
   --expect-runtime-status windows-flutter:active `
   --expect-runtime-status linux-flutter:active `
@@ -126,7 +127,7 @@ node $consumerScript $consumerExport `
   --expect-screenshot-metric web:embedded-surface:structure:pass `
   --expect-screenshot-metric web:embedded-surface:color-tokens:pass `
   --expect-screenshot-metric web:embedded-surface:text-presence:pass `
-  --expect-screenshot-metric web:embedded-surface:bounding-boxes:pending-runtime-probe `
+  --expect-screenshot-metric web:embedded-surface:bounding-boxes:pass `
   --expect-screenshot-metric unity-scene:aetheria-world:bounding-boxes:pending-capture `
   --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
   --expect-screenshot-metric tui:aetheria-world:bounding-boxes:pending-capture `

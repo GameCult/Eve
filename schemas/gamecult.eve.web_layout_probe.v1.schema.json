@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.web_layout_probe.v1",
+  "title": "Eve Web Layout Probe",
+  "type": "object",
+  "required": [
+    "schema",
+    "runtimeId",
+    "providerId",
+    "surfaceId",
+    "fixtureId",
+    "generatedAt",
+    "viewport",
+    "summary",
+    "nodes"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.web_layout_probe.v1"
+    },
+    "runtimeId": {
+      "const": "web"
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surfaceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fixtureId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generatedAt": {
+      "type": "string",
+      "minLength": 1
+    },
+    "viewport": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+    "summary": {
+      "type": "object",
+      "required": ["nodeCount", "measuredNodeCount", "zeroAreaCount"],
+      "properties": {
+        "nodeCount": {
+          "type": "number"
+        },
+        "measuredNodeCount": {
+          "type": "number"
+        },
+        "zeroAreaCount": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["nodeId", "kind", "rect"],
+        "properties": {
+          "nodeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rect": {
+            "type": "object",
+            "required": ["x", "y", "width", "height"],
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

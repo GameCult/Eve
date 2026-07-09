@@ -24,6 +24,7 @@
     "gamecult.eve.runtime_split_handoff.v1": "schemas/gamecult.eve.runtime_split_handoff.v1.schema.json",
     "gamecult.eve.runtime_release_request.v1": "schemas/gamecult.eve.runtime_release_request.v1.schema.json",
     "gamecult.eve.runtime_capture_request.v1": "schemas/gamecult.eve.runtime_capture_request.v1.schema.json",
+    "gamecult.eve.web_layout_probe.v1": "schemas/gamecult.eve.web_layout_probe.v1.schema.json",
     "gamecult.eve.provider_scenario.v1": "schemas/gamecult.eve.provider_scenario.v1.schema.json",
     "gamecult.eve.provider_advertisement.v1": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
     "gamecult.eve.provider_handoff.v1": "schemas/gamecult.eve.provider_handoff.v1.schema.json",
@@ -1112,7 +1113,17 @@
       },
       "capture": {
         "status": "chrome-headless",
-        "note": "Chrome headless captures phone, tablet, and desktop PNGs through the provider query parameter."
+        "note": "Chrome headless captures phone, tablet, and desktop PNGs through the provider query parameter.",
+        "layoutProbes": [
+          {
+            "fixtureId": "embedded-surface",
+            "providerId": "gamecult.eve.embedded-demo",
+            "surfaceId": "gamecult.eve.embedded-demo",
+            "schema": "gamecult.eve.web_layout_probe.v1",
+            "path": "artifacts/web-reference-layout-probe/latest/embedded-surface.json",
+            "runner": "scripts/run-web-reference-layout-probe-smoke.ps1"
+          }
+        ]
       }
     },
     {

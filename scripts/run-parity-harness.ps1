@@ -13,6 +13,7 @@ $env:EVE_PARITY_OUTPUT = if ([System.IO.Path]::IsPathRooted($OutputDirectory)) {
 
 Push-Location $projectRoot
 try {
+  & (Join-Path $PSScriptRoot "run-web-reference-layout-probe-smoke.ps1")
   node .\tools\parity\run-parity.mjs
   & (Join-Path $PSScriptRoot "run-eveconformance-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-plugin-handoff-smoke.ps1")

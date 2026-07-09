@@ -2109,6 +2109,10 @@ function withJapaneseGuiFallback(stack) {
 function assignId(element, node) {
     if (node.id)
         element.id = node.id;
+    if (node.id)
+        element.dataset.eveNodeId = node.id;
+    if (node.kind)
+        element.dataset.eveKind = node.kind;
 }
 function objectProps(value) {
     return value && typeof value === "object" && !Array.isArray(value) ? value : {};

@@ -2503,6 +2503,47 @@ function buildColorTokenMetric(runtime, fixture) {
 }
 
 function buildBoundingBoxMetric(runtime, fixture) {
+  const layoutProbe = readRuntimeLayoutProbe(runtime, fixture.id);
+  if (layoutProbe.config) {
+    if (layoutProbe.document && !layoutProbe.errors.length) {
+      const measured = Number(layoutProbe.document.summary?.measuredNodeCount || 0);
+      const total = Number(layoutProbe.document.summary?.nodeCount || 0);
+      return buildScreenshotMetric(runtime, fixture, {
+        metricKind: "bounding-boxes",
+        status: measured > 0 ? "pass" : "fail",
+        score: ratio(measured, total),
+        expected: {
+          schema: layoutProbe.config.schema || "",
+          path: layoutProbe.config.path || "",
+          providerId: layoutProbe.config.providerId || "",
+          surfaceId: layoutProbe.config.surfaceId || "",
+        },
+        actual: {
+          nodeCount: total,
+          measuredNodeCount: measured,
+          zeroAreaCount: Number(layoutProbe.document.summary?.zeroAreaCount || 0),
+          path: layoutProbe.config.path || "",
+        },
+        evidenceLayer: "runtime-layout-probe",
+        detail: "Compares runtime-owned DOM bounding boxes from the web reference layout probe.",
+      });
+    }
+    return buildScreenshotMetric(runtime, fixture, {
+      metricKind: "bounding-boxes",
+      status: "fail",
+      score: 0,
+      expected: {
+        schema: layoutProbe.config.schema || "",
+        path: layoutProbe.config.path || "",
+      },
+      actual: {
+        errors: layoutProbe.errors,
+      },
+      evidenceLayer: "runtime-layout-probe",
+      detail: "Declared runtime layout probe exists, but the artifact is missing or invalid.",
+    });
+  }
+
   const captureStatus = runtime.capture?.status || "";
   const runtimeHasCaptureBody = ["chrome-headless", "ssh-png", "adb-png", "golden", "ssh-golden"].includes(captureStatus);
   let status = "pass";
@@ -2564,13 +2605,44 @@ function buildScreenshotMetric(runtime, fixture, metric) {
     score: Number(metric.score.toFixed(3)),
     expected: metric.expected,
     actual: metric.actual,
-    evidenceLayer: "surface-structure",
+    evidenceLayer: metric.evidenceLayer || "surface-structure",
     detail: metric.detail,
   };
 }
 
 function ratio(numerator, denominator) {
   return denominator ? Math.max(0, Math.min(1, numerator / denominator)) : 1;
+}
+
+function readRuntimeLayoutProbe(runtime, fixtureId) {
+  const config = (runtime.capture?.layoutProbes || []).find(candidate => candidate.fixtureId === fixtureId);
+  if (!config) return { config: null, document: null, errors: [] };
+  const errors = [];
+  const probePath = config.path || "";
+  const absoluteProbePath = path.join(repoRoot, probePath);
+  if (!probePath || !existsSync(absoluteProbePath)) {
+    return { config, document: null, errors: [`${probePath || "layoutProbe.path"}:missing`] };
+  }
+  let document;
+  try {
+    document = JSON.parse(readFileSync(absoluteProbePath, "utf8"));
+  } catch (error) {
+    return { config, document: null, errors: [`${probePath}:invalid-json:${error instanceof Error ? error.message : String(error)}`] };
+  }
+  if (config.schema && document.schema !== config.schema) errors.push(`${probePath}:schema:expected ${config.schema} got ${document.schema || ""}`);
+  if (config.providerId && document.providerId !== config.providerId) errors.push(`${probePath}:providerId:expected ${config.providerId} got ${document.providerId || ""}`);
+  if (config.surfaceId && document.surfaceId !== config.surfaceId) errors.push(`${probePath}:surfaceId:expected ${config.surfaceId} got ${document.surfaceId || ""}`);
+  if (document.fixtureId !== fixtureId) errors.push(`${probePath}:fixtureId:expected ${fixtureId} got ${document.fixtureId || ""}`);
+  const schemaPath = config.schema ? manifest.schemas?.[config.schema] : "";
+  if (schemaPath) {
+    try {
+      const schema = JSON.parse(readFileSync(path.join(repoRoot, schemaPath), "utf8"));
+      errors.push(...validateSchemaSubset(schema, document, `layoutProbe:${fixtureId}`));
+    } catch (error) {
+      errors.push(`${schemaPath}:unreadable:${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  return { config, document, errors };
 }
 
 function collectSplitTargetBlockers(report) {

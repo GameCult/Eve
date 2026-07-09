@@ -92,6 +92,10 @@
       "status": "chrome-headless",
       "evidencePaths": [
         "scripts/capture-web-reference.ps1",
+        "scripts/run-web-reference-layout-probe-smoke.ps1",
+        "tools/web-reference/run-layout-probe.mjs",
+        "web/layout-probe.html",
+        "web/layout-probe.js",
         "scripts/run-parity-smoke.ps1",
         "tools/parity/render-contact-sheet.py"
       ],

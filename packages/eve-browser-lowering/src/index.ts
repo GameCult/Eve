@@ -2454,6 +2454,8 @@ function withJapaneseGuiFallback(stack: string): string {
 
 function assignId(element: HTMLElement, node: EveSurfaceComponent): void {
   if (node.id) element.id = node.id;
+  if (node.id) element.dataset.eveNodeId = node.id;
+  if (node.kind) element.dataset.eveKind = node.kind;
 }
 
 function objectProps(value: unknown): Record<string, unknown> {

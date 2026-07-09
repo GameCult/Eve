@@ -434,6 +434,14 @@ box records name whether authored layout boxes exist or whether a runtime still
 owes a capture/layout probe. A missing Unity, Electron, TUI, or Direct2D capture
 body therefore appears as `pending-capture`, not as fake visual parity.
 
+The web reference has the first measured bounding-box probe. The harness runs
+`scripts/run-web-reference-layout-probe-smoke.ps1`, which builds the browser
+lowerer and uses Chrome headless to write
+`artifacts/web-reference-layout-probe/latest/embedded-surface.json` as
+`gamecult.eve.web_layout_probe.v1`. Parity consumes that artifact and marks
+`web:embedded-surface:bounding-boxes` as `pass` with
+`evidenceLayer: runtime-layout-probe`.
+
 The fixture matrix also includes `embedded-surface`, which proves that nested
 CultMesh document slots survive the shared surface contract. The web reference,
 Flutter parity body, Unity UI Toolkit lowerer, iOS UIKit renderer, and native
@@ -501,9 +509,8 @@ Pending runtimes are allowed. Silent fake parity is not.
 
 ## Next Cuts
 
-1. Attach runtime-owned image/layout probes to the screenshot comparison metric
-   lane so bounding-box records can move from `pending-runtime-probe` or
-   `pending-capture` to measured runtime evidence.
+1. Extend runtime-owned image/layout probes beyond web `embedded-surface`,
+   starting with Sai VN in web and the Unity/Electron/TUI capture blockers.
 2. Normalize text scale and font loading across web, Flutter Android, Flutter
    desktop, and iOS.
 3. Give iOS a real `vn.stage` scene compositor instead of compact stacked

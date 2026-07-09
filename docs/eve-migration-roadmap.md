@@ -286,6 +286,14 @@ Exit criteria:
 
 Recently cut:
 
+- The web reference now has a schema-backed layout probe for the
+  `embedded-surface` fixture. `scripts/run-web-reference-layout-probe-smoke.ps1`
+  builds the browser lowerer, runs Chrome headless through
+  `tools/web-reference/run-layout-probe.mjs`, writes
+  `gamecult.eve.web_layout_probe.v1` evidence under
+  `artifacts/web-reference-layout-probe/latest/embedded-surface.json`, and
+  parity consumes that artifact so `web:embedded-surface:bounding-boxes` is
+  measured runtime evidence instead of `pending-runtime-probe`.
 - The conformance export now carries `screenshotComparisonMetrics[]` records.
   Runtime owners get structure, color-token, bounding-box, and text-presence
   metrics per runtime/fixture pair without relying on byte-identical screenshots

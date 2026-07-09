@@ -47,6 +47,7 @@ try {
     --expect-schema gamecult.eve.provider_handoff.v1 `
     --expect-schema gamecult.eve.electron_shell_projection.v1 `
     --expect-schema gamecult.eve.tui_grid.v1 `
+    --expect-schema gamecult.eve.web_layout_probe.v1 `
     --expect-capability-gap runtime:Fensalir:direct2d:capture:missing `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:web-reference:claimed:Eve:web `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `
@@ -65,7 +66,7 @@ try {
     --expect-screenshot-metric web:embedded-surface:structure:pass `
     --expect-screenshot-metric web:embedded-surface:color-tokens:pass `
     --expect-screenshot-metric web:embedded-surface:text-presence:pass `
-    --expect-screenshot-metric web:embedded-surface:bounding-boxes:pending-runtime-probe `
+    --expect-screenshot-metric web:embedded-surface:bounding-boxes:pass `
     --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
     --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release" `
     --expect-conformance-handoff
