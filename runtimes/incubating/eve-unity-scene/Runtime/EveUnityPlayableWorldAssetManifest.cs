@@ -48,6 +48,88 @@ namespace GameCult.Eve.UnityScene
         }
     }
 
+    public interface IEveUnityPlayableWorldAssetManifestSource
+    {
+        string ManifestRef { get; }
+
+        EveUnityPlayableWorldAssetManifest CurrentManifest { get; }
+
+        event Action<EveUnityPlayableWorldAssetManifest> ManifestAvailable;
+    }
+
+    public sealed class EveUnityPlayableWorldAssetManifestCache
+    {
+        private readonly Dictionary<string, EveUnityPlayableWorldAssetManifest> _manifests =
+            new Dictionary<string, EveUnityPlayableWorldAssetManifest>(StringComparer.Ordinal);
+        private readonly Dictionary<IEveUnityPlayableWorldAssetManifestSource, Action<EveUnityPlayableWorldAssetManifest>> _subscriptions =
+            new Dictionary<IEveUnityPlayableWorldAssetManifestSource, Action<EveUnityPlayableWorldAssetManifest>>();
+
+        public int Count => _manifests.Count;
+
+        public void Add(EveUnityPlayableWorldAssetManifest manifest)
+        {
+            if (manifest == null) throw new ArgumentNullException(nameof(manifest));
+            if (string.IsNullOrWhiteSpace(manifest.ManifestRef))
+                throw new ArgumentException("Asset manifest ref is required.", nameof(manifest));
+
+            _manifests[manifest.ManifestRef] = manifest;
+        }
+
+        public void Connect(IEveUnityPlayableWorldAssetManifestSource source)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (_subscriptions.ContainsKey(source))
+                return;
+
+            Add(source.CurrentManifest);
+            Action<EveUnityPlayableWorldAssetManifest> handler = Add;
+            source.ManifestAvailable += handler;
+            _subscriptions[source] = handler;
+        }
+
+        public void Disconnect(IEveUnityPlayableWorldAssetManifestSource source)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            Action<EveUnityPlayableWorldAssetManifest> handler;
+            if (!_subscriptions.TryGetValue(source, out handler))
+                return;
+
+            source.ManifestAvailable -= handler;
+            _subscriptions.Remove(source);
+        }
+
+        public bool TryGet(string manifestRef, out EveUnityPlayableWorldAssetManifest? manifest)
+        {
+            if (string.IsNullOrWhiteSpace(manifestRef))
+            {
+                manifest = null;
+                return false;
+            }
+
+            return _manifests.TryGetValue(manifestRef, out manifest);
+        }
+
+        public EveUnityPlayableWorldAssetManifest? GetForWorld(EveUnityPlayableWorldProjection world)
+        {
+            if (world == null) throw new ArgumentNullException(nameof(world));
+            EveUnityPlayableWorldAssetManifest? manifest;
+            return TryGet(world.AssetManifest, out manifest) ? manifest : null;
+        }
+
+        public IEveUnityGameObjectAssetProvider CreateGameObjectAssetProvider(
+            EveUnityPlayableWorldProjection world,
+            IEveUnityGameObjectAssetProvider fallback)
+        {
+            if (world == null) throw new ArgumentNullException(nameof(world));
+            if (fallback == null) throw new ArgumentNullException(nameof(fallback));
+
+            var manifest = GetForWorld(world);
+            return manifest == null
+                ? fallback
+                : new EveUnityManifestGameObjectAssetProvider(manifest, fallback);
+        }
+    }
+
     public sealed class EveUnityPlayableWorldAssetManifestEntry
     {
         public EveUnityPlayableWorldAssetManifestEntry(

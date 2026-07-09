@@ -70,7 +70,7 @@
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, provider snapshot session, playable-world scene presentation, Unity GameObject scene sink, provider asset manifest resolution, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
+      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, provider snapshot session, playable-world scene presentation, Unity GameObject scene sink, provider asset manifest resolution, provider asset manifest source/cache, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
     },
     {
       "id": "unity-scene-sai-plugin-projection",
@@ -162,6 +162,7 @@
     "EveUnity owns a playable-world presenter that maps provider-authored entity rows and asset refs into Unity scene operations without importing Aetheria entity or prefab classes.",
     "EveUnity owns a generic Unity GameObject scene sink and asset-provider hook for playable-world rows without importing Aetheria entity or prefab classes.",
     "EveUnity owns a provider asset manifest resolver that maps provider-authored asset refs and entity kinds to Unity load keys without importing Aetheria asset classes.",
+    "EveUnity owns a provider asset manifest source/cache boundary keyed by playableWorld assetManifest pointers so live CultMesh/CultCache loading can update Unity asset bindings without changing scene lowering.",
     "EveUnity owns the provider-agnostic playable-world scene lowerer outside Eve incubation.",
     "EveUnity owns the Unity scene Sai projection adapter outside Eve incubation without importing Sai story state or VN/Ink internals.",
     "EveUnity owns the Unity scene Norn projection adapter outside Eve incubation without importing Norn implementation state.",

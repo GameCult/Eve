@@ -623,11 +623,14 @@ Recently cut:
   hook. `EveUnityPlayableWorldAssetManifest` and
   `EveUnityManifestGameObjectAssetProvider` map provider-authored asset refs and
   entity kinds to Unity resource/prefab keys through data, not Aetheria code.
-  The Unity client boundary is generic before it learns live transport. The
-  next blocker is the live generic Unity player loop: implement that
-  CultMesh/CultNet adapter, load provider asset manifests from
-  CultMesh/CultCache, and wait for provider receipts/next frames rather than
-  renderer-local simulation.
+  `IEveUnityPlayableWorldAssetManifestSource` and
+  `EveUnityPlayableWorldAssetManifestCache` key live manifest updates by the
+  `playableWorld.AssetManifest` pointer, so the future CultMesh/CultCache
+  reader can update Unity asset bindings without changing scene lowering. The
+  Unity client boundary is generic before it learns live transport. The next
+  blocker is the live generic Unity player loop: implement that CultMesh/CultNet
+  adapter, implement the concrete CultMesh/CultCache asset-manifest source, and
+  wait for provider receipts/next frames rather than renderer-local simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria

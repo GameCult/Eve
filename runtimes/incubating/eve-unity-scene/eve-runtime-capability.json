@@ -23,6 +23,7 @@
     "playableWorldScenePresentation",
     "unityGameObjectSceneSink",
     "providerAssetManifestResolution",
+    "providerAssetManifestSource",
     "embeddedDocuments"
   ],
   "supportedPlugins": [

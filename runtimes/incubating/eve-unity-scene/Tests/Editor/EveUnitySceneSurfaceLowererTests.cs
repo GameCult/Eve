@@ -275,6 +275,77 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates()
+        {
+            var lowerer = new EveUnitySceneSurfaceLowerer();
+            var projection = lowerer.Lower(PlayableArpgDocument(), Advertisement("aetheria.daemon.game"));
+            Assert.That(projection.PlayableWorld, Is.Not.Null);
+
+            var source = new FakeAssetManifestSource(new EveUnityPlayableWorldAssetManifest(
+                "cultmesh://aetheria/assets/manifest",
+                new[]
+                {
+                    new EveUnityPlayableWorldAssetManifestEntry(
+                        "cultmesh://aetheria/assets/map/entity/player",
+                        "player",
+                        "resources://Aetheria/Entities/Vanguard.prefab",
+                        "aetheria.vanguard")
+                }));
+            var cache = new EveUnityPlayableWorldAssetManifestCache();
+            cache.Connect(source);
+
+            var manifest = cache.GetForWorld(projection.PlayableWorld!);
+            Assert.That(manifest, Is.Not.Null);
+            Assert.That(manifest!.ManifestRef, Is.EqualTo("cultmesh://aetheria/assets/manifest"));
+            Assert.That(cache.Count, Is.EqualTo(1));
+            var player = manifest.Find(new EveUnityPlayableWorldAssetBinding(
+                "cultmesh://aetheria/assets/map/entity/player",
+                "player",
+                "provider-asset-ref"));
+            Assert.That(player, Is.Not.Null);
+            Assert.That(player!.ResourcesPath, Is.EqualTo("Aetheria/Entities/Vanguard"));
+
+            source.Publish(new EveUnityPlayableWorldAssetManifest(
+                "cultmesh://aetheria/assets/manifest",
+                new[]
+                {
+                    new EveUnityPlayableWorldAssetManifestEntry(
+                        "cultmesh://aetheria/assets/map/entity/player",
+                        "player",
+                        "resources://Aetheria/Entities/VanguardMk2.prefab",
+                        "aetheria.vanguard.mk2")
+                }));
+
+            var updated = cache.GetForWorld(projection.PlayableWorld);
+            Assert.That(updated, Is.Not.Null);
+            var updatedPlayer = updated!.Find(new EveUnityPlayableWorldAssetBinding(
+                "cultmesh://aetheria/assets/map/entity/player",
+                "player",
+                "provider-asset-ref"));
+            Assert.That(updatedPlayer, Is.Not.Null);
+            Assert.That(updatedPlayer!.ResourcesPath, Is.EqualTo("Aetheria/Entities/VanguardMk2"));
+
+            cache.Disconnect(source);
+            source.Publish(new EveUnityPlayableWorldAssetManifest(
+                "cultmesh://aetheria/assets/manifest",
+                new[]
+                {
+                    new EveUnityPlayableWorldAssetManifestEntry(
+                        "cultmesh://aetheria/assets/map/entity/player",
+                        "player",
+                        "resources://Aetheria/Entities/VanguardIgnored.prefab",
+                        "aetheria.vanguard.ignored")
+                }));
+
+            var afterDisconnect = cache.GetForWorld(projection.PlayableWorld);
+            var afterDisconnectPlayer = afterDisconnect!.Find(new EveUnityPlayableWorldAssetBinding(
+                "cultmesh://aetheria/assets/map/entity/player",
+                "player",
+                "provider-asset-ref"));
+            Assert.That(afterDisconnectPlayer!.ResourcesPath, Is.EqualTo("Aetheria/Entities/VanguardMk2"));
+        }
+
+        [Test]
         public void SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState()
         {
             var lowerer = new EveUnitySceneSurfaceLowerer();
@@ -714,6 +785,26 @@ namespace GameCult.Eve.UnityScene.Tests
             public void RemoveEntity(string entityId)
             {
                 RemovedEntityIds.Add(entityId);
+            }
+        }
+
+        private sealed class FakeAssetManifestSource : IEveUnityPlayableWorldAssetManifestSource
+        {
+            public FakeAssetManifestSource(EveUnityPlayableWorldAssetManifest currentManifest)
+            {
+                CurrentManifest = currentManifest;
+            }
+
+            public string ManifestRef => CurrentManifest.ManifestRef;
+
+            public EveUnityPlayableWorldAssetManifest CurrentManifest { get; private set; }
+
+            public event Action<EveUnityPlayableWorldAssetManifest>? ManifestAvailable;
+
+            public void Publish(EveUnityPlayableWorldAssetManifest manifest)
+            {
+                CurrentManifest = manifest;
+                ManifestAvailable?.Invoke(manifest);
             }
         }
     }

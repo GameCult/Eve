@@ -494,9 +494,13 @@ creates or updates generic `GameObject` instances, attaches
 asset-provider hook. The runtime now also declares
 `providerAssetManifestResolution`: `EveUnityPlayableWorldAssetManifest` and
 `EveUnityManifestGameObjectAssetProvider` map provider-authored asset refs and
-entity kinds to Unity resource/prefab keys through data. The remaining blocker
-is the live adapter, loading provider asset manifests from CultMesh/CultCache,
-and Unity screenshot or frame-capture PNG production from EveUnity.
+entity kinds to Unity resource/prefab keys through data. The runtime now also
+declares `providerAssetManifestSource`: `IEveUnityPlayableWorldAssetManifestSource`
+and `EveUnityPlayableWorldAssetManifestCache` key live manifest updates by the
+`playableWorld.AssetManifest` pointer, giving the future CultMesh/CultCache
+reader a narrow slot that does not change scene lowering. The remaining blocker
+is the live adapter, a concrete CultMesh/CultCache provider asset-manifest
+source, and Unity screenshot or frame-capture PNG production from EveUnity.
 
 Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
 Each record joins runtime status, capture owner, lifecycle capture contract,
