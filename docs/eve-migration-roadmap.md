@@ -280,6 +280,12 @@ Exit criteria:
 
 Recently cut:
 
+- Conformance export now copies handoff documents into `handoffs/*.json` rather
+  than exporting Eve-local source paths only. The export carries handoff export
+  paths for EveConformance, Sai/Norn plugins, Aetheria, and EveUnity; the
+  generic consumer verifies those copied documents for conformance, plugin,
+  provider, and runtime handoff assertions. Owner repos can inspect the
+  boundary map from the exported pack itself.
 - EveConformance now has a machine-readable handoff at
   `tools/conformance/eveconformance-handoff.json` and a verifier at
   `scripts/run-eveconformance-handoff-smoke.ps1`. The handoff names the

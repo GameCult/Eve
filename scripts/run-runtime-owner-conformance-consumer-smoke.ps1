@@ -48,6 +48,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature windows-flutter:embeddedDocuments `
   --expect-runtime-feature unity-uitoolkit:embeddedDocuments `
   --expect-runtime-feature direct2d:embeddedDocuments `
+  --expect-runtime-handoff unity-uitoolkit `
   --expect-runtime-command-schema web:gamecult.eve.command.v1 `
   --expect-runtime-command-schema windows-flutter:gamecult.eve.command.v1 `
   --expect-runtime-command-schema unity-uitoolkit:gamecult.eve.command.v1 `

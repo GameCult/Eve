@@ -85,6 +85,11 @@ machine-readable EveConformance split map. That handoff is incubation evidence:
 it names which runner, schema, consumer-smoke, and fixture-corpus paths move
 when the conformance body leaves Eve.
 
+Handoff documents are also copied into the export under `handoffs/*.json`.
+Consumer smokes assert those exported copies, not just Eve-local source paths,
+so owner repos can inspect plugin, provider, runtime, and conformance handoff
+maps from the exported pack itself.
+
 The conformance export includes runtime `capabilityManifestPath` and
 `capabilityManifestErrors` fields so external consumers can distinguish a
 generic projection runtime from a runtime that can project plugin-declared

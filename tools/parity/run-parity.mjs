@@ -303,6 +303,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   }
   const commandTransportSmokeErrors = await validateRuntimeCommandTransportSmoke(runtime);
   const capabilityManifestErrors = await validateRuntimeCapabilityManifest(runtime);
+  const splitHandoffPath = await readRuntimeSplitHandoffPath(runtime.capabilityManifest);
   const localProviderCatalogErrors = await validateRuntimeLocalProviderCatalog(runtime);
   const missingIncubationFields = requiredIncubationFields(runtime).filter(field => !runtime[field]);
   const pluginCapabilityGaps = collectPluginCapabilityGaps(runtime, fixtureResults);
@@ -349,6 +350,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
     commandTransportSmokeErrors,
     capabilityManifest: runtime.capabilityManifest || null,
     capabilityManifestErrors,
+    splitHandoffPath,
     localProviderCatalog: runtime.localProviderCatalog || null,
     localProviderCatalogErrors,
     lifecycle: runtime.lifecycle || null,
@@ -402,6 +404,18 @@ async function validateRuntimeLocalProviderCatalog(runtime) {
   }
 
   return errors;
+}
+
+async function readRuntimeSplitHandoffPath(capabilityManifest) {
+  if (!capabilityManifest?.manifestPath) return "";
+  const documentPath = path.join(repoRoot, capabilityManifest.manifestPath);
+  if (!existsSync(documentPath)) return "";
+  try {
+    const document = JSON.parse(await readFile(documentPath, "utf8"));
+    return document.incubation?.splitHandoff?.manifestPath || "";
+  } catch {
+    return "";
+  }
 }
 
 function normalizePath(candidate) {
@@ -1339,6 +1353,7 @@ function buildConformanceExport(report) {
     boundaryRule: report.repoStrategy.boundaryRule || "",
     incubationPolicy: report.repoStrategy.incubationPolicy || "",
     conformanceHandoffPath: report.repoStrategy.conformanceHandoffPath || "",
+    conformanceHandoffExportPath: makeHandoffExportPath("conformance", "EveConformance", report.repoStrategy.conformanceHandoffPath || ""),
     packs,
     plugins: (report.plugins || []).map(plugin => ({
       pluginId: plugin.pluginId,
@@ -1349,6 +1364,7 @@ function buildConformanceExport(report) {
       manifestPath: plugin.manifestPath,
       advertisementPath: plugin.advertisementPath,
       handoffPath: plugin.handoffPath,
+      handoffExportPath: makeHandoffExportPath("plugin", plugin.pluginId, plugin.handoffPath),
       abiFixturePath: plugin.abiFixturePath,
       abiOperations: plugin.abiOperations || [],
       optionalPlugins: plugin.optionalPlugins || [],
@@ -1361,6 +1377,7 @@ function buildConformanceExport(report) {
       advertisementPath: provider.advertisementPath,
       scenarioPath: provider.scenarioPath,
       handoffPath: provider.handoffPath,
+      handoffExportPath: makeHandoffExportPath("provider", provider.providerId, provider.handoffPath),
       scenarioId: provider.scenarioId,
       receiptStates: provider.scenarioReceiptStates || [],
       surfaces: provider.surfaceIds,
@@ -1377,6 +1394,8 @@ function buildConformanceExport(report) {
       unsupportedPlugins: runtime.unsupportedPlugins,
       capabilityManifestPath: runtime.capabilityManifest?.manifestPath || "",
       capabilityManifestErrors: runtime.capabilityManifestErrors || [],
+      splitHandoffPath: runtime.splitHandoffPath || "",
+      splitHandoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
       commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
       captureStatus: runtime.capture?.status || "",
       lifecycle: runtime.lifecycle,
@@ -1387,11 +1406,53 @@ function buildConformanceExport(report) {
 
 async function writeConformanceExport(conformanceExport, directory) {
   await mkdir(path.join(directory, "packs"), { recursive: true });
+  await mkdir(path.join(directory, "handoffs"), { recursive: true });
   await writeFile(path.join(directory, "index.json"), `${JSON.stringify(conformanceExport, null, 2)}\n`);
   await writeFile(path.join(directory, "index.md"), renderConformanceExportMarkdown(conformanceExport));
   for (const pack of conformanceExport.packs) {
     await writeFile(path.join(directory, "packs", `${pack.id}.json`), `${JSON.stringify(pack, null, 2)}\n`);
   }
+  for (const handoff of collectConformanceHandoffs(conformanceExport)) {
+    if (!handoff.sourcePath || !handoff.exportPath) continue;
+    const sourcePath = path.join(repoRoot, handoff.sourcePath);
+    if (!existsSync(sourcePath)) continue;
+    const destinationPath = path.join(directory, handoff.exportPath);
+    await mkdir(path.dirname(destinationPath), { recursive: true });
+    await writeFile(destinationPath, await readFile(sourcePath, "utf8"));
+  }
+}
+
+function collectConformanceHandoffs(conformanceExport) {
+  return [
+    {
+      sourcePath: conformanceExport.conformanceHandoffPath || "",
+      exportPath: conformanceExport.conformanceHandoffExportPath || "",
+    },
+    ...(conformanceExport.plugins || []).map(plugin => ({
+      sourcePath: plugin.handoffPath || "",
+      exportPath: plugin.handoffExportPath || "",
+    })),
+    ...(conformanceExport.providers || []).map(provider => ({
+      sourcePath: provider.handoffPath || "",
+      exportPath: provider.handoffExportPath || "",
+    })),
+    ...(conformanceExport.runtimes || []).map(runtime => ({
+      sourcePath: runtime.splitHandoffPath || "",
+      exportPath: runtime.splitHandoffExportPath || "",
+    })),
+  ];
+}
+
+function makeHandoffExportPath(kind, id, sourcePath) {
+  if (!sourcePath) return "";
+  return `handoffs/${kind}-${slugify(id)}.json`;
+}
+
+function slugify(value) {
+  return String(value || "unknown")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    || "unknown";
 }
 
 function renderConformanceExportMarkdown(conformanceExport) {
@@ -1401,7 +1462,7 @@ function renderConformanceExportMarkdown(conformanceExport) {
     `Generated: ${conformanceExport.generatedAt}`,
     "",
     `Boundary rule: ${conformanceExport.boundaryRule || "not declared"}`,
-    `Conformance handoff: ${conformanceExport.conformanceHandoffPath || "not declared"}`,
+    `Conformance handoff: ${conformanceExport.conformanceHandoffExportPath || conformanceExport.conformanceHandoffPath || "not declared"}`,
     "",
     "## Packs",
     "",

@@ -90,6 +90,12 @@ if (Test-Path -LiteralPath (Join-Path $absoluteExportDirectory "index.json")) {
   if ($export.conformanceHandoffPath -ne $expectedPath) {
     throw "Conformance export does not point at EveConformance handoff. Expected $expectedPath got $($export.conformanceHandoffPath)"
   }
+  if (-not $export.conformanceHandoffExportPath) {
+    throw "Conformance export missing EveConformance handoff export path"
+  }
+  if (-not (Test-Path -LiteralPath (Join-Path $absoluteExportDirectory $export.conformanceHandoffExportPath))) {
+    throw "Conformance export missing EveConformance handoff document: $($export.conformanceHandoffExportPath)"
+  }
   foreach ($packId in @("core", "plugin", "provider", "runtime")) {
     $pack = @($export.packs) | Where-Object { $_.id -eq $packId } | Select-Object -First 1
     if (-not $pack) {

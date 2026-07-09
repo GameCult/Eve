@@ -26,6 +26,7 @@ if (!exportDirectory) {
     "  --expect-provider-handoff <providerId>",
     "  --expect-runtime-status <runtimeId:status>",
     "  --expect-runtime-feature <runtimeId:feature>",
+    "  --expect-runtime-handoff <runtimeId>",
     "  --expect-runtime-command-schema <runtimeId:schema>",
     "  --expect-runtime-capture-status <runtimeId:status>",
     "  --expect-split-target-status <targetId:status>",
@@ -109,6 +110,9 @@ function validateIndex(index, directory, expectations, errors) {
   if (expectations.conformanceHandoff && !index.conformanceHandoffPath) {
     errors.push("conformanceHandoffPath:missing");
   }
+  if (expectations.conformanceHandoff) {
+    validateExportedHandoff(index.conformanceHandoffExportPath, directory, "conformanceHandoff", errors);
+  }
 
   for (const expectedFixture of expectations.fixtures) {
     if (!fixtureIds.has(expectedFixture)) errors.push(`fixture:${expectedFixture}:missing`);
@@ -145,6 +149,7 @@ function validateIndex(index, directory, expectations, errors) {
     if (!plugin.handoffPath) {
       errors.push(`plugins:${expectedPlugin}:handoffPath:missing`);
     }
+    validateExportedHandoff(plugin.handoffExportPath, directory, `plugins:${expectedPlugin}:handoff`, errors);
   }
   for (const expectedProvider of expectations.providers) {
     if (!providers.some(provider => provider.providerId === expectedProvider)) errors.push(`providers:${expectedProvider}:missing`);
@@ -188,6 +193,7 @@ function validateIndex(index, directory, expectations, errors) {
     if (!provider.handoffPath) {
       errors.push(`providers:${expectedProvider}:handoffPath:missing`);
     }
+    validateExportedHandoff(provider.handoffExportPath, directory, `providers:${expectedProvider}:handoff`, errors);
   }
   for (const expectedRuntime of expectations.runtimes) {
     if (!runtimes.some(runtime => runtime.runtimeId === expectedRuntime)) errors.push(`runtimes:${expectedRuntime}:missing`);
@@ -231,6 +237,17 @@ function validateIndex(index, directory, expectations, errors) {
     if (runtime.captureStatus !== expectation.status) {
       errors.push(`runtimes:${expectation.runtimeId}:captureStatus:expected ${expectation.status} got ${runtime.captureStatus || ""}`);
     }
+  }
+  for (const expectedRuntime of expectations.runtimeHandoffs) {
+    const runtime = runtimes.find(candidate => candidate.runtimeId === expectedRuntime);
+    if (!runtime) {
+      errors.push(`runtimes:${expectedRuntime}:missing`);
+      continue;
+    }
+    if (!runtime.splitHandoffPath) {
+      errors.push(`runtimes:${expectedRuntime}:splitHandoffPath:missing`);
+    }
+    validateExportedHandoff(runtime.splitHandoffExportPath, directory, `runtimes:${expectedRuntime}:splitHandoff`, errors);
   }
   for (const expectedScenario of expectations.scenarios) {
     if (!providers.some(provider => provider.scenarioId === expectedScenario)) errors.push(`providers:scenario:${expectedScenario}:missing`);
@@ -292,6 +309,16 @@ function readFileSyncUtf8(filePath) {
   return readFileSync(filePath, "utf8");
 }
 
+function validateExportedHandoff(exportPath, directory, label, errors) {
+  if (!exportPath) {
+    errors.push(`${label}:exportPath:missing`);
+    return;
+  }
+  if (!existsSync(path.join(directory, exportPath))) {
+    errors.push(`${label}:exportPath:${exportPath}:missing`);
+  }
+}
+
 function parseArguments(args) {
   const exportPath = args[0] ? path.resolve(args[0]) : "";
   const expectations = {
@@ -309,6 +336,7 @@ function parseArguments(args) {
     runtimes: [],
     runtimeStatuses: [],
     runtimeFeatures: [],
+    runtimeHandoffs: [],
     runtimeCommandSchemas: [],
     runtimeCaptureStatuses: [],
     scenarios: [],
@@ -335,6 +363,7 @@ function parseArguments(args) {
     ["--expect-provider-handoff", expectations.providerHandoffs],
     ["--expect-runtime-status", expectations.runtimeStatuses],
     ["--expect-runtime-feature", expectations.runtimeFeatures],
+    ["--expect-runtime-handoff", expectations.runtimeHandoffs],
     ["--expect-runtime-command-schema", expectations.runtimeCommandSchemas],
     ["--expect-runtime-capture-status", expectations.runtimeCaptureStatuses],
     ["--expect-split-target-status", expectations.splitTargetStatuses],
@@ -376,6 +405,8 @@ function parseArguments(args) {
       target.push(parseRuntimeExpectation(value, "status"));
     } else if (option === "--expect-runtime-feature") {
       target.push(parseRuntimeExpectation(value, "feature"));
+    } else if (option === "--expect-runtime-handoff") {
+      target.push(value);
     } else if (option === "--expect-runtime-command-schema") {
       target.push(parseRuntimeExpectation(value, "schema"));
     } else if (option === "--expect-runtime-capture-status") {
