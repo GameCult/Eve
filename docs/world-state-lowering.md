@@ -163,14 +163,19 @@ radii, asset refs, controllability, and command affordances. The generic
 `gamecult.eve.command.v1` intents through the advertised command boundary.
 `EveUnitySceneProviderConnection` adds the live-source port shape:
 `IEveUnitySceneProviderSurfaceSource` supplies current and updated snapshots,
-while `IEveUnitySceneCommandSink` receives command envelopes. Aetheria-specific
-names appear only as provider-authored data and command ids; the Unity client
-code does not import Aetheria runtime types or apply movement locally.
+while `IEveUnitySceneCommandSink` receives command envelopes.
+`EveUnityPlayableWorldPresenter` maps the provider-authored entity rows and
+asset refs into scene operations through `IEveUnityPlayableWorldSceneSink` and
+`IEveUnityPlayableWorldAssetResolver`, including removal of entities that
+disappear from later provider snapshots. Aetheria-specific names appear only as
+provider-authored data and command ids; the Unity client code does not import
+Aetheria runtime types, prefab classes, or apply movement locally.
 
 This is not yet the final playable client. The remaining cut is a live
 CultMesh/CultNet provider subscription adapter implementing those source/sink
-ports, Unity player instantiation of the projected world, and proof that daemon
-receipts drive the next frame rather than renderer-local state.
+ports, Unity `GameObject`/prefab-backed implementations of the scene sink and
+asset resolver, and proof that daemon receipts drive the next frame rather than
+renderer-local state.
 
 ## Non-Goals
 

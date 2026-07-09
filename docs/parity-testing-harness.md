@@ -484,9 +484,12 @@ active surface and emits `gamecult.eve.command.v1` intents without Aetheria
 types. It also declares `providerSurfaceSource` through
 `EveUnitySceneProviderConnection`, `IEveUnitySceneProviderSurfaceSource`, and
 `IEveUnitySceneCommandSink`, so the live CultMesh/CultNet adapter has a narrow
-runtime-owned port to implement. The remaining blocker is that live adapter,
-Unity player instantiation, and Unity screenshot or frame-capture PNG production
-from EveUnity.
+runtime-owned port to implement. The runtime now also declares
+`playableWorldScenePresentation`: `EveUnityPlayableWorldPresenter` maps
+provider-authored entity rows and asset refs into scene sink operations while
+removing entities absent from later provider snapshots. The remaining blocker is
+that live adapter, Unity `GameObject`/prefab-backed scene sink and asset
+resolver, and Unity screenshot or frame-capture PNG production from EveUnity.
 
 Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
 Each record joins runtime status, capture owner, lifecycle capture contract,

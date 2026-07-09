@@ -199,6 +199,46 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities()
+        {
+            var lowerer = new EveUnitySceneSurfaceLowerer();
+            var sink = new FakePlayableWorldSceneSink();
+            var presenter = new EveUnityPlayableWorldPresenter(sink, new EveUnityAssetRefResolver());
+
+            var firstProjection = lowerer.Lower(PlayableArpgDocument(), Advertisement("aetheria.daemon.game"));
+            var firstPresentation = presenter.Apply(firstProjection);
+
+            Assert.That(firstPresentation.WorldRootId, Is.EqualTo("aetheria.daemon.game.playable"));
+            Assert.That(firstPresentation.PlayerEntityId, Is.EqualTo("player-vanguard"));
+            Assert.That(firstPresentation.InputProfile, Is.EqualTo("arpg-third-person"));
+            Assert.That(firstPresentation.CameraRig, Is.EqualTo("third-person-orbit"));
+            Assert.That(firstPresentation.UpsertedEntities, Is.EqualTo(3));
+            Assert.That(firstPresentation.RemovedEntities, Is.EqualTo(0));
+            Assert.That(firstPresentation.ActiveEntities, Is.EqualTo(3));
+            Assert.That(sink.ConfiguredWorlds.Count, Is.EqualTo(1));
+            Assert.That(sink.Upserts.Count, Is.EqualTo(3));
+            Assert.That(sink.Upserts[0].entity.EntityId, Is.EqualTo("player-vanguard"));
+            Assert.That(sink.Upserts[0].entity.PositionX, Is.EqualTo(0f));
+            Assert.That(sink.Upserts[0].asset.AssetRef, Is.EqualTo("cultmesh://aetheria/assets/map/entity/player"));
+            Assert.That(sink.Upserts[0].asset.PresentationKind, Is.EqualTo("provider-asset-ref"));
+
+            var secondProjection = lowerer.Lower(
+                PlayableArpgDocument(includeRaider: false, playerPosition: "5,0,2"),
+                Advertisement("aetheria.daemon.game"));
+            var secondPresentation = presenter.Apply(secondProjection);
+
+            Assert.That(secondPresentation.UpsertedEntities, Is.EqualTo(2));
+            Assert.That(secondPresentation.RemovedEntities, Is.EqualTo(1));
+            Assert.That(secondPresentation.ActiveEntities, Is.EqualTo(2));
+            Assert.That(sink.ConfiguredWorlds.Count, Is.EqualTo(2));
+            Assert.That(sink.RemovedEntityIds.Count, Is.EqualTo(1));
+            Assert.That(sink.RemovedEntityIds[0], Is.EqualTo("raider-scout"));
+            Assert.That(sink.Upserts[3].entity.EntityId, Is.EqualTo("player-vanguard"));
+            Assert.That(sink.Upserts[3].entity.PositionX, Is.EqualTo(5f));
+            Assert.That(sink.Upserts[3].entity.PositionZ, Is.EqualTo(2f));
+        }
+
+        [Test]
         public void SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState()
         {
             var lowerer = new EveUnitySceneSurfaceLowerer();
@@ -323,8 +363,79 @@ namespace GameCult.Eve.UnityScene.Tests
                 Array.Empty<EveCommandTemplate>());
         }
 
-        private static EveSurfaceDocument PlayableArpgDocument()
+        private static EveSurfaceDocument PlayableArpgDocument(
+            bool includeRaider = true,
+            string playerPosition = "0,0,0")
         {
+            var playableChildren = new List<EveSurfaceComponent>
+            {
+                PlayableEntity(
+                    "aetheria.daemon.game.entity.player",
+                    "player-vanguard",
+                    "player",
+                    "Vanguard",
+                    "player",
+                    "cultmesh://aetheria/assets/map/entity/player",
+                    playerPosition,
+                    "35",
+                    "1.15",
+                    true,
+                    true,
+                    "aetheria.daemon.focus",
+                    "aetheria.daemon.move_intent",
+                    "",
+                    "")
+            };
+
+            if (includeRaider)
+            {
+                playableChildren.Add(PlayableEntity(
+                    "aetheria.daemon.game.entity.raider",
+                    "raider-scout",
+                    "enemy",
+                    "Raider Scout",
+                    "raider",
+                    "cultmesh://aetheria/assets/map/entity/ship",
+                    "9,0,14",
+                    "220",
+                    "0.9",
+                    true,
+                    false,
+                    "",
+                    "",
+                    "aetheria.daemon.target",
+                    ""));
+            }
+
+            playableChildren.Add(PlayableEntity(
+                "aetheria.daemon.game.entity.station",
+                "anchor-station",
+                "station",
+                "Anchor Station",
+                "neutral",
+                "cultmesh://aetheria/assets/map/entity/station",
+                "-18,0,6",
+                "0",
+                "3.4",
+                true,
+                false,
+                "aetheria.daemon.focus",
+                "",
+                "",
+                ""));
+
+            playableChildren.Add(new EveSurfaceComponent(
+                "aetheria.daemon.game.flow",
+                "field.vector3d",
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    ["fieldId"] = "aetheria.zone.flow",
+                    ["bind"] = "aetheria.daemon.soaView.flowField3d",
+                    ["visualizer"] = "particles",
+                    ["bounds"] = "-32,0,-32,32,24,32"
+                },
+                Array.Empty<EveSurfaceComponent>()));
+
             return new EveSurfaceDocument(
                 "aetheria",
                 "game.runtime",
@@ -354,68 +465,7 @@ namespace GameCult.Eve.UnityScene.Tests
                                     ["targetCommand"] = "aetheria.daemon.target",
                                     ["actionCommand"] = "aetheria.daemon.use_equipment"
                                 },
-                                new[]
-                                {
-                                    PlayableEntity(
-                                        "aetheria.daemon.game.entity.player",
-                                        "player-vanguard",
-                                        "player",
-                                        "Vanguard",
-                                        "player",
-                                        "cultmesh://aetheria/assets/map/entity/player",
-                                        "0,0,0",
-                                        "35",
-                                        "1.15",
-                                        true,
-                                        true,
-                                        "aetheria.daemon.focus",
-                                        "aetheria.daemon.move_intent",
-                                        "",
-                                        ""),
-                                    PlayableEntity(
-                                        "aetheria.daemon.game.entity.raider",
-                                        "raider-scout",
-                                        "enemy",
-                                        "Raider Scout",
-                                        "raider",
-                                        "cultmesh://aetheria/assets/map/entity/ship",
-                                        "9,0,14",
-                                        "220",
-                                        "0.9",
-                                        true,
-                                        false,
-                                        "",
-                                        "",
-                                        "aetheria.daemon.target",
-                                        ""),
-                                    PlayableEntity(
-                                        "aetheria.daemon.game.entity.station",
-                                        "anchor-station",
-                                        "station",
-                                        "Anchor Station",
-                                        "neutral",
-                                        "cultmesh://aetheria/assets/map/entity/station",
-                                        "-18,0,6",
-                                        "0",
-                                        "3.4",
-                                        true,
-                                        false,
-                                        "aetheria.daemon.focus",
-                                        "",
-                                        "",
-                                        ""),
-                                    new EveSurfaceComponent(
-                                        "aetheria.daemon.game.flow",
-                                        "field.vector3d",
-                                        new Dictionary<string, string>(StringComparer.Ordinal)
-                                        {
-                                            ["fieldId"] = "aetheria.zone.flow",
-                                            ["bind"] = "aetheria.daemon.soaView.flowField3d",
-                                            ["visualizer"] = "particles",
-                                            ["bounds"] = "-32,0,-32,32,24,32"
-                                        },
-                                        Array.Empty<EveSurfaceComponent>())
-                                },
+                                playableChildren,
                                 new[]
                                 {
                                     new CultMeshStateBindingDescriptor("run", "cultmesh://aetheria/run/current"),
@@ -603,6 +653,31 @@ namespace GameCult.Eve.UnityScene.Tests
             public void Submit(EveSurfaceCommandRequest request)
             {
                 Submitted.Add(request);
+            }
+        }
+
+        private sealed class FakePlayableWorldSceneSink : IEveUnityPlayableWorldSceneSink
+        {
+            public List<EveUnityPlayableWorldProjection> ConfiguredWorlds { get; } = new List<EveUnityPlayableWorldProjection>();
+
+            public List<(EveUnityPlayableWorldEntity entity, EveUnityPlayableWorldAssetBinding asset)> Upserts { get; } =
+                new List<(EveUnityPlayableWorldEntity entity, EveUnityPlayableWorldAssetBinding asset)>();
+
+            public List<string> RemovedEntityIds { get; } = new List<string>();
+
+            public void ConfigureWorld(EveUnityPlayableWorldProjection world)
+            {
+                ConfiguredWorlds.Add(world);
+            }
+
+            public void UpsertEntity(EveUnityPlayableWorldEntity entity, EveUnityPlayableWorldAssetBinding asset)
+            {
+                Upserts.Add((entity, asset));
+            }
+
+            public void RemoveEntity(string entityId)
+            {
+                RemovedEntityIds.Add(entityId);
             }
         }
     }

@@ -613,11 +613,15 @@ Recently cut:
   `EveUnitySceneClientSession` now consumes provider surface snapshots and emits
   movement/focus/target/action intents through the advertised command boundary,
   while `EveUnitySceneProviderConnection` defines the generic surface source
-  and command sink ports that a CultMesh/CultNet adapter must implement. The
-  Unity client boundary is generic before it learns live transport. The next
-  blocker is the live generic Unity player loop: implement that CultMesh/CultNet
-  adapter, instantiate the projected world in Unity, and wait for provider
-  receipts/next frames rather than renderer-local simulation.
+  and command sink ports that a CultMesh/CultNet adapter must implement.
+  `EveUnityPlayableWorldPresenter` now maps provider-authored entity rows and
+  asset refs into scene sink operations, including removal of entities absent
+  from later provider snapshots, without importing Aetheria entity/prefab
+  classes. The Unity client boundary is generic before it learns live transport.
+  The next blocker is the live generic Unity player loop: implement that
+  CultMesh/CultNet adapter, provide Unity `GameObject`/prefab-backed scene sink
+  and asset resolver implementations, and wait for provider receipts/next frames
+  rather than renderer-local simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria
