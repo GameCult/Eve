@@ -612,10 +612,12 @@ Recently cut:
   `playableWorld` shape under `gamecult.eve.unity_scene_projection.v1`.
   `EveUnitySceneClientSession` now consumes provider surface snapshots and emits
   movement/focus/target/action intents through the advertised command boundary,
-  so the Unity client boundary is generic before it learns live transport. The
-  next blocker is the live generic Unity player loop: feed that session from
-  CultMesh/CultNet, instantiate the projected world in Unity, and wait for
-  provider receipts/next frames rather than renderer-local simulation.
+  while `EveUnitySceneProviderConnection` defines the generic surface source
+  and command sink ports that a CultMesh/CultNet adapter must implement. The
+  Unity client boundary is generic before it learns live transport. The next
+  blocker is the live generic Unity player loop: implement that CultMesh/CultNet
+  adapter, instantiate the projected world in Unity, and wait for provider
+  receipts/next frames rather than renderer-local simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria

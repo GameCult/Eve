@@ -132,6 +132,73 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink()
+        {
+            var source = new FakeProviderSurfaceSource(
+                "aetheria",
+                "aetheria.daemon.game",
+                "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                new EveUnitySceneProviderSurfaceSnapshot(
+                    PlayableArpgDocument(),
+                    Advertisement("aetheria.daemon.game"),
+                    "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                    1));
+            var sink = new FakeCommandSink("cultmesh-command-sink");
+            using var connection = new EveUnitySceneProviderConnection(source, sink);
+
+            var projectionUpdates = 0;
+            connection.ProjectionUpdated += _ => projectionUpdates++;
+
+            var initialProjection = connection.Connect();
+
+            Assert.That(initialProjection.ProviderId, Is.EqualTo("aetheria"));
+            Assert.That(connection.ProviderId, Is.EqualTo("aetheria"));
+            Assert.That(connection.SurfaceId, Is.EqualTo("aetheria.daemon.game"));
+            Assert.That(connection.SourcePointer, Is.EqualTo("cultmesh://aetheria/eve/surfaces/aetheria.daemon.game"));
+            Assert.That(connection.ActiveVersion, Is.EqualTo(1));
+            Assert.That(projectionUpdates, Is.EqualTo(1));
+
+            source.Publish(new EveUnitySceneProviderSurfaceSnapshot(
+                PlayableArpgDocument(),
+                Advertisement("aetheria.daemon.game"),
+                "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                2));
+
+            Assert.That(connection.ActiveVersion, Is.EqualTo(2));
+            Assert.That(connection.ActiveProjection, Is.Not.Null);
+            Assert.That(connection.ActiveProjection!.PlayableWorld, Is.Not.Null);
+            Assert.That(connection.ActiveProjection.PlayableWorld!.PlayerEntityId, Is.EqualTo("player-vanguard"));
+            Assert.That(projectionUpdates, Is.EqualTo(2));
+
+            var moveIntent = connection.SubmitMoveIntent(
+                "player-vanguard",
+                20f,
+                0f,
+                15f,
+                DateTimeOffset.Parse("2026-07-09T00:00:00Z"));
+
+            Assert.That(sink.SinkKind, Is.EqualTo("cultmesh-command-sink"));
+            Assert.That(sink.Submitted.Count, Is.EqualTo(1));
+            Assert.That(sink.Submitted[0], Is.SameAs(moveIntent));
+            Assert.That(moveIntent.Schema, Is.EqualTo(EveSurfaceCommandRequest.SchemaId));
+            Assert.That(moveIntent.ProviderId, Is.EqualTo("aetheria"));
+            Assert.That(moveIntent.SurfaceId, Is.EqualTo("aetheria.daemon.game"));
+            Assert.That(moveIntent.Command, Is.EqualTo("aetheria.daemon.commands"));
+            Assert.That(moveIntent.CommandBoundary, Is.EqualTo("aetheria.daemon.commands"));
+            Assert.That(moveIntent.ReceiptSchema, Is.EqualTo("aetheria.eve_command_acceptance_status.v1"));
+
+            connection.Disconnect();
+            source.Publish(new EveUnitySceneProviderSurfaceSnapshot(
+                PlayableArpgDocument(),
+                Advertisement("aetheria.daemon.game"),
+                "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                3));
+
+            Assert.That(connection.ActiveVersion, Is.EqualTo(2));
+            Assert.That(projectionUpdates, Is.EqualTo(2));
+        }
+
+        [Test]
         public void SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState()
         {
             var lowerer = new EveUnitySceneSurfaceLowerer();
@@ -489,6 +556,54 @@ namespace GameCult.Eve.UnityScene.Tests
                     "aetheria.daemon.commands",
                     "aetheria.eve_command_acceptance_status.v1",
                     "provider-owns-world-state-assets-command-acceptance-and-receipts"));
+        }
+
+        private sealed class FakeProviderSurfaceSource : IEveUnitySceneProviderSurfaceSource
+        {
+            public FakeProviderSurfaceSource(
+                string providerId,
+                string surfaceId,
+                string sourcePointer,
+                EveUnitySceneProviderSurfaceSnapshot currentSnapshot)
+            {
+                ProviderId = providerId;
+                SurfaceId = surfaceId;
+                SourcePointer = sourcePointer;
+                CurrentSnapshot = currentSnapshot;
+            }
+
+            public string ProviderId { get; }
+
+            public string SurfaceId { get; }
+
+            public string SourcePointer { get; }
+
+            public EveUnitySceneProviderSurfaceSnapshot CurrentSnapshot { get; private set; }
+
+            public event Action<EveUnitySceneProviderSurfaceSnapshot>? SnapshotAvailable;
+
+            public void Publish(EveUnitySceneProviderSurfaceSnapshot snapshot)
+            {
+                CurrentSnapshot = snapshot;
+                SnapshotAvailable?.Invoke(snapshot);
+            }
+        }
+
+        private sealed class FakeCommandSink : IEveUnitySceneCommandSink
+        {
+            public FakeCommandSink(string sinkKind)
+            {
+                SinkKind = sinkKind;
+            }
+
+            public string SinkKind { get; }
+
+            public List<EveSurfaceCommandRequest> Submitted { get; } = new List<EveSurfaceCommandRequest>();
+
+            public void Submit(EveSurfaceCommandRequest request)
+            {
+                Submitted.Add(request);
+            }
         }
     }
 }

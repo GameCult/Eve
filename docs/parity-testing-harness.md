@@ -481,9 +481,12 @@ entity transforms, asset refs, and daemon command affordances. The Unity scene
 runtime also declares `providerSurfaceSession` and carries
 `EveUnitySceneClientSession`, a provider-snapshot boundary that lowers the
 active surface and emits `gamecult.eve.command.v1` intents without Aetheria
-types. The remaining blocker is the live CultMesh/CultNet subscription adapter,
-Unity player instantiation, and Unity screenshot or frame-capture PNG
-production from EveUnity.
+types. It also declares `providerSurfaceSource` through
+`EveUnitySceneProviderConnection`, `IEveUnitySceneProviderSurfaceSource`, and
+`IEveUnitySceneCommandSink`, so the live CultMesh/CultNet adapter has a narrow
+runtime-owned port to implement. The remaining blocker is that live adapter,
+Unity player instantiation, and Unity screenshot or frame-capture PNG production
+from EveUnity.
 
 Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
 Each record joins runtime status, capture owner, lifecycle capture contract,

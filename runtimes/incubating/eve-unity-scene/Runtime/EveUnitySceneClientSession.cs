@@ -28,6 +28,8 @@ namespace GameCult.Eve.UnityScene
 
         public string ActiveSourcePointer => _activeSnapshot?.SourcePointer ?? "";
 
+        public long ActiveVersion => _activeSnapshot?.Version ?? 0;
+
         public EveUnitySceneProjection Connect(EveUnitySceneProviderSurfaceSnapshot snapshot)
         {
             if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));

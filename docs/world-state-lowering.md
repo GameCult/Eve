@@ -161,13 +161,15 @@ movement/focus/target command names, `world.entity3d` rows, and a
 radii, asset refs, controllability, and command affordances. The generic
 `EveUnitySceneClientSession` consumes provider surface snapshots and emits
 `gamecult.eve.command.v1` intents through the advertised command boundary.
-Aetheria-specific names appear only as provider-authored data and command ids;
-the Unity client code does not import Aetheria runtime types or apply movement
-locally.
+`EveUnitySceneProviderConnection` adds the live-source port shape:
+`IEveUnitySceneProviderSurfaceSource` supplies current and updated snapshots,
+while `IEveUnitySceneCommandSink` receives command envelopes. Aetheria-specific
+names appear only as provider-authored data and command ids; the Unity client
+code does not import Aetheria runtime types or apply movement locally.
 
 This is not yet the final playable client. The remaining cut is a live
-CultMesh/CultNet provider subscription adapter feeding `EveUnitySceneClientSession`,
-Unity player instantiation of the projected world, and proof that daemon
+CultMesh/CultNet provider subscription adapter implementing those source/sink
+ports, Unity player instantiation of the projected world, and proof that daemon
 receipts drive the next frame rather than renderer-local state.
 
 ## Non-Goals

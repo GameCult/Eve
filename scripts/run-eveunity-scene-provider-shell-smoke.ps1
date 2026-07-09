@@ -54,7 +54,7 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
   }
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "sceneGraphProjection", "playableWorldProjection")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "sceneGraphProjection", "playableWorldProjection")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveUnity scene provider shell missing supported feature: $feature"
   }
@@ -65,6 +65,7 @@ $expectedFiles = @(
   "runtimes\incubating\eve-unity-scene\Runtime\GameCult.Eve.UnityScene.asmdef",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneSurfaceLowerer.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneClientSession.cs",
+  "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneProviderConnection.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\SaiVisualNovelUnitySceneProjectionAdapter.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\NornGraphUnitySceneProjectionAdapter.cs",
   "runtimes\incubating\eve-unity-scene\Runtime\TeXMathUnitySceneProjectionAdapter.cs",
@@ -87,9 +88,16 @@ foreach ($symbol in @("EveUnitySceneSurfaceLowerer", "EveUnitySceneProviderSurfa
 }
 
 $clientSessionSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneClientSession.cs") -Raw
-foreach ($symbol in @("EveUnitySceneClientSession", "EveUnitySceneProviderSurfaceSnapshot", "Connect", "ApplySnapshot", "CreateMoveIntent", "CreateFocusIntent", "CreateTargetIntent", "CreateActionIntent", "CreatePlayableWorldIntent", "commandId", "targetPosition", "unity-scene")) {
+foreach ($symbol in @("EveUnitySceneClientSession", "EveUnitySceneProviderSurfaceSnapshot", "ActiveVersion", "Connect", "ApplySnapshot", "CreateMoveIntent", "CreateFocusIntent", "CreateTargetIntent", "CreateActionIntent", "CreatePlayableWorldIntent", "commandId", "targetPosition", "unity-scene")) {
   if (-not $clientSessionSource.Contains($symbol)) {
     throw "EveUnity scene client session missing symbol: $symbol"
+  }
+}
+
+$providerConnectionSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneProviderConnection.cs") -Raw
+foreach ($symbol in @("IEveUnitySceneProviderSurfaceSource", "IEveUnitySceneCommandSink", "EveUnitySceneProviderConnection", "SnapshotAvailable", "CurrentSnapshot", "Connect", "Refresh", "SubmitMoveIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "Disconnect")) {
+  if (-not $providerConnectionSource.Contains($symbol)) {
+    throw "EveUnity scene provider connection missing symbol: $symbol"
   }
 }
 
@@ -115,7 +123,7 @@ foreach ($symbol in @("TeXMathUnitySceneProjectionAdapter", "tex.math", "embed.t
 }
 
 $testSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Tests\Editor\EveUnitySceneSurfaceLowererTests.cs") -Raw
-foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
+foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "FakeProviderSurfaceSource", "FakeCommandSink", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
   if (-not $testSource.Contains($symbol)) {
     throw "EveUnity scene provider shell tests missing symbol: $symbol"
   }
