@@ -741,15 +741,15 @@
       "unsupportedPlugins": [
         {
           "pluginId": "sai.vn",
-          "reason": "Electron provider-shell skeleton exists, but no Sai projection adapter exists in this runtime."
+          "reason": "Electron provider-shell skeleton exists, but no adapter exists for Sai sidecar-advertised VN projection in this runtime."
         },
         {
           "pluginId": "norn.graph",
-          "reason": "Electron provider-shell skeleton exists, but no Norn graph projection adapter exists in this runtime."
+          "reason": "Electron provider-shell skeleton exists, but no adapter exists for Norn sidecar-advertised graph projection in this runtime."
         },
         {
           "pluginId": "tex.math",
-          "reason": "Electron provider-shell skeleton exists, but no TeX projection adapter exists in this runtime."
+          "reason": "Electron provider-shell skeleton exists, but no adapter exists for TeX sidecar-advertised math projection in this runtime."
         }
       ],
       "worldSurfaceLowering": [
@@ -832,15 +832,15 @@
       "unsupportedPlugins": [
         {
           "pluginId": "sai.vn",
-          "reason": "TUI provider-shell skeleton exists, but no Sai terminal projection adapter exists in this runtime."
+          "reason": "TUI provider-shell skeleton exists, but no terminal adapter exists for Sai sidecar-advertised VN projection in this runtime."
         },
         {
           "pluginId": "norn.graph",
-          "reason": "TUI provider-shell skeleton exists, but no Norn graph terminal fallback exists in this runtime."
+          "reason": "TUI provider-shell skeleton exists, but no terminal fallback exists for Norn sidecar-advertised graph projection in this runtime."
         },
         {
           "pluginId": "tex.math",
-          "reason": "TUI provider-shell skeleton exists, but no TeX terminal fallback exists in this runtime."
+          "reason": "TUI provider-shell skeleton exists, but no terminal fallback exists for TeX sidecar-advertised math projection in this runtime."
         }
       ],
       "worldSurfaceLowering": [
@@ -925,15 +925,15 @@
       "unsupportedPlugins": [
         {
           "pluginId": "sai.vn",
-          "reason": "Unity scene graph projection exists, but no Sai VN scene projection adapter for sidecar-advertised capabilities exists in this runtime."
+          "reason": "Unity scene graph projection exists, but no scene adapter exists for Sai sidecar-advertised VN projection in this runtime."
         },
         {
           "pluginId": "norn.graph",
-          "reason": "Unity scene graph projection exists, but no Norn graph scene-space or UI overlay adapter exists in this runtime."
+          "reason": "Unity scene graph projection exists, but no scene-space or UI overlay adapter exists for Norn sidecar-advertised graph projection in this runtime."
         },
         {
           "pluginId": "tex.math",
-          "reason": "Unity scene graph projection exists, but no TeX scene-space or UI overlay adapter exists in this runtime."
+          "reason": "Unity scene graph projection exists, but no scene-space or UI overlay adapter exists for TeX sidecar-advertised math projection in this runtime."
         }
       ],
       "worldSurfaceLowering": [
@@ -1401,7 +1401,7 @@
       "unsupportedPlugins": [
         {
           "pluginId": "tex.math",
-          "reason": "Unity UI Toolkit currently preserves embed.tex as generic Eve structure; no TeX projection adapter exists in this runtime."
+          "reason": "Unity UI Toolkit currently preserves embed.tex as generic Eve structure; no adapter exists for the TeX sidecar-advertised projection in this runtime."
         }
       ],
       "worldSurfaceLowering": [

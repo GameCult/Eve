@@ -38,8 +38,10 @@ Anything else is guilty until it can explain why it protects a core invariant.
 - `Sai`: owner for the VN/Ink plugin once `sai.vn` graduates.
 - `Norn`: owner for graph plugin semantics once `norn.graph` graduates.
 - `EveUnity`, `EveGodot`, `EveFlutter`, `EveElectron`, and similar runtime
-  repos: native projection, platform build glue, plugin projection adapters, captures, and
-  runtime tests.
+  repos: native projection, platform build glue, plugin projection adapters,
+  captures, and runtime tests. Runtime plugin projection adapters lower
+  sidecar-advertised output; they do not host Sai, Norn, TeX, or any other
+  plugin's semantic authority.
 - `EveConformance`: fixture corpus, parity runner, capability matrix,
   screenshot/report artifacts, plugin packs, and CI orchestration once the
   harness stops thrashing.

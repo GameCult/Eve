@@ -149,10 +149,10 @@ this plugin yet" from "plugin semantics belong in Eve core." Consumer smokes can
 assert them with `--expect-runtime-plugin-gap <runtimeId:pluginId:ownerRepo>`.
 The same claims are exported as `runtimePluginProjectionCoverage[]`, including
 positive `supported` projection adapters and declared `unsupported` gaps. This
-lets runtime and plugin owners consume one ledger for "Unity UI Toolkit supports
-Sai/Norn projection" and "Unity scene/Electron do not have generic plugin
-projection yet" instead of walking nested runtime records. Consumer smokes can
-assert entries with
+lets runtime and plugin owners consume one ledger for "Unity UI Toolkit has
+projection adapters for Sai/Norn sidecar-advertised output" and "Unity
+scene/Electron do not have generic plugin projection yet" instead of walking
+nested runtime records. Consumer smokes can assert entries with
 `--expect-runtime-plugin-projection <runtimeId:pluginId:status:ownerRepo>`.
 Provider surface plugin requirements are also joined with runtime projection
 support as `providerRuntimePluginProjectionCoverage[]`. These records answer
@@ -186,8 +186,9 @@ id, plugin id, plugin owner, plugin status, availability, required
 capabilities, optional capabilities, and missing capabilities so provider and
 plugin owners can consume requirement coverage without reconstructing the
 provider/plugin join. `availability: optional-nested` means the parent surface
-can host that independent plugin when available; it is not a parent-plugin
-dependency. Consumer smokes can assert them with
+can compose that independent plugin when available; it is not a parent-plugin
+dependency and it does not move nested semantics into the parent plugin.
+Consumer smokes can assert them with
 `--expect-provider-plugin-requirement <providerId:surfaceId:pluginId:status:pluginOwnerRepo[:availability]>`.
 Plugin-owner smokes should use the optional availability field when proving that
 Sai's required VN plugin is distinct from optional nested Norn or TeX surfaces.

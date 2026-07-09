@@ -452,6 +452,13 @@ scene, but ownership stays with their plugins. Each plugin publishes a
 renderer-independent sidecar ABI; runtimes only declare whether they can project
 that plugin's advertised capabilities.
 
+Runtime projection support is not plugin hosting. A Unity, Electron, Flutter,
+TUI, or web client may provide an adapter for sidecar-advertised Norn or TeX
+output, but the sidecar daemon and plugin ABI remain runtime independent. If a
+Sai surface deploys with nested Norn or TeX, Sai composes the slots and keeps VN
+stage authority; Norn and TeX still publish, validate, lower, and receive
+commands through their own plugin contracts.
+
 Norn plugin responsibilities:
 
 - define `embed.norn` semantics;
@@ -572,7 +579,8 @@ Renderer clients own projection:
 - Unity UI Toolkit may lower the same surface as a native 2D UI document.
 - Unity full-scene renderer may place dialogue in world space or cinematic
   scene space.
-- Godot may lower the same plugin semantics into Godot controls or scene nodes.
+- Godot may lower the same plugin-advertised surface into Godot controls or
+  scene nodes.
 
 The shared command path:
 

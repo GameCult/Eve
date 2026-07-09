@@ -22,15 +22,15 @@
   "unsupportedPlugins": [
     {
       "pluginId": "sai.vn",
-      "reason": "Unity scene graph projection exists, but no Sai VN scene projection adapter for sidecar-advertised capabilities exists in this runtime."
+      "reason": "Unity scene graph projection exists, but no scene adapter exists for Sai sidecar-advertised VN projection in this runtime."
     },
     {
       "pluginId": "norn.graph",
-      "reason": "Unity scene graph projection exists, but no Norn graph scene-space or UI overlay adapter exists in this runtime."
+      "reason": "Unity scene graph projection exists, but no scene-space or UI overlay adapter exists for Norn sidecar-advertised graph projection in this runtime."
     },
     {
       "pluginId": "tex.math",
-      "reason": "Unity scene graph projection exists, but no TeX scene-space or UI overlay adapter exists in this runtime."
+      "reason": "Unity scene graph projection exists, but no scene-space or UI overlay adapter exists for TeX sidecar-advertised math projection in this runtime."
     }
   ],
   "worldSurfaceLowering": [
