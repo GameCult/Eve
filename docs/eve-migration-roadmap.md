@@ -670,11 +670,18 @@ Recently cut:
   internals. The Unity scene EditMode proof now includes
   `LiveProviderBridgeFeedsPlayableWorldRuntimeThroughTransportPorts`, proving
   the generic playable-world runtime can consume that transport-shaped boundary.
-  The next blocker is owner-repo live proof: implement the concrete
-  CultMesh/CultNet transport, implement concrete CultMesh/CultCache readers for
-  provider surface and asset manifest documents, and prove provider receipts plus
-  daemon snapshots drive rendered Unity frames rather than renderer-local
-  simulation.
+  Aetheria now provides the owner-repo proof by exposing
+  `AetheriaEveUnitySceneProviderBridge` as an
+  `IEveUnitySceneLiveProviderTransport`; the generic Eve live bridge consumes
+  that transport and drives `EveUnityPlayableWorldRuntime` without the runtime
+  importing Aetheria scene classes. The next blocker is advertisement-owned live
+  proof: Aetheria's provider advertisement and surface catalog must publish the
+  world interaction metadata that the Unity scene document needs, so
+  `AetheriaEveUnitySceneProviderBridge` stops fabricating projection kind,
+  command boundary, receipt schema, ownership, and pointer metadata locally.
+  After that cut, implement concrete CultMesh/CultCache readers for provider
+  surface and asset manifest documents and prove provider receipts plus daemon
+  snapshots drive rendered Unity frames rather than renderer-local simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria

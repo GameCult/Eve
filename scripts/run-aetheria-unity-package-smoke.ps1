@@ -50,14 +50,16 @@ if (-not (Test-Path $aetheriaDaemonOperationsClient)) {
   throw "Aetheria daemon operations client not found: $aetheriaDaemonOperationsClient"
 }
 
-$manifest = Get-Content -Raw -LiteralPath $manifestPath
-foreach ($dependency in @(
-  '"org.gamecult.eve.surface": "file:../../Eve/packages/org.gamecult.eve.surface"',
-  '"org.gamecult.eve.unity-scene": "file:../../Eve/runtimes/incubating/eve-unity-scene"',
-  '"org.gamecult.eve.unity-uitoolkit": "file:../../Eve/packages/org.gamecult.eve.unity-uitoolkit"'
-)) {
-  if (-not $manifest.Contains($dependency)) {
-    throw "Aetheria Packages\manifest.json missing Eve package dependency: $dependency"
+$manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
+$requiredDependencies = @{
+  "org.gamecult.eve.surface" = "file:../../Eve/packages/org.gamecult.eve.surface"
+  "org.gamecult.eve.unity-scene" = "file:../../Eve/runtimes/incubating/eve-unity-scene"
+  "org.gamecult.eve.unity-uitoolkit" = "file:../../Eve/packages/org.gamecult.eve.unity-uitoolkit"
+}
+foreach ($dependencyName in $requiredDependencies.Keys) {
+  $actualDependency = $manifest.dependencies.$dependencyName
+  if ($actualDependency -ne $requiredDependencies[$dependencyName]) {
+    throw "Aetheria Packages\manifest.json dependency $dependencyName expected $($requiredDependencies[$dependencyName]) but found $actualDependency"
   }
 }
 
@@ -115,13 +117,20 @@ if (-not $asmdef.Contains('"GameCult.Eve.UnityScene"')) {
 
 $sceneBridge = Get-Content -Raw -LiteralPath $aetheriaSceneBridge
 foreach ($symbol in @(
+  "IEveUnitySceneLiveProviderTransport",
   "IEveUnitySceneProviderSurfaceDocumentSource",
   "IEveUnityPlayableWorldAssetManifestDocumentSource",
   "IEveUnitySceneCommandSink",
   "IEveUnitySceneCommandReceiptSource",
   "IEveUnityProviderRefreshSource",
+  "TransportKind",
+  "SurfacePointer",
+  "AssetManifestPointer",
   "ManifestRef",
   "ReceiptAvailable",
+  "Connect",
+  "Disconnect",
+  "SubmitCommand",
   "AetheriaEveRuntimeUnityHooks.RequireControl",
   "ToReceipt(request, daemonEnvelope)",
   "ToReceipt(request, envelope)"
@@ -134,19 +143,24 @@ foreach ($symbol in @(
 $sceneProviderComponent = Get-Content -Raw -LiteralPath $aetheriaSceneProviderComponent
 foreach ($symbol in @(
   "AetheriaEveUnitySceneProviderComponent",
-  "MonoBehaviour",
+  "EveUnitySceneLiveProviderTransportBehaviour",
   "IEveUnitySceneProviderSurfaceDocumentSource",
   "IEveUnityPlayableWorldAssetManifestDocumentSource",
   "IEveUnitySceneCommandSink",
   "IEveUnitySceneCommandReceiptSource",
   "IEveUnityProviderRefreshSource",
+  "TransportKind",
+  "SurfaceDocumentAvailable",
+  "CommandReceiptAvailable",
+  "AssetManifestDocumentAvailable",
   "AetheriaEveUnitySceneProviderBridge",
   "ReceiptAvailable",
   "stateFilePathOverride",
   "surfaceId",
   "runtimeId",
   "Refresh",
-  "Submit"
+  "Submit",
+  "SubmitCommand"
 )) {
   if (-not $sceneProviderComponent.Contains($symbol)) {
     throw "Aetheria Eve Unity scene provider component missing symbol: $symbol"
