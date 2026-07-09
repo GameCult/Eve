@@ -10,6 +10,7 @@ export function buildTuiCaptureArtifact({
   surfaceDocument,
   advertisementPath = "",
   capabilityManifestPath = "",
+  captureSurfaceId = "",
   stamp = "latest",
   width = 80,
 } = {}) {
@@ -18,6 +19,7 @@ export function buildTuiCaptureArtifact({
     capabilityManifest,
     advertisementPath,
     capabilityManifestPath,
+    captureSurfaceId,
     stamp,
   });
   const shell = new EveTuiShell({ width });
@@ -98,6 +100,7 @@ function runCli() {
     surfaceDocument: loadJsonFile(args.surface),
     advertisementPath: args.advertisement,
     capabilityManifestPath: args.capability,
+    captureSurfaceId: args["surface-id"] || "",
     stamp,
     width: Number(args.width || 80),
   });

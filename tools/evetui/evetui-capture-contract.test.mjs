@@ -31,6 +31,25 @@ test("builds TUI capture request from provider advertisement", () => {
   assert.match(request.authority, /provider state/);
 });
 
+test("builds TUI capture request for Aetheria editor surface", () => {
+  const request = buildTuiCaptureRequest({
+    advertisement,
+    capabilityManifest,
+    captureSurfaceId: "aetheria.daemon.editor",
+    advertisementPath: "web/fixtures/aetheria.provider-advertisement.json",
+    capabilityManifestPath: "runtimes/incubating/eve-tui/eve-runtime-capability.json",
+    stamp: "smoke",
+  });
+
+  assert.equal(request.runtimeId, "tui");
+  assert.equal(request.providerId, "aetheria");
+  assert.equal(request.surfaceId, "aetheria.daemon.editor");
+  assert.equal(request.surfaceKind, "interactive-world-editor");
+  assert.equal(request.projectionKind, "provider-authored-world-editor-surface");
+  assert.equal(request.commandBoundary, "aetheria.daemon.commands");
+  assert.equal(request.receiptSchema, "aetheria.eve_command_acceptance_status.v1");
+});
+
 test("builds TUI capture request from a declared generic world provider", () => {
   const request = buildTuiCaptureRequest({
     advertisement: worldSmokeAdvertisement,

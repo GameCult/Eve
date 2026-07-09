@@ -215,6 +215,8 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.0.providerId:eve.world-smoke" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.providerId:aetheria" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.surfaceId:aetheria.daemon.editor" `
   --expect-runtime-lifecycle-status unity-scene:release:pending-unity-scene-package `
   --expect-runtime-lifecycle-status unity-scene:test:provider-shell-contract-skeleton `
   --expect-runtime-lifecycle-status unity-scene:capture:pending-unity-scene-capture `
@@ -262,6 +264,8 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.0.providerId:eve.world-smoke" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.1.providerId:aetheria" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.1.surfaceId:aetheria.daemon.editor" `
   --expect-runtime-lifecycle-status tui:release:pending-tui-package `
   --expect-runtime-lifecycle-status tui:test:provider-shell-contract-skeleton `
   --expect-runtime-lifecycle-status tui:capture:cell-grid-json-capture `
@@ -284,7 +288,9 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.advertisementPath:web/fixtures/aetheria.provider-advertisement.json" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.additionalProviderSurfaces.0.providerId:eve.world-smoke" `
-  --expect-runtime-lifecycle-field "tui:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface"
+  --expect-runtime-lifecycle-field "tui:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
+  --expect-runtime-lifecycle-field "tui:capture:captureContract.additionalProviderSurfaces.1.providerId:aetheria" `
+  --expect-runtime-lifecycle-field "tui:capture:captureContract.additionalProviderSurfaces.1.surfaceId:aetheria.daemon.editor"
 
 if ($LASTEXITCODE -ne 0) {
   throw "Runtime owner conformance consumer smoke failed with exit code $LASTEXITCODE"

@@ -149,6 +149,11 @@
             "providerId": "eve.world-smoke",
             "surfaceId": "eve.world-smoke.surface",
             "purpose": "Generic non-product interactive-world capture control."
+          },
+          {
+            "providerId": "aetheria",
+            "surfaceId": "aetheria.daemon.editor",
+            "purpose": "Aetheria interactive-world-editor capture control."
           }
         ],
         "authority": "Capture observes Electron projection only; provider state, command acceptance, and receipts stay provider-owned.",

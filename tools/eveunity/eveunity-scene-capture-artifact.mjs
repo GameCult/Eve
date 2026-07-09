@@ -9,6 +9,7 @@ export function buildUnitySceneCaptureArtifact({
   surfaceDocument,
   advertisementPath = "",
   capabilityManifestPath = "",
+  captureSurfaceId = "",
   stamp = "latest",
 } = {}) {
   const request = buildUnityCaptureRequest({
@@ -16,6 +17,7 @@ export function buildUnitySceneCaptureArtifact({
     capabilityManifest,
     advertisementPath,
     capabilityManifestPath,
+    captureSurfaceId,
     stamp,
   });
   const projection = buildUnitySceneProjection(surfaceDocument, advertisement, request.surfaceId);
@@ -292,6 +294,7 @@ function runCli() {
     surfaceDocument: loadJsonFile(args.surface),
     advertisementPath: args.advertisement,
     capabilityManifestPath: args.capability,
+    captureSurfaceId: args["surface-id"] || "",
     stamp,
   });
   writeUnitySceneCaptureArtifact(artifact, {

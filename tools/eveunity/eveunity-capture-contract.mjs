@@ -7,6 +7,7 @@ export function buildUnityCaptureRequest({
   capabilityManifest,
   advertisementPath = "",
   capabilityManifestPath = "",
+  captureSurfaceId = "",
   stamp = new Date().toISOString().replace(/[:.]/g, "-"),
 } = {}) {
   if (!advertisement || typeof advertisement !== "object") {
@@ -21,8 +22,13 @@ export function buildUnityCaptureRequest({
     throw new Error("capability manifest is missing lifecycle.capture.captureContract");
   }
 
-  const captureSurface = selectCaptureSurface(captureContract, advertisement.providerId);
+  const captureSurface = selectCaptureSurface(captureContract, advertisement.providerId, captureSurfaceId);
   if (!captureSurface) {
+    if (captureSurfaceId) {
+      throw new Error(
+        `capture surface mismatch: expected ${captureSurfaceList(captureContract)} got ${advertisement.providerId || "missing"}:${captureSurfaceId}`,
+      );
+    }
     throw new Error(
       `capture provider mismatch: expected ${captureProviderList(captureContract)} got ${advertisement.providerId || "missing"}`,
     );
@@ -79,12 +85,18 @@ function replaceStamp(pattern, stamp) {
   return pattern.replace("{stamp}", stamp);
 }
 
-function selectCaptureSurface(captureContract, providerId) {
-  return captureSurfaceClaims(captureContract).find(claim => claim.providerId === providerId) || null;
+function selectCaptureSurface(captureContract, providerId, surfaceId = "") {
+  const claims = captureSurfaceClaims(captureContract).filter(claim => claim.providerId === providerId);
+  if (surfaceId) return claims.find(claim => claim.surfaceId === surfaceId) || null;
+  return claims[0] || null;
 }
 
 function captureProviderList(captureContract) {
   return captureSurfaceClaims(captureContract).map(claim => claim.providerId).filter(Boolean).join(", ") || "missing";
+}
+
+function captureSurfaceList(captureContract) {
+  return captureSurfaceClaims(captureContract).map(claim => `${claim.providerId}:${claim.surfaceId}`).join(", ") || "missing";
 }
 
 function captureSurfaceClaims(captureContract) {
@@ -134,6 +146,7 @@ function runCli() {
     capabilityManifest: loadJsonFile(args.capability),
     advertisementPath: args.advertisement,
     capabilityManifestPath: args.capability,
+    captureSurfaceId: args["surface-id"] || "",
     stamp,
   });
   writeCaptureRequest(request, args.output);

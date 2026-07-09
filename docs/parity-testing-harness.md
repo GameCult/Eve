@@ -296,6 +296,11 @@ Electron shell, and TUI, so provider consumption proves real runtime artifacts
 rather than only advertised lowering targets. Generated copies remain under
 Eve's `artifacts/aetheria-conformance-consumer-smoke` so the provider worktree
 does not become dirty merely by proving the boundary.
+Runtime capture request builders select a declared provider surface by id when
+requested. Unity UI Toolkit, Electron shell, and TUI declare
+`aetheria.daemon.editor` as an additional capture surface; Unity Scene does not,
+because the editor advertisement does not include the `unity-scene` lowering
+target.
 
 Plugin owner handoff smoke:
 

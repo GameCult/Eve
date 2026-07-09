@@ -9,6 +9,7 @@ export function buildUnityUiToolkitCaptureArtifact({
   surfaceDocument,
   advertisementPath = "",
   capabilityManifestPath = "",
+  captureSurfaceId = "",
   stamp = "latest",
 } = {}) {
   const request = buildUnityCaptureRequest({
@@ -16,6 +17,7 @@ export function buildUnityUiToolkitCaptureArtifact({
     capabilityManifest,
     advertisementPath,
     capabilityManifestPath,
+    captureSurfaceId,
     stamp,
   });
   const projection = buildUnityUiToolkitProjection(surfaceDocument, advertisement, request.surfaceId);
@@ -308,6 +310,7 @@ function runCli() {
     surfaceDocument: loadJsonFile(args.surface),
     advertisementPath: args.advertisement,
     capabilityManifestPath: args.capability,
+    captureSurfaceId: args["surface-id"] || "",
     stamp,
   });
   writeUnityUiToolkitCaptureArtifact(artifact, {

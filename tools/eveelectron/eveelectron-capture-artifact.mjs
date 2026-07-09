@@ -10,6 +10,7 @@ export function buildElectronCaptureArtifact({
   surfaceDocument,
   advertisementPath = "",
   capabilityManifestPath = "",
+  captureSurfaceId = "",
   stamp = "latest",
 } = {}) {
   const request = buildElectronCaptureRequest({
@@ -17,6 +18,7 @@ export function buildElectronCaptureArtifact({
     capabilityManifest,
     advertisementPath,
     capabilityManifestPath,
+    captureSurfaceId,
     stamp,
   });
   const shell = new EveElectronShell();
@@ -97,6 +99,7 @@ function runCli() {
     surfaceDocument: loadJsonFile(args.surface),
     advertisementPath: args.advertisement,
     capabilityManifestPath: args.capability,
+    captureSurfaceId: args["surface-id"] || "",
     stamp,
   });
   writeElectronCaptureArtifact(artifact, {

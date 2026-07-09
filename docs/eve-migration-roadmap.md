@@ -709,6 +709,11 @@ Recently cut:
   Aetheria `runtime.captureArtifacts[]` for `aetheria.daemon.game`. That makes
   the provider-side proof consume generic lowering clients instead of stopping
   at advertised target coverage.
+- Runtime capture requests now select a declared provider surface, not only a
+  provider id. Unity UI Toolkit, Electron shell, and TUI declare
+  `aetheria.daemon.editor` as an additional capture surface, while Unity Scene
+  rejects the editor surface because Aetheria does not advertise `unity-scene`
+  for editor lowering. This keeps game/editor capture authority explicit.
 - Conformance export now carries first-class `capabilityGaps[]` records derived
   from plugin errors, provider advertisement/scenario errors, runtime missing
   evidence, declared unsupported plugin projection, capture gaps, and split
