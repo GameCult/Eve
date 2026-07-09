@@ -974,6 +974,12 @@ Recently cut:
   required for the VN surface, while `norn.graph` and `tex.math` are
   `optional-nested` independent sidecar plugin projections. This keeps
   runtime projection support from becoming an implied Sai dependency story.
+- Runtime projection schemas now type that boundary. Electron, TUI, Unity
+  scene, and Unity UI Toolkit projection schemas require plugin projections to
+  declare `availability`, `semanticOwner`, ABI schema, command boundary, and
+  capability claims; the local schema subset validators now resolve `$ref` and
+  enforce enum values so missing availability cannot hide in recursive runtime
+  capture trees.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
   project, lower, measure, and apply behavior. The parity harness validates
   those fixtures against plugin manifests, so Eve proves the ABI shape without

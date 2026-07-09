@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { validateSchemaSubset } from "../../runtimes/incubating/test-support/schema-subset.mjs";
 import { buildUnitySceneCaptureArtifact, buildUnitySceneProjection } from "./eveunity-scene-capture-artifact.mjs";
 
+const unitySceneProjectionSchema = JSON.parse(readFileSync(new URL("../../schemas/gamecult.eve.unity_scene_projection.v1.schema.json", import.meta.url), "utf8"));
 const aetheriaAdvertisement = JSON.parse(readFileSync(new URL("../../web/fixtures/aetheria.provider-advertisement.json", import.meta.url), "utf8"));
 const capabilityManifest = JSON.parse(readFileSync(new URL("../../runtimes/incubating/eve-unity-scene/eve-runtime-capability.json", import.meta.url), "utf8"));
 const aetheriaSurfaceDocument = JSON.parse(readFileSync(new URL("../../web/fixtures/aetheria-world-surface.json", import.meta.url), "utf8"));
@@ -20,6 +22,7 @@ test("builds Unity scene projection capture artifact from provider advertisement
   });
 
   assert.equal(request.artifactPath, "artifacts/eveunity-scene-capture/smoke/unity-scene.png");
+  assert.deepEqual(validateSchemaSubset(unitySceneProjectionSchema, projection), []);
   assert.equal(projection.schema, "gamecult.eve.unity_scene_projection.v1");
   assert.equal(projection.runtimeId, "unity-scene");
   assert.equal(projection.providerId, "aetheria");
@@ -43,6 +46,7 @@ test("marks Sai required and Norn TeX optional sidecar plugin projections", () =
   };
 
   const projection = buildUnitySceneProjection(saiSurfaceDocument, advertisement, "sai.visual_novel.surface");
+  assert.deepEqual(validateSchemaSubset(unitySceneProjectionSchema, projection), []);
   const graphNode = projection.root.children.find(child => child.id === "sai.graph");
   const texLayer = projection.root.children.find(child => child.id === "sai.embeds");
   const texNode = texLayer.children.find(child => child.id === "sai.tex.log-power");

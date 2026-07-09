@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { validateSchemaSubset } from "../../runtimes/incubating/test-support/schema-subset.mjs";
 import { buildUnityUiToolkitCaptureArtifact, buildUnityUiToolkitProjection } from "./eveunity-uitoolkit-capture-artifact.mjs";
 
+const unityUiToolkitProjectionSchema = JSON.parse(readFileSync(new URL("../../schemas/gamecult.eve.unity_uitoolkit_projection.v1.schema.json", import.meta.url), "utf8"));
 const aetheriaAdvertisement = JSON.parse(readFileSync(new URL("../../web/fixtures/aetheria.provider-advertisement.json", import.meta.url), "utf8"));
 const capabilityManifest = JSON.parse(readFileSync(new URL("../../packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json", import.meta.url), "utf8"));
 const aetheriaSurfaceDocument = JSON.parse(readFileSync(new URL("../../web/fixtures/aetheria-world-surface.json", import.meta.url), "utf8"));
@@ -20,6 +22,7 @@ test("builds Unity UI Toolkit projection capture artifact from provider advertis
   });
 
   assert.equal(request.artifactPath, "artifacts/eveunity-uitoolkit-capture/smoke/unity-uitoolkit.png");
+  assert.deepEqual(validateSchemaSubset(unityUiToolkitProjectionSchema, projection), []);
   assert.equal(projection.schema, "gamecult.eve.unity_uitoolkit_projection.v1");
   assert.equal(projection.runtimeId, "unity-uitoolkit");
   assert.equal(projection.providerId, "aetheria");
@@ -44,6 +47,7 @@ test("marks Sai required and Norn TeX optional sidecar plugin UI projections", (
   };
 
   const projection = buildUnityUiToolkitProjection(saiSurfaceDocument, advertisement, "sai.visual_novel.surface");
+  assert.deepEqual(validateSchemaSubset(unityUiToolkitProjectionSchema, projection), []);
   const graphNode = projection.root.children.find(child => child.id === "sai.graph");
   const texLayer = projection.root.children.find(child => child.id === "sai.embeds");
   const texNode = texLayer.children.find(child => child.id === "sai.tex.log-power");

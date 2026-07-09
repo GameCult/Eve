@@ -84,57 +84,73 @@
     "pluginProjections": {
       "type": "array",
       "items": {
-        "type": "object",
-        "required": [
-          "ownerId",
-          "pluginId",
-          "projectionKind",
-          "semanticOwner",
-          "fallbackKind"
-        ],
-        "properties": {
-          "ownerId": {
-            "type": "string",
-            "minLength": 1
-          },
-          "pluginId": {
-            "type": "string",
-            "minLength": 1
-          },
-          "projectionKind": {
-            "type": "string",
-            "minLength": 1
-          },
-          "abiSchema": {
-            "type": "string"
-          },
-          "commandBoundary": {
-            "type": "string"
-          },
-          "capabilities": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "documentId": {
-            "type": "string"
-          },
-          "semanticOwner": {
-            "type": "string",
-            "minLength": 1
-          },
-          "fallbackKind": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "additionalProperties": true
+        "$ref": "#/$defs/pluginProjection"
       }
     },
     "lossiness": {
       "type": "string",
       "minLength": 1
+    }
+  },
+  "$defs": {
+    "pluginProjection": {
+      "type": "object",
+      "required": [
+        "ownerId",
+        "pluginId",
+        "projectionKind",
+        "abiSchema",
+        "commandBoundary",
+        "capabilities",
+        "semanticOwner",
+        "availability",
+        "fallbackKind"
+      ],
+      "properties": {
+        "ownerId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pluginId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "projectionKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "abiSchema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commandBoundary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "documentId": {
+          "type": "string"
+        },
+        "semanticOwner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "availability": {
+          "type": "string",
+          "enum": ["required", "optional", "optional-nested"]
+        },
+        "fallbackKind": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
     }
   },
   "additionalProperties": true
