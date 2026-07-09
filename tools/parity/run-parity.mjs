@@ -1321,6 +1321,9 @@ function compareCaptureContract(expected, actual, label) {
       errors.push(`${label}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
     }
   }
+  if (actual.requestSchema && !manifest.schemas?.[actual.requestSchema]) {
+    errors.push(`${label}.requestSchema:${actual.requestSchema}:missing-schema-catalog-entry`);
+  }
   return errors;
 }
 
@@ -1362,6 +1365,9 @@ function compareReleaseContract(expected, actual, label) {
     if ((expected[key] || "") !== (actual[key] || "")) {
       errors.push(`${label}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
     }
+  }
+  if (actual.requestSchema && !manifest.schemas?.[actual.requestSchema]) {
+    errors.push(`${label}.requestSchema:${actual.requestSchema}:missing-schema-catalog-entry`);
   }
   for (const key of ["packageRoot", "versionSource", "requestBuilder"]) {
     if (actual[key] && !existsSync(path.join(repoRoot, actual[key]))) {

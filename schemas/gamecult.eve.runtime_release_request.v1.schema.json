@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.runtime_release_request.v1",
+  "title": "Eve Runtime Release Request",
+  "type": "object",
+  "required": [
+    "schema",
+    "ownerRepo",
+    "repository",
+    "packageName",
+    "version",
+    "packageRoot",
+    "versionSource",
+    "tagName",
+    "artifactKind",
+    "artifactPath",
+    "publishProof"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.runtime_release_request.v1"
+    },
+    "ownerRepo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 1
+    },
+    "packageName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:[-+][0-9A-Za-z.-]+)?$"
+    },
+    "unity": {
+      "type": "string"
+    },
+    "packageRoot": {
+      "type": "string",
+      "minLength": 1
+    },
+    "versionSource": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tagName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifactKind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifactPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "publishProof": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceCapabilityManifestPath": {
+      "type": "string"
+    },
+    "sourcePackageManifestPath": {
+      "type": "string"
+    },
+    "main": {
+      "type": "string"
+    },
+    "scripts": {
+      "type": "object"
+    },
+    "dependencies": {
+      "type": "object"
+    },
+    "devDependencies": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

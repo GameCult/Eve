@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.runtime_capture_request.v1",
+  "title": "Eve Runtime Capture Request",
+  "type": "object",
+  "required": [
+    "schema",
+    "runtimeId",
+    "ownerRepo",
+    "providerId",
+    "surfaceId",
+    "targetId",
+    "captureKind",
+    "artifactKind",
+    "artifactPath",
+    "conformanceAttachment",
+    "authority",
+    "issuedAtUtc"
+  ],
+  "properties": {
+    "schema": {
+      "const": "gamecult.eve.runtime_capture_request.v1"
+    },
+    "runtimeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownerRepo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "providerId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surfaceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "surfaceKind": {
+      "type": "string"
+    },
+    "targetId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "projectionKind": {
+      "type": "string"
+    },
+    "commandBoundary": {
+      "type": "string"
+    },
+    "receiptSchema": {
+      "type": "string"
+    },
+    "captureKind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifactKind": {
+      "type": "string",
+      "minLength": 1
+    },
+    "artifactPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "conformanceAttachment": {
+      "type": "string",
+      "minLength": 1
+    },
+    "authority": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceAdvertisementPath": {
+      "type": "string"
+    },
+    "sourceCapabilityManifestPath": {
+      "type": "string"
+    },
+    "issuedAtUtc": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

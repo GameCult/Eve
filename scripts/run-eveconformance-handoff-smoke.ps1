@@ -81,6 +81,8 @@ foreach ($contract in @(
   "gamecult.eve.plugin_abi_fixture.v1",
   "gamecult.eve.plugin_abi.request.v1",
   "gamecult.eve.plugin_abi.response.v1",
+  "gamecult.eve.runtime_release_request.v1",
+  "gamecult.eve.runtime_capture_request.v1",
   "gamecult.eve.provider_advertisement.v1",
   "gamecult.eve.runtime_capability.v1"
 )) {
@@ -116,7 +118,9 @@ if (Test-Path -LiteralPath (Join-Path $absoluteExportDirectory "index.json")) {
     "gamecult.eve.plugin_advertisement.v1",
     "gamecult.eve.plugin_abi_fixture.v1",
     "gamecult.eve.plugin_abi.request.v1",
-    "gamecult.eve.plugin_abi.response.v1"
+    "gamecult.eve.plugin_abi.response.v1",
+    "gamecult.eve.runtime_release_request.v1",
+    "gamecult.eve.runtime_capture_request.v1"
   )) {
     $schema = @($export.schemaCatalog) | Where-Object { $_.schemaId -eq $schemaId } | Select-Object -First 1
     if (-not $schema) {

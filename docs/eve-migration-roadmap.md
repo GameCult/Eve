@@ -825,6 +825,11 @@ Recently cut:
   TeX ABI fixtures must name those same schemas, and parity fails if a sidecar
   advertises a request/response schema that is missing from the contract
   catalog.
+- Runtime release/capture request schema names are now backed by Eve contract
+  documents. `gamecult.eve.runtime_release_request.v1` and
+  `gamecult.eve.runtime_capture_request.v1` live under `schemas/`; runtime
+  lifecycle manifests must name catalog-backed request schemas, so release and
+  capture status cannot hide a missing wire contract.
 - Conformance export now carries a root `schemaCatalog` and copies schema
   documents under `schemas/` in the export. Plugin owners can assert
   `gamecult.eve.plugin_abi.request.v1` and

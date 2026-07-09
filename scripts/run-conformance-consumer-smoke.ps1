@@ -35,6 +35,8 @@ try {
     --expect-schema gamecult.eve.conformance_export.v1 `
     --expect-schema gamecult.eve.plugin_abi.request.v1 `
     --expect-schema gamecult.eve.plugin_abi.response.v1 `
+    --expect-schema gamecult.eve.runtime_release_request.v1 `
+    --expect-schema gamecult.eve.runtime_capture_request.v1 `
     --expect-capability-gap runtime:Fensalir:direct2d:capture:missing `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:web-reference:claimed:Eve:web `
     --expect-world-lowering-coverage aetheria:aetheria.daemon.game:unity-uitoolkit:claimed:EveUnity:unity-uitoolkit `

@@ -209,6 +209,9 @@
                 "versionSource",
                 "tagPattern",
                 "artifactKind",
+                "requestSchema",
+                "requestBuilder",
+                "artifactPattern",
                 "publishProof"
               ],
               "properties": {
@@ -394,6 +397,10 @@
               "required": [
                 "ownerRepo",
                 "runtimeId",
+                "targetId",
+                "requestSchema",
+                "requestBuilder",
+                "advertisementPath",
                 "captureKind",
                 "artifactKind",
                 "artifactPattern",
