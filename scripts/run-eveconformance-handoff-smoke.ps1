@@ -77,6 +77,10 @@ foreach ($contract in @(
   "gamecult.eve.conformance_fixture.v1",
   "gamecult.eve.provider_scenario.v1",
   "gamecult.eve.plugin.v1",
+  "gamecult.eve.plugin_advertisement.v1",
+  "gamecult.eve.plugin_abi_fixture.v1",
+  "gamecult.eve.plugin_abi.request.v1",
+  "gamecult.eve.plugin_abi.response.v1",
   "gamecult.eve.provider_advertisement.v1",
   "gamecult.eve.runtime_capability.v1"
 )) {
@@ -100,6 +104,29 @@ if (Test-Path -LiteralPath (Join-Path $absoluteExportDirectory "index.json")) {
     $pack = @($export.packs) | Where-Object { $_.id -eq $packId } | Select-Object -First 1
     if (-not $pack) {
       throw "Conformance export missing pack: $packId"
+    }
+  }
+  foreach ($schemaId in @(
+    "gamecult.eve.conformance_export.v1",
+    "gamecult.eve.conformance_fixture.v1",
+    "gamecult.eve.provider_scenario.v1",
+    "gamecult.eve.provider_advertisement.v1",
+    "gamecult.eve.runtime_capability.v1",
+    "gamecult.eve.plugin.v1",
+    "gamecult.eve.plugin_advertisement.v1",
+    "gamecult.eve.plugin_abi_fixture.v1",
+    "gamecult.eve.plugin_abi.request.v1",
+    "gamecult.eve.plugin_abi.response.v1"
+  )) {
+    $schema = @($export.schemaCatalog) | Where-Object { $_.schemaId -eq $schemaId } | Select-Object -First 1
+    if (-not $schema) {
+      throw "Conformance export schema catalog missing schema: $schemaId"
+    }
+    if (-not $schema.exportPath) {
+      throw "Conformance export schema catalog missing export path for schema: $schemaId"
+    }
+    if (-not (Test-Path -LiteralPath (Join-Path $absoluteExportDirectory $schema.exportPath))) {
+      throw "Conformance export missing copied schema document for $($schemaId): $($schema.exportPath)"
     }
   }
 }

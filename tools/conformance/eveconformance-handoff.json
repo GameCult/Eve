@@ -21,9 +21,16 @@
       "currentPaths": [
         "schemas/gamecult.eve.conformance_export.v1.schema.json",
         "schemas/gamecult.eve.conformance_fixture.v1.schema.json",
-        "schemas/gamecult.eve.provider_scenario.v1.schema.json"
+        "schemas/gamecult.eve.provider_scenario.v1.schema.json",
+        "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
+        "schemas/gamecult.eve.runtime_capability.v1.schema.json",
+        "schemas/gamecult.eve.plugin.v1.schema.json",
+        "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
+        "schemas/gamecult.eve.plugin_abi_fixture.v1.schema.json",
+        "schemas/gamecult.eve.plugin_abi.request.v1.schema.json",
+        "schemas/gamecult.eve.plugin_abi.response.v1.schema.json"
       ],
-      "replacementProof": "EveConformance publishes conformance export, fixture metadata, and provider scenario schemas as consumed contracts."
+      "replacementProof": "EveConformance publishes the schema catalog and copied schema documents needed by conformance, plugin, provider, and runtime consumers."
     },
     {
       "id": "consumer-smokes",
@@ -58,6 +65,10 @@
     "gamecult.eve.conformance_fixture.v1",
     "gamecult.eve.provider_scenario.v1",
     "gamecult.eve.plugin.v1",
+    "gamecult.eve.plugin_advertisement.v1",
+    "gamecult.eve.plugin_abi_fixture.v1",
+    "gamecult.eve.plugin_abi.request.v1",
+    "gamecult.eve.plugin_abi.response.v1",
     "gamecult.eve.provider_advertisement.v1",
     "gamecult.eve.runtime_capability.v1"
   ],

@@ -830,6 +830,10 @@ Recently cut:
   `gamecult.eve.plugin_abi.request.v1` and
   `gamecult.eve.plugin_abi.response.v1` from the exported pack instead of
   reading Eve's parity manifest to discover contract paths.
+- EveConformance handoff now treats the exported schema catalog as part of the
+  split boundary. The handoff schema move set includes plugin, provider,
+  runtime, conformance, and ABI wire schemas, and the handoff smoke verifies the
+  latest conformance export copied those schema documents.
 - Split-readiness reporting now exists for `EveFlutter` and `EveUnity`. The
   parity report lists member runtime health, required plugin capability claims,
   pending proofs, and blockers before either repo can graduate out of Eve
