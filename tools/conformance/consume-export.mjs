@@ -35,6 +35,8 @@ if (!exportDirectory) {
     "  --expect-runtime-handoff <runtimeId>",
     "  --expect-runtime-command-schema <runtimeId:schema>",
     "  --expect-runtime-capture-status <runtimeId:status>",
+    "  --expect-runtime-lifecycle-status <runtimeId:stage:status>",
+    "  --expect-runtime-lifecycle-pending <runtimeId:stage:pending-proof-substring>",
     "  --expect-split-target-status <targetId:status>",
     "  --expect-split-target-blocker <targetId:blocker-substring>",
     "  --expect-split-target-proof <targetId:proof-substring>",
@@ -298,6 +300,31 @@ function validateIndex(index, directory, expectations, errors) {
       errors.push(`runtimes:${expectation.runtimeId}:captureStatus:expected ${expectation.status} got ${runtime.captureStatus || ""}`);
     }
   }
+  for (const expectation of expectations.runtimeLifecycleStatuses) {
+    const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!runtime) {
+      errors.push(`runtimes:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    const stage = runtime.lifecycle?.[expectation.stage];
+    if (!stage) {
+      errors.push(`runtimes:${expectation.runtimeId}:lifecycle.${expectation.stage}:missing`);
+    } else if (stage.status !== expectation.status) {
+      errors.push(`runtimes:${expectation.runtimeId}:lifecycle.${expectation.stage}.status:expected ${expectation.status} got ${stage.status || ""}`);
+    }
+  }
+  for (const expectation of expectations.runtimeLifecyclePendingProofs) {
+    const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!runtime) {
+      errors.push(`runtimes:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    const stage = runtime.lifecycle?.[expectation.stage];
+    const pendingProofs = Array.isArray(stage?.pendingProofs) ? stage.pendingProofs : [];
+    if (!pendingProofs.some(proof => proof.includes(expectation.pendingProof))) {
+      errors.push(`runtimes:${expectation.runtimeId}:lifecycle.${expectation.stage}.pendingProof:${expectation.pendingProof}:missing`);
+    }
+  }
   for (const expectedRuntime of expectations.runtimeHandoffs) {
     const runtime = runtimes.find(candidate => candidate.runtimeId === expectedRuntime);
     if (!runtime) {
@@ -471,6 +498,8 @@ function parseArguments(args) {
     runtimeHandoffs: [],
     runtimeCommandSchemas: [],
     runtimeCaptureStatuses: [],
+    runtimeLifecycleStatuses: [],
+    runtimeLifecyclePendingProofs: [],
     scenarios: [],
     splitTargets: [],
     splitTargetStatuses: [],
@@ -504,6 +533,8 @@ function parseArguments(args) {
     ["--expect-runtime-handoff", expectations.runtimeHandoffs],
     ["--expect-runtime-command-schema", expectations.runtimeCommandSchemas],
     ["--expect-runtime-capture-status", expectations.runtimeCaptureStatuses],
+    ["--expect-runtime-lifecycle-status", expectations.runtimeLifecycleStatuses],
+    ["--expect-runtime-lifecycle-pending", expectations.runtimeLifecyclePendingProofs],
     ["--expect-split-target-status", expectations.splitTargetStatuses],
     ["--expect-split-target-blocker", expectations.splitTargetBlockers],
     ["--expect-split-target-proof", expectations.splitTargetProofs],
@@ -562,6 +593,10 @@ function parseArguments(args) {
       target.push(parseRuntimeExpectation(value, "schema"));
     } else if (option === "--expect-runtime-capture-status") {
       target.push(parseRuntimeExpectation(value, "status"));
+    } else if (option === "--expect-runtime-lifecycle-status") {
+      target.push(parseRuntimeLifecycleExpectation(value, "status"));
+    } else if (option === "--expect-runtime-lifecycle-pending") {
+      target.push(parseRuntimeLifecycleExpectation(value, "pendingProof"));
     } else if (option === "--expect-split-target-status") {
       target.push(parseSplitTargetExpectation(value, "status"));
     } else if (option === "--expect-split-target-blocker") {
@@ -623,6 +658,19 @@ function parseRuntimeExpectation(value, field) {
   return {
     runtimeId: value.slice(0, separator),
     [field]: value.slice(separator + 1),
+  };
+}
+
+function parseRuntimeLifecycleExpectation(value, field) {
+  const parts = value.split(":");
+  if (parts.length < 3 || !parts[0] || !parts[1] || !parts.slice(2).join(":")) {
+    console.error(`Expected runtime lifecycle ${field} in <runtimeId:stage:${field}> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    stage: parts[1],
+    [field]: parts.slice(2).join(":"),
   };
 }
 

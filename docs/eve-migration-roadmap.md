@@ -280,6 +280,13 @@ Exit criteria:
 
 Recently cut:
 
+- Runtime-owner conformance consumption now asserts EveUnity lifecycle stage
+  evidence directly. The generic consumer supports
+  `--expect-runtime-lifecycle-status` and
+  `--expect-runtime-lifecycle-pending`; the runtime-owner smoke verifies the
+  Unity UI Toolkit release/test/capture statuses plus the tagged UPM release,
+  batchmode runner, and capture artifact pending proofs from the exported
+  runtime record.
 - Plugin manifests and advertisements now carry a runtime-independent sidecar
   ABI boundary. Sai, Norn, and TeX declare `invocationModel:
   executable-sidecar`, `gamecult.eve.plugin_abi.v1`, CultMesh/stdio transports,

@@ -57,7 +57,13 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-status linux-flutter:ssh-golden `
   --expect-runtime-capture-status android-flutter:adb-png `
   --expect-runtime-capture-status unity-uitoolkit:semantic `
-  --expect-runtime-capture-status direct2d:missing
+  --expect-runtime-capture-status direct2d:missing `
+  --expect-runtime-lifecycle-status unity-uitoolkit:release:incubating-upm-package `
+  --expect-runtime-lifecycle-status unity-uitoolkit:test:batchmode-editmode-tests-and-consumer-build-smoke `
+  --expect-runtime-lifecycle-status unity-uitoolkit:capture:pending-editor-capture `
+  --expect-runtime-lifecycle-pending "unity-uitoolkit:release:Tagged UPM release" `
+  --expect-runtime-lifecycle-pending "unity-uitoolkit:test:Unity batchmode EditMode runner" `
+  --expect-runtime-lifecycle-pending "unity-uitoolkit:capture:Unity batchmode or editor capture artifact"
 
 if ($LASTEXITCODE -ne 0) {
   throw "Runtime owner conformance consumer smoke failed with exit code $LASTEXITCODE"

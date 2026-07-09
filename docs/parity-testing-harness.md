@@ -115,7 +115,9 @@ The runtime conformance pack is evidence-shaped, not fixture-shaped. Its
 `packs/runtime.json` document includes `runtimeTargets` so runtime repos can
 consume status, supported features, plugin support, command schema, lifecycle,
 capture status, and missing evidence without reading Eve's local parity
-manifest.
+manifest. The runtime-owner consumer smoke asserts EveUnity lifecycle stage
+status and pending release/test/capture proofs from the exported runtime record,
+so split blockers stay machine-readable instead of hiding in handoff prose.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into
