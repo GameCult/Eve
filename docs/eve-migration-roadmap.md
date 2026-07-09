@@ -280,6 +280,14 @@ Exit criteria:
 
 Recently cut:
 
+- EveUnity release lifecycle now carries a structured UPM release contract.
+  `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
+  names the package root, version source, tag pattern, artifact kind, and
+  owner-side publish proof for `org.gamecult.eve.unity-uitoolkit`. The
+  lifecycle smoke validates that contract against the package manifest, parity
+  compares it against the ledger, and the runtime-owner consumer smoke asserts
+  the exported release fields without pretending the tagged EveUnity release
+  already exists.
 - Runtime-owner conformance consumption now asserts EveUnity lifecycle stage
   evidence directly. The generic consumer supports
   `--expect-runtime-lifecycle-status` and

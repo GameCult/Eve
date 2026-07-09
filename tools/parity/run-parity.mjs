@@ -1138,11 +1138,29 @@ function compareRuntimeLifecycleClaims(expectedLifecycle, actualLifecycle, manif
 
     errors.push(...missingMembers(expected.evidencePaths || [], actual.evidencePaths || [], `${label}.evidencePaths`));
     errors.push(...missingMembers(expected.pendingProofs || [], actual.pendingProofs || [], `${label}.pendingProofs`));
+    errors.push(...compareReleaseContract(expected.releaseContract, actual.releaseContract, `${label}.releaseContract`));
 
     for (const evidencePath of actual.evidencePaths || []) {
       if (!existsSync(path.join(repoRoot, evidencePath))) {
         errors.push(`${label}.evidencePaths:${evidencePath}:missing`);
       }
+    }
+  }
+  return errors;
+}
+
+function compareReleaseContract(expected, actual, label) {
+  const errors = [];
+  if (!expected) return errors;
+  if (!actual) return [`${label}:missing`];
+  for (const key of ["ownerRepo", "packageName", "packageRoot", "versionSource", "tagPattern", "artifactKind", "publishProof"]) {
+    if ((expected[key] || "") !== (actual[key] || "")) {
+      errors.push(`${label}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
+    }
+  }
+  for (const key of ["packageRoot", "versionSource"]) {
+    if (actual[key] && !existsSync(path.join(repoRoot, actual[key]))) {
+      errors.push(`${label}.${key}:${actual[key]}:missing`);
     }
   }
   return errors;

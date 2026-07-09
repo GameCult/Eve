@@ -63,7 +63,11 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-status unity-uitoolkit:capture:pending-editor-capture `
   --expect-runtime-lifecycle-pending "unity-uitoolkit:release:Tagged UPM release" `
   --expect-runtime-lifecycle-pending "unity-uitoolkit:test:Unity batchmode EditMode runner" `
-  --expect-runtime-lifecycle-pending "unity-uitoolkit:capture:Unity batchmode or editor capture artifact"
+  --expect-runtime-lifecycle-pending "unity-uitoolkit:capture:Unity batchmode or editor capture artifact" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.packageName:org.gamecult.eve.unity-uitoolkit" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.artifactKind:upm-package" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.tagPattern:eveunity-uitoolkit-v{version}" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.packageRoot:packages/org.gamecult.eve.unity-uitoolkit"
 
 if ($LASTEXITCODE -ne 0) {
   throw "Runtime owner conformance consumer smoke failed with exit code $LASTEXITCODE"

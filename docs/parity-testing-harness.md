@@ -117,7 +117,9 @@ consume status, supported features, plugin support, command schema, lifecycle,
 capture status, and missing evidence without reading Eve's local parity
 manifest. The runtime-owner consumer smoke asserts EveUnity lifecycle stage
 status and pending release/test/capture proofs from the exported runtime record,
-so split blockers stay machine-readable instead of hiding in handoff prose.
+plus release contract fields such as package name, artifact kind, tag pattern,
+and package root, so split blockers stay machine-readable instead of hiding in
+handoff prose.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into

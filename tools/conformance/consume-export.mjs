@@ -37,6 +37,7 @@ if (!exportDirectory) {
     "  --expect-runtime-capture-status <runtimeId:status>",
     "  --expect-runtime-lifecycle-status <runtimeId:stage:status>",
     "  --expect-runtime-lifecycle-pending <runtimeId:stage:pending-proof-substring>",
+    "  --expect-runtime-lifecycle-field <runtimeId:stage:field.path:value>",
     "  --expect-split-target-status <targetId:status>",
     "  --expect-split-target-blocker <targetId:blocker-substring>",
     "  --expect-split-target-proof <targetId:proof-substring>",
@@ -325,6 +326,17 @@ function validateIndex(index, directory, expectations, errors) {
       errors.push(`runtimes:${expectation.runtimeId}:lifecycle.${expectation.stage}.pendingProof:${expectation.pendingProof}:missing`);
     }
   }
+  for (const expectation of expectations.runtimeLifecycleFields) {
+    const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!runtime) {
+      errors.push(`runtimes:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    const actual = readNestedField(runtime.lifecycle?.[expectation.stage], expectation.fieldPath);
+    if (actual !== expectation.value) {
+      errors.push(`runtimes:${expectation.runtimeId}:lifecycle.${expectation.stage}.${expectation.fieldPath}:expected ${expectation.value} got ${actual || ""}`);
+    }
+  }
   for (const expectedRuntime of expectations.runtimeHandoffs) {
     const runtime = runtimes.find(candidate => candidate.runtimeId === expectedRuntime);
     if (!runtime) {
@@ -500,6 +512,7 @@ function parseArguments(args) {
     runtimeCaptureStatuses: [],
     runtimeLifecycleStatuses: [],
     runtimeLifecyclePendingProofs: [],
+    runtimeLifecycleFields: [],
     scenarios: [],
     splitTargets: [],
     splitTargetStatuses: [],
@@ -535,6 +548,7 @@ function parseArguments(args) {
     ["--expect-runtime-capture-status", expectations.runtimeCaptureStatuses],
     ["--expect-runtime-lifecycle-status", expectations.runtimeLifecycleStatuses],
     ["--expect-runtime-lifecycle-pending", expectations.runtimeLifecyclePendingProofs],
+    ["--expect-runtime-lifecycle-field", expectations.runtimeLifecycleFields],
     ["--expect-split-target-status", expectations.splitTargetStatuses],
     ["--expect-split-target-blocker", expectations.splitTargetBlockers],
     ["--expect-split-target-proof", expectations.splitTargetProofs],
@@ -597,6 +611,8 @@ function parseArguments(args) {
       target.push(parseRuntimeLifecycleExpectation(value, "status"));
     } else if (option === "--expect-runtime-lifecycle-pending") {
       target.push(parseRuntimeLifecycleExpectation(value, "pendingProof"));
+    } else if (option === "--expect-runtime-lifecycle-field") {
+      target.push(parseRuntimeLifecycleFieldExpectation(value));
     } else if (option === "--expect-split-target-status") {
       target.push(parseSplitTargetExpectation(value, "status"));
     } else if (option === "--expect-split-target-blocker") {
@@ -659,6 +675,29 @@ function parseRuntimeExpectation(value, field) {
     runtimeId: value.slice(0, separator),
     [field]: value.slice(separator + 1),
   };
+}
+
+function parseRuntimeLifecycleFieldExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length < 4 || !parts[0] || !parts[1] || !parts[2] || !parts.slice(3).join(":")) {
+    console.error(`Expected runtime lifecycle field in <runtimeId:stage:field.path:value> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    stage: parts[1],
+    fieldPath: parts[2],
+    value: parts.slice(3).join(":"),
+  };
+}
+
+function readNestedField(source, fieldPath) {
+  let value = source;
+  for (const segment of fieldPath.split(".")) {
+    if (!value || typeof value !== "object") return "";
+    value = value[segment];
+  }
+  return typeof value === "string" ? value : "";
 }
 
 function parseRuntimeLifecycleExpectation(value, field) {

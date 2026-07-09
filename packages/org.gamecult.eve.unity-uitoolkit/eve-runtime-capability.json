@@ -52,6 +52,15 @@
       "status": "incubating-upm-package",
       "packageName": "org.gamecult.eve.unity-uitoolkit",
       "packageManifest": "packages/org.gamecult.eve.unity-uitoolkit/package.json",
+      "releaseContract": {
+        "ownerRepo": "EveUnity",
+        "packageName": "org.gamecult.eve.unity-uitoolkit",
+        "packageRoot": "packages/org.gamecult.eve.unity-uitoolkit",
+        "versionSource": "packages/org.gamecult.eve.unity-uitoolkit/package.json",
+        "tagPattern": "eveunity-uitoolkit-v{version}",
+        "artifactKind": "upm-package",
+        "publishProof": "Tagged UPM release is created from the EveUnity repo and references this package root."
+      },
       "evidencePaths": [
         "packages/org.gamecult.eve.unity-uitoolkit/package.json",
         "packages/org.gamecult.eve.unity-uitoolkit/README.md",

@@ -42,6 +42,11 @@ evidence:
   plus Aetheria consumer-build smoke through Unity's generated project;
 - capture: pending Unity editor or batchmode artifact.
 
+The release stage also declares the UPM release contract:
+`org.gamecult.eve.unity-uitoolkit` is released from this package root, reads
+its version from `package.json`, and uses tag pattern
+`eveunity-uitoolkit-v{version}` once the tag is cut from EveUnity.
+
 Those lifecycle claims are validated by the parity harness. A missing evidence
 path is a runtime capability error, not a README footnote.
 

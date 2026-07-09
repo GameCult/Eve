@@ -151,6 +151,49 @@
             "command": {
               "type": "string"
             },
+            "releaseContract": {
+              "type": "object",
+              "required": [
+                "ownerRepo",
+                "packageName",
+                "packageRoot",
+                "versionSource",
+                "tagPattern",
+                "artifactKind",
+                "publishProof"
+              ],
+              "properties": {
+                "ownerRepo": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "packageName": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "packageRoot": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "versionSource": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tagPattern": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "artifactKind": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "publishProof": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": true
+            },
             "evidencePaths": {
               "type": "array",
               "items": {

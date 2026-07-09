@@ -87,6 +87,37 @@ foreach ($stage in @("release", "test", "capture")) {
   }
 }
 
+$releaseContract = $manifest.lifecycle.release.releaseContract
+if ($null -eq $releaseContract) {
+  throw "EveUnity release lifecycle missing releaseContract"
+}
+if ($releaseContract.ownerRepo -ne "EveUnity") {
+  throw "EveUnity release contract has unexpected owner: $($releaseContract.ownerRepo)"
+}
+if ($releaseContract.packageName -ne "org.gamecult.eve.unity-uitoolkit") {
+  throw "EveUnity release contract has unexpected package name: $($releaseContract.packageName)"
+}
+if ($releaseContract.artifactKind -ne "upm-package") {
+  throw "EveUnity release contract has unexpected artifact kind: $($releaseContract.artifactKind)"
+}
+if (-not ($releaseContract.tagPattern -match "\{version\}")) {
+  throw "EveUnity release contract tag pattern must include {version}: $($releaseContract.tagPattern)"
+}
+foreach ($pathProperty in @("packageRoot", "versionSource")) {
+  $relativePath = $releaseContract.$pathProperty
+  if (-not $relativePath) {
+    throw "EveUnity release contract missing $pathProperty"
+  }
+  $absolutePath = Join-Path $projectRoot $relativePath
+  if (-not (Test-Path -LiteralPath $absolutePath)) {
+    throw "EveUnity release contract $pathProperty does not exist: $relativePath"
+  }
+}
+$packageManifest = Get-Content -LiteralPath (Join-Path $projectRoot $releaseContract.versionSource) -Raw | ConvertFrom-Json
+if ($packageManifest.name -ne $releaseContract.packageName) {
+  throw "EveUnity release contract package name does not match package manifest: $($releaseContract.packageName) vs $($packageManifest.name)"
+}
+
 & (Join-Path $projectRoot "scripts\run-aetheria-unity-package-smoke.ps1")
 if ($LASTEXITCODE -ne 0) {
   throw "Aetheria Unity package smoke failed with exit code $LASTEXITCODE"
