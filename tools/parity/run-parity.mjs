@@ -1288,6 +1288,10 @@ function compareCaptureContract(expected, actual, label) {
   for (const key of [
     "ownerRepo",
     "runtimeId",
+    "targetId",
+    "requestSchema",
+    "requestBuilder",
+    "advertisementPath",
     "captureKind",
     "artifactKind",
     "artifactPattern",

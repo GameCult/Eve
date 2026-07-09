@@ -40,7 +40,8 @@ evidence:
 - release: incubating UPM package identity and import surface;
 - test: package-owned EditMode tests run through Aetheria in Unity batchmode,
   plus Aetheria consumer-build smoke through Unity's generated project;
-- capture: pending Unity editor or batchmode artifact.
+- capture: typed capture request contract and pending Unity editor or
+  batchmode PNG artifact.
 
 The release stage also declares the UPM release contract:
 `org.gamecult.eve.unity-uitoolkit` is released from this package root, reads
@@ -54,6 +55,12 @@ under `artifacts/aetheria-unity-editmode/{stamp}`, and temporarily adds
 `org.gamecult.eve.unity-uitoolkit` to Aetheria's Unity `testables`. This is a
 Unity package consumption proof. CultLib still owns the .NET/NuGet dependency
 story for its assemblies.
+
+The capture stage declares `gamecult.eve.runtime_capture_request.v1` request
+construction through `tools/eveunity/eveunity-capture-contract.mjs`. That
+request is derived from the runtime capability manifest and Aetheria's provider
+advertisement, then points at the PNG artifact EveUnity must produce later. It
+does not fake a screenshot; it makes the capture input contract executable.
 
 The manifest also declares `worldSurfaceLowering` target `unity-uitoolkit`.
 That means this package can lower provider-advertised `interactive-world` and
@@ -82,7 +89,11 @@ paths, runs the Aetheria Unity package consumer-build smoke, and verifies the
 split handoff manifest. Pass `-RunUnityEditMode` when the local Unity editor
 should also execute the incubating batchmode EditMode test runner. The final
 tagged UPM release, batchmode runner ownership, and capture artifact still
-graduate to `EveUnity`.
+graduate to `EveUnity`. The capture contract smoke is:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-eveunity-capture-contract-smoke.ps1
+```
 
 For Aetheria, the Unity evidence path is:
 

@@ -477,9 +477,13 @@ Recently cut:
 - EveUnity capture lifecycle now carries a structured pending capture contract.
   `captureContract` names the Unity UI Toolkit runtime, capture kind, PNG
   artifact pattern, conformance attachment point, required Aetheria provider
-  surface, and authority rule. The lifecycle smoke and runtime-owner consumer
-  smoke assert those fields while keeping the actual capture artifact as a
-  split blocker for EveUnity.
+  surface, request schema, request builder, advertisement input, and authority
+  rule. `tools/eveunity/eveunity-capture-contract.mjs` now builds a
+  `gamecult.eve.runtime_capture_request.v1` request from the runtime capability
+  manifest and provider advertisement, and
+  `scripts/run-eveunity-capture-contract-smoke.ps1` proves that request path
+  without pretending a Unity PNG has been captured. The actual capture artifact
+  remains a split blocker for EveUnity.
 - Runtime-owner conformance consumption now asserts EveUnity lifecycle stage
   evidence directly. The generic consumer supports
   `--expect-runtime-lifecycle-status` and

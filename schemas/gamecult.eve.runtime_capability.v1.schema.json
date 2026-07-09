@@ -400,6 +400,22 @@
                   "type": "string",
                   "minLength": 1
                 },
+                "targetId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "requestSchema": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "requestBuilder": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "advertisementPath": {
+                  "type": "string",
+                  "minLength": 1
+                },
                 "captureKind": {
                   "type": "string",
                   "minLength": 1

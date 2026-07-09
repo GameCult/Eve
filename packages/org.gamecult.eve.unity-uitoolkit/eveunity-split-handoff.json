@@ -37,7 +37,11 @@
     {
       "id": "unity-capture-lifecycle",
       "stage": "capture",
-      "currentPaths": [],
+      "currentPaths": [
+        "tools/eveunity/eveunity-capture-contract.mjs",
+        "tools/eveunity/eveunity-capture-contract.test.mjs",
+        "scripts/run-eveunity-capture-contract-smoke.ps1"
+      ],
       "destinationOwner": "EveUnity",
       "replacementProof": "Unity batchmode or editor capture artifact attached to the runtime conformance report."
     }

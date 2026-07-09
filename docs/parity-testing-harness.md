@@ -357,7 +357,10 @@ exist. The current lifecycle proof is deliberately split:
 - release: incubating UPM package identity and import surface exist in Eve;
 - test: package-owned EditMode tests run through Aetheria in Unity batchmode,
   and Aetheria can build the package through Unity's generated project;
-- capture: Unity editor or batchmode capture remains a split blocker.
+- capture: `tools/eveunity/eveunity-capture-contract.mjs` builds a typed
+  `gamecult.eve.runtime_capture_request.v1` request from the runtime capability
+  manifest and Aetheria provider advertisement; Unity editor or batchmode PNG
+  capture remains a split blocker.
 
 EveUnity split handoff evidence:
 

@@ -117,6 +117,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.testPlatform:EditMode" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.captureKind:unity-editor-or-batchmode-png" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.artifactKind:png" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.targetId:unity-uitoolkit" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requestBuilder:tools/eveunity/eveunity-capture-contract.mjs" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.advertisementPath:web/fixtures/aetheria.provider-advertisement.json" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.conformanceAttachment:runtime.captureArtifacts[]" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredProvider:aetheria" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredSurface:aetheria.daemon.game" `

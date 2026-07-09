@@ -1380,6 +1380,10 @@
           "captureContract": {
             "ownerRepo": "EveUnity",
             "runtimeId": "unity-uitoolkit",
+            "targetId": "unity-uitoolkit",
+            "requestSchema": "gamecult.eve.runtime_capture_request.v1",
+            "requestBuilder": "tools/eveunity/eveunity-capture-contract.mjs",
+            "advertisementPath": "web/fixtures/aetheria.provider-advertisement.json",
             "captureKind": "unity-editor-or-batchmode-png",
             "artifactKind": "png",
             "artifactPattern": "artifacts/eveunity-uitoolkit-capture/{stamp}/unity-uitoolkit.png",
@@ -1389,7 +1393,12 @@
             "authority": "Capture observes runtime projection only; provider state, command acceptance, and receipts stay provider-owned.",
             "publishProof": "Unity editor or batchmode capture artifact is attached to the runtime conformance report from EveUnity."
           },
-          "evidencePaths": [],
+          "evidencePaths": [
+            "tools/eveunity/eveunity-capture-contract.mjs",
+            "tools/eveunity/eveunity-capture-contract.test.mjs",
+            "scripts/run-eveunity-capture-contract-smoke.ps1",
+            "web/fixtures/aetheria.provider-advertisement.json"
+          ],
           "pendingProofs": [
             "Unity batchmode or editor capture artifact attached to the runtime conformance report."
           ]

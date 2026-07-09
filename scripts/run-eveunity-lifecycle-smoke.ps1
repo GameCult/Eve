@@ -168,16 +168,34 @@ if ($captureContract.ownerRepo -ne "EveUnity") {
 if ($captureContract.runtimeId -ne "unity-uitoolkit") {
   throw "EveUnity capture contract has unexpected runtime: $($captureContract.runtimeId)"
 }
+if ($captureContract.targetId -ne "unity-uitoolkit") {
+  throw "EveUnity capture contract has unexpected target: $($captureContract.targetId)"
+}
+if ($captureContract.requestSchema -ne "gamecult.eve.runtime_capture_request.v1") {
+  throw "EveUnity capture contract has unexpected request schema: $($captureContract.requestSchema)"
+}
 if ($captureContract.captureKind -ne "unity-editor-or-batchmode-png") {
   throw "EveUnity capture contract has unexpected capture kind: $($captureContract.captureKind)"
 }
 if ($captureContract.artifactKind -ne "png") {
   throw "EveUnity capture contract has unexpected artifact kind: $($captureContract.artifactKind)"
 }
-foreach ($field in @("artifactPattern", "conformanceAttachment", "requiredProvider", "requiredSurface", "authority", "publishProof")) {
+foreach ($field in @("requestBuilder", "advertisementPath", "artifactPattern", "conformanceAttachment", "requiredProvider", "requiredSurface", "authority", "publishProof")) {
   if (-not $captureContract.$field) {
     throw "EveUnity capture contract missing $field"
   }
+}
+foreach ($pathProperty in @("requestBuilder", "advertisementPath")) {
+  $relativePath = $captureContract.$pathProperty
+  $absolutePath = Join-Path $projectRoot $relativePath
+  if (-not (Test-Path -LiteralPath $absolutePath)) {
+    throw "EveUnity capture contract $pathProperty does not exist: $relativePath"
+  }
+}
+
+& (Join-Path $projectRoot "scripts\run-eveunity-capture-contract-smoke.ps1")
+if ($LASTEXITCODE -ne 0) {
+  throw "EveUnity capture contract smoke failed with exit code $LASTEXITCODE"
 }
 
 & (Join-Path $projectRoot "scripts\run-aetheria-unity-package-smoke.ps1")
