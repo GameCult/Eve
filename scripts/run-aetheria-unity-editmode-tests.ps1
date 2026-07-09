@@ -3,7 +3,8 @@ param(
   [string] $UnityExe = "C:\Program Files\Unity\Hub\Editor\6000.4.2f1\Editor\Unity.exe",
   [string] $OutputRoot = "",
   [string] $PackageName = "org.gamecult.eve.unity-uitoolkit",
-  [string] $TestAssembly = "GameCult.Eve.UnityUIToolkit.Tests"
+  [string] $TestAssembly = "GameCult.Eve.UnityUIToolkit.Tests",
+  [string] $TestFilter = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -73,6 +74,9 @@ try {
     "-testResults", $resultsPath,
     "-logFile", $logPath
   )
+  if (-not [string]::IsNullOrWhiteSpace($TestFilter)) {
+    $arguments += @("-testFilter", $TestFilter)
+  }
 
   $process = Start-Process -FilePath $UnityExe -ArgumentList $arguments -Wait -PassThru -WindowStyle Hidden
   $exitCode = $process.ExitCode

@@ -686,9 +686,14 @@ Recently cut:
   at `AetheriaRuntimeVerseRecordKeys.DaemonAssetManifest`. EveUnity still
   consumes only the generic provider/plugin contracts and sidecar transport
   ports; Aetheria keeps the gameplay and asset authority. The remaining blocker
-  is rendered-frame proof from the future EveUnity owner repo, with provider
-  receipts plus daemon snapshots driving Unity frames rather than
-  renderer-local simulation.
+  has narrowed again: Aetheria now mounts
+  `AetheriaEveUnitySceneProviderComponent` through the generic
+  `EveUnityPlayableWorldClientHost`, instantiates provider-authored daemon
+  entities under a real Unity `GameObject` scene root, and drives the generic
+  camera rig from the advertised player entity without Aetheria-specific Unity
+  client code. The remaining blocker is owner-repo PNG/frame capture from the
+  future EveUnity repo, with provider receipts plus daemon snapshots driving
+  frames rather than renderer-local simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria
@@ -1016,12 +1021,18 @@ Recently cut:
   `AetheriaRuntimeVerseRecordKeys.DaemonAssetManifest` record, submits movement
   through the advertised `gamecult.eve.command.v1` boundary, observes
   provider-owned receipts, and refreshes from daemon snapshots without
-  importing Aetheria product authority into EveUnity. Eve records this as the
-  `aetheria-playable-world-consumer-proof` observed-provider move set in
+  importing Aetheria product authority into EveUnity. Aetheria also proves the
+  generic Unity scene body, not only a recording sink:
+  `GenericEveUnityClientHostInstantiatesAetheriaDaemonWorldThroughProviderComponent`
+  mounts the public provider component through `EveUnityPlayableWorldClientHost`,
+  creates provider-authored `EveUnityPlayableWorldEntityMarker` GameObjects, and
+  applies `EveUnityPlayableWorldCameraRig` against the advertised player.
+  Eve records this as the `aetheria-playable-world-consumer-proof`
+  observed-provider move set in
   `runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json`, and
   the split-target plus Aetheria consumer smokes assert it from the conformance
-  export. The remaining blocker is live transport/rendered-frame proof from
-  the future EveUnity owner repo, not whether the Unity client is generic.
+  export. The remaining blocker is owner-repo PNG/frame capture from the future
+  EveUnity repo, not whether the Unity client is generic.
 - Aetheria now has repeatable Unity package consumer-build evidence for the
   Eve UI Toolkit runtime. `scripts/run-aetheria-unity-package-smoke.ps1`
   verifies Aetheria's Unity `Packages/manifest.json` consumes Eve's surface,

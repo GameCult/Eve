@@ -17,6 +17,7 @@ $aetheriaEveRuntimePackage = Join-Path $AetheriaRoot "Packages\org.gamecult.aeth
 $aetheriaEveRuntimeAsmdef = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\GameCult.Aetheria.EveRuntime.asmdef"
 $aetheriaSceneBridge = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\AetheriaEveUnitySceneProviderBridge.cs"
 $aetheriaSceneProviderComponent = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\AetheriaEveUnitySceneProviderComponent.cs"
+$aetheriaDaemonRuntimeTests = Join-Path $AetheriaRoot "Assets\Scripts\Tests\DaemonRuntimeDocumentTests.cs"
 $aetheriaClientState = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaClientState.cs"
 $aetheriaSurfaceCatalog = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeEveSurfaceCatalog.cs"
 $aetheriaGameSurfaceBuilder = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonGameSurfaceBuilder.cs"
@@ -46,6 +47,9 @@ if (-not (Test-Path $aetheriaSceneBridge)) {
 }
 if (-not (Test-Path $aetheriaSceneProviderComponent)) {
   throw "Aetheria Eve Unity scene provider component not found: $aetheriaSceneProviderComponent"
+}
+if (-not (Test-Path $aetheriaDaemonRuntimeTests)) {
+  throw "Aetheria daemon runtime tests not found: $aetheriaDaemonRuntimeTests"
 }
 if (-not (Test-Path $aetheriaClientState)) {
   throw "Aetheria client state not found: $aetheriaClientState"
@@ -181,12 +185,32 @@ foreach ($symbol in @(
   "stateFilePathOverride",
   "surfaceId",
   "runtimeId",
+  "public void Configure(",
+  "Dispose();",
   "Refresh",
   "Submit",
   "SubmitCommand"
 )) {
   if (-not $sceneProviderComponent.Contains($symbol)) {
     throw "Aetheria Eve Unity scene provider component missing symbol: $symbol"
+  }
+}
+
+$daemonRuntimeTests = Get-Content -Raw -LiteralPath $aetheriaDaemonRuntimeTests
+foreach ($symbol in @(
+  "GenericEveUnityClientHostInstantiatesAetheriaDaemonWorldThroughProviderComponent",
+  "AetheriaEveUnitySceneProviderComponent",
+  "provider.Configure(",
+  "EveUnityPlayableWorldClientHost",
+  "host.Configure(",
+  "rootObject.GetComponentsInChildren<EveUnityPlayableWorldEntityMarker>()",
+  "EveUnityPlayableWorldCameraRig",
+  "cameraRig.ApplyRig(0f)",
+  "TestGameObjectAssetProvider",
+  "IEveUnityGameObjectAssetProvider"
+)) {
+  if (-not $daemonRuntimeTests.Contains($symbol)) {
+    throw "Aetheria daemon runtime tests missing generic EveUnity GameObject host proof symbol: $symbol"
   }
 }
 
