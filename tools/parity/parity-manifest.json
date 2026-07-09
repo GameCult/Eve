@@ -610,11 +610,12 @@
           ]
         },
         {
-          "description": "Unity scene graph projection lowerer exists without claiming provider simulation, plugin projection, or capture ownership.",
+          "description": "Unity scene graph projection lowerer and Norn projection adapter exist without claiming provider simulation, Norn semantics, or capture ownership.",
           "status": "passed",
           "evidencePaths": [
             "runtimes/incubating/eve-unity-scene/package.json",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
+            "runtimes/incubating/eve-unity-scene/Runtime/NornGraphUnitySceneProjectionAdapter.cs",
             "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
             "scripts/run-eveunity-scene-provider-shell-smoke.ps1"
           ]

@@ -436,9 +436,10 @@ Recently cut:
 - Unity scene now has a direct split handoff smoke at
   `scripts/run-eveunity-scene-split-handoff-smoke.ps1`. The smoke verifies the
   scene runtime's current source paths for runtime body, scene graph lowering,
-  and command transport, does not treat Aetheria product paths as generic
-  runtime source, names the required Eve contracts, and keeps capture as an
-  external proof until EveUnity owns it.
+  Norn plugin projection, and command transport, does not treat Aetheria
+  product paths or Norn implementation state as generic runtime source, names
+  the required Eve contracts, and keeps capture as an external proof until
+  EveUnity owns it.
 - Runtime split handoff documents now have a catalog-backed schema,
   `gamecult.eve.runtime_split_handoff.v1`. EveConformance exports that schema
   so runtime owner repos can consume split target, move set, contract input,
