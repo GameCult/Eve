@@ -130,6 +130,16 @@ if (-not $packageManifest.version) {
 if ($packageManifest.dependencies."org.gamecult.eve.surface" -ne "0.1.0") {
   throw "EveUnity package manifest missing org.gamecult.eve.surface dependency"
 }
+$surfaceDependency = @($releaseContract.requiredPackageDependencies) | Where-Object { $_.packageName -eq "org.gamecult.eve.surface" } | Select-Object -First 1
+if (-not $surfaceDependency) {
+  throw "EveUnity release contract missing required org.gamecult.eve.surface dependency contract"
+}
+if ($surfaceDependency.ownerRepo -ne "Eve" -or $surfaceDependency.packageManager -ne "upm") {
+  throw "EveUnity release contract has unexpected surface dependency owner/package manager: $($surfaceDependency.ownerRepo)/$($surfaceDependency.packageManager)"
+}
+if ($surfaceDependency.version -ne $packageManifest.dependencies."org.gamecult.eve.surface") {
+  throw "EveUnity release contract surface dependency version mismatch: $($surfaceDependency.version)"
+}
 
 & (Join-Path $projectRoot "scripts\run-eveunity-release-contract-smoke.ps1")
 if ($LASTEXITCODE -ne 0) {
@@ -154,6 +164,25 @@ if ($testContract.testAssembly -ne "GameCult.Eve.UnityUIToolkit.Tests") {
 }
 if ($testContract.testPlatform -ne "EditMode") {
   throw "EveUnity test contract has unexpected test platform: $($testContract.testPlatform)"
+}
+$managedDependencies = @($testContract.managedAssemblyDependencies)
+$testAssemblyDefinitionPath = Join-Path $projectRoot "packages\org.gamecult.eve.unity-uitoolkit\Tests\Editor\GameCult.Eve.UnityUIToolkit.Tests.asmdef"
+$testAssemblyDefinition = Get-Content -LiteralPath $testAssemblyDefinitionPath -Raw | ConvertFrom-Json
+foreach ($dependency in @(
+  @{ assemblyName = "GameCult.Caching.dll"; packageId = "GameCult.Caching" },
+  @{ assemblyName = "GameCult.Mesh.dll"; packageId = "GameCult.Mesh" },
+  @{ assemblyName = "MessagePack.Annotations.dll"; packageId = "MessagePack.Annotations" }
+)) {
+  $record = $managedDependencies | Where-Object { $_.assemblyName -eq $dependency.assemblyName } | Select-Object -First 1
+  if (-not $record) {
+    throw "EveUnity test contract missing managed assembly dependency: $($dependency.assemblyName)"
+  }
+  if ($record.packageId -ne $dependency.packageId -or $record.packageManager -ne "nuget" -or $record.ownerRepo -ne "CultLib") {
+    throw "EveUnity test contract has unexpected managed dependency record for $($dependency.assemblyName)"
+  }
+  if (-not (@($testAssemblyDefinition.precompiledReferences) -contains $dependency.assemblyName)) {
+    throw "EveUnity test asmdef missing managed dependency precompiled reference: $($dependency.assemblyName)"
+  }
 }
 foreach ($pathProperty in @("runnerScript", "consumerProject")) {
   $candidate = $testContract.$pathProperty

@@ -164,6 +164,17 @@ foreach ($pathProperty in @("requestBuilder")) {
     throw "EveUnity scene release contract $pathProperty does not exist: $relativePath"
   }
 }
+$packageManifest = Get-Content -LiteralPath (Join-Path $projectRoot $releaseContract.versionSource) -Raw | ConvertFrom-Json
+$surfaceDependency = @($releaseContract.requiredPackageDependencies) | Where-Object { $_.packageName -eq "org.gamecult.eve.surface" } | Select-Object -First 1
+if (-not $surfaceDependency) {
+  throw "EveUnity scene release contract missing required org.gamecult.eve.surface dependency contract"
+}
+if ($surfaceDependency.ownerRepo -ne "Eve" -or $surfaceDependency.packageManager -ne "upm") {
+  throw "EveUnity scene release contract has unexpected surface dependency owner/package manager: $($surfaceDependency.ownerRepo)/$($surfaceDependency.packageManager)"
+}
+if ($surfaceDependency.version -ne $packageManifest.dependencies."org.gamecult.eve.surface") {
+  throw "EveUnity scene release contract surface dependency version mismatch: $($surfaceDependency.version)"
+}
 
 $testContract = $manifest.lifecycle.test.testContract
 foreach ($field in @("ownerRepo", "runnerKind", "runnerScript", "consumerProject", "packageName", "testAssembly", "testPlatform", "resultsArtifact", "logArtifact", "manifestMutation")) {

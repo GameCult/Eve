@@ -50,16 +50,18 @@ its version from `package.json`, and uses tag pattern
 `tools/eveunity/eveunity-release-contract.mjs` builds a
 `gamecult.eve.runtime_release_request.v1` request from the runtime capability
 manifest and UPM package manifest. The request names the package version, tag,
-artifact path, dependency set, and target `GameCult/EveUnity` repository without
-pretending Eve has published the tagged release.
+artifact path, dependency set, required package dependency owners, and target
+`GameCult/EveUnity` repository without pretending Eve has published the tagged
+release.
 
 The test stage declares the Unity EditMode runner contract: the current runner
 is `scripts/run-aetheria-unity-editmode-tests.ps1`, runs
 `GameCult.Eve.UnityUIToolkit.Tests` on `EditMode`, writes XML and log artifacts
 under `artifacts/aetheria-unity-editmode/{stamp}`, and temporarily adds
 `org.gamecult.eve.unity-uitoolkit` to Aetheria's Unity `testables`. This is a
-Unity package consumption proof. CultLib still owns the .NET/NuGet dependency
-story for its assemblies.
+Unity package consumption proof. The test contract names the CultLib-owned
+NuGet/precompiled assembly inputs Unity needs during incubation; CultLib still
+owns the .NET/NuGet dependency story for its assemblies.
 
 The capture stage declares `gamecult.eve.runtime_capture_request.v1` request
 construction through `tools/eveunity/eveunity-capture-contract.mjs`. That

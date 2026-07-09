@@ -81,6 +81,40 @@
     "dependencies": {
       "type": "object"
     },
+    "requiredPackageDependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "packageName",
+          "version",
+          "packageManager",
+          "ownerRepo"
+        ],
+        "properties": {
+          "packageName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "packageManager": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "purpose": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
     "devDependencies": {
       "type": "object"
     }

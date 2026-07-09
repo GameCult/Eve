@@ -165,11 +165,17 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.artifactPattern:artifacts/eveunity-uitoolkit-release/{version}/org.gamecult.eve.unity-uitoolkit-{version}.tgz" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.tagPattern:eveunity-uitoolkit-v{version}" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.packageRoot:packages/org.gamecult.eve.unity-uitoolkit" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.requiredPackageDependencies.0.packageName:org.gamecult.eve.surface" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.requiredPackageDependencies.0.ownerRepo:Eve" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.requiredPackageDependencies.0.packageManager:upm" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.runnerKind:unity-editmode-batchmode" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.runnerScript:scripts/run-aetheria-unity-editmode-tests.ps1" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.packageName:org.gamecult.eve.unity-uitoolkit" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.testAssembly:GameCult.Eve.UnityUIToolkit.Tests" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.testPlatform:EditMode" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.0.ownerRepo:CultLib" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.0.packageManager:nuget" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:test:testContract.managedAssemblyDependencies.1.packageId:GameCult.Mesh" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.captureKind:unity-editor-or-batchmode-png" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.artifactKind:png" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.targetId:unity-uitoolkit" `
@@ -192,6 +198,9 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requestSchema:gamecult.eve.runtime_release_request.v1" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requestBuilder:tools/eveunity/eveunity-release-contract.mjs" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactPattern:artifacts/eveunity-scene-release/{version}/org.gamecult.eve.unity-scene-{version}.tgz" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requiredPackageDependencies.0.packageName:org.gamecult.eve.surface" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requiredPackageDependencies.0.ownerRepo:Eve" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requiredPackageDependencies.0.packageManager:upm" `
   --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerKind:unity-scene-provider-shell-smoke" `
   --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerScript:scripts/run-eveunity-scene-provider-shell-smoke.ps1" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.captureKind:unity-scene-frame-png" `

@@ -254,6 +254,40 @@
                 "publishProof": {
                   "type": "string",
                   "minLength": 1
+                },
+                "requiredPackageDependencies": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "packageName",
+                      "version",
+                      "packageManager",
+                      "ownerRepo"
+                    ],
+                    "properties": {
+                      "packageName": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "version": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "packageManager": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "ownerRepo": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "purpose": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": true
+                  }
                 }
               },
               "additionalProperties": true
@@ -352,6 +386,42 @@
                 "manifestMutation": {
                   "type": "string",
                   "minLength": 1
+                },
+                "managedAssemblyDependencies": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "assemblyName",
+                      "packageId",
+                      "packageManager",
+                      "ownerRepo",
+                      "resolutionMode"
+                    ],
+                    "properties": {
+                      "assemblyName": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "packageId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "packageManager": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "ownerRepo": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "resolutionMode": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": true
+                  }
                 }
               },
               "additionalProperties": true

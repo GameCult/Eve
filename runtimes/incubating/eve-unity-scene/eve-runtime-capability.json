@@ -87,7 +87,16 @@
         "requestSchema": "gamecult.eve.runtime_release_request.v1",
         "requestBuilder": "tools/eveunity/eveunity-release-contract.mjs",
         "artifactPattern": "artifacts/eveunity-scene-release/{version}/org.gamecult.eve.unity-scene-{version}.tgz",
-        "publishProof": "Tagged Unity scene package release is created from the EveUnity repo and references the provider-agnostic scene package root."
+        "publishProof": "Tagged Unity scene package release is created from the EveUnity repo and references the provider-agnostic scene package root.",
+        "requiredPackageDependencies": [
+          {
+            "packageName": "org.gamecult.eve.surface",
+            "version": "0.1.0",
+            "packageManager": "upm",
+            "ownerRepo": "Eve",
+            "purpose": "Shared Unity DTOs for gamecult.eve.surface.v1 documents."
+          }
+        ]
       },
       "evidencePaths": [
         "runtimes/incubating/eve-unity-scene/package.json",

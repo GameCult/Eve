@@ -94,5 +94,15 @@ if ($request.artifactPath -ne $expectedArtifactPath) {
 if ($request.dependencies."org.gamecult.eve.surface" -ne $packageManifest.dependencies."org.gamecult.eve.surface") {
   throw "EveUnity scene release request lost org.gamecult.eve.surface dependency"
 }
+$surfaceDependency = @($request.requiredPackageDependencies) | Where-Object { $_.packageName -eq "org.gamecult.eve.surface" } | Select-Object -First 1
+if (-not $surfaceDependency) {
+  throw "EveUnity scene release request missing required org.gamecult.eve.surface dependency contract"
+}
+if ($surfaceDependency.ownerRepo -ne "Eve" -or $surfaceDependency.packageManager -ne "upm") {
+  throw "EveUnity scene release request has unexpected surface dependency owner/package manager: $($surfaceDependency.ownerRepo)/$($surfaceDependency.packageManager)"
+}
+if ($surfaceDependency.version -ne $packageManifest.dependencies."org.gamecult.eve.surface") {
+  throw "EveUnity scene release request surface dependency version mismatch: $($surfaceDependency.version)"
+}
 
 Write-Host "EveUnity scene release contract smoke passed: $absoluteOutputPath"

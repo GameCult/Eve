@@ -1541,6 +1541,12 @@ function compareTestContract(expected, actual, label) {
   if (actual.consumerProject && !existsSync(actual.consumerProject)) {
     errors.push(`${label}.consumerProject:${actual.consumerProject}:missing`);
   }
+  errors.push(...compareDependencyRecords(
+    expected.managedAssemblyDependencies || [],
+    actual.managedAssemblyDependencies || [],
+    `${label}.managedAssemblyDependencies`,
+    ["assemblyName", "packageId", "packageManager", "ownerRepo", "resolutionMode"],
+  ));
   return errors;
 }
 
@@ -1559,6 +1565,30 @@ function compareReleaseContract(expected, actual, label) {
   for (const key of ["packageRoot", "versionSource", "requestBuilder"]) {
     if (actual[key] && !existsSync(path.join(repoRoot, actual[key]))) {
       errors.push(`${label}.${key}:${actual[key]}:missing`);
+    }
+  }
+  errors.push(...compareDependencyRecords(
+    expected.requiredPackageDependencies || [],
+    actual.requiredPackageDependencies || [],
+    `${label}.requiredPackageDependencies`,
+    ["packageName", "version", "packageManager", "ownerRepo", "purpose"],
+  ));
+  return errors;
+}
+
+function compareDependencyRecords(expectedRecords, actualRecords, label, keys) {
+  const errors = [];
+  for (const expected of expectedRecords) {
+    const identityKey = expected.packageName ? "packageName" : "assemblyName";
+    const actual = actualRecords.find(candidate => candidate?.[identityKey] === expected[identityKey]);
+    if (!actual) {
+      errors.push(`${label}:${expected[identityKey]}:missing`);
+      continue;
+    }
+    for (const key of keys) {
+      if ((expected[key] || "") !== (actual[key] || "")) {
+        errors.push(`${label}:${expected[identityKey]}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
+      }
     }
   }
   return errors;

@@ -27,6 +27,15 @@ test("builds EveUnity UPM release request from package manifest", () => {
   assert.equal(request.artifactKind, "upm-package");
   assert.equal(request.artifactPath, "artifacts/eveunity-uitoolkit-release/0.1.0/org.gamecult.eve.unity-uitoolkit-0.1.0.tgz");
   assert.equal(request.dependencies["org.gamecult.eve.surface"], "0.1.0");
+  assert.deepEqual(request.requiredPackageDependencies, [
+    {
+      packageName: "org.gamecult.eve.surface",
+      version: "0.1.0",
+      packageManager: "upm",
+      ownerRepo: "Eve",
+      purpose: "Shared Unity DTOs for gamecult.eve.surface.v1 documents.",
+    },
+  ]);
 });
 
 test("rejects package manifests that do not match the release contract package", () => {
@@ -35,6 +44,15 @@ test("rejects package manifests that do not match the release contract package",
   assert.throws(
     () => buildUnityReleaseRequest({ capabilityManifest, packageManifest: wrongPackage }),
     /package name mismatch/,
+  );
+});
+
+test("rejects package manifests missing required UPM dependencies", () => {
+  const missingDependencyPackage = { ...packageManifest, dependencies: {} };
+
+  assert.throws(
+    () => buildUnityReleaseRequest({ capabilityManifest, packageManifest: missingDependencyPackage }),
+    /must depend on org\.gamecult\.eve\.surface/,
   );
 });
 
@@ -57,4 +75,5 @@ test("builds EveUnity scene UPM release request from package manifest", () => {
   assert.equal(request.artifactKind, "upm-package");
   assert.equal(request.artifactPath, "artifacts/eveunity-scene-release/0.1.0/org.gamecult.eve.unity-scene-0.1.0.tgz");
   assert.equal(request.dependencies["org.gamecult.eve.surface"], "0.1.0");
+  assert.equal(request.requiredPackageDependencies[0].ownerRepo, "Eve");
 });

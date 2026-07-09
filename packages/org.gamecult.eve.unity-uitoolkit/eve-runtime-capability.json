@@ -81,7 +81,16 @@
         "requestSchema": "gamecult.eve.runtime_release_request.v1",
         "requestBuilder": "tools/eveunity/eveunity-release-contract.mjs",
         "artifactPattern": "artifacts/eveunity-uitoolkit-release/{version}/org.gamecult.eve.unity-uitoolkit-{version}.tgz",
-        "publishProof": "Tagged UPM release is created from the EveUnity repo and references this package root."
+        "publishProof": "Tagged UPM release is created from the EveUnity repo and references this package root.",
+        "requiredPackageDependencies": [
+          {
+            "packageName": "org.gamecult.eve.surface",
+            "version": "0.1.0",
+            "packageManager": "upm",
+            "ownerRepo": "Eve",
+            "purpose": "Shared Unity DTOs for gamecult.eve.surface.v1 documents."
+          }
+        ]
       },
       "evidencePaths": [
         "packages/org.gamecult.eve.unity-uitoolkit/package.json",
@@ -110,7 +119,30 @@
         "testPlatform": "EditMode",
         "resultsArtifact": "artifacts/aetheria-unity-editmode/{stamp}/unity-editmode-results.xml",
         "logArtifact": "artifacts/aetheria-unity-editmode/{stamp}/unity-editmode.log",
-        "manifestMutation": "Temporarily adds org.gamecult.eve.unity-uitoolkit to Aetheria Packages/manifest.json testables and restores the manifest after the run."
+        "manifestMutation": "Temporarily adds org.gamecult.eve.unity-uitoolkit to Aetheria Packages/manifest.json testables and restores the manifest after the run.",
+        "managedAssemblyDependencies": [
+          {
+            "assemblyName": "GameCult.Caching.dll",
+            "packageId": "GameCult.Caching",
+            "packageManager": "nuget",
+            "ownerRepo": "CultLib",
+            "resolutionMode": "Unity precompiled reference during EveUnity incubation."
+          },
+          {
+            "assemblyName": "GameCult.Mesh.dll",
+            "packageId": "GameCult.Mesh",
+            "packageManager": "nuget",
+            "ownerRepo": "CultLib",
+            "resolutionMode": "Unity precompiled reference during EveUnity incubation."
+          },
+          {
+            "assemblyName": "MessagePack.Annotations.dll",
+            "packageId": "MessagePack.Annotations",
+            "packageManager": "nuget",
+            "ownerRepo": "CultLib",
+            "resolutionMode": "Unity precompiled reference during EveUnity incubation."
+          }
+        ]
       },
       "evidencePaths": [
         "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/GameCult.Eve.UnityUIToolkit.Tests.asmdef",

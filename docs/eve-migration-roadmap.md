@@ -557,8 +557,9 @@ Recently cut:
   `testables` manifest mutation. The lifecycle smoke validates the runner
   script and Aetheria project, parity compares the contract against the ledger,
   and the runtime-owner consumer smoke asserts exported test fields. This is
-  Unity package consumption proof for CultLib-produced assemblies; CultLib
-  remains the owner of the .NET/NuGet dependency story.
+  Unity package consumption proof for CultLib-produced assemblies; the test
+  contract names those CultLib-owned NuGet/precompiled assembly inputs
+  explicitly. CultLib remains the owner of the .NET/NuGet dependency story.
 - EveUnity release lifecycle now carries a structured UPM release contract.
   `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
   names the package root, version source, tag pattern, artifact kind, and
@@ -566,10 +567,11 @@ Recently cut:
   `tools/eveunity/eveunity-release-contract.mjs` now builds a
   `gamecult.eve.runtime_release_request.v1` request from the runtime capability
   manifest and UPM package manifest, deriving the `eveunity-uitoolkit-v{version}`
-  tag, package dependency set, and UPM artifact path. The lifecycle smoke
-  validates that contract against the package manifest, parity compares it
-  against the ledger, and the runtime-owner consumer smoke asserts the exported
-  release fields without pretending the tagged EveUnity release already exists.
+  tag, package dependency set, required package dependency owners, and UPM
+  artifact path. The lifecycle smoke validates that contract against the package
+  manifest, parity compares it against the ledger, and the runtime-owner
+  consumer smoke asserts the exported release fields without pretending the
+  tagged EveUnity release already exists.
 - EveUnity capture lifecycle now carries a structured pending capture contract.
   `captureContract` names the Unity UI Toolkit runtime, capture kind, PNG
   artifact pattern, conformance attachment point, required Aetheria provider
@@ -852,11 +854,12 @@ Recently cut:
   `GameCult.Eve.UnityUIToolkit.Tests` in Unity batchmode, writes XML and log
   artifacts under `artifacts/aetheria-unity-editmode`, and restores
   `Packages/manifest.json` before returning. The Brokkr/CultMesh DLL references
-  in the Unity test asmdef are Unity package assembly plumbing: CultLib already
-  owns the .NET/NuGet dependency story. EveUnity's split blocker is proving how
-  the Unity package resolves those assemblies after it leaves Eve incubation,
-  not inventing a dependency system for CultLib. This proves the incubating test
-  lifecycle; it does not make Eve own Unity's final runtime lifecycle.
+  in the Unity test asmdef are now mirrored by
+  `testContract.managedAssemblyDependencies`, with CultLib named as the
+  NuGet/package owner. EveUnity's split blocker is proving how the Unity package
+  resolves those assemblies after it leaves Eve incubation, not inventing a
+  dependency system for CultLib. This proves the incubating test lifecycle; it
+  does not make Eve own Unity's final runtime lifecycle.
 - Aetheria now has repeatable Unity package consumer-build evidence for the
   Eve UI Toolkit runtime. `scripts/run-aetheria-unity-package-smoke.ps1`
   verifies Aetheria's Unity `Packages/manifest.json` consumes Eve's surface and

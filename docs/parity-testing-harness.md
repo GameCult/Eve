@@ -404,10 +404,12 @@ exist. The current lifecycle proof is deliberately split:
 
 - release: `tools/eveunity/eveunity-release-contract.mjs` builds a typed
   `gamecult.eve.runtime_release_request.v1` request from the runtime capability
-  manifest and UPM package manifest; the tagged EveUnity release remains a
-  split blocker;
+  manifest and UPM package manifest, including required package dependency
+  owners; the tagged EveUnity release remains a split blocker;
 - test: package-owned EditMode tests run through Aetheria in Unity batchmode,
-  and Aetheria can build the package through Unity's generated project;
+  and Aetheria can build the package through Unity's generated project. The
+  test contract names CultLib-owned NuGet/precompiled assembly inputs without
+  making EveUnity own CultLib package distribution;
 - capture: `tools/eveunity/eveunity-capture-contract.mjs` builds a typed
   `gamecult.eve.runtime_capture_request.v1` request from the runtime capability
   manifest and Aetheria provider advertisement; Unity editor or batchmode PNG

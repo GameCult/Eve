@@ -27,8 +27,21 @@ export function buildUnityReleaseRequest({
   if (!packageManifest.version || !/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(packageManifest.version)) {
     throw new Error(`package version is not a SemVer-compatible release version: ${packageManifest.version || "missing"}`);
   }
-  if (packageManifest.dependencies && !packageManifest.dependencies["org.gamecult.eve.surface"]) {
-    throw new Error("Unity UI Toolkit package must depend on org.gamecult.eve.surface");
+  const requiredPackageDependencies = Array.isArray(releaseContract.requiredPackageDependencies)
+    ? releaseContract.requiredPackageDependencies
+    : [{ packageName: "org.gamecult.eve.surface", version: "0.1.0", packageManager: "upm", ownerRepo: "Eve" }];
+  const packageDependencies = packageManifest.dependencies || {};
+  for (const dependency of requiredPackageDependencies) {
+    if (!dependency?.packageName) {
+      throw new Error("release contract requiredPackageDependencies entries must name packageName");
+    }
+    const actualVersion = packageDependencies[dependency.packageName];
+    if (!actualVersion) {
+      throw new Error(`${releaseContract.packageName} must depend on ${dependency.packageName}`);
+    }
+    if (dependency.version && actualVersion !== dependency.version) {
+      throw new Error(`${releaseContract.packageName} dependency ${dependency.packageName} expected ${dependency.version} got ${actualVersion}`);
+    }
   }
 
   const tagName = replaceVersion(releaseContract.tagPattern, packageManifest.version);
@@ -54,6 +67,7 @@ export function buildUnityReleaseRequest({
     sourceCapabilityManifestPath: capabilityManifestPath,
     sourcePackageManifestPath: packageManifestPath,
     dependencies: packageManifest.dependencies || {},
+    requiredPackageDependencies,
   };
 }
 
