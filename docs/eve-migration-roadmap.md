@@ -407,6 +407,11 @@ Recently cut:
   only types the pending command boundary, package release, provider-shell
   smoke, and Electron window capture contracts so EveElectron can consume the
   conformance export without pretending the generic shell already exists.
+- Electron and TUI pending lifecycle details now live in their runtime
+  capability manifests rather than being duplicated in
+  `tools/parity/parity-manifest.json`. The parity ledger points at the
+  capability documents; the conformance export reads command/lifecycle contracts
+  from those documents for pending runtimes.
 - EveTui now has a pending split target and handoff at
   `runtimes/incubating/eve-tui/evetui-split-handoff.json`. It does not claim
   the advertised `tui` world-surface lowering target yet. The handoff draws the
