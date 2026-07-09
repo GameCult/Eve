@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GameCult.Eve.Surface;
 using GameCult.Mesh;
 using NUnit.Framework;
+using UnityEngine;
 
 #nullable enable
 
@@ -330,6 +331,57 @@ namespace GameCult.Eve.UnityScene.Tests
             Assert.That(runtime.LastReceipt, Is.Not.Null);
             Assert.That(runtime.LastReceipt!.IsProviderOwned, Is.True);
             Assert.That(runtime.LastReceipt.ShouldRefreshProviderSurface, Is.True);
+        }
+
+        [Test]
+        public void PlayableWorldClientHostMountsInterfaceProviderWithoutProviderTypes()
+        {
+            var rootObject = new GameObject("generic-eve-world-root");
+            var hostObject = new GameObject("generic-eve-client");
+            hostObject.SetActive(false);
+
+            try
+            {
+                var provider = hostObject.AddComponent<FakePlayableWorldProviderComponent>();
+                provider.Set(
+                    new EveUnitySceneProviderSurfaceDocument(
+                        PlayableArpgDocument(),
+                        Advertisement("aetheria.daemon.game"),
+                        "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                        1),
+                    new EveUnityPlayableWorldAssetManifestDocument(
+                        "cultmesh://aetheria/assets/manifest",
+                        new[]
+                        {
+                            new EveUnityPlayableWorldAssetManifestDocumentEntry(
+                                "cultmesh://aetheria/assets/map/entity/player",
+                                "player",
+                                "",
+                                "aetheria.vanguard")
+                        },
+                        "aetheria"));
+
+                var host = hostObject.AddComponent<EveUnityPlayableWorldClientHost>();
+                host.Configure(rootObject.transform, provider, provider, provider, provider);
+
+                var presentation = host.Connect();
+                var moveIntent = host.SubmitMoveIntent("player-vanguard", 3f, 0f, 4f);
+
+                Assert.That(presentation.ActiveEntities, Is.EqualTo(3));
+                Assert.That(host.ActiveWorld, Is.Not.Null);
+                Assert.That(host.ActiveWorld!.PlayerEntityId, Is.EqualTo("player-vanguard"));
+                Assert.That(host.ActiveWorld.AssetManifest, Is.EqualTo("cultmesh://aetheria/assets/manifest"));
+                Assert.That(rootObject.transform.childCount, Is.EqualTo(3));
+                Assert.That(provider.RefreshCount, Is.EqualTo(1));
+                Assert.That(provider.Submitted.Count, Is.EqualTo(1));
+                Assert.That(provider.Submitted[0], Is.SameAs(moveIntent));
+                Assert.That(moveIntent.CommandBoundary, Is.EqualTo("aetheria.daemon.commands"));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(hostObject);
+                UnityEngine.Object.DestroyImmediate(rootObject);
+            }
         }
 
         [Test]
@@ -1195,6 +1247,76 @@ namespace GameCult.Eve.UnityScene.Tests
             {
                 CurrentDocument = document;
                 DocumentAvailable?.Invoke(document);
+            }
+        }
+
+        private sealed class FakePlayableWorldProviderComponent :
+            MonoBehaviour,
+            IEveUnitySceneProviderSurfaceDocumentSource,
+            IEveUnityPlayableWorldAssetManifestDocumentSource,
+            IEveUnitySceneCommandSink,
+            IEveUnitySceneCommandReceiptSource,
+            IEveUnityProviderRefreshSource
+        {
+            public List<EveSurfaceCommandRequest> Submitted { get; } = new List<EveSurfaceCommandRequest>();
+
+            public int RefreshCount { get; private set; }
+
+            public string SinkKind => "fake-provider-command-sink";
+
+            public string ManifestRef => CurrentDocument.ManifestRef;
+
+            public EveUnitySceneProviderSurfaceDocument CurrentSurfaceDocument { get; private set; } =
+                new EveUnitySceneProviderSurfaceDocument(
+                    PlayableArpgDocument(),
+                    Advertisement("aetheria.daemon.game"),
+                    "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                    1);
+
+            public EveUnityPlayableWorldAssetManifestDocument CurrentDocument { get; private set; } =
+                new EveUnityPlayableWorldAssetManifestDocument(
+                    "cultmesh://aetheria/assets/manifest",
+                    Array.Empty<EveUnityPlayableWorldAssetManifestDocumentEntry>(),
+                    "aetheria");
+
+            EveUnitySceneProviderSurfaceDocument IEveUnitySceneProviderSurfaceDocumentSource.CurrentDocument =>
+                CurrentSurfaceDocument;
+
+            public event Action<EveUnitySceneProviderSurfaceDocument>? DocumentAvailable;
+
+            public event Action<EveUnityPlayableWorldAssetManifestDocument>? AssetManifestDocumentAvailable;
+
+            event Action<EveUnityPlayableWorldAssetManifestDocument> IEveUnityPlayableWorldAssetManifestDocumentSource.DocumentAvailable
+            {
+                add => AssetManifestDocumentAvailable += value;
+                remove => AssetManifestDocumentAvailable -= value;
+            }
+
+            public event Action<EveUnitySceneCommandReceipt>? ReceiptAvailable;
+
+            public void Set(
+                EveUnitySceneProviderSurfaceDocument surfaceDocument,
+                EveUnityPlayableWorldAssetManifestDocument assetManifest)
+            {
+                CurrentSurfaceDocument = surfaceDocument;
+                CurrentDocument = assetManifest;
+            }
+
+            public void Refresh()
+            {
+                RefreshCount++;
+                DocumentAvailable?.Invoke(CurrentSurfaceDocument);
+                AssetManifestDocumentAvailable?.Invoke(CurrentDocument);
+            }
+
+            public void Submit(EveSurfaceCommandRequest request)
+            {
+                Submitted.Add(request);
+            }
+
+            public void PublishReceipt(EveUnitySceneCommandReceipt receipt)
+            {
+                ReceiptAvailable?.Invoke(receipt);
             }
         }
     }

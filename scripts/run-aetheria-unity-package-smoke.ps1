@@ -15,6 +15,7 @@ $surfaceProject = Join-Path $AetheriaRoot "GameCult.Eve.Surface.csproj"
 $aetheriaEveRuntimePackage = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\package.json"
 $aetheriaEveRuntimeAsmdef = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\GameCult.Aetheria.EveRuntime.asmdef"
 $aetheriaSceneBridge = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\AetheriaEveUnitySceneProviderBridge.cs"
+$aetheriaSceneProviderComponent = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\AetheriaEveUnitySceneProviderComponent.cs"
 $aetheriaGameSurfaceBuilder = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonGameSurfaceBuilder.cs"
 if (-not (Test-Path $manifestPath)) {
   throw "Aetheria Unity package manifest not found: $manifestPath"
@@ -33,6 +34,9 @@ if (-not (Test-Path $aetheriaEveRuntimeAsmdef)) {
 }
 if (-not (Test-Path $aetheriaSceneBridge)) {
   throw "Aetheria Eve Unity scene provider bridge not found: $aetheriaSceneBridge"
+}
+if (-not (Test-Path $aetheriaSceneProviderComponent)) {
+  throw "Aetheria Eve Unity scene provider component not found: $aetheriaSceneProviderComponent"
 }
 if (-not (Test-Path $aetheriaGameSurfaceBuilder)) {
   throw "Aetheria daemon game surface builder not found: $aetheriaGameSurfaceBuilder"
@@ -85,10 +89,32 @@ foreach ($symbol in @(
   "IEveUnitySceneProviderSurfaceDocumentSource",
   "IEveUnityPlayableWorldAssetManifestDocumentSource",
   "IEveUnitySceneCommandSink",
+  "IEveUnityProviderRefreshSource",
+  "ManifestRef",
   "AetheriaEveRuntimeUnityHooks.RequireControl"
 )) {
   if (-not $sceneBridge.Contains($symbol)) {
     throw "Aetheria Eve Unity scene bridge missing symbol: $symbol"
+  }
+}
+
+$sceneProviderComponent = Get-Content -Raw -LiteralPath $aetheriaSceneProviderComponent
+foreach ($symbol in @(
+  "AetheriaEveUnitySceneProviderComponent",
+  "MonoBehaviour",
+  "IEveUnitySceneProviderSurfaceDocumentSource",
+  "IEveUnityPlayableWorldAssetManifestDocumentSource",
+  "IEveUnitySceneCommandSink",
+  "IEveUnityProviderRefreshSource",
+  "AetheriaEveUnitySceneProviderBridge",
+  "stateFilePathOverride",
+  "surfaceId",
+  "runtimeId",
+  "Refresh",
+  "Submit"
+)) {
+  if (-not $sceneProviderComponent.Contains($symbol)) {
+    throw "Aetheria Eve Unity scene provider component missing symbol: $symbol"
   }
 }
 
