@@ -290,6 +290,13 @@ Recently cut:
   `packs/runtime.json`, the runtime-owner smoke asserts them, and the generic
   conformance smoke now reports the advertised but unclaimed `unity-scene`
   lowering target as an explicit capability gap.
+- EveElectron now has a pending split target and handoff at
+  `runtimes/incubating/eve-electron/eveelectron-split-handoff.json`. It does
+  not claim an Electron runtime body yet. The handoff draws the line between a
+  future provider-agnostic Electron shell and Aetheria's Starbridge RTS product
+  client, and the split-target consumer smoke keeps the missing shell,
+  provider-advertisement consumption, command transport, and capture proofs
+  visible as blockers.
 - Aetheria interactive world surfaces now carry a structured provider-owned
   `worldInteraction` contract. The provider advertisement names projection
   kind, provider state schemas, daemon command boundary, receipt schema,

@@ -303,7 +303,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   }
   const commandTransportSmokeErrors = await validateRuntimeCommandTransportSmoke(runtime);
   const capabilityManifestErrors = await validateRuntimeCapabilityManifest(runtime);
-  const splitHandoffPath = await readRuntimeSplitHandoffPath(runtime.capabilityManifest);
+  const splitHandoffPath = await readRuntimeSplitHandoffPath(runtime);
   const localProviderCatalogErrors = await validateRuntimeLocalProviderCatalog(runtime);
   const missingIncubationFields = requiredIncubationFields(runtime).filter(field => !runtime[field]);
   const pluginCapabilityGaps = collectPluginCapabilityGaps(runtime, fixtureResults);
@@ -407,7 +407,9 @@ async function validateRuntimeLocalProviderCatalog(runtime) {
   return errors;
 }
 
-async function readRuntimeSplitHandoffPath(capabilityManifest) {
+async function readRuntimeSplitHandoffPath(runtime) {
+  if (runtime?.splitHandoffPath) return runtime.splitHandoffPath;
+  const capabilityManifest = runtime?.capabilityManifest;
   if (!capabilityManifest?.manifestPath) return "";
   const documentPath = path.join(repoRoot, capabilityManifest.manifestPath);
   if (!existsSync(documentPath)) return "";

@@ -43,7 +43,12 @@ try {
     --expect-split-target-proof "EveUnity:EveUnity split handoff is machine-readable" `
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target-blocker "EveUnity:Unity batchmode EditMode runner" `
-    --expect-split-target-blocker "EveUnity:Unity batchmode or editor capture artifact"
+    --expect-split-target-blocker "EveUnity:Unity batchmode or editor capture artifact" `
+    --expect-split-target EveElectron `
+    --expect-split-target-status EveElectron:incubating `
+    --expect-split-target-proof "EveElectron:EveElectron split handoff is machine-readable" `
+    --expect-split-target-blocker "EveElectron:runtime:electron-shell:status:pending" `
+    --expect-split-target-blocker "EveElectron:Electron shell runtime body exists outside Aetheria product code"
   if ($LASTEXITCODE -ne 0) {
     throw "Split target conformance consumer smoke failed with exit code $LASTEXITCODE"
   }

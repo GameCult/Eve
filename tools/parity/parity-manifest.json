@@ -580,9 +580,71 @@
         "Unity batchmode EditMode runner is owned by EveUnity rather than Eve incubation.",
         "Unity batchmode or editor capture artifact is attached to the runtime conformance report."
       ]
+    },
+    {
+      "id": "EveElectron",
+      "ownerRepo": "EveElectron",
+      "repoRole": "runtime-target",
+      "status": "pending",
+      "runtimes": ["electron-shell"],
+      "requiredRuntimeStatuses": ["active"],
+      "requiredFeatures": ["providerAdvertisements", "embeddedDocuments"],
+      "requiredPlugins": [],
+      "proofs": [
+        {
+          "description": "EveElectron split handoff is machine-readable.",
+          "status": "passed",
+          "evidencePaths": [
+            "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
+            "docs/eve-migration-roadmap.md",
+            "docs/parity-testing-harness.md"
+          ]
+        }
+      ],
+      "pendingProofs": [
+        "Electron shell runtime body exists outside Aetheria product code.",
+        "Electron consumes provider advertisements without Aetheria source-layout knowledge.",
+        "Electron emits gamecult.eve.command.v1 through provider command boundaries.",
+        "Electron capture artifacts are attached to conformance output."
+      ]
     }
   ],
   "runtimes": [
+    {
+      "id": "electron-shell",
+      "title": "Electron shell",
+      "kind": "pending",
+      "ownerRepo": "EveElectron",
+      "repoRole": "runtime-target",
+      "splitTarget": "EveElectron",
+      "graduationTrigger": "Split when Electron has a provider-agnostic shell body, provider advertisement consumption, command transport, packaged app lifecycle, and capture evidence independent of Aetheria product code.",
+      "splitHandoffPath": "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
+      "requiredFixtures": ["embedded-surface", "aetheria-world"],
+      "pluginFixtures": [],
+      "supportedFeatures": [],
+      "supportedPlugins": [],
+      "unsupportedPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "reason": "Electron has no generic runtime body yet; Sai projection belongs behind provider/plugin advertisements once EveElectron exists."
+        },
+        {
+          "pluginId": "norn.graph",
+          "reason": "Electron has no generic runtime body yet; Norn graph projection belongs behind provider/plugin advertisements once EveElectron exists."
+        },
+        {
+          "pluginId": "tex.math",
+          "reason": "Electron has no generic runtime body yet; TeX projection belongs behind provider/plugin advertisements once EveElectron exists."
+        }
+      ],
+      "expectedPaths": [
+        "runtimes/incubating/eve-electron/eveelectron-split-handoff.json"
+      ],
+      "capture": {
+        "status": "missing",
+        "note": "Electron capture is a split blocker until EveElectron owns a provider-agnostic shell."
+      }
+    },
     {
       "id": "web",
       "title": "Web reference",

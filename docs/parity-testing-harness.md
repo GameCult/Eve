@@ -199,11 +199,14 @@ Split-target consumer smoke:
 powershell -ExecutionPolicy Bypass -File .\scripts\run-split-target-conformance-consumer-smoke.ps1
 ```
 
-That script asserts that EveFlutter and EveUnity are exported as incubating
-split targets, that their current split-readiness proofs are passed, and that
-their graduation blockers remain visible to consumers. A target being present
-is not enough; future owner repos must be able to consume why it is or is not
-ready to leave Eve incubation.
+That script asserts that EveFlutter, EveUnity, and EveElectron are exported as
+incubating split targets, that their current split-readiness proofs are passed,
+and that their graduation blockers remain visible to consumers. A target being
+present is not enough; future owner repos must be able to consume why it is or
+is not ready to leave Eve incubation. EveElectron is intentionally pending: its
+handoff names the generic Electron shell boundary, while the Starbridge RTS
+client remains Aetheria-owned product code until a provider-agnostic shell
+exists.
 
 The Flutter widget smoke also exercises `EveProviderCatalog` and
 `EveProviderPicker` against a conformance-export-shaped provider list. That is

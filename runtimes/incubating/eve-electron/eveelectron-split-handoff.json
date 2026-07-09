@@ -1,0 +1,66 @@
+{
+  "schema": "gamecult.eve.runtime_split_handoff.v1",
+  "splitTarget": "EveElectron",
+  "ownerRepo": "EveElectron",
+  "currentHostRepo": "Eve",
+  "runtimeId": "electron-shell",
+  "packageName": "eve-electron",
+  "sourcePackageRoot": "runtimes/incubating/eve-electron",
+  "destinationPackageRoot": "packages/eve-electron",
+  "authorityBoundary": "EveElectron owns generic Electron shell projection, window lifecycle, packaged app build glue, provider advertisement consumption, command transport, capture, and shell-level plugin projection adapters. Aetheria owns Starbridge state, product-specific RTS flows, assets, command authorization, receipts, and authored provider surfaces. Eve keeps the surface, command, provider advertisement, plugin advertisement, and conformance contracts.",
+  "moveSets": [
+    {
+      "id": "electron-shell-runtime",
+      "stage": "runtime-body",
+      "currentPaths": [],
+      "observedProviderPaths": [
+        "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\Electron",
+        "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\Client",
+        "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\tsconfig.electron.json"
+      ],
+      "destinationOwner": "EveElectron",
+      "replacementProof": "EveElectron hosts a provider-agnostic Electron shell that loads provider advertisements and lowers Eve surfaces without importing Aetheria client modules."
+    },
+    {
+      "id": "electron-command-transport",
+      "stage": "command",
+      "currentPaths": [],
+      "observedProviderPaths": [
+        "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\Client\\app.ts",
+        "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\Electron\\preload.cjs",
+        "E:\\Projects\\Aetheria\\Aetheria.Rts.Web\\Electron\\aetheria-cultmesh.ts"
+      ],
+      "destinationOwner": "EveElectron",
+      "replacementProof": "Electron emits gamecult.eve.command.v1 intents through the provider-advertised command boundary and receives provider receipts instead of mutating local product state."
+    },
+    {
+      "id": "electron-capture-lifecycle",
+      "stage": "capture",
+      "currentPaths": [],
+      "destinationOwner": "EveElectron",
+      "replacementProof": "EveElectron attaches desktop-window capture artifacts to conformance output for at least one non-Aetheria provider and one Aetheria scenario."
+    }
+  ],
+  "contractInputs": [
+    "gamecult.eve.surface.v1",
+    "gamecult.eve.command.v1",
+    "gamecult.eve.provider_advertisement.v1",
+    "gamecult.eve.plugin_advertisement.v1",
+    "gamecult.eve.plugin.v1",
+    "gamecult.eve.conformance_export.v1"
+  ],
+  "forbiddenImports": [
+    "Aetheria RTS client modules as EveElectron runtime authority",
+    "Aetheria Starbridge state as Electron shell truth",
+    "provider-specific IPC contracts that bypass gamecult.eve.command.v1",
+    "plugin semantic internals",
+    "renderer-local product state as daemon truth"
+  ],
+  "requiredExternalProofs": [
+    "EveElectron publishes a runtime capability manifest with provider advertisement consumption and command transport.",
+    "EveElectron lowers at least one generic Eve provider surface that is not Aetheria.",
+    "EveElectron lowers Aetheria world/editor surfaces through provider advertisements without importing Aetheria internals.",
+    "Aetheria keeps Starbridge-specific UI, assets, authored flows, and receipts in the Aetheria repo.",
+    "EveElectron attaches Electron capture artifacts to conformance output."
+  ]
+}
