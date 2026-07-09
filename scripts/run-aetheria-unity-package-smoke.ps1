@@ -17,6 +17,7 @@ $aetheriaEveRuntimePackage = Join-Path $AetheriaRoot "Packages\org.gamecult.aeth
 $aetheriaEveRuntimeAsmdef = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\GameCult.Aetheria.EveRuntime.asmdef"
 $aetheriaSceneBridge = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\AetheriaEveUnitySceneProviderBridge.cs"
 $aetheriaSceneProviderComponent = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\AetheriaEveUnitySceneProviderComponent.cs"
+$aetheriaSurfaceCatalog = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeEveSurfaceCatalog.cs"
 $aetheriaGameSurfaceBuilder = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonGameSurfaceBuilder.cs"
 $aetheriaDaemonOperationsClient = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonOperationsClient.cs"
 if (-not (Test-Path $manifestPath)) {
@@ -42,6 +43,9 @@ if (-not (Test-Path $aetheriaSceneBridge)) {
 }
 if (-not (Test-Path $aetheriaSceneProviderComponent)) {
   throw "Aetheria Eve Unity scene provider component not found: $aetheriaSceneProviderComponent"
+}
+if (-not (Test-Path $aetheriaSurfaceCatalog)) {
+  throw "Aetheria Eve surface catalog not found: $aetheriaSurfaceCatalog"
 }
 if (-not (Test-Path $aetheriaGameSurfaceBuilder)) {
   throw "Aetheria daemon game surface builder not found: $aetheriaGameSurfaceBuilder"
@@ -131,6 +135,9 @@ foreach ($symbol in @(
   "Connect",
   "Disconnect",
   "SubmitCommand",
+  "ReadAdvertisedSurface",
+  "runtimeState.ProviderAdvertisement.Latest",
+  "WorldInteraction",
   "AetheriaEveRuntimeUnityHooks.RequireControl",
   "ToReceipt(request, daemonEnvelope)",
   "ToReceipt(request, envelope)"
@@ -164,6 +171,24 @@ foreach ($symbol in @(
 )) {
   if (-not $sceneProviderComponent.Contains($symbol)) {
     throw "Aetheria Eve Unity scene provider component missing symbol: $symbol"
+  }
+}
+
+$surfaceCatalog = Get-Content -Raw -LiteralPath $aetheriaSurfaceCatalog
+foreach ($symbol in @(
+  "AetheriaRuntimeEveWorldInteractionAdvertisement",
+  "SurfaceKind",
+  "WorldInteraction",
+  "Find",
+  '"interactive-world"',
+  '"provider-authored-world-surface"',
+  '"provider-authored-world-editor-surface"',
+  '"unity-scene"',
+  "AetheriaRuntimeDaemonSchemas.EveCommandAcceptanceStatus",
+  '"provider-owns-world-state-assets-command-acceptance-and-receipts"'
+)) {
+  if (-not $surfaceCatalog.Contains($symbol)) {
+    throw "Aetheria Eve surface catalog missing advertised world-interaction symbol: $symbol"
   }
 }
 

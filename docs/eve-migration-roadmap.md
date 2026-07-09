@@ -674,14 +674,16 @@ Recently cut:
   `AetheriaEveUnitySceneProviderBridge` as an
   `IEveUnitySceneLiveProviderTransport`; the generic Eve live bridge consumes
   that transport and drives `EveUnityPlayableWorldRuntime` without the runtime
-  importing Aetheria scene classes. The next blocker is advertisement-owned live
-  proof: Aetheria's provider advertisement and surface catalog must publish the
-  world interaction metadata that the Unity scene document needs, so
-  `AetheriaEveUnitySceneProviderBridge` stops fabricating projection kind,
-  command boundary, receipt schema, ownership, and pointer metadata locally.
-  After that cut, implement concrete CultMesh/CultCache readers for provider
-  surface and asset manifest documents and prove provider receipts plus daemon
-  snapshots drive rendered Unity frames rather than renderer-local simulation.
+  importing Aetheria scene classes. Aetheria's provider advertisement and
+  surface catalog now publish the world interaction metadata the Unity scene
+  document needs: surface kind, projection kind, command boundary, receipt
+  schema, ownership, lowering targets, state schemas, and record pointer. The
+  Aetheria Unity bridge now selects that provider-owned advertisement instead of
+  fabricating the Unity scene metadata locally. The next blocker is concrete
+  CultMesh/CultCache live reading: provider surface and asset manifest documents
+  must be consumed through real live record readers, then provider receipts plus
+  daemon snapshots must drive rendered Unity frames rather than renderer-local
+  simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria
