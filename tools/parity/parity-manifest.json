@@ -800,7 +800,7 @@
         },
         {
           "path": "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
-          "contains": ["selects the active advertised provider surface", "lowers provider surface trees into an Electron shell projection", "lowers Sai, Norn, and TeX sidecar plugin shells without owning semantics", "embeddedDocuments", "norn.map", "sai-vn-stage-shell", "norn-graph-shell", "tex-math-shell", "rejects surface documents that do not match the advertised target", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "contains": ["selects the active advertised provider surface", "lowers provider surface trees into an Electron shell projection", "lowers Sai, Norn, and TeX sidecar plugin shells without owning semantics", "embeddedDocuments", "norn.map", "sai-vn-stage-shell", "norn-graph-shell", "tex-math-shell", "optional-nested", "rejects surface documents that do not match the advertised target", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
         },
         {
           "path": "tools/eveelectron/eveelectron-capture-contract.mjs",
@@ -917,7 +917,7 @@
         },
         {
           "path": "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
-          "contains": ["selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "lowers provider surface trees into a terminal grid", "lowers Sai, Norn, and TeX plugin surfaces into compact terminal fallbacks", "embeddedDocumentSlots", "pluginProjections", "norn.map", "sai-vn-terminal-stage-summary", "norn-graph-terminal-outline", "tex-math-terminal-block-source", "rejects surface documents that do not match the advertised TUI target", "aetheria.daemon.commands"]
+          "contains": ["selects advertised provider surfaces", "command intents carry provider-advertised boundaries", "summary grid is explicitly lossy", "lowers provider surface trees into a terminal grid", "lowers Sai, Norn, and TeX plugin surfaces into compact terminal fallbacks", "embeddedDocumentSlots", "pluginProjections", "optional-nested", "norn.map", "sai-vn-terminal-stage-summary", "norn-graph-terminal-outline", "tex-math-terminal-block-source", "rejects surface documents that do not match the advertised TUI target", "aetheria.daemon.commands"]
         },
         {
           "path": "tools/evetui/evetui-capture-contract.mjs",

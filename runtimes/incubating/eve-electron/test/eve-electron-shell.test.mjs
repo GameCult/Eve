@@ -89,6 +89,7 @@ test("lowers Sai, Norn, and TeX sidecar plugin shells without owning semantics",
   assert.equal(projection.root.shellElementKind, "sai-vn-stage-shell");
   assert.equal(projection.root.pluginProjection.pluginId, "sai.vn");
   assert.equal(projection.root.pluginProjection.semanticOwner, "Sai");
+  assert.equal(projection.root.pluginProjection.availability, "required");
   assert.equal(projection.root.pluginProjection.commandBoundary, "sidecar-advertised-plugin-abi");
   assert.deepEqual(projection.root.pluginProjection.capabilities, [
     "vn.stage",
@@ -102,6 +103,7 @@ test("lowers Sai, Norn, and TeX sidecar plugin shells without owning semantics",
   assert.equal(norn.pluginProjection.pluginId, "norn.graph");
   assert.equal(norn.pluginProjection.projectionKind, "norn-graph-electron-overlay-shell");
   assert.equal(norn.pluginProjection.semanticOwner, "Norn");
+  assert.equal(norn.pluginProjection.availability, "optional-nested");
   assert.deepEqual(norn.pluginProjection.capabilities, ["embed.norn"]);
 
   const tex = findNode(projection.root, "sai.tex.log-power");
@@ -109,6 +111,7 @@ test("lowers Sai, Norn, and TeX sidecar plugin shells without owning semantics",
   assert.equal(tex.pluginProjection.pluginId, "tex.math");
   assert.equal(tex.pluginProjection.projectionKind, "tex-math-electron-block-source-shell");
   assert.equal(tex.pluginProjection.semanticOwner, "EvePlugins");
+  assert.equal(tex.pluginProjection.availability, "optional-nested");
   assert.equal(tex.pluginProjection.documentId, "\\\\mathrm{votes}(p)=1+\\\\lfloor\\\\log_b(1+p)\\\\rfloor");
   assert.deepEqual(tex.pluginProjection.capabilities, ["embed.tex", "tex.inline", "tex.block"]);
 });

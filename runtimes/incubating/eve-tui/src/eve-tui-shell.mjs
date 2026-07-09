@@ -235,6 +235,7 @@ function buildPluginProjection(componentKind, component) {
       capabilities: ["vn.stage", "story.choose", "story.continue", "story.jump"],
       documentId: firstString(props.storyId, component.id),
       semanticOwner: "Sai",
+      availability: "required",
       fallbackKind: "terminal-summary",
     };
   }
@@ -248,6 +249,7 @@ function buildPluginProjection(componentKind, component) {
       capabilities: ["embed.norn"],
       documentId: firstString(props.sourceUri, props.documentId, component.id),
       semanticOwner: "Norn",
+      availability: "optional-nested",
       fallbackKind: "terminal-outline",
     };
   }
@@ -261,6 +263,7 @@ function buildPluginProjection(componentKind, component) {
       capabilities: ["embed.tex", "tex.inline", "tex.block"],
       documentId: firstString(props.sourceUri, props.source, component.id),
       semanticOwner: "EvePlugins",
+      availability: "optional-nested",
       fallbackKind: "source-text",
     };
   }

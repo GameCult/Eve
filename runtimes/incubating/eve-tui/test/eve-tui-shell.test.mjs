@@ -86,6 +86,7 @@ test("lowers provider surface trees into a terminal grid", () => {
       capabilities: ["embed.norn"],
       documentId: "aetheria.daemon.game.norn",
       semanticOwner: "Norn",
+      availability: "optional-nested",
       fallbackKind: "terminal-outline",
     },
   ]);
@@ -123,6 +124,7 @@ test("lowers Sai, Norn, and TeX plugin surfaces into compact terminal fallbacks"
 
   const byPlugin = new Map(grid.pluginProjections.map(projection => [projection.pluginId, projection]));
   assert.equal(byPlugin.get("sai.vn").semanticOwner, "Sai");
+  assert.equal(byPlugin.get("sai.vn").availability, "required");
   assert.equal(byPlugin.get("sai.vn").projectionKind, "sai-vn-terminal-stage-summary");
   assert.deepEqual(byPlugin.get("sai.vn").capabilities, [
     "vn.stage",
@@ -131,8 +133,10 @@ test("lowers Sai, Norn, and TeX plugin surfaces into compact terminal fallbacks"
     "story.jump",
   ]);
   assert.equal(byPlugin.get("norn.graph").semanticOwner, "Norn");
+  assert.equal(byPlugin.get("norn.graph").availability, "optional-nested");
   assert.equal(byPlugin.get("norn.graph").fallbackKind, "terminal-outline");
   assert.equal(byPlugin.get("tex.math").semanticOwner, "EvePlugins");
+  assert.equal(byPlugin.get("tex.math").availability, "optional-nested");
   assert.equal(byPlugin.get("tex.math").projectionKind, "tex-math-terminal-block-source");
   assert.equal(byPlugin.get("tex.math").fallbackKind, "source-text");
   assert.equal(byPlugin.get("tex.math").documentId, "\\\\mathrm{votes}(p)=1+\\\\lfloor\\\\log_b(1+p)\\\\rfloor");

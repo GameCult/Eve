@@ -969,6 +969,11 @@ Recently cut:
   fallback catalog only advertises the Sai provider surface; independent Norn
   and TeX availability is discovered through that provider's plugin
   requirements and the separate plugin advertisements.
+- Electron shell and compact TUI projection artifacts now carry the same
+  availability split as Unity projection artifacts: `sai.vn` projection is
+  required for the VN surface, while `norn.graph` and `tex.math` are
+  `optional-nested` independent sidecar plugin projections. This keeps
+  runtime projection support from becoming an implied Sai dependency story.
 - Sai, Norn, and TeX now have plugin ABI fixtures for describe, validate,
   project, lower, measure, and apply behavior. The parity harness validates
   those fixtures against plugin manifests, so Eve proves the ABI shape without
