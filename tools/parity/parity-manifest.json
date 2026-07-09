@@ -1432,13 +1432,13 @@
       "graduationTrigger": "Split when Kotlin device edge has generic surface traversal, sensor release flow, and Android-specific CI.",
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": [],
-      "supportedFeatures": ["cultmesh-dashboard-documents", "sensor-uplink", "embeddedDocuments"],
+      "supportedFeatures": ["cultmesh-dashboard-documents", "sensor-uplink", "embeddedDocuments", "styleTokens"],
       "unsupportedPlugins": [],
       "expectedPaths": ["android/app/src/main/java/org/gamecult/eve/MainActivity.kt", "scripts/build-android.ps1"],
       "expectedSourceSymbols": [
         {
           "path": "android/app/src/main/java/org/gamecult/eve/MainActivity.kt",
-          "contains": ["surface.slot", "embeddedDocuments", "contentDescription"]
+          "contains": ["surface.slot", "embeddedDocuments", "contentDescription", "tokenLabel", "tokenTextSize", "typefaceForToken", "fontBody", "fontTitle", "fontMono"]
         }
       ],
       "capture": {

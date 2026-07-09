@@ -181,15 +181,15 @@ class MainActivity : Activity(), SensorEventListener {
                 setPadding(dp(10), dp(10), dp(10), dp(10))
                 background = panelBackground(tokens, 6)
                 val labelText = props.optString("label", "")
-                if (labelText.isNotBlank()) addView(label(labelText.uppercase(Locale.US), 11f, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()), true))
-                addView(label(props.optString("source", ""), 17f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), false))
+                if (labelText.isNotBlank()) addView(tokenLabel(labelText.uppercase(Locale.US), tokens, "caption", 11f, "colorAccent", 0xffff8a2a.toInt(), true))
+                addView(tokenLabel(props.optString("source", ""), tokens, "mono", 17f, "colorText", 0xfff6f1e2.toInt(), false))
             }
             "panel.dialogue" -> LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(dp(18), dp(18), dp(18), dp(18))
                 background = panelBackground(tokens, 8)
-                addView(label(props.optString("speaker", ""), 15f, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()), true))
-                addView(label(props.optString("text", ""), 20f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), false))
+                addView(tokenLabel(props.optString("speaker", ""), tokens, "title", 15f, "colorAccent", 0xffff8a2a.toInt(), true))
+                addView(tokenLabel(props.optString("text", ""), tokens, "body", 20f, "colorText", 0xfff6f1e2.toInt(), false))
             }
             "rail.actions" -> LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
@@ -203,7 +203,7 @@ class MainActivity : Activity(), SensorEventListener {
                 }
             }
             "surface.slot" -> embeddedSurfaceSlot(node, props, tokens)
-            "control.button" -> label(props.optString("label", ""), 14f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), true).apply {
+            "control.button" -> tokenLabel(props.optString("label", ""), tokens, "button", 14f, "colorText", 0xfff6f1e2.toInt(), true).apply {
                 gravity = Gravity.CENTER
                 setPadding(dp(14), dp(12), dp(14), dp(12))
                 background = android.graphics.drawable.GradientDrawable().apply {
@@ -219,24 +219,24 @@ class MainActivity : Activity(), SensorEventListener {
                 orientation = LinearLayout.VERTICAL
                 setPadding(dp(12), dp(12), dp(12), dp(12))
                 background = panelBackground(tokens, 4)
-                addView(label(props.optString("label", "Status"), 12f, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()), true))
-                addView(label(props.optString("stage", ""), 15f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), true))
-                addView(label(props.optString("detail", ""), 12f, tokenColor(tokens, "colorMuted", 0xffd3bb7f.toInt()), false))
+                addView(tokenLabel(props.optString("label", "Status"), tokens, "caption", 12f, "colorAccent", 0xffff8a2a.toInt(), true))
+                addView(tokenLabel(props.optString("stage", ""), tokens, "strong", 15f, "colorText", 0xfff6f1e2.toInt(), true))
+                addView(tokenLabel(props.optString("detail", ""), tokens, "caption", 12f, "colorMuted", 0xffd3bb7f.toInt(), false))
             }
-            "input.file", "dropzone" -> label(props.optString("label", "Choose File"), 14f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), true).apply {
+            "input.file", "dropzone" -> tokenLabel(props.optString("label", "Choose File"), tokens, "button", 14f, "colorText", 0xfff6f1e2.toInt(), true).apply {
                 gravity = Gravity.CENTER
                 setPadding(dp(14), dp(12), dp(14), dp(12))
                 background = panelBackground(tokens, 6)
             }
             "input.number", "input.select", "control.range" -> LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
-                addView(label(props.optString("label", ""), 11f, tokenColor(tokens, "colorAccent", 0xffff8a2a.toInt()), true))
-                addView(label(props.optString("value", ""), 13f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), false).apply {
+                addView(tokenLabel(props.optString("label", ""), tokens, "caption", 11f, "colorAccent", 0xffff8a2a.toInt(), true))
+                addView(tokenLabel(props.optString("value", ""), tokens, "body", 13f, "colorText", 0xfff6f1e2.toInt(), false).apply {
                     setPadding(dp(8), dp(6), dp(8), dp(6))
                     background = panelBackground(tokens, 2)
                 })
             }
-            "control.toggle" -> label("${props.optString("label", "Toggle")}: ${if (props.optBoolean("value", false)) "on" else "off"}", 12f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), false).apply {
+            "control.toggle" -> tokenLabel("${props.optString("label", "Toggle")}: ${if (props.optBoolean("value", false)) "on" else "off"}", tokens, "body", 12f, "colorText", 0xfff6f1e2.toInt(), false).apply {
                 setPadding(dp(8), dp(6), dp(8), dp(6))
                 background = panelBackground(tokens, 2)
             }
@@ -249,7 +249,7 @@ class MainActivity : Activity(), SensorEventListener {
             }
             "metric" -> LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
-                addView(label("${props.optString("label", "Metric")}: ${props.opt("value") ?: ""}", 13f, tokenColor(tokens, "colorText", 0xfff6f1e2.toInt()), true))
+                addView(tokenLabel("${props.optString("label", "Metric")}: ${props.opt("value") ?: ""}", tokens, "strong", 13f, "colorText", 0xfff6f1e2.toInt(), true))
             }
             "surface" -> LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
@@ -298,7 +298,7 @@ class MainActivity : Activity(), SensorEventListener {
                     cornerRadius = dp(6).toFloat()
                 }
                 val title = props.optString("title", "")
-                if (title.isNotBlank()) addView(label(title, 12f, tokenColor(tokens, "colorMuted", 0xff8ba5a3.toInt()), true))
+                if (title.isNotBlank()) addView(tokenLabel(title, tokens, "caption", 12f, "colorMuted", 0xff8ba5a3.toInt(), true))
                 forEachChild(children) { addView(renderCultUiNode(it, values, tokens)) }
             }
             "card", "card.external" -> LinearLayout(this).apply {
@@ -310,13 +310,19 @@ class MainActivity : Activity(), SensorEventListener {
                     cornerRadius = dp(4).toFloat()
                 }
                 val title = props.optString("title", "")
-                if (title.isNotBlank()) addView(label(title, 14f, tokenColor(tokens, "colorText", 0xffe7f1f1.toInt()), true))
+                if (title.isNotBlank()) addView(tokenLabel(title, tokens, "title", 14f, "colorText", 0xffe7f1f1.toInt(), true))
                 forEachChild(children) { addView(renderCultUiNode(it, values, tokens)) }
             }
             "label", "text", "text.title", "text.dialogue" -> {
                 val bind = props.optString("bind", "")
                 val text = if (bind.isNotBlank()) values.opt(bind)?.toString() ?: "" else props.optString("text", "")
-                label(if (kind == "label") text.uppercase(Locale.US) else text, if (kind == "text.title") 18f else 13f, if (kind == "label") tokenColor(tokens, "colorAccent", 0xffffb84f.toInt()) else tokenColor(tokens, "colorText", 0xffe7f1f1.toInt()), kind == "label")
+                val role = when (kind) {
+                    "text.title" -> "title"
+                    "text.dialogue" -> "body"
+                    "label" -> "caption"
+                    else -> "body"
+                }
+                tokenLabel(if (kind == "label") text.uppercase(Locale.US) else text, tokens, role, if (kind == "text.title") 18f else 13f, if (kind == "label") "colorAccent" else "colorText", if (kind == "label") 0xffffb84f.toInt() else 0xffe7f1f1.toInt(), kind == "label" || kind == "text.title")
             }
             "control.slider" -> CultSliderView(this, sliderValue(props, values), tokenColor(tokens, "colorAccent", 0xffffb84f.toInt())).apply {
                 layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(24))
@@ -438,6 +444,72 @@ class MainActivity : Activity(), SensorEventListener {
         return Color.rgb(value.substring(1, 3).toInt(16), value.substring(3, 5).toInt(16), value.substring(5, 7).toInt(16))
     }
 
+    private fun tokenLabel(text: String, tokens: JSONObject, role: String, fallbackSp: Float, colorName: String, fallbackColor: Int, title: Boolean): TextView =
+        label(text, tokenTextSize(tokens, role, fallbackSp), tokenColor(tokens, colorName, fallbackColor), title, typefaceForToken(tokens, role, title))
+
+    private fun tokenTextSize(tokens: JSONObject, role: String, fallbackSp: Float): Float {
+        val names = when (role) {
+            "title" -> arrayOf("textTitleSize", "fontSizeTitle", "fontScaleTitle")
+            "strong" -> arrayOf("textStrongSize", "fontSizeStrong", "fontScaleStrong")
+            "caption" -> arrayOf("textCaptionSize", "fontSizeCaption", "fontScaleCaption")
+            "mono" -> arrayOf("textMonoSize", "fontSizeMono", "fontScaleMono")
+            "button" -> arrayOf("textButtonSize", "fontSizeButton", "fontScaleButton")
+            else -> arrayOf("textBodySize", "fontSizeBody", "fontScaleBody", "textScale")
+        }
+        for (name in names) {
+            val value = tokens.opt(name) ?: continue
+            val parsed = parseTextSizeToken(value, fallbackSp)
+            if (parsed != null) return parsed
+        }
+        return fallbackSp
+    }
+
+    private fun parseTextSizeToken(value: Any, fallbackSp: Float): Float? = when (value) {
+        is Number -> value.toFloat()
+        is String -> {
+            val text = value.trim().lowercase(Locale.US)
+            when {
+                text.endsWith("px") -> text.removeSuffix("px").toFloatOrNull()
+                text.endsWith("sp") -> text.removeSuffix("sp").toFloatOrNull()
+                text.endsWith("rem") -> text.removeSuffix("rem").toFloatOrNull()?.let { it * 16f }
+                text.endsWith("em") -> text.removeSuffix("em").toFloatOrNull()?.let { it * fallbackSp }
+                text.toFloatOrNull() != null -> text.toFloat()
+                else -> null
+            }
+        }
+        else -> null
+    }
+
+    private fun typefaceForToken(tokens: JSONObject, role: String, bold: Boolean): android.graphics.Typeface {
+        val family = when (role) {
+            "title", "strong", "button" -> firstTokenString(tokens, "fontTitle", "fontDisplay", "fontBody")
+            "caption", "mono" -> firstTokenString(tokens, "fontMono", "fontBody")
+            else -> firstTokenString(tokens, "fontBody", "fontTitle")
+        }
+        val style = if (bold) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL
+        if (family.isBlank()) return android.graphics.Typeface.create(android.graphics.Typeface.MONOSPACE, style)
+        val primaryFamily = family.split(",").firstOrNull()?.trim()?.trim('"', '\'').orEmpty()
+        val generic = family.lowercase(Locale.US)
+        val fallback = when {
+            generic.contains("mono") -> android.graphics.Typeface.MONOSPACE
+            generic.contains("serif") && !generic.contains("sans") -> android.graphics.Typeface.SERIF
+            else -> android.graphics.Typeface.SANS_SERIF
+        }
+        return if (primaryFamily.isBlank()) {
+            android.graphics.Typeface.create(fallback, style)
+        } else {
+            android.graphics.Typeface.create(primaryFamily, style)
+        }
+    }
+
+    private fun firstTokenString(tokens: JSONObject, vararg names: String): String {
+        for (name in names) {
+            val value = tokens.optString(name, "")
+            if (value.isNotBlank()) return value
+        }
+        return ""
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         mediaRunning = false
@@ -508,14 +580,20 @@ class MainActivity : Activity(), SensorEventListener {
         return scroll
     }
 
-    private fun label(text: String, sp: Float, color: Int, title: Boolean): TextView =
+    private fun label(
+        text: String,
+        sp: Float,
+        color: Int,
+        title: Boolean,
+        typeface: android.graphics.Typeface = android.graphics.Typeface.create(android.graphics.Typeface.MONOSPACE, if (title) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+    ): TextView =
         TextView(this).apply {
             this.text = text
             setTextSize(if (parityFixtureMode) TypedValue.COMPLEX_UNIT_PX else TypedValue.COMPLEX_UNIT_SP, sp)
             setTextColor(color)
             gravity = Gravity.START
             includeFontPadding = true
-            typeface = android.graphics.Typeface.create(android.graphics.Typeface.MONOSPACE, if (title) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+            this.typeface = typeface
         }
 
     private fun card(text: String): TextView =

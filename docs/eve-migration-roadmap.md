@@ -814,6 +814,12 @@ Recently cut:
   device-edge proofs; plugin projection authority belongs to EveFlutter,
   EveUnity, EveElectron, EveTui, or future runtime-specific adapters when those
   bodies earn the claim.
+- Android Kotlin now maps surface style tokens into its lightweight parity
+  fixture typography path. `MainActivity.kt` uses token-aware text roles,
+  parses future text-size/scale tokens, and maps `fontBody`, `fontTitle`, and
+  `fontMono` to Android typefaces while keeping Kotlin device-edge scope limited
+  to generic embedded documents, style tokens, and sensor/uplink work. It still
+  does not claim Sai/Norn/TeX plugin projection acceptance.
 - The web reference no longer hardcodes the local provider list in
   `web/surface.js`. It loads `web/local-provider-catalog.json`, then opens
   advertisement-backed entries for Aetheria, Repixelizer, and Sai through the

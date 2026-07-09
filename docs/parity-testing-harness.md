@@ -573,7 +573,10 @@ The harness tracks every target runtime:
   identity, and `node tools/parity/run-parity.mjs` reports
   `embeddedDocuments` support for `android-kotlin`. It does not consume plugin
   fixtures until EveAndroid grows a plugin projection adapter; Android Flutter
-  is the Android-side plugin projection acceptance target.
+  is the Android-side plugin projection acceptance target. Kotlin declares
+  `styleTokens` only after proving token-aware text roles, text-size parsing,
+  and `fontBody` / `fontTitle` / `fontMono` typeface mapping in
+  `MainActivity.kt`.
 - Rust / CultMesh: typed document runtime rather than a CultUI renderer.
   Required nested-surface evidence: `cargo test -p cultnet-rs
   rust_preserves_cultui_embedded_surface_slots_through_typed_document_sync`
