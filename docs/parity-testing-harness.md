@@ -454,6 +454,14 @@ It records scene graph projection, embedded slots, and sidecar plugin projection
 metadata. The remaining blocker is Unity screenshot or frame-capture PNG
 production from EveUnity.
 
+Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
+Each record joins runtime status, capture owner, lifecycle capture contract,
+current semantic/cell-grid artifact, pending proofs, and artifact errors. This
+keeps `json-projection` evidence useful without letting it impersonate the
+contracted `png` artifact for Unity or Electron. Runtime-owner consumers can
+assert the ledger with
+`--expect-runtime-capture-probe <runtimeId:status:contractArtifactKind:captureOwnerRepo>`.
+
 EveUnity split handoff evidence:
 
 ```powershell
@@ -579,7 +587,8 @@ Pending runtimes are allowed. Silent fake parity is not.
 ## Next Cuts
 
 1. Extend runtime-owned image/layout probes to the Unity/Electron capture
-   blockers and move EveTui's JSON grid capture path into the EveTui owner repo.
+   blockers with actual owner-produced image artifacts and move EveTui's JSON
+   grid capture path into the EveTui owner repo.
 2. Normalize text scale and font loading across web, Flutter Android, Flutter
    desktop, and iOS.
 3. Give iOS a real `vn.stage` scene compositor instead of compact stacked

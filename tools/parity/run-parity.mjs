@@ -2003,6 +2003,7 @@ function buildConformanceExport(report) {
     worldSurfaceLoweringCoverage: collectWorldSurfaceLoweringCoverage(report),
     commandBoundaryCoverage: collectCommandBoundaryCoverage(report),
     screenshotComparisonMetrics: collectScreenshotComparisonMetrics(report),
+    runtimeCaptureProbeCoverage: collectRuntimeCaptureProbeCoverage(report),
     worldSurfaceLoweringGaps: collectWorldSurfaceLoweringGaps(report),
     splitTargetBlockers: collectSplitTargetBlockers(report),
     splitHandoffMoveCoverage: collectSplitHandoffMoveCoverage(report),
@@ -2558,6 +2559,94 @@ function collectScreenshotComparisonMetrics(report) {
   }
   return metrics.sort((left, right) =>
     `${left.runtimeId}:${left.fixtureId}:${left.metricKind}`.localeCompare(`${right.runtimeId}:${right.fixtureId}:${right.metricKind}`));
+}
+
+function collectRuntimeCaptureProbeCoverage(report) {
+  return (report.runtimes || [])
+    .filter(runtime => (runtime.capture?.artifacts || []).length || runtime.lifecycle?.capture?.captureContract)
+    .map(runtime => buildRuntimeCaptureProbeRecord(runtime))
+    .sort((left, right) => left.runtimeId.localeCompare(right.runtimeId));
+}
+
+function buildRuntimeCaptureProbeRecord(runtime) {
+  const capture = runtime.capture || {};
+  const lifecycleCapture = runtime.lifecycle?.capture || {};
+  const contract = lifecycleCapture.captureContract || {};
+  const artifacts = Array.isArray(capture.artifacts) ? capture.artifacts : [];
+  const artifact = selectCaptureArtifactForContract(artifacts, contract) || artifacts[0] || {};
+  const errors = runtime.captureArtifactErrors || [];
+  const contractArtifactKind = contract.artifactKind || "";
+  const currentArtifactKind = artifact.kind || "";
+  const hasContract = Boolean(contractArtifactKind || contract.captureKind || contract.requestSchema);
+  const artifactPresent = Boolean(currentArtifactKind && artifact.path);
+  const contractArtifactPresent = hasContract && artifactPresent && currentArtifactKind === contractArtifactKind && !errors.length;
+  const semanticArtifactOnly = hasContract && artifactPresent && currentArtifactKind !== contractArtifactKind && !errors.length;
+
+  let status = "missing-capture-contract";
+  let severity = "blocker";
+  let detail = "Runtime has capture evidence but no lifecycle capture contract.";
+  if (contractArtifactPresent) {
+    status = "contract-artifact-present";
+    severity = "info";
+    detail = "Runtime capture artifact satisfies the lifecycle capture contract.";
+  } else if (semanticArtifactOnly) {
+    status = "semantic-artifact-present-capture-pending";
+    severity = contractArtifactKind === "png" ? "blocker" : "gap";
+    detail = `Runtime publishes ${currentArtifactKind} semantic evidence; ${contractArtifactKind || "contract"} capture remains owner-repo work.`;
+  } else if (hasContract && errors.length) {
+    status = "invalid-current-artifact";
+    severity = "blocker";
+    detail = "Runtime capture artifact is declared but invalid or missing.";
+  } else if (hasContract && !artifactPresent) {
+    status = "contract-artifact-missing";
+    severity = "blocker";
+    detail = "Runtime lifecycle capture contract exists, but no capture artifact is attached.";
+  }
+
+  return {
+    runtimeId: runtime.id,
+    runtimeStatus: runtime.status,
+    runtimeOwnerRepo: runtime.ownerRepo || "",
+    splitTarget: runtime.splitTarget || "",
+    captureStatus: capture.status || "",
+    lifecycleStatus: lifecycleCapture.status || "",
+    captureOwnerRepo: contract.ownerRepo || lifecycleCapture.ownerRepo || runtime.splitTarget || runtime.ownerRepo || "",
+    captureKind: contract.captureKind || "",
+    contractArtifactKind,
+    contractRequestSchema: contract.requestSchema || "",
+    requestBuilder: contract.requestBuilder || "",
+    advertisementPath: contract.advertisementPath || "",
+    artifactPattern: contract.artifactPattern || "",
+    conformanceAttachment: contract.conformanceAttachment || "",
+    requiredProvider: contract.requiredProvider || "",
+    requiredSurface: contract.requiredSurface || "",
+    authority: contract.authority || "",
+    currentArtifactKind,
+    currentArtifactSchema: artifact.schema || "",
+    currentArtifactPath: artifact.path || "",
+    requestPath: artifact.requestPath || "",
+    sourceSurfacePath: artifact.sourceSurfacePath || "",
+    pendingProofs: lifecycleCapture.pendingProofs || [],
+    errors,
+    status,
+    severity,
+    detail,
+  };
+}
+
+function selectCaptureArtifactForContract(artifacts, contract) {
+  if (!artifacts.length) return null;
+  const requiredProvider = contract.requiredProvider || "";
+  const requiredSurface = contract.requiredSurface || "";
+  const contractArtifactKind = contract.artifactKind || "";
+  return artifacts.find(artifact =>
+    (!requiredProvider || artifact.providerId === requiredProvider)
+    && (!requiredSurface || artifact.surfaceId === requiredSurface)
+    && (!contractArtifactKind || artifact.kind === contractArtifactKind))
+    || artifacts.find(artifact =>
+      (!requiredProvider || artifact.providerId === requiredProvider)
+      && (!requiredSurface || artifact.surfaceId === requiredSurface))
+    || null;
 }
 
 function buildStructureMetric(runtime, fixture) {

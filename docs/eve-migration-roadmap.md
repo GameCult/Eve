@@ -614,6 +614,14 @@ Recently cut:
   `artifacts/eveelectron-capture/latest/electron-shell-projection.json`, and
   exports it as `runtime.captureArtifacts[]`. The actual packaged window PNG
   remains a split blocker for EveElectron.
+- Runtime capture probe coverage is now exported as
+  `runtimeCaptureProbeCoverage[]`. It records the lifecycle capture contract,
+  capture owner, requested artifact kind, current semantic/cell-grid artifact,
+  request path, pending proofs, and validation errors for each runtime with
+  capture evidence. The consumer smokes assert that Unity UI Toolkit, Unity
+  scene, and Electron currently have `json-projection` semantic artifacts while
+  their contracted `png` captures remain owner-repo work; TUI's current
+  `json-grid` artifact satisfies its contract but still needs EveTui ownership.
 - EveTui capture lifecycle now attaches a typed terminal-grid artifact instead
   of stopping at a request contract. `tools/evetui/evetui-capture-artifact.mjs`
   lowers `web/fixtures/aetheria-world-surface.json` through `EveTuiShell`,

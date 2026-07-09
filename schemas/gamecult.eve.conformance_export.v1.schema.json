@@ -21,6 +21,7 @@
     "worldSurfaceLoweringCoverage",
     "commandBoundaryCoverage",
     "screenshotComparisonMetrics",
+    "runtimeCaptureProbeCoverage",
     "splitTargetBlockers",
     "splitHandoffMoveCoverage",
     "pluginHandoffMoveCoverage",
@@ -809,6 +810,118 @@
           "expected": {},
           "actual": {},
           "evidenceLayer": {
+            "type": "string",
+            "minLength": 1
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "runtimeCaptureProbeCoverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "runtimeId",
+          "runtimeStatus",
+          "runtimeOwnerRepo",
+          "splitTarget",
+          "captureStatus",
+          "captureOwnerRepo",
+          "contractArtifactKind",
+          "currentArtifactKind",
+          "currentArtifactPath",
+          "pendingProofs",
+          "errors",
+          "status",
+          "severity",
+          "detail"
+        ],
+        "properties": {
+          "runtimeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeStatus": {
+            "type": "string"
+          },
+          "runtimeOwnerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "splitTarget": {
+            "type": "string"
+          },
+          "captureStatus": {
+            "type": "string"
+          },
+          "lifecycleStatus": {
+            "type": "string"
+          },
+          "captureOwnerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "captureKind": {
+            "type": "string"
+          },
+          "contractArtifactKind": {
+            "type": "string"
+          },
+          "contractRequestSchema": {
+            "type": "string"
+          },
+          "requestBuilder": {
+            "type": "string"
+          },
+          "advertisementPath": {
+            "type": "string"
+          },
+          "artifactPattern": {
+            "type": "string"
+          },
+          "conformanceAttachment": {
+            "type": "string"
+          },
+          "requiredProvider": {
+            "type": "string"
+          },
+          "requiredSurface": {
+            "type": "string"
+          },
+          "authority": {
+            "type": "string"
+          },
+          "currentArtifactKind": {
+            "type": "string"
+          },
+          "currentArtifactSchema": {
+            "type": "string"
+          },
+          "currentArtifactPath": {
+            "type": "string"
+          },
+          "requestPath": {
+            "type": "string"
+          },
+          "sourceSurfacePath": {
+            "type": "string"
+          },
+          "pendingProofs": {
+            "type": "array"
+          },
+          "errors": {
+            "type": "array"
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
             "type": "string",
             "minLength": 1
           },

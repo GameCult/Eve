@@ -29,6 +29,7 @@ if (!exportDirectory) {
     "  --expect-command-boundary-coverage <providerId:surfaceId:targetId:status:ownerRepo:runtimeId>",
     "  --expect-world-lowering-gap <providerId:surfaceId:targetId:ownerRepo:runtimeId>",
     "  --expect-screenshot-metric <runtimeId:fixtureId:metricKind:status>",
+    "  --expect-runtime-capture-probe <runtimeId:status:contractArtifactKind:captureOwnerRepo>",
     "  --expect-conformance-handoff",
     "  --expect-plugin-operation <pluginId:operation>",
     "  --expect-plugin-capability <pluginId:capability>",
@@ -151,6 +152,7 @@ function validateIndex(index, directory, expectations, errors) {
   const worldSurfaceLoweringCoverage = Array.isArray(index.worldSurfaceLoweringCoverage) ? index.worldSurfaceLoweringCoverage : [];
   const commandBoundaryCoverage = Array.isArray(index.commandBoundaryCoverage) ? index.commandBoundaryCoverage : [];
   const screenshotComparisonMetrics = Array.isArray(index.screenshotComparisonMetrics) ? index.screenshotComparisonMetrics : [];
+  const runtimeCaptureProbeCoverage = Array.isArray(index.runtimeCaptureProbeCoverage) ? index.runtimeCaptureProbeCoverage : [];
   const splitTargetBlockers = Array.isArray(index.splitTargetBlockers) ? index.splitTargetBlockers : [];
   const splitHandoffMoveCoverage = Array.isArray(index.splitHandoffMoveCoverage) ? index.splitHandoffMoveCoverage : [];
   const pluginHandoffMoveCoverage = Array.isArray(index.pluginHandoffMoveCoverage) ? index.pluginHandoffMoveCoverage : [];
@@ -186,6 +188,7 @@ function validateIndex(index, directory, expectations, errors) {
   validateWorldSurfaceLoweringCoverage(index.worldSurfaceLoweringCoverage, errors);
   validateCommandBoundaryCoverage(index.commandBoundaryCoverage, errors);
   validateScreenshotComparisonMetrics(index.screenshotComparisonMetrics, errors);
+  validateRuntimeCaptureProbeCoverage(index.runtimeCaptureProbeCoverage, errors);
   validateWorldSurfaceLoweringGaps(index.worldSurfaceLoweringGaps, errors);
   for (const expectedGap of expectations.capabilityGaps) {
     if (!capabilityGaps.some(gap => capabilityGapText(gap).includes(expectedGap))) {
@@ -337,6 +340,22 @@ function validateIndex(index, directory, expectations, errors) {
     }
     if (metric.status !== expectation.status) {
       errors.push(`screenshotComparisonMetrics:${expectation.runtimeId}:${expectation.fixtureId}:${expectation.metricKind}:status:expected ${expectation.status} got ${metric.status || ""}`);
+    }
+  }
+  for (const expectation of expectations.runtimeCaptureProbes) {
+    const record = runtimeCaptureProbeCoverage.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!record) {
+      errors.push(`runtimeCaptureProbeCoverage:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    if (record.status !== expectation.status) {
+      errors.push(`runtimeCaptureProbeCoverage:${expectation.runtimeId}:status:expected ${expectation.status} got ${record.status || ""}`);
+    }
+    if (record.contractArtifactKind !== expectation.contractArtifactKind) {
+      errors.push(`runtimeCaptureProbeCoverage:${expectation.runtimeId}:contractArtifactKind:expected ${expectation.contractArtifactKind} got ${record.contractArtifactKind || ""}`);
+    }
+    if (record.captureOwnerRepo !== expectation.captureOwnerRepo) {
+      errors.push(`runtimeCaptureProbeCoverage:${expectation.runtimeId}:captureOwnerRepo:expected ${expectation.captureOwnerRepo} got ${record.captureOwnerRepo || ""}`);
     }
   }
 
@@ -1030,6 +1049,31 @@ function validateScreenshotComparisonMetrics(records, errors) {
   }
 }
 
+function validateRuntimeCaptureProbeCoverage(records, errors) {
+  if (!Array.isArray(records)) {
+    errors.push("runtimeCaptureProbeCoverage:missing");
+    return;
+  }
+  if (!records.length) {
+    errors.push("runtimeCaptureProbeCoverage:empty");
+    return;
+  }
+  for (const [index, record] of records.entries()) {
+    for (const field of ["runtimeId", "runtimeOwnerRepo", "captureOwnerRepo", "status", "severity", "detail"]) {
+      if (!record?.[field]) errors.push(`runtimeCaptureProbeCoverage:${index}:${field}:missing`);
+    }
+    for (const field of ["pendingProofs", "errors"]) {
+      if (!Array.isArray(record?.[field])) errors.push(`runtimeCaptureProbeCoverage:${index}:${field}:expected array`);
+    }
+    if (record?.currentArtifactPath && !record.currentArtifactKind) {
+      errors.push(`runtimeCaptureProbeCoverage:${index}:currentArtifactKind:missing`);
+    }
+    if (record?.contractArtifactKind && !record.contractRequestSchema) {
+      errors.push(`runtimeCaptureProbeCoverage:${index}:contractRequestSchema:missing`);
+    }
+  }
+}
+
 function validateWorldSurfaceLoweringGaps(gaps, errors) {
   if (!Array.isArray(gaps)) {
     errors.push("worldSurfaceLoweringGaps:missing");
@@ -1261,6 +1305,7 @@ function parseArguments(args) {
     commandBoundaryCoverage: [],
     worldLoweringGaps: [],
     screenshotMetrics: [],
+    runtimeCaptureProbes: [],
     conformanceHandoff: false,
   };
   const optionTargets = new Map([
@@ -1318,6 +1363,7 @@ function parseArguments(args) {
     ["--expect-command-boundary-coverage", expectations.commandBoundaryCoverage],
     ["--expect-world-lowering-gap", expectations.worldLoweringGaps],
     ["--expect-screenshot-metric", expectations.screenshotMetrics],
+    ["--expect-runtime-capture-probe", expectations.runtimeCaptureProbes],
   ]);
 
   for (let index = 1; index < args.length; index += 1) {
@@ -1418,6 +1464,8 @@ function parseArguments(args) {
       target.push(parseCommandBoundaryCoverageExpectation(value));
     } else if (option === "--expect-screenshot-metric") {
       target.push(parseScreenshotMetricExpectation(value));
+    } else if (option === "--expect-runtime-capture-probe") {
+      target.push(parseRuntimeCaptureProbeExpectation(value));
     } else if (option === "--expect-runtime-plugin-gap") {
       target.push(parseRuntimePluginGapExpectation(value));
     } else if (option === "--expect-runtime-plugin-projection") {
@@ -1450,6 +1498,20 @@ function parseScreenshotMetricExpectation(value) {
     fixtureId: parts[1],
     metricKind: parts[2],
     status: parts[3],
+  };
+}
+
+function parseRuntimeCaptureProbeExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 4 || parts.some(part => !part)) {
+    console.error(`Expected runtime capture probe in <runtimeId:status:contractArtifactKind:captureOwnerRepo> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    status: parts[1],
+    contractArtifactKind: parts[2],
+    captureOwnerRepo: parts[3],
   };
 }
 

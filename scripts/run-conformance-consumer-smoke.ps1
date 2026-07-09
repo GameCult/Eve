@@ -79,6 +79,10 @@ try {
     --expect-screenshot-metric web:sai-vn:color-tokens:pass `
     --expect-screenshot-metric web:sai-vn:bounding-boxes:pass `
     --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
+    --expect-runtime-capture-probe unity-uitoolkit:semantic-artifact-present-capture-pending:png:EveUnity `
+    --expect-runtime-capture-probe unity-scene:semantic-artifact-present-capture-pending:png:EveUnity `
+    --expect-runtime-capture-probe electron-shell:semantic-artifact-present-capture-pending:png:EveElectron `
+    --expect-runtime-capture-probe tui:contract-artifact-present:json-grid:EveTui `
     --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release" `
     --expect-conformance-handoff
   if ($LASTEXITCODE -ne 0) {

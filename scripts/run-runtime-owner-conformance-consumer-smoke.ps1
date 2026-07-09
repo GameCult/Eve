@@ -142,6 +142,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-status tui:json-grid `
   --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-status direct2d:missing `
+  --expect-runtime-capture-probe unity-uitoolkit:semantic-artifact-present-capture-pending:png:EveUnity `
+  --expect-runtime-capture-probe unity-scene:semantic-artifact-present-capture-pending:png:EveUnity `
+  --expect-runtime-capture-probe electron-shell:semantic-artifact-present-capture-pending:png:EveElectron `
+  --expect-runtime-capture-probe tui:contract-artifact-present:json-grid:EveTui `
   --expect-screenshot-metric web:embedded-surface:structure:pass `
   --expect-screenshot-metric web:embedded-surface:color-tokens:pass `
   --expect-screenshot-metric web:embedded-surface:text-presence:pass `
