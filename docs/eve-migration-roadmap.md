@@ -704,6 +704,11 @@ Recently cut:
   `runtime.captureArtifacts[]` for both Aetheria and `eve.world-smoke`, proving
   the compact terminal-grid lowerer is a provider-agnostic runtime client while
   package release and owner-repo capture production remain explicit blockers.
+- The Aetheria provider consumer now asserts the runtime artifacts it relies on:
+  Unity UI Toolkit, Unity Scene, Electron shell, and TUI must all export
+  Aetheria `runtime.captureArtifacts[]` for `aetheria.daemon.game`. That makes
+  the provider-side proof consume generic lowering clients instead of stopping
+  at advertised target coverage.
 - Conformance export now carries first-class `capabilityGaps[]` records derived
   from plugin errors, provider advertisement/scenario errors, runtime missing
   evidence, declared unsupported plugin projection, capture gaps, and split

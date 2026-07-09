@@ -290,9 +290,12 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run-aetheria-conformance-cons
 That script runs the same export consumer from `E:\Projects\Aetheria` and
 asserts the provider pack, `aetheria-world` fixture, `aetheria` provider entry,
 `aetheria-world-command-replay` scenario, daemon game/editor surface-kind
-claims, and provider handoff path. Generated copies remain under Eve's
-`artifacts/aetheria-conformance-consumer-smoke` so the provider worktree does
-not become dirty merely by proving the boundary.
+claims, and provider handoff path. It also asserts the Aetheria
+`runtime.captureArtifacts[]` emitted by Unity UI Toolkit, Unity Scene,
+Electron shell, and TUI, so provider consumption proves real runtime artifacts
+rather than only advertised lowering targets. Generated copies remain under
+Eve's `artifacts/aetheria-conformance-consumer-smoke` so the provider worktree
+does not become dirty merely by proving the boundary.
 
 Plugin owner handoff smoke:
 

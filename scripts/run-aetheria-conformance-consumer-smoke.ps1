@@ -79,6 +79,10 @@ try {
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:unity-uitoolkit:covered:EveUnity:unity-uitoolkit `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:electron-shell:covered:EveElectron:electron-shell `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:tui:covered:EveTui:tui `
+    --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:aetheria:aetheria.daemon.game `
+    --expect-runtime-capture-artifact unity-scene:json-projection:gamecult.eve.unity_scene_projection.v1:aetheria:aetheria.daemon.game `
+    --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:aetheria:aetheria.daemon.game `
+    --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:aetheria:aetheria.daemon.game `
     --expect-split-handoff-move EveTui:tui:tui-runtime-body:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-world-surface-lowering:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-command-transport:current:exists:eve-tui-shell.mjs `
