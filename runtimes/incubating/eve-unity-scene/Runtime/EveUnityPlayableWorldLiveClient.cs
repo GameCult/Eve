@@ -9,14 +9,21 @@ namespace GameCult.Eve.UnityScene
     {
         private readonly EveUnitySceneProviderConnection _connection;
         private readonly EveUnityPlayableWorldPresenter _presenter;
+        private readonly IEveUnitySceneCommandReceiptSource? _receiptSource;
+        private readonly bool _refreshOnTerminalReceipt;
         private bool _connected;
+        private bool _receiptConnected;
 
         public EveUnityPlayableWorldLiveClient(
             EveUnitySceneProviderConnection connection,
-            EveUnityPlayableWorldPresenter presenter)
+            EveUnityPlayableWorldPresenter presenter,
+            IEveUnitySceneCommandReceiptSource? receiptSource = null,
+            bool refreshOnTerminalReceipt = true)
         {
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
             _presenter = presenter ?? throw new ArgumentNullException(nameof(presenter));
+            _receiptSource = receiptSource;
+            _refreshOnTerminalReceipt = refreshOnTerminalReceipt;
         }
 
         public EveUnitySceneProjection? ActiveProjection => _connection.ActiveProjection;
@@ -25,13 +32,18 @@ namespace GameCult.Eve.UnityScene
 
         public EveUnityPlayableWorldPresentation? LastPresentation { get; private set; }
 
+        public EveUnitySceneCommandReceipt? LastReceipt { get; private set; }
+
         public long ActiveVersion => _connection.ActiveVersion;
 
         public string SourcePointer => _connection.SourcePointer;
 
+        public event Action<EveUnitySceneCommandReceipt>? ReceiptAvailable;
+
         public EveUnityPlayableWorldPresentation Connect()
         {
             EnsureSubscribed();
+            EnsureReceiptSubscribed();
             _connection.Connect();
             return RequirePresentation();
         }
@@ -84,6 +96,12 @@ namespace GameCult.Eve.UnityScene
                 _connected = false;
             }
 
+            if (_receiptConnected && _receiptSource != null)
+            {
+                _receiptSource.ReceiptAvailable -= OnReceiptAvailable;
+                _receiptConnected = false;
+            }
+
             _connection.Disconnect();
         }
 
@@ -102,9 +120,27 @@ namespace GameCult.Eve.UnityScene
             _connected = true;
         }
 
+        private void EnsureReceiptSubscribed()
+        {
+            if (_receiptSource == null || _receiptConnected)
+                return;
+
+            _receiptSource.ReceiptAvailable += OnReceiptAvailable;
+            _receiptConnected = true;
+        }
+
         private void OnProjectionUpdated(EveUnitySceneProjection projection)
         {
             LastPresentation = _presenter.Apply(projection);
+        }
+
+        private void OnReceiptAvailable(EveUnitySceneCommandReceipt receipt)
+        {
+            LastReceipt = receipt ?? throw new ArgumentNullException(nameof(receipt));
+            ReceiptAvailable?.Invoke(receipt);
+
+            if (_refreshOnTerminalReceipt && receipt.ShouldRefreshProviderSurface)
+                Refresh();
         }
 
         private EveUnityPlayableWorldPresentation RequirePresentation()
@@ -113,5 +149,67 @@ namespace GameCult.Eve.UnityScene
                 throw new InvalidOperationException("The active Unity scene surface has not produced a playable world presentation.");
             return LastPresentation;
         }
+    }
+
+    public interface IEveUnitySceneCommandReceiptSource
+    {
+        event Action<EveUnitySceneCommandReceipt> ReceiptAvailable;
+    }
+
+    public sealed class EveUnitySceneCommandReceipt
+    {
+        public EveUnitySceneCommandReceipt(
+            string receiptId,
+            string command,
+            string commandId,
+            string state,
+            string ownerRepo,
+            string authority,
+            string schema = "gamecult.eve.command_receipt.v1",
+            string providerId = "",
+            string surfaceId = "",
+            string message = "",
+            DateTimeOffset? issuedAtUtc = null)
+        {
+            ReceiptId = receiptId ?? "";
+            Command = command ?? "";
+            CommandId = commandId ?? "";
+            State = state ?? "";
+            OwnerRepo = ownerRepo ?? "";
+            Authority = authority ?? "";
+            Schema = string.IsNullOrWhiteSpace(schema) ? "gamecult.eve.command_receipt.v1" : schema;
+            ProviderId = providerId ?? "";
+            SurfaceId = surfaceId ?? "";
+            Message = message ?? "";
+            IssuedAtUtc = issuedAtUtc;
+        }
+
+        public string Schema { get; }
+
+        public string ReceiptId { get; }
+
+        public string Command { get; }
+
+        public string CommandId { get; }
+
+        public string State { get; }
+
+        public string OwnerRepo { get; }
+
+        public string Authority { get; }
+
+        public string ProviderId { get; }
+
+        public string SurfaceId { get; }
+
+        public string Message { get; }
+
+        public DateTimeOffset? IssuedAtUtc { get; }
+
+        public bool IsProviderOwned => !string.IsNullOrWhiteSpace(OwnerRepo) && !string.Equals(OwnerRepo, "EveUnity", StringComparison.Ordinal);
+
+        public bool ShouldRefreshProviderSurface =>
+            string.Equals(State, "accepted", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(State, "reconciled", StringComparison.OrdinalIgnoreCase);
     }
 }

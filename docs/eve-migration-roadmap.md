@@ -617,7 +617,10 @@ Recently cut:
   `EveUnityPlayableWorldLiveClient` now composes the provider connection with
   the playable-world presenter, so provider snapshots immediately drive scene
   presentation and Unity input still exits through the provider command sink
-  rather than local simulation.
+  rather than local simulation. The same live client now observes provider
+  command receipts through `IEveUnitySceneCommandReceiptSource`: pending
+  receipts remain status only, while accepted or reconciled receipts refresh
+  from the provider surface source instead of moving entities locally.
   `EveUnityPlayableWorldPresenter` now maps provider-authored entity rows and
   asset refs into scene sink operations, including removal of entities absent
   from later provider snapshots, without importing Aetheria entity/prefab
@@ -634,8 +637,8 @@ Recently cut:
   Unity client boundary is generic before it learns live transport. The next
   blocker is the live generic Unity player loop: implement that CultMesh/CultNet
   adapter, implement the concrete CultMesh/CultCache asset-manifest source, and
-  route provider receipts/next frames through the live client rather than
-  renderer-local simulation.
+  prove provider receipts plus daemon snapshots drive rendered Unity frames
+  rather than renderer-local simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria

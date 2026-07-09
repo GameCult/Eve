@@ -308,6 +308,76 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement()
+        {
+            var source = new FakeProviderSurfaceSource(
+                "aetheria",
+                "aetheria.daemon.game",
+                "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                new EveUnitySceneProviderSurfaceSnapshot(
+                    PlayableArpgDocument(),
+                    Advertisement("aetheria.daemon.game"),
+                    "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                    1));
+            var commandSink = new FakeCommandSink("cultmesh-command-sink");
+            var receiptSource = new FakeCommandReceiptSource();
+            var sceneSink = new FakePlayableWorldSceneSink();
+            using var connection = new EveUnitySceneProviderConnection(source, commandSink);
+            using var client = new EveUnityPlayableWorldLiveClient(
+                connection,
+                new EveUnityPlayableWorldPresenter(sceneSink, new EveUnityAssetRefResolver()),
+                receiptSource);
+
+            client.Connect();
+            client.SubmitMoveIntent("player-vanguard", 30f, 0f, 30f);
+
+            Assert.That(sceneSink.Upserts[0].entity.PositionX, Is.EqualTo(0f));
+            Assert.That(sceneSink.ConfiguredWorlds.Count, Is.EqualTo(1));
+
+            receiptSource.Publish(new EveUnitySceneCommandReceipt(
+                "aetheria.daemon.move_intent.pending",
+                "aetheria.daemon.commands",
+                "aetheria.daemon.move_intent",
+                "pending",
+                "Aetheria",
+                "AetheriaRuntimeDaemonCommandBoundaryDocument",
+                "aetheria.eve_command_acceptance_status.v1",
+                "aetheria",
+                "aetheria.daemon.game"));
+
+            Assert.That(client.LastReceipt, Is.Not.Null);
+            Assert.That(client.LastReceipt!.State, Is.EqualTo("pending"));
+            Assert.That(client.LastReceipt.IsProviderOwned, Is.True);
+            Assert.That(sceneSink.ConfiguredWorlds.Count, Is.EqualTo(1));
+
+            source.Stage(new EveUnitySceneProviderSurfaceSnapshot(
+                PlayableArpgDocument(includeRaider: false, playerPosition: "30,0,30"),
+                Advertisement("aetheria.daemon.game"),
+                "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                2));
+
+            receiptSource.Publish(new EveUnitySceneCommandReceipt(
+                "aetheria.daemon.move_intent.reconciled",
+                "aetheria.daemon.commands",
+                "aetheria.daemon.move_intent",
+                "reconciled",
+                "Aetheria",
+                "AetheriaRuntimeDaemonCommandBoundaryDocument",
+                "aetheria.eve_command_acceptance_status.v1",
+                "aetheria",
+                "aetheria.daemon.game"));
+
+            Assert.That(client.LastReceipt.State, Is.EqualTo("reconciled"));
+            Assert.That(client.ActiveVersion, Is.EqualTo(2));
+            Assert.That(client.LastPresentation, Is.Not.Null);
+            Assert.That(client.LastPresentation!.ActiveEntities, Is.EqualTo(2));
+            Assert.That(sceneSink.ConfiguredWorlds.Count, Is.EqualTo(2));
+            Assert.That(sceneSink.Upserts[3].entity.EntityId, Is.EqualTo("player-vanguard"));
+            Assert.That(sceneSink.Upserts[3].entity.PositionX, Is.EqualTo(30f));
+            Assert.That(sceneSink.Upserts[3].entity.PositionZ, Is.EqualTo(30f));
+        }
+
+        [Test]
         public void AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes()
         {
             var manifest = new EveUnityPlayableWorldAssetManifest(
@@ -808,10 +878,25 @@ namespace GameCult.Eve.UnityScene.Tests
 
             public event Action<EveUnitySceneProviderSurfaceSnapshot>? SnapshotAvailable;
 
+            public void Stage(EveUnitySceneProviderSurfaceSnapshot snapshot)
+            {
+                CurrentSnapshot = snapshot;
+            }
+
             public void Publish(EveUnitySceneProviderSurfaceSnapshot snapshot)
             {
                 CurrentSnapshot = snapshot;
                 SnapshotAvailable?.Invoke(snapshot);
+            }
+        }
+
+        private sealed class FakeCommandReceiptSource : IEveUnitySceneCommandReceiptSource
+        {
+            public event Action<EveUnitySceneCommandReceipt>? ReceiptAvailable;
+
+            public void Publish(EveUnitySceneCommandReceipt receipt)
+            {
+                ReceiptAvailable?.Invoke(receipt);
             }
         }
 

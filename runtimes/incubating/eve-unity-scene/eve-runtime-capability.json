@@ -19,6 +19,7 @@
     "providerSurfaceSession",
     "providerSurfaceSource",
     "livePlayableWorldClient",
+    "providerCommandReceipts",
     "sceneGraphProjection",
     "playableWorldProjection",
     "playableWorldScenePresentation",

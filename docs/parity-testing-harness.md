@@ -489,6 +489,11 @@ runtime-owned port to implement. The runtime now also declares
 provider connection with `EveUnityPlayableWorldPresenter`, applies every live
 snapshot to the scene sink, and delegates player intent back to the advertised
 provider command boundary. The runtime now also declares
+`providerCommandReceipts`: `IEveUnitySceneCommandReceiptSource` and
+`EveUnitySceneCommandReceipt` keep provider-owned pending/accepted/denied/
+reconciled command status distinct from scene state; accepted or reconciled
+receipts can refresh the provider snapshot, but receipts do not mutate world
+entities. The runtime now also declares
 `playableWorldScenePresentation`: `EveUnityPlayableWorldPresenter` maps
 provider-authored entity rows and asset refs into scene sink operations while
 removing entities absent from later provider snapshots. The runtime now also
@@ -504,8 +509,8 @@ and `EveUnityPlayableWorldAssetManifestCache` key live manifest updates by the
 `playableWorld.AssetManifest` pointer, giving the future CultMesh/CultCache
 reader a narrow slot that does not change scene lowering. The remaining blocker
 is the live CultMesh/CultNet adapter, a concrete CultMesh/CultCache provider
-asset-manifest source, receipt-aware refresh through the live client, and Unity
-screenshot or frame-capture PNG production from EveUnity.
+asset-manifest source, and Unity screenshot or frame-capture PNG production from
+EveUnity.
 
 Runtime capture probe coverage is exported as `runtimeCaptureProbeCoverage[]`.
 Each record joins runtime status, capture owner, lifecycle capture contract,

@@ -54,7 +54,7 @@ foreach ($evidencePath in @($worldSurfaceLoweringClaim.evidencePaths)) {
   }
 }
 
-foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "livePlayableWorldClient", "sceneGraphProjection", "playableWorldProjection", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "providerAssetManifestSource")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "livePlayableWorldClient", "providerCommandReceipts", "sceneGraphProjection", "playableWorldProjection", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "providerAssetManifestSource")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) {
     throw "EveUnity scene provider shell missing supported feature: $feature"
   }
@@ -106,7 +106,7 @@ foreach ($symbol in @("IEveUnitySceneProviderSurfaceSource", "IEveUnitySceneComm
 }
 
 $liveClientSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldLiveClient.cs") -Raw
-foreach ($symbol in @("EveUnityPlayableWorldLiveClient", "EveUnitySceneProviderConnection", "EveUnityPlayableWorldPresenter", "ActiveWorld", "LastPresentation", "Connect", "Refresh", "SubmitMoveIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "ProjectionUpdated", "Disconnect")) {
+foreach ($symbol in @("EveUnityPlayableWorldLiveClient", "IEveUnitySceneCommandReceiptSource", "EveUnitySceneCommandReceipt", "EveUnitySceneProviderConnection", "EveUnityPlayableWorldPresenter", "ActiveWorld", "LastPresentation", "LastReceipt", "ReceiptAvailable", "Connect", "Refresh", "SubmitMoveIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "ProjectionUpdated", "ShouldRefreshProviderSurface", "IsProviderOwned", "Disconnect")) {
   if (-not $liveClientSource.Contains($symbol)) {
     throw "EveUnity playable world live client missing symbol: $symbol"
   }
@@ -155,7 +155,7 @@ foreach ($symbol in @("TeXMathUnitySceneProjectionAdapter", "tex.math", "embed.t
 }
 
 $testSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Tests\Editor\EveUnitySceneSurfaceLowererTests.cs") -Raw
-foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "FakeProviderSurfaceSource", "FakeAssetManifestSource", "FakeCommandSink", "FakePlayableWorldSceneSink", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
+foreach ($symbol in @("LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "FakeProviderSurfaceSource", "FakeCommandReceiptSource", "FakeAssetManifestSource", "FakeCommandSink", "FakePlayableWorldSceneSink", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "pending", "reconciled", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1")) {
   if (-not $testSource.Contains($symbol)) {
     throw "EveUnity scene provider shell tests missing symbol: $symbol"
   }

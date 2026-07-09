@@ -166,8 +166,11 @@ radii, asset refs, controllability, and command affordances. The generic
 while `IEveUnitySceneCommandSink` receives command envelopes.
 `EveUnityPlayableWorldLiveClient` composes that connection with the playable
 world presenter: every provider snapshot is lowered into a presentation pass,
-and Unity input still emits provider-owned command intents rather than mutating
-local world truth.
+Unity input still emits provider-owned command intents rather than mutating
+local world truth, and `IEveUnitySceneCommandReceiptSource` reports provider
+receipts as derived command status. Pending receipts do not move the scene;
+accepted or reconciled receipts only trigger a refresh from the provider surface
+source, so the next presentation still comes from daemon-authored state.
 `EveUnityPlayableWorldPresenter` maps the provider-authored entity rows and
 asset refs into scene operations through `IEveUnityPlayableWorldSceneSink` and
 `IEveUnityPlayableWorldAssetResolver`, including removal of entities that
@@ -188,9 +191,9 @@ locally.
 
 This is not yet the final playable client. The remaining cut is a live
 CultMesh/CultNet provider subscription adapter implementing those source/sink
-ports, a concrete CultMesh/CultCache asset-manifest source implementation,
-receipt-aware refresh over the same live client, and proof that daemon receipts
-drive the next rendered Unity frame rather than renderer-local state.
+ports, a concrete CultMesh/CultCache asset-manifest source implementation, and
+proof that daemon receipts plus provider snapshots drive the next rendered
+Unity frame rather than renderer-local state.
 
 ## Non-Goals
 
