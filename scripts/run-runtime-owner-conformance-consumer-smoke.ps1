@@ -73,6 +73,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-feature unity-scene:providerAssetManifestDocumentSource `
   --expect-runtime-feature unity-scene:sceneGraphProjection `
   --expect-runtime-feature unity-scene:playableWorldProjection `
+  --expect-runtime-feature unity-scene:playableWorldRuntimeHost `
   --expect-runtime-feature unity-scene:playableWorldScenePresentation `
   --expect-runtime-feature unity-scene:unityGameObjectSceneSink `
   --expect-runtime-feature unity-scene:providerAssetManifestResolution `

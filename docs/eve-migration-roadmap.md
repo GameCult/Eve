@@ -627,6 +627,10 @@ Recently cut:
   command receipts through `IEveUnitySceneCommandReceiptSource`: pending
   receipts remain status only, while accepted or reconciled receipts refresh
   from the provider surface source instead of moving entities locally.
+  `EveUnityPlayableWorldRuntime` now owns the generic Unity playable-world
+  composition point: provider surface documents, provider asset manifest
+  documents, command sink, optional receipt source, asset manifest cache,
+  presenter, and scene sink are wired without Aetheria imports.
   `EveUnityPlayableWorldPresenter` now maps provider-authored entity rows and
   asset refs into scene sink operations, including removal of entities absent
   from later provider snapshots, without importing Aetheria entity/prefab
@@ -643,7 +647,9 @@ Recently cut:
   `gamecult.eve.unity_playable_world_asset_manifest.v1` and
   `EveUnityPlayableWorldAssetManifestDocumentSource` now define the typed
   manifest document loading boundary and feed that cache without importing
-  Aetheria asset classes. The Unity client boundary is generic before it learns
+  Aetheria asset classes. `EveUnityLivePlayableWorldAssetProvider` connects
+  that cache to the active world pointer for GameObject scenes. The Unity
+  client boundary is generic before it learns
   live transport. The next blocker is the live generic Unity player loop:
   implement the CultMesh/CultNet adapter, implement concrete CultMesh/CultCache
   readers for provider surface and asset manifest documents, and prove

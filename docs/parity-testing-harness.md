@@ -495,6 +495,12 @@ now also declares
 provider connection with `EveUnityPlayableWorldPresenter`, applies every live
 snapshot to the scene sink, and delegates player intent back to the advertised
 provider command boundary. The runtime now also declares
+`playableWorldRuntimeHost`: `EveUnityPlayableWorldRuntime` composes provider
+surface documents, provider asset manifest documents, command sink, optional
+receipt source, asset manifest cache, presenter, and scene sink into one generic
+Unity playable-world client. `EveUnityLivePlayableWorldAssetProvider` lets a
+GameObject scene resolve prefabs through the active world's provider manifest
+without importing provider prefab classes. The runtime now also declares
 `providerCommandReceipts`: `IEveUnitySceneCommandReceiptSource` and
 `EveUnitySceneCommandReceipt` keep provider-owned pending/accepted/denied/
 reconciled command status distinct from scene state; accepted or reconciled

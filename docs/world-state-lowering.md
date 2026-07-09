@@ -177,6 +177,10 @@ local world truth, and `IEveUnitySceneCommandReceiptSource` reports provider
 receipts as derived command status. Pending receipts do not move the scene;
 accepted or reconciled receipts only trigger a refresh from the provider surface
 source, so the next presentation still comes from daemon-authored state.
+`EveUnityPlayableWorldRuntime` is the generic runtime composition entry point:
+it wires provider surface documents, provider asset manifest documents, command
+sink, optional receipt source, asset manifest cache, presenter, and scene sink
+into one Unity playable-world client without importing provider code.
 `EveUnityPlayableWorldPresenter` maps the provider-authored entity rows and
 asset refs into scene operations through `IEveUnityPlayableWorldSceneSink` and
 `IEveUnityPlayableWorldAssetResolver`, including removal of entities that
@@ -193,16 +197,17 @@ through data rather than Aetheria code. `gamecult.eve.unity_playable_world_asset
 loading boundary for those Unity load keys. `IEveUnityPlayableWorldAssetManifestSource`
 and `EveUnityPlayableWorldAssetManifestCache` key live manifest updates by the
 `playableWorld.AssetManifest` pointer, so a CultMesh/CultCache source can update
-Unity asset bindings without changing the lowerer. Aetheria-specific names
-appear only as provider-authored data and command ids; the Unity client code
-does not import Aetheria runtime types, prefab classes, or apply movement
+Unity asset bindings without changing the lowerer. `EveUnityLivePlayableWorldAssetProvider`
+connects that cache to the active world pointer for GameObject scenes. Aetheria-specific
+names appear only as provider-authored data and command ids; the Unity client
+code does not import Aetheria runtime types, prefab classes, or apply movement
 locally.
 
 This is not yet the final playable client. The remaining cut is a live
 CultMesh/CultNet provider subscription adapter implementing those document and
-command ports, concrete CultMesh/CultCache readers for provider snapshots and
+command ports, concrete CultMesh/CultCache readers for provider surface and
 asset manifest documents, and proof that daemon receipts plus provider
-snapshots drive the next rendered Unity frame rather than renderer-local state.
+documents drive the next rendered Unity frame rather than renderer-local state.
 
 ## Non-Goals
 

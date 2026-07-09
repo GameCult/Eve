@@ -249,6 +249,90 @@ namespace GameCult.Eve.UnityScene.Tests
         }
 
         [Test]
+        public void PlayableWorldRuntimeComposesProviderDocumentsAssetsReceiptsAndSceneSink()
+        {
+            var surfaceDocuments = new FakeProviderSurfaceDocumentSource(new EveUnitySceneProviderSurfaceDocument(
+                PlayableArpgDocument(),
+                Advertisement("aetheria.daemon.game"),
+                "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                1));
+            var assetDocuments = new FakeAssetManifestDocumentSource(new EveUnityPlayableWorldAssetManifestDocument(
+                "cultmesh://aetheria/assets/manifest",
+                new[]
+                {
+                    new EveUnityPlayableWorldAssetManifestDocumentEntry(
+                        "cultmesh://aetheria/assets/map/entity/player",
+                        "player",
+                        "Resources/Aetheria/Entities/Vanguard.prefab",
+                        "aetheria.vanguard"),
+                    new EveUnityPlayableWorldAssetManifestDocumentEntry(
+                        "cultmesh://aetheria/assets/map/entity/ship",
+                        "enemy",
+                        "Resources/Aetheria/Entities/Raider.prefab",
+                        "aetheria.raider")
+                },
+                "aetheria"));
+            var commandSink = new FakeCommandSink("cultmesh-command-sink");
+            var receiptSource = new FakeCommandReceiptSource();
+            var sceneSink = new FakePlayableWorldSceneSink();
+
+            using var runtime = new EveUnityPlayableWorldRuntime(
+                surfaceDocuments,
+                commandSink,
+                sceneSink,
+                assetDocuments,
+                receiptSource);
+
+            var initialPresentation = runtime.Connect();
+
+            Assert.That(initialPresentation.ActiveEntities, Is.EqualTo(3));
+            Assert.That(runtime.ActiveWorld, Is.Not.Null);
+            Assert.That(runtime.ActiveWorld!.AssetManifest, Is.EqualTo("cultmesh://aetheria/assets/manifest"));
+            Assert.That(runtime.AssetManifests.GetForWorld(runtime.ActiveWorld), Is.Not.Null);
+            Assert.That(sceneSink.Upserts.Count, Is.EqualTo(3));
+
+            var moveIntent = runtime.SubmitMoveIntent(
+                "player-vanguard",
+                14f,
+                0f,
+                9f,
+                DateTimeOffset.Parse("2026-07-09T00:00:00Z"));
+
+            Assert.That(commandSink.Submitted.Count, Is.EqualTo(1));
+            Assert.That(commandSink.Submitted[0], Is.SameAs(moveIntent));
+            Assert.That(moveIntent.ProviderId, Is.EqualTo("aetheria"));
+            Assert.That(moveIntent.Command, Is.EqualTo("aetheria.daemon.commands"));
+            Assert.That(moveIntent.CommandBoundary, Is.EqualTo("aetheria.daemon.commands"));
+            Assert.That(moveIntent.ReceiptSchema, Is.EqualTo("aetheria.eve_command_acceptance_status.v1"));
+
+            surfaceDocuments.Publish(new EveUnitySceneProviderSurfaceDocument(
+                PlayableArpgDocument(includeRaider: false, playerPosition: "14,0,9"),
+                Advertisement("aetheria.daemon.game"),
+                "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game",
+                2));
+
+            Assert.That(runtime.ActiveVersion, Is.EqualTo(2));
+            Assert.That(runtime.LastPresentation, Is.Not.Null);
+            Assert.That(runtime.LastPresentation!.ActiveEntities, Is.EqualTo(2));
+            Assert.That(sceneSink.RemovedEntityIds, Does.Contain("raider-scout"));
+            Assert.That(sceneSink.Upserts[3].entity.EntityId, Is.EqualTo("player-vanguard"));
+            Assert.That(sceneSink.Upserts[3].entity.PositionX, Is.EqualTo(14f));
+            Assert.That(sceneSink.Upserts[3].entity.PositionZ, Is.EqualTo(9f));
+
+            receiptSource.Publish(new EveUnitySceneCommandReceipt(
+                "aetheria.daemon.move_intent.accepted",
+                "aetheria.daemon.move_intent",
+                "aetheria.daemon.move_intent",
+                "accepted",
+                "Aetheria",
+                "provider-owned-daemon"));
+
+            Assert.That(runtime.LastReceipt, Is.Not.Null);
+            Assert.That(runtime.LastReceipt!.IsProviderOwned, Is.True);
+            Assert.That(runtime.LastReceipt.ShouldRefreshProviderSurface, Is.True);
+        }
+
+        [Test]
         public void PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities()
         {
             var lowerer = new EveUnitySceneSurfaceLowerer();

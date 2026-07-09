@@ -1041,7 +1041,7 @@
       "splitHandoffPath": "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
       "requiredFixtures": ["aetheria-world", "eve-world-smoke"],
       "pluginFixtures": ["sai-vn"],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "providerAssetManifestSource", "sceneGraphProjection", "playableWorldProjection", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "embeddedDocuments"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "providerSurfaceSession", "providerSurfaceSource", "providerSurfaceDocumentSource", "livePlayableWorldClient", "providerCommandReceipts", "providerAssetManifestDocumentSource", "providerAssetManifestSource", "sceneGraphProjection", "playableWorldProjection", "playableWorldRuntimeHost", "playableWorldScenePresentation", "unityGameObjectSceneSink", "providerAssetManifestResolution", "embeddedDocuments"],
       "supportedPlugins": [
         {
           "pluginId": "sai.vn",
@@ -1072,6 +1072,7 @@
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
+            "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
             "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldAssetManifest.cs",
@@ -1091,6 +1092,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldAssetManifest.cs",
@@ -1134,6 +1136,10 @@
           "contains": ["EveUnityPlayableWorldLiveClient", "IEveUnitySceneCommandReceiptSource", "EveUnitySceneCommandReceipt", "EveUnitySceneProviderConnection", "EveUnityPlayableWorldPresenter", "ActiveWorld", "LastPresentation", "LastReceipt", "ReceiptAvailable", "Connect", "Refresh", "SubmitMoveIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "ProjectionUpdated", "ShouldRefreshProviderSurface", "IsProviderOwned", "Disconnect"]
         },
         {
+          "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
+          "contains": ["EveUnityPlayableWorldRuntime", "CreateForGameObjectScene", "EveUnityLivePlayableWorldAssetProvider", "IEveUnitySceneProviderSurfaceDocumentSource", "IEveUnitySceneCommandSink", "IEveUnityPlayableWorldAssetManifestDocumentSource", "IEveUnitySceneCommandReceiptSource", "EveUnityPlayableWorldAssetManifestCache", "AssetManifests", "ActiveWorld", "SubmitMoveIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "Connect", "Refresh", "Disconnect"]
+        },
+        {
           "path": "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
           "contains": ["IEveUnityPlayableWorldSceneSink", "IEveUnityPlayableWorldAssetResolver", "EveUnityPlayableWorldPresenter", "EveUnityPlayableWorldAssetBinding", "EveUnityPlayableWorldPresentation", "EveUnityAssetRefResolver", "ConfigureWorld", "UpsertEntity", "RemoveEntity", "provider-asset-ref", "unity-generated-placeholder"]
         },
@@ -1159,7 +1165,7 @@
         },
         {
           "path": "runtimes/incubating/eve-unity-scene/Tests/Editor/EveUnitySceneSurfaceLowererTests.cs",
-          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "ProviderSurfaceDocumentSourceFeedsPlayableClientWithoutAetheriaTypes", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "AssetManifestDocumentSourceFeedsCacheWithoutChangingSceneLowering", "FakeProviderSurfaceSource", "FakeProviderSurfaceDocumentSource", "FakeCommandReceiptSource", "FakeAssetManifestSource", "FakeAssetManifestDocumentSource", "FakeCommandSink", "FakePlayableWorldSceneSink", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "pending", "reconciled", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "norn.map", "cultmesh://aetheria/norn/map", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "contains": ["LowerCarriesProviderAdvertisedWorldBoundary", "LowerBuildsProviderAgnosticSceneGraphFromSurfaceTree", "LowerExtractsPlayableArpgWorldFromGenericScene3dSurface", "GenericClientSessionConsumesAetheriaPlayableWorldSnapshotWithoutAetheriaTypes", "GenericProviderConnectionAppliesLiveSnapshotsAndSubmitsCommandsThroughSink", "ProviderSurfaceDocumentSourceFeedsPlayableClientWithoutAetheriaTypes", "PlayableWorldRuntimeComposesProviderDocumentsAssetsReceiptsAndSceneSink", "PlayableWorldPresenterInstantiatesUpdatesAndDespawnsProviderEntities", "LivePlayableWorldClientPresentsProviderSnapshotsAndKeepsCommandsProviderOwned", "LivePlayableWorldClientRefreshesFromProviderSnapshotAfterReceiptWithoutOwningMovement", "AssetManifestMapsProviderAssetRefsToUnityLoadKeysWithoutAetheriaTypes", "AssetManifestCacheTracksPlayableWorldManifestPointerAndLiveUpdates", "AssetManifestDocumentSourceFeedsCacheWithoutChangingSceneLowering", "FakeProviderSurfaceSource", "FakeProviderSurfaceDocumentSource", "FakeCommandReceiptSource", "FakeAssetManifestSource", "FakeAssetManifestDocumentSource", "FakeCommandSink", "FakePlayableWorldSceneSink", "SaiVisualNovelLowersThroughRuntimeProjectionAdapterWithoutOwningStoryState", "CommandIntentCarriesAdvertisedBoundaryWithoutOwningReceipts", "pending", "reconciled", "world-projection-node", "playable-world-root", "playable-world-entity", "world-field-3d", "arpg-third-person", "cultmesh://aetheria/assets/manifest", "cultmesh://aetheria/eve/surfaces/aetheria.daemon.game", "aetheria.daemon.move_intent", "sai-vn-scene-stage", "norn-graph-scene-projection", "tex-math-scene-projection", "norn.map", "cultmesh://aetheria/norn/map", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
         },
         {
           "path": "tools/eveunity/eveunity-capture-contract.test.mjs",

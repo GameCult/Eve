@@ -19,6 +19,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldAssetManifest.cs",
@@ -41,6 +42,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldAssetManifest.cs",
@@ -63,6 +65,7 @@
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneClientSession.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneProviderConnection.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldLiveClient.cs",
+        "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldRuntime.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldPresenter.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityGameObjectPlayableWorldSceneSink.cs",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnityPlayableWorldAssetManifest.cs",
@@ -73,7 +76,7 @@
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json"
       ],
       "destinationOwner": "EveUnity",
-      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, typed provider surface document loading, provider snapshot session, live playable-world client composition, provider command receipt observation, playable-world scene presentation, Unity GameObject scene sink, typed provider asset manifest document loading, provider asset manifest resolution, provider asset manifest source/cache, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
+      "replacementProof": "EveUnity claims the provider-advertised unity-scene lowering target with provider-agnostic playable-world projection, scene graph projection, typed provider surface document loading, provider snapshot session, a playable-world runtime host, live playable-world client composition, provider command receipt observation, playable-world scene presentation, Unity GameObject scene sink, typed provider asset manifest document loading, provider asset manifest resolution, provider asset manifest source/cache, and command boundary evidence; live transport and capture remain separate lifecycle proofs."
     },
     {
       "id": "unity-scene-sai-plugin-projection",
