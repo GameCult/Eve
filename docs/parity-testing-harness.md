@@ -328,10 +328,11 @@ a narrow provider-advertised surface-tree command surface and exposes a typed
 capture request contract. It preserves embedded document slot identity in the
 generic shell projection, while packaged rendering, actual window capture, and
 plugin projection remain blockers.
-EveTui is also intentionally pending: it now claims a lossy
+EveTui is now an active incubating runtime: it claims a lossy
 provider-advertised terminal-grid command surface, preserves embedded document
-slot identity in the grid artifact, and attaches a typed JSON grid capture.
-Plugin projection and repo graduation remain blockers.
+slot identity in the grid artifact, projects Sai/Norn/TeX fallback shells, and
+attaches a typed JSON grid capture. Repo/package graduation and owner-repo
+capture production remain blockers.
 EveUnity includes both the active `unity-uitoolkit` package proof
 and the pending `unity-scene` runtime boundary; UI Toolkit support is not
 treated as full Unity scene/world lowering. The `unity-scene` runtime now claims

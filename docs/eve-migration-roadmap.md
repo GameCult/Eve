@@ -493,21 +493,21 @@ Recently cut:
   `scripts/run-eveelectron-capture-contract-smoke.ps1`. The packaged Electron
   app, packaged window rendering, and actual Electron window capture artifacts
   remain pending EveElectron work.
-- Electron and TUI pending lifecycle details now live in their runtime
-  capability manifests rather than being duplicated in
+- Electron pending lifecycle details and TUI active-incubation lifecycle details
+  now live in their runtime capability manifests rather than being duplicated in
   `tools/parity/parity-manifest.json`. The parity ledger points at the
   capability documents; the conformance export reads command/lifecycle contracts
-  from those documents for pending runtimes.
-- EveTui now has a pending split target and handoff at
+  from those documents for runtime targets.
+- EveTui now has an active incubating runtime target and a split handoff at
   `runtimes/incubating/eve-tui/evetui-split-handoff.json`. It claims the
   advertised `tui` world-surface lowering target as a lossy terminal-grid
   command surface and carries compact Sai, Norn, and TeX sidecar plugin
   fallback shells. The handoff draws the line between the provider-agnostic
   terminal/grid lowerer, plugin-owned semantics, and provider-owned TUI
-  surfaces, while the split-target consumer smoke keeps runtime graduation and
-  transcript/cell-grid capture ownership visible as blockers.
+  surfaces, while the split-target consumer smoke keeps package release and
+  owner-repo capture production visible as blockers.
 - EveTui now has a direct split handoff smoke at
-  `scripts/run-evetui-split-handoff-smoke.ps1`, a pending runtime capability
+  `scripts/run-evetui-split-handoff-smoke.ps1`, an active runtime capability
   manifest at `runtimes/incubating/eve-tui/eve-runtime-capability.json`, and a
   lifecycle smoke at `scripts/run-evetui-lifecycle-smoke.ps1`. The manifest
   declares provider advertisement consumption, command transport, terminal-grid

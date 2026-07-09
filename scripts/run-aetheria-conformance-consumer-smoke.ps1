@@ -84,7 +84,8 @@ try {
     --expect-split-handoff-move EveTui:tui:tui-command-transport:current:exists:eve-tui-shell.mjs `
     --expect-split-target-blocker "EveUnity:Unity scene runtime body graduates to EveUnity outside Aetheria product code" `
     --expect-split-target-blocker "EveElectron:Electron shell runtime body graduates to EveElectron outside Aetheria product code" `
-    --expect-split-target-blocker "EveTui:TUI runtime body graduates to EveTui outside provider product code" `
+    --expect-split-target-blocker "EveTui:TUI package release is cut from EveTui rather than Eve incubation" `
+    --expect-split-target-blocker "EveTui:TUI capture path is owned by EveTui rather than Eve incubation" `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-runtime-body:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-world-surface-lowering:current:exists:EveUnitySceneSurfaceLowerer.cs `
     --expect-split-handoff-move EveUnity:unity-scene:unity-scene-command-transport:current:exists:EveUnitySceneSurfaceLowerer.cs `

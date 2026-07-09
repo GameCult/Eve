@@ -683,7 +683,7 @@
       "id": "EveTui",
       "ownerRepo": "EveTui",
       "repoRole": "runtime-target",
-      "status": "pending",
+      "status": "incubating",
       "runtimes": ["tui"],
       "requiredRuntimeStatuses": ["active"],
       "requiredFeatures": ["providerAdvertisements", "embeddedDocuments", "commandTransport"],
@@ -720,8 +720,8 @@
         }
       ],
       "pendingProofs": [
-        "TUI runtime body graduates to EveTui outside provider product code.",
-        "TUI terminal transcript or cell-grid captures are attached to conformance output from the EveTui owner repo."
+        "TUI package release is cut from EveTui rather than Eve incubation.",
+        "TUI capture path is owned by EveTui rather than Eve incubation."
       ]
     }
   ],
@@ -821,7 +821,7 @@
     {
       "id": "tui",
       "title": "Compact TUI",
-      "kind": "pending",
+      "kind": "active",
       "ownerRepo": "EveTui",
       "repoRole": "runtime-target",
       "splitTarget": "EveTui",

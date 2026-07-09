@@ -76,13 +76,13 @@ try {
     --expect-split-target-status EveTui:incubating `
     --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `
     --expect-split-target-proof "EveTui:EveTui lifecycle contract is machine-readable" `
-    --expect-split-target-blocker "EveTui:runtime:tui:status:pending" `
     --expect-split-handoff-move EveTui:tui:tui-runtime-body:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-world-surface-lowering:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-command-transport:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-plugin-projection:current:exists:sai-vn-surface.json `
     --expect-split-handoff-move EveTui:tui:tui-capture-lifecycle:current:exists:evetui-capture-contract.mjs `
-    --expect-split-target-blocker "EveTui:TUI runtime body graduates to EveTui outside provider product code"
+    --expect-split-target-blocker "EveTui:TUI package release is cut from EveTui rather than Eve incubation" `
+    --expect-split-target-blocker "EveTui:TUI capture path is owned by EveTui rather than Eve incubation"
   if ($LASTEXITCODE -ne 0) {
     throw "Split target conformance consumer smoke failed with exit code $LASTEXITCODE"
   }

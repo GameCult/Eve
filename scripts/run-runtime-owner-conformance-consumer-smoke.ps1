@@ -55,7 +55,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-status unity-uitoolkit:active `
   --expect-runtime-status unity-scene:pending `
   --expect-runtime-status electron-shell:pending `
-  --expect-runtime-status tui:pending `
+  --expect-runtime-status tui:active `
   --expect-runtime-status direct2d:external-adapter-spike `
   --expect-runtime-feature web:providerAdvertisements `
   --expect-runtime-feature windows-flutter:embeddedDocuments `
