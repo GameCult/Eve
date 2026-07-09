@@ -429,8 +429,8 @@ Sai plugin responsibilities:
 - define visual manifest schema as Eve-facing representation input;
 - provide slots for embedded surfaces inside VN scenes without owning the
   embedded surface semantics;
-- declare optional plugin dependencies such as Norn graph and TeX math when a
-  scene embeds those documents;
+- declare optional nested composition slots such as Norn graph and TeX math
+  when a scene embeds those documents;
 - provide fixtures for Eve parity;
 - provide a web/static-site reference implementation.
 
@@ -472,7 +472,7 @@ TeX plugin responsibilities:
 - define fallback and capability-gap behavior when a renderer cannot typeset;
 - provide inline, block, and scene-placed math fixtures for Eve parity.
 
-Sai may declare optional dependencies:
+Sai may advertise optional nested composition slots:
 
 ```json
 {
@@ -480,6 +480,7 @@ Sai may declare optional dependencies:
   "optionalPlugins": [
     {
       "pluginId": "norn.graph",
+      "relationship": "optional-nested-composition",
       "capabilities": [
         "embed.norn",
         "graph.node.activate"
@@ -487,6 +488,7 @@ Sai may declare optional dependencies:
     },
     {
       "pluginId": "tex.math",
+      "relationship": "optional-nested-composition",
       "capabilities": [
         "embed.tex",
         "tex.inline",
@@ -616,7 +618,7 @@ For Sai VN:
 - choice command fixture;
 - continue command fixture;
 - visual manifest asset fixture;
-- embedded surface slot fixture with optional Norn/TeX plugin dependencies;
+- embedded surface slot fixture with optional Norn/TeX composition slots;
 - degraded renderer fixture for clients without scene placement;
 - receipt round-trip fixture driven by a fake provider.
 - ABI fixture proving `describe`, `validate`, `project`, `lower`, `measure`,

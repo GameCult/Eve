@@ -657,9 +657,9 @@ Recently cut:
   conformance consumer can assert plugin ABI operations and capabilities with
   `--expect-plugin-operation` and `--expect-plugin-capability`, and the export
   now carries plugin manifest paths, advertisement paths, split targets,
-  graduation triggers, and optional plugin dependencies. Sai and Norn can prove
-  the plugin contract from the conformance export without reading Eve's parity
-  manifest.
+  graduation triggers, and optional nested composition claims. Sai and Norn can
+  prove the plugin contract from the conformance export without reading Eve's
+  parity manifest.
 - EveUnity now has a split lifecycle smoke at
   `scripts/run-eveunity-lifecycle-smoke.ps1`. It validates the existing
   `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`

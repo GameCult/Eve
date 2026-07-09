@@ -76,6 +76,8 @@
     "optionalPlugins": [
       {
         "pluginId": "norn.graph",
+        "relationship": "optional-nested-composition",
+        "authority": "Sai can place an embed.norn surface when norn.graph is available; Norn remains the independent graph plugin owner and Sai must not import graph internals.",
         "capabilities": [
           "embed.norn",
           "graph.node.activate"
@@ -83,6 +85,8 @@
       },
       {
         "pluginId": "tex.math",
+        "relationship": "optional-nested-composition",
+        "authority": "Sai can place an embed.tex surface when tex.math is available; TeX remains the independent math plugin owner and Sai must not import TeX internals.",
         "capabilities": [
           "embed.tex",
           "tex.inline",
