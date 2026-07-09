@@ -106,20 +106,23 @@ foreach ($symbol in @("EveUnitySceneClientSession", "EveUnitySceneProviderSurfac
 }
 
 $providerConnectionSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneProviderConnection.cs") -Raw
-foreach ($symbol in @("IEveUnitySceneProviderSurfaceSource", "IEveUnitySceneCommandSink", "IEveUnitySceneProviderSurfaceDocumentSource", "EveUnitySceneProviderSurfaceDocument", "EveUnitySceneProviderSurfaceDocumentSource", "ToSnapshot", "DocumentAvailable", "EveUnitySceneProviderConnection", "SnapshotAvailable", "CurrentSnapshot", "Connect", "Refresh", "SubmitMoveIntent", "SubmitMoveVectorIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "Disconnect")) {
+foreach ($symbol in @("IEveUnitySceneProviderSurfaceSource", "IEveUnitySceneCommandSink", "IEveUnitySceneProviderSurfaceDocumentSource", "IEveUnitySceneProviderSurfaceDocumentConnection", "IEveUnityProviderRefreshSource", "EveUnitySceneProviderSurfaceDocument", "EveUnitySceneProviderSurfaceDocumentSource", "ToSnapshot", "DocumentAvailable", "EveUnitySceneProviderConnection", "SnapshotAvailable", "CurrentSnapshot", "Connect", "Refresh", "_refreshSource?.Refresh();", "SubmitMoveIntent", "SubmitMoveVectorIntent", "SubmitFocusIntent", "SubmitTargetIntent", "SubmitActionIntent", "Disconnect", "HasAppliedCurrentSnapshot")) {
   if (-not $providerConnectionSource.Contains($symbol)) {
     throw "EveUnity scene provider connection missing symbol: $symbol"
   }
 }
 
 $liveProviderBridgeSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneLiveProviderBridge.cs") -Raw
-foreach ($symbol in @("IEveUnitySceneLiveProviderTransport", "EveUnitySceneLiveProviderTransportBehaviour", "EveUnitySceneLiveProviderBridgeComponent", "EveUnitySceneLiveProviderBridge", "IEveUnitySceneProviderSurfaceDocumentSource", "IEveUnityPlayableWorldAssetManifestDocumentSource", "IEveUnitySceneCommandSink", "IEveUnitySceneCommandReceiptSource", "IEveUnityProviderRefreshSource", "SubmitCommand", "CommandReceiptAvailable", "ShouldRefreshProviderSurface", "transportBehaviour")) {
+foreach ($symbol in @("IEveUnitySceneLiveProviderTransport", "EveUnitySceneLiveProviderTransportBehaviour", "EveUnitySceneLiveProviderBridgeComponent", "EveUnitySceneLiveProviderBridge", "IEveUnitySceneProviderSurfaceDocumentSource", "IEveUnitySceneProviderSurfaceDocumentConnection", "IEveUnityPlayableWorldAssetManifestDocumentSource", "IEveUnitySceneCommandSink", "IEveUnitySceneCommandReceiptSource", "IEveUnityProviderRefreshSource", "SubmitCommand", "CommandReceiptAvailable", "ReceiptAvailable?.Invoke(receipt);", "transportBehaviour")) {
   if (-not $liveProviderBridgeSource.Contains($symbol)) {
     throw "EveUnity scene live provider bridge missing symbol: $symbol"
   }
 }
 if ($liveProviderBridgeSource.Contains("Aetheria")) {
   throw "EveUnity scene live provider bridge must remain provider-agnostic and cannot reference Aetheria"
+}
+if ($liveProviderBridgeSource.Contains("if (receipt.ShouldRefreshProviderSurface)")) {
+  throw "EveUnity scene live provider bridge must forward receipts; playable-world live client owns refresh policy"
 }
 
 $liveClientSource = Get-Content -LiteralPath (Join-Path $projectRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnityPlayableWorldLiveClient.cs") -Raw

@@ -24,6 +24,8 @@ $aetheriaGameSurfaceBuilder = Join-Path $AetheriaRoot "Packages\org.gamecult.aet
 $aetheriaDaemonOperationsClient = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonOperationsClient.cs"
 $aetheriaDaemonDocuments = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonDocuments.cs"
 $aetheriaRuntimeVerseClient = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeVerseClient.cs"
+$eveUnitySceneProviderConnection = Join-Path $eveRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneProviderConnection.cs"
+$eveUnitySceneLiveProviderBridge = Join-Path $eveRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneLiveProviderBridge.cs"
 if (-not (Test-Path $manifestPath)) {
   throw "Aetheria Unity package manifest not found: $manifestPath"
 }
@@ -68,6 +70,12 @@ if (-not (Test-Path $aetheriaDaemonDocuments)) {
 }
 if (-not (Test-Path $aetheriaRuntimeVerseClient)) {
   throw "Aetheria runtime Verse client not found: $aetheriaRuntimeVerseClient"
+}
+if (-not (Test-Path $eveUnitySceneProviderConnection)) {
+  throw "EveUnity scene provider connection not found: $eveUnitySceneProviderConnection"
+}
+if (-not (Test-Path $eveUnitySceneLiveProviderBridge)) {
+  throw "EveUnity scene live provider bridge not found: $eveUnitySceneLiveProviderBridge"
 }
 
 $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
@@ -118,6 +126,35 @@ foreach ($compileItem in $requiredSceneCompileItems) {
   if (-not $sceneProject.Contains($expected)) {
     throw "Aetheria GameCult.Eve.UnityScene.csproj missing compile item: $expected"
   }
+}
+
+$sceneProviderConnection = Get-Content -Raw -LiteralPath $eveUnitySceneProviderConnection
+foreach ($symbol in @(
+  "IEveUnitySceneProviderSurfaceDocumentConnection",
+  "_documentConnection?.Connect();",
+  "_documentConnection?.Disconnect();",
+  "_refreshSource?.Refresh();",
+  "HasAppliedCurrentSnapshot()",
+  "_session.ActiveSourcePointer"
+)) {
+  if (-not $sceneProviderConnection.Contains($symbol)) {
+    throw "EveUnity scene provider connection missing live-source lifecycle symbol: $symbol"
+  }
+}
+
+$sceneLiveProviderBridge = Get-Content -Raw -LiteralPath $eveUnitySceneLiveProviderBridge
+foreach ($symbol in @(
+  "IEveUnitySceneProviderSurfaceDocumentConnection",
+  "IEveUnitySceneLiveProviderTransport",
+  "CommandReceiptAvailable += OnCommandReceiptAvailable",
+  "ReceiptAvailable?.Invoke(receipt);"
+)) {
+  if (-not $sceneLiveProviderBridge.Contains($symbol)) {
+    throw "EveUnity scene live provider bridge missing transport receipt/lifecycle symbol: $symbol"
+  }
+}
+if ($sceneLiveProviderBridge.Contains("if (receipt.ShouldRefreshProviderSurface)")) {
+  throw "EveUnity scene live provider bridge must forward receipts; playable-world live client owns refresh policy"
 }
 
 $runtimePackage = Get-Content -Raw -LiteralPath $aetheriaEveRuntimePackage

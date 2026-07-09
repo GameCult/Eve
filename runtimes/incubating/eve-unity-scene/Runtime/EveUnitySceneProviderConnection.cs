@@ -19,6 +19,8 @@ namespace GameCult.Eve.UnityScene
 
         void Connect();
 
+        void Refresh();
+
         void Disconnect();
     }
 
@@ -34,6 +36,13 @@ namespace GameCult.Eve.UnityScene
         EveUnitySceneProviderSurfaceDocument CurrentDocument { get; }
 
         event Action<EveUnitySceneProviderSurfaceDocument> DocumentAvailable;
+    }
+
+    public interface IEveUnitySceneProviderSurfaceDocumentConnection
+    {
+        void Connect();
+
+        void Disconnect();
     }
 
     public sealed class EveUnitySceneProviderSurfaceDocument
@@ -71,12 +80,16 @@ namespace GameCult.Eve.UnityScene
     public sealed class EveUnitySceneProviderSurfaceDocumentSource : IEveUnitySceneProviderSurfaceSource, IDisposable
     {
         private readonly IEveUnitySceneProviderSurfaceDocumentSource _documentSource;
+        private readonly IEveUnitySceneProviderSurfaceDocumentConnection? _documentConnection;
+        private readonly IEveUnityProviderRefreshSource? _refreshSource;
         private bool _connected;
 
         public EveUnitySceneProviderSurfaceDocumentSource(
             IEveUnitySceneProviderSurfaceDocumentSource documentSource)
         {
             _documentSource = documentSource ?? throw new ArgumentNullException(nameof(documentSource));
+            _documentConnection = documentSource as IEveUnitySceneProviderSurfaceDocumentConnection;
+            _refreshSource = documentSource as IEveUnityProviderRefreshSource;
             CurrentSnapshot = _documentSource.CurrentDocument.ToSnapshot();
         }
 
@@ -96,7 +109,13 @@ namespace GameCult.Eve.UnityScene
                 return;
 
             _documentSource.DocumentAvailable += OnDocumentAvailable;
+            _documentConnection?.Connect();
             _connected = true;
+        }
+
+        public void Refresh()
+        {
+            _refreshSource?.Refresh();
         }
 
         public void Disconnect()
@@ -104,6 +123,7 @@ namespace GameCult.Eve.UnityScene
             if (!_connected)
                 return;
 
+            _documentConnection?.Disconnect();
             _documentSource.DocumentAvailable -= OnDocumentAvailable;
             _connected = false;
         }
@@ -166,11 +186,18 @@ namespace GameCult.Eve.UnityScene
                 _connected = true;
             }
 
+            if (HasAppliedCurrentSnapshot())
+                return _session.ActiveProjection!;
+
             return ApplySnapshot(_surfaceSource.CurrentSnapshot);
         }
 
         public EveUnitySceneProjection Refresh()
         {
+            _surfaceSource.Refresh();
+            if (HasAppliedCurrentSnapshot())
+                return _session.ActiveProjection!;
+
             return ApplySnapshot(_surfaceSource.CurrentSnapshot);
         }
 
@@ -243,6 +270,17 @@ namespace GameCult.Eve.UnityScene
             var projection = _session.ApplySnapshot(snapshot);
             ProjectionUpdated?.Invoke(projection);
             return projection;
+        }
+
+        private bool HasAppliedCurrentSnapshot()
+        {
+            var projection = _session.ActiveProjection;
+            if (projection == null)
+                return false;
+
+            var snapshot = _surfaceSource.CurrentSnapshot;
+            return _session.ActiveVersion == snapshot.Version &&
+                string.Equals(_session.ActiveSourcePointer, snapshot.SourcePointer, StringComparison.Ordinal);
         }
 
         private void OnSnapshotAvailable(EveUnitySceneProviderSurfaceSnapshot snapshot)

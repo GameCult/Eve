@@ -1021,7 +1021,13 @@ Recently cut:
   `AetheriaRuntimeVerseRecordKeys.DaemonAssetManifest` record, submits movement
   through the advertised `gamecult.eve.command.v1` boundary, observes
   provider-owned receipts, and refreshes from daemon snapshots without
-  importing Aetheria product authority into EveUnity. Aetheria also proves the
+  importing Aetheria product authority into EveUnity. The generic Unity
+  document-source wrapper now connects live provider sources through
+  `IEveUnitySceneProviderSurfaceDocumentConnection`, delegates provider refresh
+  through `IEveUnityProviderRefreshSource`, `Connect()` is idempotent for the
+  current snapshot, and `EveUnitySceneLiveProviderBridge` forwards receipts
+  while `EveUnityPlayableWorldLiveClient` owns refresh-on-terminal receipt
+  policy. Aetheria also proves the
   generic Unity scene body, not only a recording sink:
   `GenericEveUnityClientHostInstantiatesAetheriaDaemonWorldThroughProviderComponent`
   mounts the public provider component through `EveUnityPlayableWorldClientHost`,

@@ -65,6 +65,7 @@ namespace GameCult.Eve.UnityScene
     public sealed class EveUnitySceneLiveProviderBridgeComponent :
         MonoBehaviour,
         IEveUnitySceneProviderSurfaceDocumentSource,
+        IEveUnitySceneProviderSurfaceDocumentConnection,
         IEveUnityPlayableWorldAssetManifestDocumentSource,
         IEveUnitySceneCommandSink,
         IEveUnitySceneCommandReceiptSource,
@@ -179,6 +180,7 @@ namespace GameCult.Eve.UnityScene
 
     public sealed class EveUnitySceneLiveProviderBridge :
         IEveUnitySceneProviderSurfaceDocumentSource,
+        IEveUnitySceneProviderSurfaceDocumentConnection,
         IEveUnityPlayableWorldAssetManifestDocumentSource,
         IEveUnitySceneCommandSink,
         IEveUnitySceneCommandReceiptSource,
@@ -282,8 +284,6 @@ namespace GameCult.Eve.UnityScene
         private void OnCommandReceiptAvailable(EveUnitySceneCommandReceipt receipt)
         {
             if (receipt == null) throw new ArgumentNullException(nameof(receipt));
-            if (receipt.ShouldRefreshProviderSurface)
-                _transport.Refresh();
             ReceiptAvailable?.Invoke(receipt);
         }
     }

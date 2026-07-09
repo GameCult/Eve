@@ -372,7 +372,6 @@ namespace GameCult.Eve.UnityScene.Tests
             using var bridge = new EveUnitySceneLiveProviderBridge(transport);
             var sceneSink = new FakePlayableWorldSceneSink();
 
-            bridge.Connect();
             using var runtime = new EveUnityPlayableWorldRuntime(
                 bridge,
                 bridge,
@@ -1404,6 +1403,10 @@ namespace GameCult.Eve.UnityScene.Tests
             public event Action<EveUnitySceneProviderSurfaceSnapshot>? SnapshotAvailable;
 
             public void Connect()
+            {
+            }
+
+            public void Refresh()
             {
             }
 
