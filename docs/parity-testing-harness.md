@@ -164,8 +164,9 @@ manifests, advertisements, ABI fixtures, move-set paths, contract inputs, and
 external proofs. It also checks that the manifest and advertisement agree on
 the runtime-independent executable sidecar boundary: `gamecult.eve.plugin_abi.v1`,
 CultMesh/stdio transport, renderer independence, no provider-state mutation,
-and provider-owned command acceptance. The plugin-owner conformance smoke also
-asserts those handoff paths and runtime boundary claims from the conformance
+provider-owned command acceptance, and `runtime.sidecar` process/protocol/schema
+fields. The plugin-owner conformance smoke also asserts those handoff paths,
+runtime boundary claims, and exported sidecar fields from the conformance
 export.
 
 Aetheria provider handoff smoke:

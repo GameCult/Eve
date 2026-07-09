@@ -12,7 +12,17 @@
       "renderer-independent",
       "no-provider-state-mutation",
       "provider-accepts-or-denies-commands"
-    ]
+    ],
+    "sidecar": {
+      "processKind": "long-running-daemon",
+      "protocol": "cultmesh-rpc-with-stdio-dev-transport",
+      "requestSchema": "gamecult.eve.plugin_abi.request.v1",
+      "responseSchema": "gamecult.eve.plugin_abi.response.v1",
+      "operations": ["describe", "validate", "project", "lower", "measure", "apply"],
+      "commandEnvelope": "gamecult.eve.command.v1",
+      "receiptSchema": "gamecult.eve.command_receipt.v1",
+      "stateAuthority": "proposes-plugin-state-only-provider-accepts"
+    }
   },
   "schemas": [
     "sai.vn.story_session.v1",

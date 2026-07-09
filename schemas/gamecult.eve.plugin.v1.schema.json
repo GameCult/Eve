@@ -99,7 +99,8 @@
         "invocationModel",
         "contract",
         "transports",
-        "authority"
+        "authority",
+        "sidecar"
       ],
       "properties": {
         "invocationModel": {
@@ -123,6 +124,57 @@
             "type": "string",
             "minLength": 1
           }
+        },
+        "sidecar": {
+          "type": "object",
+          "required": [
+            "processKind",
+            "protocol",
+            "requestSchema",
+            "responseSchema",
+            "operations",
+            "commandEnvelope",
+            "receiptSchema",
+            "stateAuthority"
+          ],
+          "properties": {
+            "processKind": {
+              "type": "string",
+              "minLength": 1
+            },
+            "protocol": {
+              "type": "string",
+              "minLength": 1
+            },
+            "requestSchema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "responseSchema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "commandEnvelope": {
+              "type": "string",
+              "minLength": 1
+            },
+            "receiptSchema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "stateAuthority": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": true
         }
       },
       "additionalProperties": true

@@ -118,9 +118,12 @@ Plugin manifests and advertisements declare a `runtime` block. Its normal
 incubating shape is `invocationModel: executable-sidecar`,
 `contract: gamecult.eve.plugin_abi.v1`, CultMesh plus stdio transports, and
 authority limits such as `renderer-independent`, `no-provider-state-mutation`,
-and `provider-accepts-or-denies-commands`. Runtimes consume that advertisement
-as a capability boundary. A Unity or web projection adapter may render an
-advertised capability; it does not become the plugin runtime.
+and `provider-accepts-or-denies-commands`. The nested `runtime.sidecar` block
+names the sidecar process kind, protocol, request/response schemas, ABI
+operations, command envelope, receipt schema, and state authority rule. Runtimes
+consume that advertisement as a capability boundary. A Unity or web projection
+adapter may render an advertised capability; it does not become the plugin
+runtime.
 
 The ownership rule is semantic, not packaging ceremony: the plugin owns the
 capability and representation shape, while providers own live state and
@@ -166,6 +169,12 @@ All operations are pure or bounded from the provider's perspective. A plugin
 runtime can return a proposed next state, diagnostics, measurements, or rendered
 assets. It cannot decide whether a provider command is allowed, cannot persist
 app truth, and cannot write receipts except for its own runtime diagnostics.
+
+The incubating sidecar contract is checked in three places: the plugin manifest,
+the plugin advertisement, and the ABI fixture. The parity harness compares
+manifest and advertisement `runtime.sidecar` fields, verifies that sidecar
+operations cover the ABI fixture operations, and exports the sidecar boundary
+through the conformance pack for Sai, Norn, and EvePlugins to consume.
 
 Example ABI request:
 

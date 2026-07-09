@@ -518,10 +518,12 @@ async function readPluginRuntimeBoundary(plugin) {
       contract: manifestDocument.runtime?.contract || "",
       transports: manifestDocument.runtime?.transports || [],
       authority: manifestDocument.runtime?.authority || [],
+      sidecar: manifestDocument.runtime?.sidecar || {},
       advertisementInvocationModel: advertisementDocument.runtime?.invocationModel || "",
       advertisementContract: advertisementDocument.runtime?.contract || "",
       advertisementTransports: advertisementDocument.runtime?.transports || [],
       advertisementAuthority: advertisementDocument.runtime?.authority || [],
+      advertisementSidecar: advertisementDocument.runtime?.sidecar || {},
     };
   } catch {
     return {
@@ -529,10 +531,12 @@ async function readPluginRuntimeBoundary(plugin) {
       contract: "",
       transports: [],
       authority: [],
+      sidecar: {},
       advertisementInvocationModel: "",
       advertisementContract: "",
       advertisementTransports: [],
       advertisementAuthority: [],
+      advertisementSidecar: {},
     };
   }
 }
@@ -560,6 +564,21 @@ function validatePluginRuntimeBoundary(plugin, runtimeBoundary) {
   errors.push(...missingMembers(expectedRuntime.transports || [], runtimeBoundary.advertisementTransports || [], "runtime.advertisementTransports"));
   errors.push(...missingMembers(expectedRuntime.authority || [], runtimeBoundary.authority || [], "runtime.authority"));
   errors.push(...missingMembers(expectedRuntime.authority || [], runtimeBoundary.advertisementAuthority || [], "runtime.advertisementAuthority"));
+  errors.push(...comparePluginSidecar(expectedRuntime.sidecar || {}, runtimeBoundary.sidecar || {}, "runtime.sidecar"));
+  errors.push(...comparePluginSidecar(runtimeBoundary.sidecar || {}, runtimeBoundary.advertisementSidecar || {}, "runtime.advertisementSidecar"));
+  return errors;
+}
+
+function comparePluginSidecar(expected, actual, label) {
+  const errors = [];
+  for (const key of ["processKind", "protocol", "requestSchema", "responseSchema", "commandEnvelope", "receiptSchema", "stateAuthority"]) {
+    if (expected[key] && expected[key] !== actual[key]) {
+      errors.push(`${label}.${key}:expected ${expected[key]} got ${actual[key] || ""}`);
+    }
+  }
+  if (Array.isArray(expected.operations) && expected.operations.length) {
+    errors.push(...missingMembers(expected.operations, actual.operations || [], `${label}.operations`));
+  }
   return errors;
 }
 
@@ -837,6 +856,11 @@ async function validatePluginAbiFixture(plugin) {
     for (const operation of ["describe", "validate", "project", "lower", "measure", "apply"]) {
       if (!operations.has(operation)) errors.push(`${plugin.abiFixturePath}:operation:${operation}:missing`);
     }
+    errors.push(...missingMembers(
+      [...operations.keys()].filter(Boolean),
+      pluginManifest.runtime?.sidecar?.operations || [],
+      `${plugin.manifestPath}:runtime.sidecar.operations`,
+    ));
 
     if (!(pluginManifest.abiFixtures || []).includes(plugin.abiFixturePath)) {
       errors.push(`${plugin.manifestPath}:abiFixtures:${plugin.abiFixturePath}:missing`);

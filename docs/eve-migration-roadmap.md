@@ -304,13 +304,16 @@ Recently cut:
   Unity UI Toolkit release/test/capture statuses plus the tagged UPM release,
   batchmode runner, and capture artifact pending proofs from the exported
   runtime record.
-- Plugin manifests and advertisements now carry a runtime-independent sidecar
-  ABI boundary. Sai, Norn, and TeX declare `invocationModel:
+- Plugin manifests and advertisements now carry a typed runtime-independent
+  sidecar ABI boundary. Sai, Norn, and TeX declare `invocationModel:
   executable-sidecar`, `gamecult.eve.plugin_abi.v1`, CultMesh/stdio transports,
-  renderer independence, no provider-state mutation, and provider-owned command
-  acceptance. The parity harness validates manifest/advertisement agreement,
-  exports the runtime boundary, and the plugin-owner consumer smoke asserts the
-  Sai/Norn sidecar contract from the conformance pack.
+  renderer independence, no provider-state mutation, provider-owned command
+  acceptance, and `runtime.sidecar` fields for process kind, protocol,
+  request/response schemas, operations, command envelope, receipt schema, and
+  state authority. The parity harness validates manifest/advertisement
+  agreement, checks sidecar operations against ABI fixture operations, exports
+  the runtime boundary, and the plugin-owner consumer smoke asserts the Sai/Norn
+  sidecar contract from the conformance pack.
 - Conformance export now carries first-class `capabilityGaps[]` records derived
   from plugin errors, provider advertisement/scenario errors, runtime missing
   evidence, declared unsupported plugin projection, capture gaps, and split

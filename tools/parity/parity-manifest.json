@@ -376,7 +376,16 @@
         "invocationModel": "executable-sidecar",
         "contract": "gamecult.eve.plugin_abi.v1",
         "transports": ["cultmesh", "stdio"],
-        "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"]
+        "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"],
+        "sidecar": {
+          "processKind": "long-running-daemon",
+          "protocol": "cultmesh-rpc-with-stdio-dev-transport",
+          "requestSchema": "gamecult.eve.plugin_abi.request.v1",
+          "responseSchema": "gamecult.eve.plugin_abi.response.v1",
+          "commandEnvelope": "gamecult.eve.command.v1",
+          "receiptSchema": "gamecult.eve.command_receipt.v1",
+          "stateAuthority": "proposes-plugin-state-only-provider-accepts"
+        }
       },
       "requiredFixtures": ["sai-vn"],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
@@ -406,7 +415,16 @@
         "invocationModel": "executable-sidecar",
         "contract": "gamecult.eve.plugin_abi.v1",
         "transports": ["cultmesh", "stdio"],
-        "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"]
+        "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"],
+        "sidecar": {
+          "processKind": "long-running-daemon",
+          "protocol": "cultmesh-rpc-with-stdio-dev-transport",
+          "requestSchema": "gamecult.eve.plugin_abi.request.v1",
+          "responseSchema": "gamecult.eve.plugin_abi.response.v1",
+          "commandEnvelope": "gamecult.eve.command.v1",
+          "receiptSchema": "gamecult.eve.command_receipt.v1",
+          "stateAuthority": "proposes-plugin-state-only-provider-accepts"
+        }
       },
       "requiredFixtures": ["sai-vn"],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
@@ -436,7 +454,16 @@
         "invocationModel": "executable-sidecar",
         "contract": "gamecult.eve.plugin_abi.v1",
         "transports": ["cultmesh", "stdio"],
-        "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"]
+        "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"],
+        "sidecar": {
+          "processKind": "long-running-daemon",
+          "protocol": "cultmesh-rpc-with-stdio-dev-transport",
+          "requestSchema": "gamecult.eve.plugin_abi.request.v1",
+          "responseSchema": "gamecult.eve.plugin_abi.response.v1",
+          "commandEnvelope": "gamecult.eve.command.v1",
+          "receiptSchema": "gamecult.eve.plugin_receipt.v1",
+          "stateAuthority": "emits-render-results-only-provider-owns-source-state"
+        }
       },
       "requiredFixtures": ["sai-vn"],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",

@@ -24,6 +24,7 @@ if (!exportDirectory) {
     "  --expect-plugin-runtime <pluginId:invocationModel>",
     "  --expect-plugin-runtime-transport <pluginId:transport>",
     "  --expect-plugin-runtime-authority <pluginId:authority>",
+    "  --expect-plugin-runtime-field <pluginId:field.path:value>",
     "  --expect-plugin-handoff <pluginId>",
     "  --expect-provider-surface <providerId:surfaceId>",
     "  --expect-provider-surface-kind <providerId:surfaceId:surfaceKind>",
@@ -187,6 +188,17 @@ function validateIndex(index, directory, expectations, errors) {
     }
     if (!Array.isArray(plugin.runtimeBoundary?.authority) || !plugin.runtimeBoundary.authority.includes(expectation.authority)) {
       errors.push(`plugins:${expectation.pluginId}:runtime.authority:${expectation.authority}:missing`);
+    }
+  }
+  for (const expectation of expectations.pluginRuntimeFields) {
+    const plugin = plugins.find(candidate => candidate.pluginId === expectation.pluginId);
+    if (!plugin) {
+      errors.push(`plugins:${expectation.pluginId}:missing`);
+      continue;
+    }
+    const actual = readNestedField(plugin.runtimeBoundary, expectation.fieldPath);
+    if (actual !== expectation.value) {
+      errors.push(`plugins:${expectation.pluginId}:runtime.${expectation.fieldPath}:expected ${expectation.value} got ${actual || ""}`);
     }
   }
   for (const expectedPlugin of expectations.pluginHandoffs) {
@@ -497,6 +509,7 @@ function parseArguments(args) {
     pluginRuntimes: [],
     pluginRuntimeTransports: [],
     pluginRuntimeAuthorities: [],
+    pluginRuntimeFields: [],
     pluginHandoffs: [],
     providers: [],
     providerSurfaces: [],
@@ -535,6 +548,7 @@ function parseArguments(args) {
     ["--expect-plugin-runtime", expectations.pluginRuntimes],
     ["--expect-plugin-runtime-transport", expectations.pluginRuntimeTransports],
     ["--expect-plugin-runtime-authority", expectations.pluginRuntimeAuthorities],
+    ["--expect-plugin-runtime-field", expectations.pluginRuntimeFields],
     ["--expect-plugin-handoff", expectations.pluginHandoffs],
     ["--expect-provider-surface", expectations.providerSurfaces],
     ["--expect-provider-surface-kind", expectations.providerSurfaceKinds],
@@ -585,6 +599,8 @@ function parseArguments(args) {
       target.push(parsePluginExpectation(value, "transport"));
     } else if (option === "--expect-plugin-runtime-authority") {
       target.push(parsePluginExpectation(value, "authority"));
+    } else if (option === "--expect-plugin-runtime-field") {
+      target.push(parsePluginRuntimeFieldExpectation(value));
     } else if (option === "--expect-plugin-handoff") {
       target.push(value);
     } else if (option === "--expect-provider-surface") {
@@ -637,6 +653,19 @@ function parsePluginExpectation(value, field) {
   return {
     pluginId: value.slice(0, separator),
     [field]: value.slice(separator + 1),
+  };
+}
+
+function parsePluginRuntimeFieldExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length < 3 || !parts[0] || !parts[1] || !parts.slice(2).join(":")) {
+    console.error(`Expected plugin runtime field in <pluginId:field.path:value> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    pluginId: parts[0],
+    fieldPath: parts[1],
+    value: parts.slice(2).join(":"),
   };
 }
 

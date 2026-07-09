@@ -58,9 +58,19 @@ node $consumerScript $consumerExport `
   --expect-plugin-runtime sai.vn:executable-sidecar `
   --expect-plugin-runtime-transport sai.vn:cultmesh `
   --expect-plugin-runtime-authority sai.vn:no-provider-state-mutation `
+  --expect-plugin-runtime-field sai.vn:sidecar.processKind:long-running-daemon `
+  --expect-plugin-runtime-field sai.vn:sidecar.protocol:cultmesh-rpc-with-stdio-dev-transport `
+  --expect-plugin-runtime-field sai.vn:sidecar.requestSchema:gamecult.eve.plugin_abi.request.v1 `
+  --expect-plugin-runtime-field sai.vn:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
+  --expect-plugin-runtime-field sai.vn:sidecar.stateAuthority:proposes-plugin-state-only-provider-accepts `
   --expect-plugin-runtime norn.graph:executable-sidecar `
   --expect-plugin-runtime-transport norn.graph:cultmesh `
-  --expect-plugin-runtime-authority norn.graph:no-provider-state-mutation
+  --expect-plugin-runtime-authority norn.graph:no-provider-state-mutation `
+  --expect-plugin-runtime-field norn.graph:sidecar.processKind:long-running-daemon `
+  --expect-plugin-runtime-field norn.graph:sidecar.protocol:cultmesh-rpc-with-stdio-dev-transport `
+  --expect-plugin-runtime-field norn.graph:sidecar.requestSchema:gamecult.eve.plugin_abi.request.v1 `
+  --expect-plugin-runtime-field norn.graph:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
+  --expect-plugin-runtime-field norn.graph:sidecar.stateAuthority:proposes-plugin-state-only-provider-accepts
 
 if ($LASTEXITCODE -ne 0) {
   throw "Plugin owner conformance consumer smoke failed with exit code $LASTEXITCODE"

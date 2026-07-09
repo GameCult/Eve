@@ -90,11 +90,25 @@ foreach ($handoffPath in $HandoffPaths) {
       throw "Plugin handoff $($handoff.pluginId) advertisement runtime missing authority: $authority"
     }
   }
+  foreach ($sidecarProperty in @("processKind", "protocol", "requestSchema", "responseSchema", "commandEnvelope", "receiptSchema", "stateAuthority")) {
+    if (-not $manifest.runtime.sidecar.$sidecarProperty) {
+      throw "Plugin handoff $($handoff.pluginId) manifest sidecar missing property: $sidecarProperty"
+    }
+    if ($advertisement.runtime.sidecar.$sidecarProperty -ne $manifest.runtime.sidecar.$sidecarProperty) {
+      throw "Plugin handoff $($handoff.pluginId) advertisement sidecar $sidecarProperty does not match manifest: $($advertisement.runtime.sidecar.$sidecarProperty)"
+    }
+  }
 
   $operations = @($abiFixture.operations | ForEach-Object { $_.operation })
   foreach ($operation in @("describe", "validate", "project", "lower", "measure", "apply")) {
     if (-not ($operations -contains $operation)) {
       throw "Plugin handoff $($handoff.pluginId) ABI fixture missing operation: $operation"
+    }
+    if (-not (@($manifest.runtime.sidecar.operations) -contains $operation)) {
+      throw "Plugin handoff $($handoff.pluginId) manifest sidecar missing operation: $operation"
+    }
+    if (-not (@($advertisement.runtime.sidecar.operations) -contains $operation)) {
+      throw "Plugin handoff $($handoff.pluginId) advertisement sidecar missing operation: $operation"
     }
   }
 
