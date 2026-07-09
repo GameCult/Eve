@@ -299,6 +299,11 @@ Recently cut:
   data in addition to the generic `capabilityGaps[]` ledger. Runtime owners can
   consume provider id, surface id, target id, owner repo, runtime id, split
   target, and runtime status without scraping prose or gap strings.
+- The conformance export schema and consumer smoke now require minimum typed
+  item shapes for plugins, providers, runtimes, and split targets. Owner repos
+  can rely on exported ids, owners, statuses, split targets, manifest or
+  advertisement paths, feature/plugin arrays, and blocker/proof arrays instead
+  of treating those sections as untyped bags.
 - EveUnity now has a pending Unity scene handoff at
   `runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json`.
   The active `unity-uitoolkit` runtime remains a semantic UI surface lowerer;

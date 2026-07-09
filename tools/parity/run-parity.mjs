@@ -1636,7 +1636,7 @@ function buildConformanceExport(report) {
       splitHandoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
       commandTransportSchema: runtime.commandTransportSmoke?.schema || "",
       captureStatus: runtime.capture?.status || "",
-      lifecycle: runtime.lifecycle,
+      ...(runtime.lifecycle ? { lifecycle: runtime.lifecycle } : {}),
       worldSurfaceLowering: runtime.worldSurfaceLowering || [],
     })),
     splitTargets: report.splitTargets || [],

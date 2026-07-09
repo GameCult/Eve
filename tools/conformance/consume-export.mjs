@@ -123,6 +123,11 @@ function validateIndex(index, directory, expectations, errors) {
   const capabilityGaps = Array.isArray(index.capabilityGaps) ? index.capabilityGaps : [];
   const worldSurfaceLoweringGaps = Array.isArray(index.worldSurfaceLoweringGaps) ? index.worldSurfaceLoweringGaps : [];
 
+  validatePluginRecords(plugins, errors);
+  validateProviderRecords(providers, errors);
+  validateRuntimeRecords(runtimes, errors);
+  validateSplitTargetRecords(splitTargets, errors);
+
   if (expectations.conformanceHandoff && !index.conformanceHandoffPath) {
     errors.push("conformanceHandoffPath:missing");
   }
@@ -562,6 +567,54 @@ function validateWorldSurfaceLoweringGaps(gaps, errors) {
   for (const [index, gap] of gaps.entries()) {
     for (const field of ["providerId", "surfaceId", "targetId", "ownerRepo", "runtimeId", "severity"]) {
       if (!gap?.[field]) errors.push(`worldSurfaceLoweringGaps:${index}:${field}:missing`);
+    }
+  }
+}
+
+function validatePluginRecords(plugins, errors) {
+  for (const plugin of plugins) {
+    const label = `plugins:${plugin.pluginId || "unknown"}`;
+    for (const field of ["pluginId", "status", "ownerRepo", "splitTarget", "manifestPath", "advertisementPath", "abiFixturePath"]) {
+      if (!plugin?.[field]) errors.push(`${label}:${field}:missing`);
+    }
+    for (const field of ["capabilities", "abiOperations", "optionalPlugins"]) {
+      if (!Array.isArray(plugin?.[field])) errors.push(`${label}:${field}:expected array`);
+    }
+  }
+}
+
+function validateProviderRecords(providers, errors) {
+  for (const provider of providers) {
+    const label = `providers:${provider.providerId || "unknown"}`;
+    for (const field of ["providerId", "status", "ownerRepo", "advertisementPath"]) {
+      if (!provider?.[field]) errors.push(`${label}:${field}:missing`);
+    }
+    for (const field of ["surfaces", "surfaceKinds", "surfaceContracts", "commands", "pluginRequirements", "receiptStates"]) {
+      if (!Array.isArray(provider?.[field])) errors.push(`${label}:${field}:expected array`);
+    }
+  }
+}
+
+function validateRuntimeRecords(runtimes, errors) {
+  for (const runtime of runtimes) {
+    const label = `runtimes:${runtime.runtimeId || "unknown"}`;
+    for (const field of ["runtimeId", "status", "ownerRepo", "splitTarget", "captureStatus"]) {
+      if (!runtime?.[field]) errors.push(`${label}:${field}:missing`);
+    }
+    for (const field of ["supportedFeatures", "supportedPlugins", "unsupportedPlugins", "capabilityManifestErrors", "worldSurfaceLowering"]) {
+      if (!Array.isArray(runtime?.[field])) errors.push(`${label}:${field}:expected array`);
+    }
+  }
+}
+
+function validateSplitTargetRecords(splitTargets, errors) {
+  for (const target of splitTargets) {
+    const label = `splitTargets:${target.id || "unknown"}`;
+    for (const field of ["id", "ownerRepo", "status", "runtimeStatuses"]) {
+      if (!target?.[field]) errors.push(`${label}:${field}:missing`);
+    }
+    for (const field of ["runtimes", "requiredRuntimeStatuses", "requiredFeatures", "requiredPlugins", "proofs", "pendingProofs", "blockers"]) {
+      if (!Array.isArray(target?.[field])) errors.push(`${label}:${field}:expected array`);
     }
   }
 }

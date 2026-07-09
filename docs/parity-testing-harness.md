@@ -95,6 +95,11 @@ projection. It summarizes pack health, plugin ABI/capability claims, provider
 surfaces/commands/receipts, runtime feature/capture/command coverage, split
 readiness, and handoff counts. This is derived evidence for consumers, not a
 new source of truth.
+The export schema and consumer smoke now require minimum record shapes for
+plugins, providers, runtimes, and split targets. Owner repos should be able to
+depend on ids, owners, statuses, split targets, manifest or advertisement paths,
+feature/plugin arrays, and blocker/proof arrays without reading Eve's parity
+manifest.
 
 Capability gaps are exported as `capabilityGaps[]`. They are derived from
 missing plugin/provider/runtime evidence, declared unsupported plugin

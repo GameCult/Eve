@@ -155,16 +155,268 @@
       }
     },
     "plugins": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "pluginId",
+          "status",
+          "ownerRepo",
+          "splitTarget",
+          "manifestPath",
+          "advertisementPath",
+          "abiFixturePath",
+          "capabilities"
+        ],
+        "properties": {
+          "pluginId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "splitTarget": {
+            "type": "string",
+            "minLength": 1
+          },
+          "manifestPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "advertisementPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "handoffPath": {
+            "type": "string"
+          },
+          "handoffExportPath": {
+            "type": "string"
+          },
+          "abiFixturePath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "abiOperations": {
+            "type": "array"
+          },
+          "runtimeBoundary": {
+            "type": "object"
+          },
+          "optionalPlugins": {
+            "type": "array"
+          },
+          "capabilities": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
     },
     "providers": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "providerId",
+          "status",
+          "ownerRepo",
+          "advertisementPath",
+          "surfaces",
+          "commands",
+          "surfaceContracts"
+        ],
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "advertisementPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scenarioPath": {
+            "type": "string"
+          },
+          "handoffPath": {
+            "type": "string"
+          },
+          "handoffExportPath": {
+            "type": "string"
+          },
+          "scenarioId": {
+            "type": "string"
+          },
+          "receiptStates": {
+            "type": "array"
+          },
+          "surfaces": {
+            "type": "array"
+          },
+          "surfaceKinds": {
+            "type": "array"
+          },
+          "surfaceContracts": {
+            "type": "array"
+          },
+          "commands": {
+            "type": "array"
+          },
+          "pluginRequirements": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
     },
     "runtimes": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "runtimeId",
+          "status",
+          "ownerRepo",
+          "splitTarget",
+          "supportedFeatures",
+          "supportedPlugins",
+          "unsupportedPlugins",
+          "captureStatus",
+          "worldSurfaceLowering"
+        ],
+        "properties": {
+          "runtimeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "splitTarget": {
+            "type": "string",
+            "minLength": 1
+          },
+          "supportedFeatures": {
+            "type": "array"
+          },
+          "supportedPlugins": {
+            "type": "array"
+          },
+          "unsupportedPlugins": {
+            "type": "array"
+          },
+          "capabilityManifestPath": {
+            "type": "string"
+          },
+          "capabilityManifestErrors": {
+            "type": "array"
+          },
+          "splitHandoffPath": {
+            "type": "string"
+          },
+          "splitHandoffExportPath": {
+            "type": "string"
+          },
+          "commandTransportSchema": {
+            "type": "string"
+          },
+          "captureStatus": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lifecycle": {
+            "type": "object"
+          },
+          "worldSurfaceLowering": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
     },
     "splitTargets": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "ownerRepo",
+          "repoRole",
+          "status",
+          "runtimes",
+          "runtimeStatuses",
+          "requiredRuntimeStatuses",
+          "requiredFeatures",
+          "requiredPlugins",
+          "proofs",
+          "pendingProofs",
+          "blockers"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ownerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "repoRole": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "declaredStatus": {
+            "type": "string"
+          },
+          "runtimes": {
+            "type": "array"
+          },
+          "runtimeStatuses": {
+            "type": "object"
+          },
+          "requiredRuntimeStatuses": {
+            "type": "array"
+          },
+          "requiredFeatures": {
+            "type": "array"
+          },
+          "requiredPlugins": {
+            "type": "array"
+          },
+          "proofs": {
+            "type": "array"
+          },
+          "pendingProofs": {
+            "type": "array"
+          },
+          "blockers": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
     }
   },
   "additionalProperties": true
