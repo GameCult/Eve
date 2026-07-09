@@ -280,6 +280,13 @@ Exit criteria:
 
 Recently cut:
 
+- Provider advertisements can now name sidecar plugin requirements per surface
+  with `surfaces[].requiresPlugins[]`. The parity harness validates those
+  requirements against known plugin manifests, exports them in the conformance
+  provider list, and reports missing plugins or capabilities as provider
+  capability gaps. The Sai VN fixture now has an advertisement-shaped provider
+  entry for `gamecult.home.vn`, so Sai/Norn/TeX requirements sit at the
+  provider/plugin boundary instead of hiding only in fixture metadata.
 - The conformance runtime pack now exports `runtimeTargets` in
   `artifacts/conformance/latest/packs/runtime.json`. Runtime repos can consume
   runtime status, feature/plugin claims, command schema, lifecycle, capture

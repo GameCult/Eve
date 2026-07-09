@@ -297,6 +297,20 @@
       "expectedCommands": ["repixelizer.job.submit", "repixelizer.job.cancel_own"]
     },
     {
+      "providerId": "gamecult.home.vn",
+      "title": "GameCult Compound VN",
+      "kind": "plugin.fixture.provider",
+      "ownerRepo": "Sai",
+      "repoRole": "provider-fixture",
+      "graduationTrigger": "Move this advertisement-shaped VN fixture to Sai when sai-vn-plugin owns VN/Ink semantics and conformance packs.",
+      "schemaPath": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
+      "advertisementPath": "web/fixtures/sai-vn.provider-advertisement.json",
+      "requiredFixtures": ["sai-vn"],
+      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "sai.vn.story_session.v1"],
+      "expectedSurfaces": ["sai.visual_novel.surface"],
+      "expectedCommands": ["story.continue", "story.choose", "story.jump", "style.patch"]
+    },
+    {
       "providerId": "aetheria",
       "title": "Aetheria",
       "kind": "game.runtime",

@@ -72,6 +72,10 @@ Required top-level meanings:
 - `witnesses`: CultCache `.cc` files, database exports, or document keys that
   witness durable state.
 - `surfaces`: Eve surface documents or endpoints the provider publishes.
+- `surfaces[].requiresPlugins`: sidecar plugin capabilities required to render
+  or interact with that surface. Runtimes compare these requirements with their
+  local projection support and report visible capability gaps; they must not
+  import provider or plugin internals to recover missing semantics.
 - `commands`: command boundaries the provider accepts.
 - `routes`: transport, store, or compatibility routes used to reach the
   semantic address. WebSocket and HTTP routes live here when they still exist.

@@ -25,7 +25,7 @@ for (const fixture of manifest.fixtures) {
 }
 
 const pluginResults = await Promise.all((manifest.pluginManifests || []).map(plugin => evaluatePlugin(plugin, fixtureResults)));
-const providerResults = await Promise.all((manifest.providerAdvertisements || []).map(provider => evaluateProvider(provider, fixtureResults)));
+const providerResults = await Promise.all((manifest.providerAdvertisements || []).map(provider => evaluateProvider(provider, fixtureResults, pluginResults)));
 const runtimeResults = await Promise.all(manifest.runtimes.map(runtime => evaluateRuntime(runtime, fixtureResults)));
 const splitTargetResults = evaluateSplitTargets(manifest.splitTargets || [], runtimeResults);
 const report = {
@@ -462,7 +462,7 @@ async function evaluateFixtureMetadata(fixture) {
   return { metadata, errors };
 }
 
-async function evaluateProvider(provider, fixtureResults) {
+async function evaluateProvider(provider, fixtureResults, pluginResults) {
   const expectedPaths = provider.expectedPaths || [];
   const missingPaths = expectedPaths.filter(candidate => !existsSync(path.join(repoRoot, candidate)));
   const requiredFixtures = provider.requiredFixtures || [];
@@ -482,6 +482,8 @@ async function evaluateProvider(provider, fixtureResults) {
   const surfaceIds = advertisement ? (advertisement.surfaces || []).map(surface => surface.surfaceId).filter(Boolean).sort() : [];
   const commandIds = advertisement ? (advertisement.commands || []).map(command => command.command).filter(Boolean).sort() : [];
   const witnessKinds = advertisement ? (advertisement.witnesses || []).map(witness => witness.kind).filter(Boolean).sort() : [];
+  const pluginRequirements = advertisement ? collectProviderPluginRequirements(advertisement) : [];
+  const pluginRequirementErrors = validateProviderPluginRequirements(provider, pluginRequirements, pluginResults);
   const missingSchemas = (provider.expectedSchemas || []).filter(schema => !advertisedSchemaIds.includes(schema));
   const missingSurfaces = (provider.expectedSurfaces || []).filter(surface => !surfaceIds.includes(surface));
   const missingCommands = (provider.expectedCommands || []).filter(command => !commandIds.includes(command));
@@ -495,7 +497,7 @@ async function evaluateProvider(provider, fixtureResults) {
         ? "missing-ownership-metadata"
         : advertisementErrors.length
           ? "invalid-provider-advertisement"
-          : missingSchemas.length || missingSurfaces.length || missingCommands.length
+          : missingSchemas.length || missingSurfaces.length || missingCommands.length || pluginRequirementErrors.length
             ? "capability-gap"
             : scenarioErrors.length
               ? "invalid-provider-scenario"
@@ -526,6 +528,8 @@ async function evaluateProvider(provider, fixtureResults) {
     surfaceIds,
     commandIds,
     witnessKinds,
+    pluginRequirements,
+    pluginRequirementErrors,
     missingSchemas,
     missingSurfaces,
     missingCommands,
@@ -533,6 +537,45 @@ async function evaluateProvider(provider, fixtureResults) {
     scenarioReceiptStates: scenario ? [...new Set((scenario.expectedReceipts || []).map(receipt => receipt.state).filter(Boolean))].sort() : [],
     status,
   };
+}
+
+function collectProviderPluginRequirements(advertisement) {
+  const requirements = [];
+  for (const surface of advertisement.surfaces || []) {
+    for (const requirement of surface.requiresPlugins || []) {
+      requirements.push({
+        surfaceId: surface.surfaceId || "",
+        pluginId: requirement.pluginId || "",
+        versionRange: requirement.versionRange || "",
+        requiredCapabilities: requirement.requiredCapabilities || [],
+        optionalCapabilities: requirement.optionalCapabilities || [],
+      });
+    }
+  }
+  return requirements;
+}
+
+function validateProviderPluginRequirements(provider, requirements, pluginResults) {
+  const errors = [];
+  const pluginById = new Map((pluginResults || []).map(plugin => [plugin.pluginId, plugin]));
+  for (const requirement of requirements) {
+    const plugin = pluginById.get(requirement.pluginId);
+    if (!plugin) {
+      errors.push(`${provider.advertisementPath}:${requirement.surfaceId}:plugin:${requirement.pluginId}:missing`);
+      continue;
+    }
+    if (plugin.status !== "incubating" && plugin.status !== "external-owner-planned") {
+      errors.push(`${provider.advertisementPath}:${requirement.surfaceId}:plugin:${requirement.pluginId}:status:${plugin.status}`);
+      continue;
+    }
+    const capabilities = new Set(plugin.capabilities || []);
+    for (const capability of requirement.requiredCapabilities || []) {
+      if (!capabilities.has(capability)) {
+        errors.push(`${provider.advertisementPath}:${requirement.surfaceId}:plugin:${requirement.pluginId}:${capability}:missing`);
+      }
+    }
+  }
+  return errors;
 }
 
 async function readJsonDocument(documentPath) {
@@ -1244,6 +1287,7 @@ function buildConformanceExport(report) {
       scenarioId: provider.scenarioId,
       surfaces: provider.surfaceIds,
       commands: provider.commandIds,
+      pluginRequirements: provider.pluginRequirements,
     })),
     runtimes: (report.runtimes || []).map(runtime => ({
       runtimeId: runtime.id,
@@ -1393,7 +1437,7 @@ function renderMarkdown(report) {
     lines.push(`| ${plugin.title || plugin.pluginId} | ${plugin.status} | ${plugin.ownerRepo} | ${(plugin.abiOperations || []).join(", ")} | ${plugin.abiFixturePath || ""} | ${plugin.capabilities.join(", ")} | ${missing} |`);
   }
 
-  lines.push("", "## Providers", "", "| Provider | Status | Owner | Scenario | Receipt States | Surfaces | Commands | Witnesses | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- |");
+  lines.push("", "## Providers", "", "| Provider | Status | Owner | Scenario | Receipt States | Surfaces | Commands | Plugin Requirements | Witnesses | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
   for (const provider of report.providers || []) {
     const missing = [
       ...provider.missingPaths,
@@ -1404,8 +1448,9 @@ function renderMarkdown(report) {
       ...provider.missingSchemas.map(id => `schema:${id}`),
       ...provider.missingSurfaces.map(id => `surface:${id}`),
       ...provider.missingCommands.map(id => `command:${id}`),
+      ...provider.pluginRequirementErrors.map(id => `plugin:${id}`),
     ].join(", ");
-    lines.push(`| ${provider.title || provider.providerId} | ${provider.status} | ${provider.ownerRepo} | ${provider.scenarioId || ""} | ${provider.scenarioReceiptStates.join(", ")} | ${provider.surfaceIds.join(", ")} | ${provider.commandIds.join(", ")} | ${provider.witnessKinds.join(", ")} | ${missing} |`);
+    lines.push(`| ${provider.title || provider.providerId} | ${provider.status} | ${provider.ownerRepo} | ${provider.scenarioId || ""} | ${provider.scenarioReceiptStates.join(", ")} | ${provider.surfaceIds.join(", ")} | ${provider.commandIds.join(", ")} | ${summarizeProviderPluginRequirements(provider.pluginRequirements)} | ${provider.witnessKinds.join(", ")} | ${missing} |`);
   }
 
   lines.push("", "## Runtimes", "", "| Runtime | Status | Owner | Lifecycle | Capture | Command Smoke | Required Fixtures | Plugin Fixtures | Features | Plugin Gaps | Unsupported Plugins | Missing |", "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |");
@@ -1441,6 +1486,12 @@ function renderMarkdown(report) {
   }
 
   return `${lines.join("\n")}\n`;
+}
+
+function summarizeProviderPluginRequirements(requirements = []) {
+  return requirements
+    .map(requirement => `${requirement.surfaceId}:${requirement.pluginId}(${(requirement.requiredCapabilities || []).join(", ")})`)
+    .join("<br>");
 }
 
 function summarizeLifecycle(lifecycle) {

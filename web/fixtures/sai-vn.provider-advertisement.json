@@ -1,0 +1,104 @@
+{
+  "schema": "gamecult.eve.provider_advertisement.v1",
+  "providerId": "gamecult.home.vn",
+  "serviceId": "gamecult.home.vn.service",
+  "verseId": "gamecult.home.local",
+  "rootVerse": "asgard",
+  "canonicalService": "gamecult.home.vn",
+  "locatedService": "gamecult.home.local.vn",
+  "cultMeshAddress": "cultmesh://gamecult.home.local/eve/providers/gamecult.home.vn",
+  "title": "GameCult Compound VN",
+  "kind": "plugin.fixture.provider",
+  "updatedAtUtc": "2026-07-08T00:00:00Z",
+  "freshness": {
+    "state": "fixture",
+    "lastSeenAtUtc": "2026-07-08T00:00:00Z",
+    "maxAgeMs": 15000
+  },
+  "schemas": [
+    "gamecult.eve.surface.v1",
+    "gamecult.eve.command.v1",
+    "sai.vn.story_session.v1",
+    "sai.vn.visual_manifest.v1",
+    "norn.graph.document.v1",
+    "tex.math.source.v1"
+  ],
+  "witnesses": [
+    {
+      "kind": "plugin-fixture",
+      "ref": "web/fixtures/sai-vn-surface.json",
+      "summary": "Advertisement-shaped provider entry for the Sai/Norn/TeX plugin conformance fixture."
+    },
+    {
+      "kind": "owner-repo",
+      "ref": "Sai",
+      "summary": "Sai owns VN/Ink semantics once the plugin ABI graduates; Eve only hosts this fixture while the contract is forming."
+    }
+  ],
+  "surfaces": [
+    {
+      "schema": "gamecult.eve.surface.v1",
+      "surfaceId": "sai.visual_novel.surface",
+      "key": "web/fixtures/sai-vn-surface.json",
+      "transport": "local-json",
+      "status": "available",
+      "audience": "player",
+      "mode": "interactive",
+      "summary": "Visual novel surface requiring sidecar plugin capabilities for VN stage, Norn graph embedding, and TeX embedding.",
+      "requiresPlugins": [
+        {
+          "pluginId": "sai.vn",
+          "versionRange": "^0.1.0",
+          "requiredCapabilities": [
+            "vn.stage",
+            "story.choose",
+            "story.continue",
+            "story.jump"
+          ]
+        },
+        {
+          "pluginId": "norn.graph",
+          "versionRange": "^0.1.0",
+          "requiredCapabilities": [
+            "embed.norn"
+          ]
+        },
+        {
+          "pluginId": "tex.math",
+          "versionRange": "^0.1.0",
+          "requiredCapabilities": [
+            "embed.tex"
+          ]
+        }
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "command": "story.continue",
+      "transport": "plugin-abi",
+      "summary": "Advance story through Sai's sidecar plugin ABI."
+    },
+    {
+      "command": "story.choose",
+      "transport": "plugin-abi",
+      "summary": "Choose a story branch through Sai's sidecar plugin ABI."
+    },
+    {
+      "command": "story.jump",
+      "transport": "plugin-abi",
+      "summary": "Jump to a story path through Sai's sidecar plugin ABI."
+    },
+    {
+      "command": "style.patch",
+      "transport": "eve-command",
+      "summary": "Patch local style tokens without moving story truth into Eve."
+    }
+  ],
+  "contacts": [
+    {
+      "kind": "repo",
+      "path": "E:\\Projects\\Sai"
+    }
+  ]
+}

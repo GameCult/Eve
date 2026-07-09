@@ -135,6 +135,37 @@
           "status": {
             "type": "string",
             "minLength": 1
+          },
+          "requiresPlugins": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["pluginId", "requiredCapabilities"],
+              "properties": {
+                "pluginId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "versionRange": {
+                  "type": "string"
+                },
+                "requiredCapabilities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "optionalCapabilities": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "additionalProperties": true
+            }
           }
         },
         "additionalProperties": true

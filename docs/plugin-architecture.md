@@ -307,6 +307,12 @@ Recommended discovery path:
 6. Unsupported required plugin capability becomes a visible capability gap.
 7. Optional unsupported capability becomes a visible degraded lowering.
 
+Eve's parity harness validates this boundary directly: provider-advertised
+`surfaces[].requiresPlugins[]` entries must name known plugin manifests, and
+each `requiredCapabilities` item must be claimed by that plugin manifest. This
+keeps plugin requirements in the provider advertisement instead of hiding them
+in runtime lowerers or fixture-only metadata.
+
 Provider advertisement sketch:
 
 ```json
