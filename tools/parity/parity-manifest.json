@@ -19,6 +19,7 @@
     "gamecult.eve.plugin_abi_fixture.v1": "schemas/gamecult.eve.plugin_abi_fixture.v1.schema.json",
     "gamecult.eve.plugin_advertisement.v1": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
     "gamecult.eve.runtime_capability.v1": "schemas/gamecult.eve.runtime_capability.v1.schema.json",
+    "gamecult.eve.runtime_split_handoff.v1": "schemas/gamecult.eve.runtime_split_handoff.v1.schema.json",
     "gamecult.eve.runtime_release_request.v1": "schemas/gamecult.eve.runtime_release_request.v1.schema.json",
     "gamecult.eve.runtime_capture_request.v1": "schemas/gamecult.eve.runtime_capture_request.v1.schema.json",
     "gamecult.eve.provider_scenario.v1": "schemas/gamecult.eve.provider_scenario.v1.schema.json",

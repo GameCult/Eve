@@ -216,6 +216,10 @@ Aetheria's current Electron client, and `replacement-required` records mark
 move sets where no generic runtime source exists yet. Consumer smokes can
 assert them with
 `--expect-split-handoff-move <splitTarget:runtimeId:moveSetId:pathKind:status:path-substring>`.
+Runtime split handoff documents themselves use
+`gamecult.eve.runtime_split_handoff.v1`; the parity runner validates the
+handoff document shape and exports any `splitHandoffErrors` on the runtime
+record.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into

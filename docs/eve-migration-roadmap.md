@@ -418,6 +418,11 @@ Recently cut:
   and command transport, does not treat Aetheria product paths as generic
   runtime source, names the required Eve contracts, and keeps capture as an
   external proof until EveUnity owns it.
+- Runtime split handoff documents now have a catalog-backed schema,
+  `gamecult.eve.runtime_split_handoff.v1`. EveConformance exports that schema
+  so runtime owner repos can consume split target, move set, contract input,
+  forbidden import, and external proof shape without trusting only ad hoc smoke
+  script checks.
 - EveElectron now has a pending split target and handoff at
   `runtimes/incubating/eve-electron/eveelectron-split-handoff.json`. It does
   claim a provider-agnostic Electron shell surface-tree projection and command

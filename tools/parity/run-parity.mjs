@@ -305,6 +305,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   const capabilityManifestErrors = await validateRuntimeCapabilityManifest(runtime);
   const capabilityManifestDocument = await readRuntimeCapabilityManifestDocument(runtime);
   const splitHandoffPath = await readRuntimeSplitHandoffPath(runtime);
+  const splitHandoffErrors = await validateRuntimeSplitHandoff(runtime, splitHandoffPath);
   const localProviderCatalogErrors = await validateRuntimeLocalProviderCatalog(runtime);
   const missingIncubationFields = requiredIncubationFields(runtime).filter(field => !runtime[field]);
   const pluginCapabilityGaps = collectPluginCapabilityGaps(runtime, fixtureResults);
@@ -316,6 +317,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   if (runtime.kind === "active" && missingRequiredFeatures.length) status = "missing-required-feature";
   if (runtime.kind === "active" && commandTransportSmokeErrors.length) status = "missing-command-transport-smoke";
   if (runtime.kind === "active" && capabilityManifestErrors.length) status = "invalid-runtime-capability";
+  if (runtime.kind === "active" && splitHandoffErrors.length) status = "invalid-runtime-split-handoff";
   if (runtime.kind === "active" && localProviderCatalogErrors.length) status = "invalid-local-provider-catalog";
   if (runtime.kind === "active" && missingIncubationFields.length) status = "missing-incubation-metadata";
   if (runtime.kind === "active" && pluginCapabilityGaps.length && status === "active") status = "active-with-capability-gaps";
@@ -354,6 +356,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
     capabilityManifest: runtime.capabilityManifest || null,
     capabilityManifestErrors,
     splitHandoffPath,
+    splitHandoffErrors,
     localProviderCatalog: runtime.localProviderCatalog || null,
     localProviderCatalogErrors,
     lifecycle: runtime.lifecycle || capabilityManifestDocument?.lifecycle || null,
@@ -435,6 +438,18 @@ async function readRuntimeSplitHandoffPath(runtime) {
   } catch {
     return "";
   }
+}
+
+async function validateRuntimeSplitHandoff(runtime, splitHandoffPath) {
+  if (!splitHandoffPath) return [];
+  return validateJsonDocument(
+    manifest.schemas?.["gamecult.eve.runtime_split_handoff.v1"],
+    splitHandoffPath,
+    {
+      schema: "gamecult.eve.runtime_split_handoff.v1",
+      runtimeId: runtime.id,
+    },
+  );
 }
 
 function normalizePath(candidate) {
@@ -1804,6 +1819,7 @@ function buildConformanceExport(report) {
       capabilityManifestPath: runtime.capabilityManifest?.manifestPath || "",
       capabilityManifestErrors: runtime.capabilityManifestErrors || [],
       splitHandoffPath: runtime.splitHandoffPath || "",
+      splitHandoffErrors: runtime.splitHandoffErrors || [],
       splitHandoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
       commandTransportSchema: runtimeCommandTransportSchema(runtime),
       captureStatus: runtime.capture?.status || "",
@@ -1975,6 +1991,7 @@ function collectCapabilityGaps(report) {
       ...(runtime.missingRequiredFeatures || []).map(id => `feature:${id}`),
       ...(runtime.commandTransportSmokeErrors || []).map(id => `command-smoke:${id}`),
       ...(runtime.capabilityManifestErrors || []).map(id => `runtime-capability:${id}`),
+      ...(runtime.splitHandoffErrors || []).map(id => `runtime-split-handoff:${id}`),
       ...(runtime.localProviderCatalogErrors || []).map(id => `local-provider-catalog:${id}`),
       ...(runtime.pluginCapabilityGaps || []).map(id => `plugin-capability:${id}`),
     ]) {

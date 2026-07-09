@@ -25,6 +25,7 @@
         "schemas/gamecult.eve.provider_scenario.v1.schema.json",
         "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
         "schemas/gamecult.eve.runtime_capability.v1.schema.json",
+        "schemas/gamecult.eve.runtime_split_handoff.v1.schema.json",
         "schemas/gamecult.eve.command_receipt.v1.schema.json",
         "schemas/gamecult.eve.plugin.v1.schema.json",
         "schemas/gamecult.eve.plugin_receipt.v1.schema.json",
@@ -80,7 +81,8 @@
     "gamecult.eve.runtime_release_request.v1",
     "gamecult.eve.runtime_capture_request.v1",
     "gamecult.eve.provider_advertisement.v1",
-    "gamecult.eve.runtime_capability.v1"
+    "gamecult.eve.runtime_capability.v1",
+    "gamecult.eve.runtime_split_handoff.v1"
   ],
   "forbiddenImports": [
     "provider internals as conformance truth",

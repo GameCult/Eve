@@ -43,6 +43,7 @@ node $consumerScript $consumerExport `
   --expect-runtime direct2d `
   --expect-schema gamecult.eve.runtime_release_request.v1 `
   --expect-schema gamecult.eve.runtime_capture_request.v1 `
+  --expect-schema gamecult.eve.runtime_split_handoff.v1 `
   --expect-runtime-status web:active `
   --expect-runtime-status windows-flutter:active `
   --expect-runtime-status linux-flutter:active `
