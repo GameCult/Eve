@@ -996,6 +996,19 @@
           "ownerRepo": "EveUnity",
           "status": "batchmode-editmode-tests-and-consumer-build-smoke",
           "command": "powershell -ExecutionPolicy Bypass -File .\\scripts\\run-aetheria-unity-editmode-tests.ps1",
+          "testContract": {
+            "ownerRepo": "EveUnity",
+            "runnerKind": "unity-editmode-batchmode",
+            "runnerScript": "scripts/run-aetheria-unity-editmode-tests.ps1",
+            "consumerProject": "E:\\Projects\\Aetheria",
+            "unityExeDefault": "C:\\Program Files\\Unity\\Hub\\Editor\\6000.4.2f1\\Editor\\Unity.exe",
+            "packageName": "org.gamecult.eve.unity-uitoolkit",
+            "testAssembly": "GameCult.Eve.UnityUIToolkit.Tests",
+            "testPlatform": "EditMode",
+            "resultsArtifact": "artifacts/aetheria-unity-editmode/{stamp}/unity-editmode-results.xml",
+            "logArtifact": "artifacts/aetheria-unity-editmode/{stamp}/unity-editmode.log",
+            "manifestMutation": "Temporarily adds org.gamecult.eve.unity-uitoolkit to Aetheria Packages/manifest.json testables and restores the manifest after the run."
+          },
           "evidencePaths": [
             "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/GameCult.Eve.UnityUIToolkit.Tests.asmdef",
             "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/EveUiToolkitSurfaceLowererTests.cs",

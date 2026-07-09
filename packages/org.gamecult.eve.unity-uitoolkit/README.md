@@ -47,6 +47,14 @@ The release stage also declares the UPM release contract:
 its version from `package.json`, and uses tag pattern
 `eveunity-uitoolkit-v{version}` once the tag is cut from EveUnity.
 
+The test stage declares the Unity EditMode runner contract: the current runner
+is `scripts/run-aetheria-unity-editmode-tests.ps1`, runs
+`GameCult.Eve.UnityUIToolkit.Tests` on `EditMode`, writes XML and log artifacts
+under `artifacts/aetheria-unity-editmode/{stamp}`, and temporarily adds
+`org.gamecult.eve.unity-uitoolkit` to Aetheria's Unity `testables`. This is a
+Unity package consumption proof. CultLib still owns the .NET/NuGet dependency
+story for its assemblies.
+
 Those lifecycle claims are validated by the parity harness. A missing evidence
 path is a runtime capability error, not a README footnote.
 

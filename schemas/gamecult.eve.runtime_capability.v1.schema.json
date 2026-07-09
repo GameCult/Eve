@@ -230,6 +230,69 @@
             "command": {
               "type": "string"
             },
+            "testContract": {
+              "type": "object",
+              "required": [
+                "ownerRepo",
+                "runnerKind",
+                "runnerScript",
+                "consumerProject",
+                "unityExeDefault",
+                "packageName",
+                "testAssembly",
+                "testPlatform",
+                "resultsArtifact",
+                "logArtifact",
+                "manifestMutation"
+              ],
+              "properties": {
+                "ownerRepo": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "runnerKind": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "runnerScript": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "consumerProject": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "unityExeDefault": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "packageName": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "testAssembly": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "testPlatform": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "resultsArtifact": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "logArtifact": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "manifestMutation": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": true
+            },
             "evidencePaths": {
               "type": "array",
               "items": {

@@ -280,6 +280,15 @@ Exit criteria:
 
 Recently cut:
 
+- EveUnity test lifecycle now carries a structured Unity EditMode runner
+  contract. `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
+  names the runner script, consumer Unity project, default Unity editor path,
+  package name, test assembly, platform, result artifacts, and temporary
+  `testables` manifest mutation. The lifecycle smoke validates the runner
+  script and Aetheria project, parity compares the contract against the ledger,
+  and the runtime-owner consumer smoke asserts exported test fields. This is
+  Unity package consumption proof for CultLib-produced assemblies; CultLib
+  remains the owner of the .NET/NuGet dependency story.
 - EveUnity release lifecycle now carries a structured UPM release contract.
   `packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json`
   names the package root, version source, tag pattern, artifact kind, and

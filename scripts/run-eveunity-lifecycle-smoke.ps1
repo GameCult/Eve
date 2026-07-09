@@ -118,6 +118,46 @@ if ($packageManifest.name -ne $releaseContract.packageName) {
   throw "EveUnity release contract package name does not match package manifest: $($releaseContract.packageName) vs $($packageManifest.name)"
 }
 
+$testContract = $manifest.lifecycle.test.testContract
+if ($null -eq $testContract) {
+  throw "EveUnity test lifecycle missing testContract"
+}
+if ($testContract.ownerRepo -ne "EveUnity") {
+  throw "EveUnity test contract has unexpected owner: $($testContract.ownerRepo)"
+}
+if ($testContract.runnerKind -ne "unity-editmode-batchmode") {
+  throw "EveUnity test contract has unexpected runner kind: $($testContract.runnerKind)"
+}
+if ($testContract.packageName -ne "org.gamecult.eve.unity-uitoolkit") {
+  throw "EveUnity test contract has unexpected package name: $($testContract.packageName)"
+}
+if ($testContract.testAssembly -ne "GameCult.Eve.UnityUIToolkit.Tests") {
+  throw "EveUnity test contract has unexpected test assembly: $($testContract.testAssembly)"
+}
+if ($testContract.testPlatform -ne "EditMode") {
+  throw "EveUnity test contract has unexpected test platform: $($testContract.testPlatform)"
+}
+foreach ($pathProperty in @("runnerScript", "consumerProject")) {
+  $candidate = $testContract.$pathProperty
+  if (-not $candidate) {
+    throw "EveUnity test contract missing $pathProperty"
+  }
+  $absolutePath = if ([System.IO.Path]::IsPathRooted($candidate)) {
+    $candidate
+  } else {
+    Join-Path $projectRoot $candidate
+  }
+  if (-not (Test-Path -LiteralPath $absolutePath)) {
+    throw "EveUnity test contract $pathProperty does not exist: $candidate"
+  }
+}
+$runnerSource = Get-Content -LiteralPath (Join-Path $projectRoot $testContract.runnerScript) -Raw
+foreach ($expectedText in @($testContract.packageName, $testContract.testAssembly, $testContract.testPlatform, "testables", "Restore-Manifest")) {
+  if (-not $runnerSource.Contains($expectedText)) {
+    throw "EveUnity test contract runner script missing expected text: $expectedText"
+  }
+}
+
 & (Join-Path $projectRoot "scripts\run-aetheria-unity-package-smoke.ps1")
 if ($LASTEXITCODE -ne 0) {
   throw "Aetheria Unity package smoke failed with exit code $LASTEXITCODE"

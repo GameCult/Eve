@@ -1139,12 +1139,43 @@ function compareRuntimeLifecycleClaims(expectedLifecycle, actualLifecycle, manif
     errors.push(...missingMembers(expected.evidencePaths || [], actual.evidencePaths || [], `${label}.evidencePaths`));
     errors.push(...missingMembers(expected.pendingProofs || [], actual.pendingProofs || [], `${label}.pendingProofs`));
     errors.push(...compareReleaseContract(expected.releaseContract, actual.releaseContract, `${label}.releaseContract`));
+    errors.push(...compareTestContract(expected.testContract, actual.testContract, `${label}.testContract`));
 
     for (const evidencePath of actual.evidencePaths || []) {
       if (!existsSync(path.join(repoRoot, evidencePath))) {
         errors.push(`${label}.evidencePaths:${evidencePath}:missing`);
       }
     }
+  }
+  return errors;
+}
+
+function compareTestContract(expected, actual, label) {
+  const errors = [];
+  if (!expected) return errors;
+  if (!actual) return [`${label}:missing`];
+  for (const key of [
+    "ownerRepo",
+    "runnerKind",
+    "runnerScript",
+    "consumerProject",
+    "unityExeDefault",
+    "packageName",
+    "testAssembly",
+    "testPlatform",
+    "resultsArtifact",
+    "logArtifact",
+    "manifestMutation",
+  ]) {
+    if ((expected[key] || "") !== (actual[key] || "")) {
+      errors.push(`${label}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
+    }
+  }
+  if (actual.runnerScript && !existsSync(path.join(repoRoot, actual.runnerScript))) {
+    errors.push(`${label}.runnerScript:${actual.runnerScript}:missing`);
+  }
+  if (actual.consumerProject && !existsSync(actual.consumerProject)) {
+    errors.push(`${label}.consumerProject:${actual.consumerProject}:missing`);
   }
   return errors;
 }

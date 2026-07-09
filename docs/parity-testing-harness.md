@@ -118,8 +118,9 @@ capture status, and missing evidence without reading Eve's local parity
 manifest. The runtime-owner consumer smoke asserts EveUnity lifecycle stage
 status and pending release/test/capture proofs from the exported runtime record,
 plus release contract fields such as package name, artifact kind, tag pattern,
-and package root, so split blockers stay machine-readable instead of hiding in
-handoff prose.
+and package root, plus Unity EditMode test runner contract fields such as
+runner script, package name, test assembly, and platform. Split blockers stay
+machine-readable instead of hiding in handoff prose.
 
 After generating the parity report, `run-parity-harness.ps1` copies
 `artifacts/conformance/latest` into
@@ -233,6 +234,9 @@ Unity-style precompiled references for the Brokkr/CultMesh DLLs that Unity
 needs to resolve `GameCult.Mesh`; this complements the normal CultLib
 .NET/NuGet dependency story rather than replacing it. The runner proves the
 incubating package test lifecycle, not final EveUnity-owned release or capture.
+The exported runtime lifecycle records that runner contract so EveUnity can
+inherit the Unity-specific test proof without making Eve responsible for
+CultLib package distribution.
 
 Unity runtime lifecycle evidence:
 
