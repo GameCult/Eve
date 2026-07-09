@@ -148,6 +148,13 @@ Sai/Norn projection" and "Unity scene/Electron do not have generic plugin
 projection yet" instead of walking nested runtime records. Consumer smokes can
 assert entries with
 `--expect-runtime-plugin-projection <runtimeId:pluginId:status:ownerRepo>`.
+Provider surface plugin requirements are also joined with runtime projection
+support as `providerRuntimePluginProjectionCoverage[]`. These records answer
+the real lowering question: whether a provider surface's required or
+optional-nested plugin can be projected by a concrete runtime. Required plugin
+failures are blockers; optional nested failures are degraded lowerings. Consumer
+smokes can assert them with
+`--expect-provider-runtime-plugin-projection <providerId:surfaceId:runtimeId:pluginId:status:runtimeOwnerRepo>`.
 
 The conformance export includes runtime `capabilityManifestPath` and
 `capabilityManifestErrors` fields so external consumers can distinguish a

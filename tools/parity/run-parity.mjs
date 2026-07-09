@@ -723,6 +723,7 @@ function collectProviderPluginRequirements(advertisement) {
     for (const requirement of surface.requiresPlugins || []) {
       requirements.push({
         surfaceId: surface.surfaceId || "",
+        surfaceKey: surface.key || surface.url || "",
         pluginId: requirement.pluginId || "",
         versionRange: requirement.versionRange || "",
         availability: requirement.availability || "required",
@@ -1673,6 +1674,7 @@ function buildConformanceExport(report) {
     capabilityMatrix: buildCapabilityMatrix(report),
     runtimePluginProjectionCoverage: collectRuntimePluginProjectionCoverage(report),
     runtimePluginProjectionGaps: collectRuntimePluginProjectionGaps(report),
+    providerRuntimePluginProjectionCoverage: collectProviderRuntimePluginProjectionCoverage(report),
     interactiveWorldSurfaces: collectInteractiveWorldSurfaces(report),
     worldSurfaceLoweringCoverage: collectWorldSurfaceLoweringCoverage(report),
     commandBoundaryCoverage: collectCommandBoundaryCoverage(report),
@@ -2001,6 +2003,76 @@ function collectRuntimePluginProjectionCoverage(report) {
   }
   return coverage.sort((left, right) =>
     `${left.runtimeId}:${left.pluginId}:${left.status}`.localeCompare(`${right.runtimeId}:${right.pluginId}:${right.status}`));
+}
+
+function collectProviderRuntimePluginProjectionCoverage(report) {
+  const runtimeProjectionByKey = new Map();
+  for (const record of collectRuntimePluginProjectionCoverage(report)) {
+    runtimeProjectionByKey.set(`${record.runtimeId}:${record.pluginId}`, record);
+  }
+  const fixtureIdByPath = new Map((report.fixtures || [])
+    .map(fixture => [normalizePath(fixture.surface?.path || ""), fixture.id]));
+  const coverage = [];
+  for (const provider of report.providers || []) {
+    for (const requirement of provider.pluginRequirements || []) {
+      const fixtureId = fixtureIdByPath.get(normalizePath(requirement.surfaceKey || "")) || "";
+      if (!fixtureId) continue;
+      const runtimes = (report.runtimes || [])
+        .filter(runtime => (runtime.pluginFixtures || []).includes(fixtureId));
+      for (const runtime of runtimes) {
+        const projection = runtimeProjectionByKey.get(`${runtime.id}:${requirement.pluginId}`);
+        coverage.push(buildProviderRuntimePluginProjectionRecord(provider, requirement, runtime, projection, fixtureId));
+      }
+    }
+  }
+  return coverage.sort((left, right) =>
+    `${left.providerId}:${left.surfaceId}:${left.runtimeId}:${left.pluginId}`
+      .localeCompare(`${right.providerId}:${right.surfaceId}:${right.runtimeId}:${right.pluginId}`));
+}
+
+function buildProviderRuntimePluginProjectionRecord(provider, requirement, runtime, projection, fixtureId) {
+  const availability = requirement.availability || "required";
+  const optional = availability !== "required";
+  const runtimeCapabilities = new Set(projection?.capabilities || []);
+  const missingRuntimeRequiredCapabilities = (requirement.requiredCapabilities || [])
+    .filter(capability => !runtimeCapabilities.has(capability));
+  const missingRuntimeOptionalCapabilities = (requirement.optionalCapabilities || [])
+    .filter(capability => projection?.status === "supported" && !runtimeCapabilities.has(capability));
+  let status = optional ? "optional-supported" : "supported";
+  if (!projection) {
+    status = optional ? "optional-missing-runtime-projection" : "missing-runtime-projection";
+  } else if (projection.status !== "supported") {
+    status = optional ? "optional-unsupported-runtime-projection" : "unsupported-runtime-projection";
+  } else if (missingRuntimeRequiredCapabilities.length) {
+    status = optional ? "optional-missing-runtime-capability" : "missing-runtime-capability";
+  } else if (missingRuntimeOptionalCapabilities.length) {
+    status = "optional-missing-runtime-capability";
+  }
+
+  return {
+    providerId: provider.providerId,
+    providerOwnerRepo: provider.ownerRepo || "",
+    surfaceId: requirement.surfaceId || "",
+    surfaceKey: requirement.surfaceKey || "",
+    fixtureId,
+    runtimeId: runtime.id,
+    runtimeStatus: runtime.status || "",
+    runtimeOwnerRepo: resolveRuntimeProjectionOwnerRepo(runtime),
+    splitTarget: runtime.splitTarget || "",
+    pluginId: requirement.pluginId || "",
+    pluginOwnerRepo: projection?.pluginOwnerRepo || "",
+    availability,
+    status,
+    severity: status === "supported" || status === "optional-supported"
+      ? "ok"
+      : optional ? "degraded" : "blocker",
+    requiredCapabilities: requirement.requiredCapabilities || [],
+    optionalCapabilities: requirement.optionalCapabilities || [],
+    runtimeCapabilities: projection?.capabilities || [],
+    missingRuntimeRequiredCapabilities,
+    missingRuntimeOptionalCapabilities,
+    reason: projection?.reason || "",
+  };
 }
 
 function collectPluginAbiOperationCoverage(report) {

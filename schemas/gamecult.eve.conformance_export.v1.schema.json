@@ -14,6 +14,7 @@
     "pluginAbiOperationCoverage",
     "providerPluginRequirementCoverage",
     "runtimePluginProjectionCoverage",
+    "providerRuntimePluginProjectionCoverage",
     "interactiveWorldSurfaces",
     "worldSurfaceLoweringCoverage",
     "commandBoundaryCoverage",
@@ -217,6 +218,105 @@
           },
           "pluginFixtures": {
             "type": "array"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "providerRuntimePluginProjectionCoverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "providerId",
+          "providerOwnerRepo",
+          "surfaceId",
+          "fixtureId",
+          "runtimeId",
+          "runtimeStatus",
+          "runtimeOwnerRepo",
+          "pluginId",
+          "pluginOwnerRepo",
+          "availability",
+          "status",
+          "severity",
+          "requiredCapabilities",
+          "optionalCapabilities",
+          "runtimeCapabilities",
+          "missingRuntimeRequiredCapabilities",
+          "missingRuntimeOptionalCapabilities"
+        ],
+        "properties": {
+          "providerId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "providerOwnerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceKey": {
+            "type": "string"
+          },
+          "fixtureId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeStatus": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runtimeOwnerRepo": {
+            "type": "string",
+            "minLength": 1
+          },
+          "splitTarget": {
+            "type": "string"
+          },
+          "pluginId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pluginOwnerRepo": {
+            "type": "string"
+          },
+          "availability": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requiredCapabilities": {
+            "type": "array"
+          },
+          "optionalCapabilities": {
+            "type": "array"
+          },
+          "runtimeCapabilities": {
+            "type": "array"
+          },
+          "missingRuntimeRequiredCapabilities": {
+            "type": "array"
+          },
+          "missingRuntimeOptionalCapabilities": {
+            "type": "array"
+          },
+          "reason": {
+            "type": "string"
           }
         },
         "additionalProperties": true

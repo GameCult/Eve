@@ -341,6 +341,12 @@ Recently cut:
   Unity UI Toolkit support for `sai.vn` and `norn.graph`, its declared TeX gap,
   and the pending Unity scene/Electron unsupported Sai projection until their
   generic lowerers exist.
+- Provider/runtime/plugin projection coverage is now exported as
+  `providerRuntimePluginProjectionCoverage[]`. The runtime-owner smoke proves
+  the Sai VN provider surface lowers fully in web, lowers in Unity UI Toolkit
+  with Norn support and TeX as a degraded optional nested plugin, and does not
+  let UIKit's generic embedded-document path impersonate full Sai/Norn
+  projection.
 - Runtime/plugin projection gaps are now exported as
   `runtimePluginProjectionGaps[]`. The runtime-owner smoke asserts Unity and
   Electron plugin gaps as typed records, so missing Sai, Norn, or TeX projection
