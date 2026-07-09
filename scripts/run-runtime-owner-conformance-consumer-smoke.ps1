@@ -153,6 +153,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.packageName:org.gamecult.eve.unity-scene" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactKind:upm-package" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.tagPattern:eveunity-scene-v{version}" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.versionSource:runtimes/incubating/eve-unity-scene/package.json" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requestSchema:gamecult.eve.runtime_release_request.v1" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requestBuilder:tools/eveunity/eveunity-release-contract.mjs" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactPattern:artifacts/eveunity-scene-release/{version}/org.gamecult.eve.unity-scene-{version}.tgz" `
   --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerKind:unity-scene-provider-shell-smoke" `
   --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerScript:scripts/run-eveunity-scene-provider-shell-smoke.ps1" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.captureKind:unity-scene-frame-png" `

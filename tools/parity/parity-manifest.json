@@ -922,8 +922,11 @@
         "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json",
         "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
         "scripts/run-eveunity-scene-lifecycle-smoke.ps1",
+        "scripts/run-eveunity-scene-release-contract-smoke.ps1",
         "scripts/run-eveunity-scene-provider-shell-smoke.ps1",
         "scripts/run-eveunity-scene-capture-contract-smoke.ps1",
+        "tools/eveunity/eveunity-release-contract.mjs",
+        "tools/eveunity/eveunity-release-contract.test.mjs",
         "tools/eveunity/eveunity-capture-contract.mjs",
         "tools/eveunity/eveunity-capture-contract.test.mjs"
       ],
@@ -939,6 +942,10 @@
         {
           "path": "tools/eveunity/eveunity-capture-contract.test.mjs",
           "contains": ["builds Unity scene capture request from provider advertisement", "unity-scene", "artifacts/eveunity-scene-capture/smoke/unity-scene.png"]
+        },
+        {
+          "path": "tools/eveunity/eveunity-release-contract.test.mjs",
+          "contains": ["builds EveUnity scene UPM release request from package manifest", "eveunity-scene-v0.1.0", "artifacts/eveunity-scene-release/0.1.0/org.gamecult.eve.unity-scene-0.1.0.tgz"]
         }
       ],
       "capture": {

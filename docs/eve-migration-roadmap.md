@@ -403,8 +403,11 @@ Recently cut:
   lifecycle smoke at `scripts/run-eveunity-scene-lifecycle-smoke.ps1`. The
   manifest claims a provider-agnostic scene graph command surface for
   `unity-scene`, types the package release, provider-advertisement scene smoke,
-  command boundary, and scene capture contracts. It now reuses the shared
-  EveUnity capture request builder through
+  command boundary, and scene capture contracts. The release contract now uses
+  the Unity scene package manifest as version source and reuses the shared
+  EveUnity release request builder through
+  `scripts/run-eveunity-scene-release-contract-smoke.ps1`. It also reuses the
+  shared EveUnity capture request builder through
   `scripts/run-eveunity-scene-capture-contract-smoke.ps1`, while the actual
   Unity scene PNG/frame artifact remains pending. Plugin projection adapters
   stay unsupported until Sai, Norn, or TeX sidecar projection support exists in
@@ -520,6 +523,14 @@ Recently cut:
   `scripts/run-eveunity-scene-capture-contract-smoke.ps1` proves the request
   without pretending a Unity scene frame has been captured. The actual frame or
   screenshot artifact remains a split blocker for EveUnity.
+- Unity scene release now uses the same UPM release request contract shape as
+  Unity UI Toolkit. The `unity-scene` runtime capability manifest names
+  `gamecult.eve.runtime_release_request.v1`, the shared
+  `tools/eveunity/eveunity-release-contract.mjs` request builder,
+  `runtimes/incubating/eve-unity-scene/package.json` as the version source, and
+  the `eveunity-scene-v{version}` tag/artifact pattern.
+  `scripts/run-eveunity-scene-release-contract-smoke.ps1` proves the request
+  without pretending the tagged UPM package has been published.
 - EveTui capture lifecycle now carries a structured pending capture request
   contract for terminal artifacts. `captureContract` names the TUI runtime,
   transcript/cell-grid capture kind, ANSI transcript or JSON grid artifact kind,

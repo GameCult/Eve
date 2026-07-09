@@ -62,9 +62,12 @@
         "ownerRepo": "EveUnity",
         "packageName": "org.gamecult.eve.unity-scene",
         "packageRoot": "runtimes/incubating/eve-unity-scene",
-        "versionSource": "runtimes/incubating/eve-unity-scene/eve-runtime-capability.json",
+        "versionSource": "runtimes/incubating/eve-unity-scene/package.json",
         "tagPattern": "eveunity-scene-v{version}",
         "artifactKind": "upm-package",
+        "requestSchema": "gamecult.eve.runtime_release_request.v1",
+        "requestBuilder": "tools/eveunity/eveunity-release-contract.mjs",
+        "artifactPattern": "artifacts/eveunity-scene-release/{version}/org.gamecult.eve.unity-scene-{version}.tgz",
         "publishProof": "Tagged Unity scene package release is created from the EveUnity repo and references the provider-agnostic scene package root."
       },
       "evidencePaths": [
@@ -72,7 +75,10 @@
         "runtimes/incubating/eve-unity-scene/Runtime/GameCult.Eve.UnityScene.asmdef",
         "runtimes/incubating/eve-unity-scene/Runtime/EveUnitySceneSurfaceLowerer.cs",
         "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
-        "scripts/run-eveunity-scene-split-handoff-smoke.ps1"
+        "scripts/run-eveunity-scene-split-handoff-smoke.ps1",
+        "scripts/run-eveunity-scene-release-contract-smoke.ps1",
+        "tools/eveunity/eveunity-release-contract.mjs",
+        "tools/eveunity/eveunity-release-contract.test.mjs"
       ],
       "pendingProofs": [
         "Unity scene package release is cut from EveUnity rather than Eve incubation."
