@@ -3,7 +3,8 @@
   "repoStrategy": {
     "boundaryRule": "Eve core owns contracts; plugins own semantics; runtime repos own native projection; provider repos own live truth.",
     "incubationPolicy": "Eve may host runtimes, plugins, and conformance packs only while their contract is still forming.",
-    "graduationDocument": "docs/repo-strategy.md"
+    "graduationDocument": "docs/repo-strategy.md",
+    "conformanceHandoffPath": "tools/conformance/eveconformance-handoff.json"
   },
   "schemas": {
     "gamecult.eve.conformance_fixture.v1": "schemas/gamecult.eve.conformance_fixture.v1.schema.json",

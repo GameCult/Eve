@@ -1338,6 +1338,7 @@ function buildConformanceExport(report) {
     sourceManifest: report.manifest,
     boundaryRule: report.repoStrategy.boundaryRule || "",
     incubationPolicy: report.repoStrategy.incubationPolicy || "",
+    conformanceHandoffPath: report.repoStrategy.conformanceHandoffPath || "",
     packs,
     plugins: (report.plugins || []).map(plugin => ({
       pluginId: plugin.pluginId,
@@ -1400,6 +1401,7 @@ function renderConformanceExportMarkdown(conformanceExport) {
     `Generated: ${conformanceExport.generatedAt}`,
     "",
     `Boundary rule: ${conformanceExport.boundaryRule || "not declared"}`,
+    `Conformance handoff: ${conformanceExport.conformanceHandoffPath || "not declared"}`,
     "",
     "## Packs",
     "",

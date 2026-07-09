@@ -16,6 +16,7 @@ if (!exportDirectory) {
     "  --expect-runtime <id>",
     "  --expect-scenario <id>",
     "  --expect-split-target <id>",
+    "  --expect-conformance-handoff",
     "  --expect-plugin-operation <pluginId:operation>",
     "  --expect-plugin-capability <pluginId:capability>",
     "  --expect-plugin-handoff <pluginId>",
@@ -104,6 +105,10 @@ function validateIndex(index, directory, expectations, errors) {
   const providers = Array.isArray(index.providers) ? index.providers : [];
   const runtimes = mergeRuntimeRecords(Array.isArray(index.runtimes) ? index.runtimes : [], exportedRuntimeTargets);
   const splitTargets = Array.isArray(index.splitTargets) ? index.splitTargets : [];
+
+  if (expectations.conformanceHandoff && !index.conformanceHandoffPath) {
+    errors.push("conformanceHandoffPath:missing");
+  }
 
   for (const expectedFixture of expectations.fixtures) {
     if (!fixtureIds.has(expectedFixture)) errors.push(`fixture:${expectedFixture}:missing`);
@@ -311,6 +316,7 @@ function parseArguments(args) {
     splitTargetStatuses: [],
     splitTargetBlockers: [],
     splitTargetProofs: [],
+    conformanceHandoff: false,
   };
   const optionTargets = new Map([
     ["--expect-pack", expectations.packs],
@@ -338,6 +344,10 @@ function parseArguments(args) {
 
   for (let index = 1; index < args.length; index += 1) {
     const option = args[index];
+    if (option === "--expect-conformance-handoff") {
+      expectations.conformanceHandoff = true;
+      continue;
+    }
     const target = optionTargets.get(option);
     if (!target) {
       console.error(`Unknown option: ${option}`);

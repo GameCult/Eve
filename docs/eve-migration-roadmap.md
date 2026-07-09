@@ -280,6 +280,14 @@ Exit criteria:
 
 Recently cut:
 
+- EveConformance now has a machine-readable handoff at
+  `tools/conformance/eveconformance-handoff.json` and a verifier at
+  `scripts/run-eveconformance-handoff-smoke.ps1`. The handoff names the
+  conformance runner, schemas, consumer smokes, fixture corpus, contract inputs,
+  forbidden imports, and external proofs that leave Eve when the harness
+  graduates. The conformance export carries `conformanceHandoffPath`, and the
+  generic consumer smoke asserts it so EveConformance split readiness is not
+  trapped in Eve's parity manifest.
 - Sai and Norn now have plugin handoff manifests at
   `plugins/incubating/sai-vn.plugin-handoff.json` and
   `plugins/incubating/norn-graph.plugin-handoff.json`, plus a shared verifier

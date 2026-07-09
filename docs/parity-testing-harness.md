@@ -80,6 +80,11 @@ The semantic runner writes:
 - `artifacts/conformance/latest/packs/*.json`
 - `artifacts/conformance/<timestamp>/...`
 
+The conformance export includes `conformanceHandoffPath`, pointing at the
+machine-readable EveConformance split map. That handoff is incubation evidence:
+it names which runner, schema, consumer-smoke, and fixture-corpus paths move
+when the conformance body leaves Eve.
+
 The conformance export includes runtime `capabilityManifestPath` and
 `capabilityManifestErrors` fields so external consumers can distinguish a
 generic projection runtime from a runtime that can project plugin-declared
@@ -102,6 +107,17 @@ After generating the parity report, `run-parity-harness.ps1` copies
 `tools/conformance/consume-export.mjs` against that copied layout. That smoke
 proves the conformance export can be consumed through its own index and pack
 files without reading `tools/parity/parity-manifest.json`.
+
+EveConformance handoff smoke:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-eveconformance-handoff-smoke.ps1
+```
+
+That script validates `tools/conformance/eveconformance-handoff.json` against
+the parity manifest and, when present, the generated conformance export. It
+checks the runner, schema, consumer-smoke, fixture-corpus move sets and the
+required core/plugin/provider/runtime pack families.
 
 Provider-owned consumer smoke:
 
