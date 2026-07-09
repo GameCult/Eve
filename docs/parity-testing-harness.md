@@ -120,6 +120,18 @@ That script runs the export consumer from `flutter/eve_parity` and asserts the
 runtime pack, Sai provider fixture, Flutter runtime targets, and `EveFlutter`
 split target without reading `tools/parity/parity-manifest.json`.
 
+Split-target consumer smoke:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-split-target-conformance-consumer-smoke.ps1
+```
+
+That script asserts that EveFlutter and EveUnity are exported as incubating
+split targets, that their current split-readiness proofs are passed, and that
+their graduation blockers remain visible to consumers. A target being present
+is not enough; future owner repos must be able to consume why it is or is not
+ready to leave Eve incubation.
+
 The Flutter widget smoke also exercises `EveProviderCatalog` and
 `EveProviderPicker` against a conformance-export-shaped provider list. That is
 the runtime-side provider picker proof; it consumes provider entries and plugin

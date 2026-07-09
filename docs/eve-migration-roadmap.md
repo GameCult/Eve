@@ -280,6 +280,13 @@ Exit criteria:
 
 Recently cut:
 
+- Split-target conformance consumption now verifies graduation state instead of
+  only split-target presence. The generic consumer supports
+  `--expect-split-target-status`, `--expect-split-target-blocker`, and
+  `--expect-split-target-proof`; the parity harness runs
+  `scripts/run-split-target-conformance-consumer-smoke.ps1`; and EveFlutter /
+  EveUnity consumers can now prove that the targets remain incubating for named
+  blockers while their current split-readiness proofs stay passed.
 - Runtime owner conformance consumption now verifies runtime target health
   instead of only runtime presence. The generic consumer supports
   `--expect-runtime-status`, `--expect-runtime-feature`,

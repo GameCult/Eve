@@ -25,6 +25,9 @@ if (!exportDirectory) {
     "  --expect-runtime-feature <runtimeId:feature>",
     "  --expect-runtime-command-schema <runtimeId:schema>",
     "  --expect-runtime-capture-status <runtimeId:status>",
+    "  --expect-split-target-status <targetId:status>",
+    "  --expect-split-target-blocker <targetId:blocker-substring>",
+    "  --expect-split-target-proof <targetId:proof-substring>",
   ].join("\n"));
   process.exit(2);
 }
@@ -208,6 +211,41 @@ function validateIndex(index, directory, expectations, errors) {
   for (const expectedSplitTarget of expectations.splitTargets) {
     if (!splitTargets.some(target => target.id === expectedSplitTarget)) errors.push(`splitTargets:${expectedSplitTarget}:missing`);
   }
+  for (const expectation of expectations.splitTargetStatuses) {
+    const target = splitTargets.find(candidate => candidate.id === expectation.targetId);
+    if (!target) {
+      errors.push(`splitTargets:${expectation.targetId}:missing`);
+      continue;
+    }
+    if (target.status !== expectation.status) {
+      errors.push(`splitTargets:${expectation.targetId}:status:expected ${expectation.status} got ${target.status || ""}`);
+    }
+  }
+  for (const expectation of expectations.splitTargetBlockers) {
+    const target = splitTargets.find(candidate => candidate.id === expectation.targetId);
+    if (!target) {
+      errors.push(`splitTargets:${expectation.targetId}:missing`);
+      continue;
+    }
+    const blockers = Array.isArray(target.blockers) ? target.blockers : [];
+    if (!blockers.some(blocker => blocker.includes(expectation.blocker))) {
+      errors.push(`splitTargets:${expectation.targetId}:blocker:${expectation.blocker}:missing`);
+    }
+  }
+  for (const expectation of expectations.splitTargetProofs) {
+    const target = splitTargets.find(candidate => candidate.id === expectation.targetId);
+    if (!target) {
+      errors.push(`splitTargets:${expectation.targetId}:missing`);
+      continue;
+    }
+    const proofs = Array.isArray(target.proofs) ? target.proofs : [];
+    const proof = proofs.find(candidate => candidate.description?.includes(expectation.proof));
+    if (!proof) {
+      errors.push(`splitTargets:${expectation.targetId}:proof:${expectation.proof}:missing`);
+    } else if (proof.status !== "passed") {
+      errors.push(`splitTargets:${expectation.targetId}:proof:${expectation.proof}:expected passed got ${proof.status || ""}`);
+    }
+  }
 
   if (!plugins.some(plugin => plugin.pluginId === "sai.vn" && plugin.abiFixturePath)) {
     errors.push("plugins:sai.vn:abiFixturePath:missing");
@@ -246,6 +284,9 @@ function parseArguments(args) {
     runtimeCaptureStatuses: [],
     scenarios: [],
     splitTargets: [],
+    splitTargetStatuses: [],
+    splitTargetBlockers: [],
+    splitTargetProofs: [],
   };
   const optionTargets = new Map([
     ["--expect-pack", expectations.packs],
@@ -264,6 +305,9 @@ function parseArguments(args) {
     ["--expect-runtime-feature", expectations.runtimeFeatures],
     ["--expect-runtime-command-schema", expectations.runtimeCommandSchemas],
     ["--expect-runtime-capture-status", expectations.runtimeCaptureStatuses],
+    ["--expect-split-target-status", expectations.splitTargetStatuses],
+    ["--expect-split-target-blocker", expectations.splitTargetBlockers],
+    ["--expect-split-target-proof", expectations.splitTargetProofs],
   ]);
 
   for (let index = 1; index < args.length; index += 1) {
@@ -296,6 +340,12 @@ function parseArguments(args) {
       target.push(parseRuntimeExpectation(value, "schema"));
     } else if (option === "--expect-runtime-capture-status") {
       target.push(parseRuntimeExpectation(value, "status"));
+    } else if (option === "--expect-split-target-status") {
+      target.push(parseSplitTargetExpectation(value, "status"));
+    } else if (option === "--expect-split-target-blocker") {
+      target.push(parseSplitTargetExpectation(value, "blocker"));
+    } else if (option === "--expect-split-target-proof") {
+      target.push(parseSplitTargetExpectation(value, "proof"));
     } else {
       target.push(value);
     }
@@ -337,6 +387,18 @@ function parseRuntimeExpectation(value, field) {
   }
   return {
     runtimeId: value.slice(0, separator),
+    [field]: value.slice(separator + 1),
+  };
+}
+
+function parseSplitTargetExpectation(value, field) {
+  const separator = value.indexOf(":");
+  if (separator <= 0 || separator === value.length - 1) {
+    console.error(`Expected split target ${field} in <targetId:${field}> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    targetId: value.slice(0, separator),
     [field]: value.slice(separator + 1),
   };
 }
