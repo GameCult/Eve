@@ -371,12 +371,15 @@
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
       "manifestPath": "plugins/incubating/sai-vn.plugin.json",
       "abiFixturePath": "plugins/incubating/sai-vn.plugin-abi-fixture.json",
+      "handoffPath": "plugins/incubating/sai-vn.plugin-handoff.json",
       "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
       "advertisementPath": "plugins/incubating/sai-vn.plugin-advertisement.json",
       "expectedPaths": [
         "plugins/incubating/sai-vn.plugin.json",
         "plugins/incubating/sai-vn.plugin-abi-fixture.json",
-        "plugins/incubating/sai-vn.plugin-advertisement.json"
+        "plugins/incubating/sai-vn.plugin-advertisement.json",
+        "plugins/incubating/sai-vn.plugin-handoff.json",
+        "scripts/run-plugin-handoff-smoke.ps1"
       ]
     },
     {
@@ -392,12 +395,15 @@
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
       "manifestPath": "plugins/incubating/norn-graph.plugin.json",
       "abiFixturePath": "plugins/incubating/norn-graph.plugin-abi-fixture.json",
+      "handoffPath": "plugins/incubating/norn-graph.plugin-handoff.json",
       "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
       "advertisementPath": "plugins/incubating/norn-graph.plugin-advertisement.json",
       "expectedPaths": [
         "plugins/incubating/norn-graph.plugin.json",
         "plugins/incubating/norn-graph.plugin-abi-fixture.json",
-        "plugins/incubating/norn-graph.plugin-advertisement.json"
+        "plugins/incubating/norn-graph.plugin-advertisement.json",
+        "plugins/incubating/norn-graph.plugin-handoff.json",
+        "scripts/run-plugin-handoff-smoke.ps1"
       ]
     },
     {

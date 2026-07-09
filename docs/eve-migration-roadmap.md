@@ -280,6 +280,15 @@ Exit criteria:
 
 Recently cut:
 
+- Sai and Norn now have plugin handoff manifests at
+  `plugins/incubating/sai-vn.plugin-handoff.json` and
+  `plugins/incubating/norn-graph.plugin-handoff.json`, plus a shared verifier
+  at `scripts/run-plugin-handoff-smoke.ps1`. The handoffs name the manifest,
+  advertisement, ABI fixture, move sets, contract inputs, forbidden imports,
+  and external proofs that must move to the owner repos. The conformance export
+  carries plugin `handoffPath`, and the plugin-owner smoke asserts it so Sai
+  and Norn can consume the plugin boundary without reading Eve's parity
+  manifest.
 - Aetheria now has a provider handoff manifest at
   `web/fixtures/aetheria-provider-handoff.json` and a verifier at
   `scripts/run-aetheria-provider-handoff-smoke.ps1`. The handoff names the

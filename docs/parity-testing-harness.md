@@ -85,6 +85,11 @@ The conformance export includes runtime `capabilityManifestPath` and
 generic projection runtime from a runtime that can project plugin-declared
 capabilities.
 
+Plugin handoff paths are exported as `plugins[].handoffPath` for owner repos
+such as Sai and Norn. These paths are incubation evidence for where plugin
+manifest, advertisement, ABI fixture, and conformance ownership must move; they
+are not plugin runtime state.
+
 The runtime conformance pack is evidence-shaped, not fixture-shaped. Its
 `packs/runtime.json` document includes `runtimeTargets` so runtime repos can
 consume status, supported features, plugin support, command schema, lifecycle,
@@ -109,6 +114,17 @@ asserts the provider pack, `aetheria-world` fixture, `aetheria` provider entry,
 `aetheria-world-command-replay` scenario, and provider handoff path. Generated
 copies remain under Eve's `artifacts/aetheria-conformance-consumer-smoke` so
 the provider worktree does not become dirty merely by proving the boundary.
+
+Plugin owner handoff smoke:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-plugin-handoff-smoke.ps1
+```
+
+That script validates the Sai and Norn handoff manifests against their plugin
+manifests, advertisements, ABI fixtures, move-set paths, contract inputs, and
+external proofs. The plugin-owner conformance smoke also asserts those handoff
+paths from the conformance export.
 
 Aetheria provider handoff smoke:
 

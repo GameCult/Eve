@@ -35,6 +35,8 @@ node $consumerScript $consumerExport `
   --expect-fixture sai-vn `
   --expect-plugin sai.vn `
   --expect-plugin norn.graph `
+  --expect-plugin-handoff sai.vn `
+  --expect-plugin-handoff norn.graph `
   --expect-plugin-operation sai.vn:describe `
   --expect-plugin-operation sai.vn:validate `
   --expect-plugin-operation sai.vn:project `

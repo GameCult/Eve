@@ -18,6 +18,7 @@ if (!exportDirectory) {
     "  --expect-split-target <id>",
     "  --expect-plugin-operation <pluginId:operation>",
     "  --expect-plugin-capability <pluginId:capability>",
+    "  --expect-plugin-handoff <pluginId>",
     "  --expect-provider-surface <providerId:surfaceId>",
     "  --expect-provider-command <providerId:command>",
     "  --expect-provider-receipt-state <providerId:state>",
@@ -128,6 +129,16 @@ function validateIndex(index, directory, expectations, errors) {
     }
     if (!Array.isArray(plugin.capabilities) || !plugin.capabilities.includes(expectation.capability)) {
       errors.push(`plugins:${expectation.pluginId}:capability:${expectation.capability}:missing`);
+    }
+  }
+  for (const expectedPlugin of expectations.pluginHandoffs) {
+    const plugin = plugins.find(candidate => candidate.pluginId === expectedPlugin);
+    if (!plugin) {
+      errors.push(`plugins:${expectedPlugin}:missing`);
+      continue;
+    }
+    if (!plugin.handoffPath) {
+      errors.push(`plugins:${expectedPlugin}:handoffPath:missing`);
     }
   }
   for (const expectedProvider of expectations.providers) {
@@ -284,6 +295,7 @@ function parseArguments(args) {
     plugins: [],
     pluginOperations: [],
     pluginCapabilities: [],
+    pluginHandoffs: [],
     providers: [],
     providerSurfaces: [],
     providerCommands: [],
@@ -310,6 +322,7 @@ function parseArguments(args) {
     ["--expect-split-target", expectations.splitTargets],
     ["--expect-plugin-operation", expectations.pluginOperations],
     ["--expect-plugin-capability", expectations.pluginCapabilities],
+    ["--expect-plugin-handoff", expectations.pluginHandoffs],
     ["--expect-provider-surface", expectations.providerSurfaces],
     ["--expect-provider-command", expectations.providerCommands],
     ["--expect-provider-receipt-state", expectations.providerReceiptStates],
@@ -339,6 +352,8 @@ function parseArguments(args) {
       target.push(parsePluginExpectation(value, "operation"));
     } else if (option === "--expect-plugin-capability") {
       target.push(parsePluginExpectation(value, "capability"));
+    } else if (option === "--expect-plugin-handoff") {
+      target.push(value);
     } else if (option === "--expect-provider-surface") {
       target.push(parseProviderExpectation(value, "surfaceId"));
     } else if (option === "--expect-provider-command") {
