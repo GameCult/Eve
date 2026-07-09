@@ -122,7 +122,8 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-status unity-uitoolkit:semantic `
   --expect-runtime-capture-status unity-scene:missing `
   --expect-runtime-capture-status electron-shell:missing `
-  --expect-runtime-capture-status tui:missing `
+  --expect-runtime-capture-status tui:json-grid `
+  --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-status direct2d:missing `
   --expect-screenshot-metric web:embedded-surface:structure:pass `
   --expect-screenshot-metric web:embedded-surface:color-tokens:pass `
@@ -133,7 +134,7 @@ node $consumerScript $consumerExport `
   --expect-screenshot-metric web:sai-vn:bounding-boxes:pass `
   --expect-screenshot-metric unity-scene:aetheria-world:bounding-boxes:pending-capture `
   --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
-  --expect-screenshot-metric tui:aetheria-world:bounding-boxes:pending-capture `
+  --expect-screenshot-metric tui:aetheria-world:bounding-boxes:terminal-grid-capture `
   --expect-runtime-lifecycle-status unity-uitoolkit:release:incubating-upm-package `
   --expect-runtime-lifecycle-status unity-uitoolkit:test:batchmode-editmode-tests-and-consumer-build-smoke `
   --expect-runtime-lifecycle-status unity-uitoolkit:capture:pending-editor-capture `
@@ -203,10 +204,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-status tui:release:pending-tui-package `
   --expect-runtime-lifecycle-status tui:test:provider-shell-contract-skeleton `
-  --expect-runtime-lifecycle-status tui:capture:pending-terminal-capture `
+  --expect-runtime-lifecycle-status tui:capture:cell-grid-json-capture `
   --expect-runtime-lifecycle-pending "tui:release:TUI package release" `
   --expect-runtime-lifecycle-pending "tui:test:TUI provider-advertisement smoke runs from EveTui with durable terminal transcript or cell-grid artifacts" `
-  --expect-runtime-lifecycle-pending "tui:capture:TUI terminal transcript or cell-grid capture artifact" `
+  --expect-runtime-lifecycle-pending "tui:capture:TUI capture artifact is produced from the EveTui owner repo" `
   --expect-runtime-lifecycle-field "tui:release:releaseContract.artifactKind:terminal-runtime" `
   --expect-runtime-lifecycle-field "tui:release:releaseContract.versionSource:runtimes/incubating/eve-tui/package.json" `
   --expect-runtime-lifecycle-field "tui:release:releaseContract.requestSchema:gamecult.eve.runtime_release_request.v1" `
@@ -214,7 +215,9 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "tui:release:releaseContract.artifactPattern:artifacts/evetui-release/{version}/eve-tui-{version}.tgz" `
   --expect-runtime-lifecycle-field "tui:test:testContract.runnerKind:terminal-provider-shell-smoke" `
   --expect-runtime-lifecycle-field "tui:test:testContract.runnerScript:scripts/run-evetui-provider-shell-smoke.ps1" `
-  --expect-runtime-lifecycle-field "tui:capture:captureContract.captureKind:terminal-transcript-or-cell-grid" `
+  --expect-runtime-lifecycle-field "tui:capture:captureContract.captureKind:terminal-cell-grid" `
+  --expect-runtime-lifecycle-field "tui:capture:captureContract.artifactKind:json-grid" `
+  --expect-runtime-lifecycle-field "tui:capture:captureContract.artifactPattern:artifacts/evetui-capture/{stamp}/tui-grid.json" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.targetId:tui" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.requestBuilder:tools/evetui/evetui-capture-contract.mjs" `

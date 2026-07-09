@@ -716,7 +716,7 @@
       ],
       "pendingProofs": [
         "TUI runtime body graduates to EveTui outside provider product code.",
-        "TUI terminal transcript or cell-grid captures are attached to conformance output."
+        "TUI terminal transcript or cell-grid captures are attached to conformance output from the EveTui owner repo."
       ]
     }
   ],
@@ -868,9 +868,12 @@
         "scripts/run-evetui-lifecycle-smoke.ps1",
         "scripts/run-evetui-provider-shell-smoke.ps1",
         "scripts/run-evetui-capture-contract-smoke.ps1",
+        "scripts/run-evetui-capture-smoke.ps1",
         "scripts/run-evetui-release-contract-smoke.ps1",
         "tools/evetui/evetui-capture-contract.mjs",
         "tools/evetui/evetui-capture-contract.test.mjs",
+        "tools/evetui/evetui-capture-artifact.mjs",
+        "tools/evetui/evetui-capture-artifact.test.mjs",
         "tools/evetui/evetui-release-contract.mjs",
         "tools/evetui/evetui-release-contract.test.mjs"
       ],
@@ -885,11 +888,19 @@
         },
         {
           "path": "tools/evetui/evetui-capture-contract.mjs",
-          "contains": ["buildTuiCaptureRequest", "gamecult.eve.runtime_capture_request.v1", "ansi-transcript-or-json-grid", "loweringTargets", "writeCaptureRequest"]
+          "contains": ["buildTuiCaptureRequest", "gamecult.eve.runtime_capture_request.v1", "artifactKind", "loweringTargets", "writeCaptureRequest"]
         },
         {
           "path": "tools/evetui/evetui-capture-contract.test.mjs",
-          "contains": ["builds TUI capture request from provider advertisement", "rejects capture request when the surface does not advertise TUI", "artifacts/evetui-capture/smoke/tui-transcript.ansi"]
+          "contains": ["builds TUI capture request from provider advertisement", "rejects capture request when the surface does not advertise TUI", "artifacts/evetui-capture/smoke/tui-grid.json"]
+        },
+        {
+          "path": "tools/evetui/evetui-capture-artifact.mjs",
+          "contains": ["buildTuiCaptureArtifact", "EveTuiShell", "gamecult.eve.tui_grid.v1", "writeTuiCaptureArtifact", "request-output"]
+        },
+        {
+          "path": "tools/evetui/evetui-capture-artifact.test.mjs",
+          "contains": ["builds TUI JSON grid capture artifact", "gamecult.eve.tui_grid.v1", "artifacts/evetui-capture/smoke/tui-grid.json"]
         },
         {
           "path": "tools/evetui/evetui-release-contract.mjs",
@@ -901,8 +912,19 @@
         }
       ],
       "capture": {
-        "status": "missing",
-        "note": "TUI transcript or cell-grid capture is a split blocker until EveTui attaches durable terminal artifacts."
+        "status": "json-grid",
+        "note": "TUI attaches a provider-advertisement-backed gamecult.eve.tui_grid.v1 JSON capture artifact; packaged runtime ownership remains an EveTui split blocker.",
+        "artifacts": [
+          {
+            "kind": "json-grid",
+            "schema": "gamecult.eve.tui_grid.v1",
+            "path": "artifacts/evetui-capture/latest/tui-grid.json",
+            "providerId": "aetheria",
+            "surfaceId": "aetheria.daemon.game",
+            "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
+            "requestPath": "artifacts/evetui-capture/latest/capture-request.json"
+          }
+        ]
       }
     },
     {

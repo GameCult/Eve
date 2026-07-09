@@ -318,6 +318,8 @@ async function evaluateRuntime(runtime, fixtureResults) {
   const capabilityManifestDocument = await readRuntimeCapabilityManifestDocument(runtime);
   const lifecycleManifestDocument = await readRuntimeLifecycleManifestDocument(runtime);
   const lifecycle = runtime.lifecycle || capabilityManifestDocument?.lifecycle || readLifecycleStages(lifecycleManifestDocument);
+  const capture = runtime.capture || capabilityManifestDocument?.capture || null;
+  const captureArtifactErrors = validateRuntimeCaptureArtifacts(capture);
   const lifecycleErrors = await validateRuntimeLifecycle(runtime, lifecycle, lifecycleManifestDocument);
   const splitHandoffPath = await readRuntimeSplitHandoffPath(runtime);
   const splitHandoffErrors = await validateRuntimeSplitHandoff(runtime, splitHandoffPath);
@@ -333,6 +335,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   if (runtime.kind === "active" && commandTransportSmokeErrors.length) status = "missing-command-transport-smoke";
   if (runtime.kind === "active" && capabilityManifestErrors.length) status = "invalid-runtime-capability";
   if (runtime.kind === "active" && lifecycleErrors.length) status = "invalid-runtime-lifecycle";
+  if (runtime.kind === "active" && captureArtifactErrors.length) status = "invalid-runtime-capture-artifact";
   if (runtime.kind === "active" && splitHandoffErrors.length) status = "invalid-runtime-split-handoff";
   if (runtime.kind === "active" && localProviderCatalogErrors.length) status = "invalid-local-provider-catalog";
   if (runtime.kind === "active" && missingIncubationFields.length) status = "missing-incubation-metadata";
@@ -378,6 +381,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
     localProviderCatalog: runtime.localProviderCatalog || null,
     localProviderCatalogErrors,
     lifecycle,
+    captureArtifactErrors,
     ownerRepo: runtime.ownerRepo || "",
     repoRole: runtime.repoRole || "",
     graduationTrigger: runtime.graduationTrigger || "",
@@ -387,7 +391,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
     activationCriteria: runtime.activationCriteria || [],
     missingIncubationFields,
     pluginCapabilityGaps,
-    capture: runtime.capture,
+    capture,
   };
 }
 
@@ -1914,6 +1918,8 @@ function buildConformanceExport(report) {
           lifecycleManifestPath: runtime.lifecycleManifest?.manifestPath || "",
           commandTransportSchema: runtimeCommandTransportSchema(runtime),
           captureStatus: runtime.capture?.status || "",
+          captureArtifacts: runtime.capture?.artifacts || [],
+          captureArtifactErrors: runtime.captureArtifactErrors || [],
           lifecycle: runtime.lifecycle,
           lifecycleErrors: runtime.lifecycleErrors || [],
           missingEvidence: [
@@ -1923,6 +1929,7 @@ function buildConformanceExport(report) {
             ...runtime.commandTransportSmokeErrors.map(id => `command-smoke:${id}`),
             ...runtime.capabilityManifestErrors.map(id => `runtime-capability:${id}`),
             ...runtime.lifecycleErrors.map(id => `runtime-lifecycle:${id}`),
+            ...runtime.captureArtifactErrors.map(id => `runtime-capture:${id}`),
             ...runtime.localProviderCatalogErrors.map(id => `local-provider-catalog:${id}`),
           ],
         }))
@@ -2013,6 +2020,8 @@ function buildConformanceExport(report) {
       splitHandoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
       commandTransportSchema: runtimeCommandTransportSchema(runtime),
       captureStatus: runtime.capture?.status || "",
+      captureArtifacts: runtime.capture?.artifacts || [],
+      captureArtifactErrors: runtime.captureArtifactErrors || [],
       ...(runtime.lifecycle ? { lifecycle: runtime.lifecycle } : {}),
       worldSurfaceLowering: runtime.worldSurfaceLowering || [],
     })),
@@ -2075,6 +2084,7 @@ function buildCapabilityMatrix(report) {
     worldSurfaceLowering: runtime.worldSurfaceLowering || [],
     commandTransportSchema: runtimeCommandTransportSchema(runtime),
     captureStatus: runtime.capture?.status || "",
+    captureArtifacts: runtime.capture?.artifacts || [],
     splitHandoffExportPath: makeHandoffExportPath("runtime", runtime.id, runtime.splitHandoffPath || ""),
   }));
 
@@ -2184,6 +2194,7 @@ function collectCapabilityGaps(report) {
       ...(runtime.commandTransportSmokeErrors || []).map(id => `command-smoke:${id}`),
       ...(runtime.capabilityManifestErrors || []).map(id => `runtime-capability:${id}`),
       ...(runtime.lifecycleErrors || []).map(id => `runtime-lifecycle:${id}`),
+      ...(runtime.captureArtifactErrors || []).map(id => `runtime-capture:${id}`),
       ...(runtime.splitHandoffErrors || []).map(id => `runtime-split-handoff:${id}`),
       ...(runtime.localProviderCatalogErrors || []).map(id => `local-provider-catalog:${id}`),
       ...(runtime.pluginCapabilityGaps || []).map(id => `plugin-capability:${id}`),
@@ -2545,6 +2556,29 @@ function buildBoundingBoxMetric(runtime, fixture) {
   }
 
   const captureStatus = runtime.capture?.status || "";
+  if (captureStatus === "json-grid") {
+    const artifact = (runtime.capture?.artifacts || []).find(candidate => candidate.kind === "json-grid");
+    const errors = runtime.captureArtifactErrors || [];
+    return buildScreenshotMetric(runtime, fixture, {
+      metricKind: "bounding-boxes",
+      status: errors.length ? "fail" : "terminal-grid-capture",
+      score: errors.length ? 0 : 1,
+      expected: {
+        source: "runtime terminal grid capture",
+        schema: artifact?.schema || "gamecult.eve.tui_grid.v1",
+        path: artifact?.path || "",
+      },
+      actual: {
+        captureStatus,
+        artifactKind: artifact?.kind || "",
+        errors,
+      },
+      evidenceLayer: "runtime-terminal-grid-capture",
+      detail: errors.length
+        ? "Declared terminal grid capture artifact is missing or invalid."
+        : "Terminal grid capture is present; graphical bounding boxes are not a TUI invariant.",
+    });
+  }
   const runtimeHasCaptureBody = ["chrome-headless", "ssh-png", "adb-png", "golden", "ssh-golden"].includes(captureStatus);
   let status = "pass";
   let score = 1;
@@ -2643,6 +2677,54 @@ function readRuntimeLayoutProbe(runtime, fixtureId) {
     }
   }
   return { config, document, errors };
+}
+
+function validateRuntimeCaptureArtifacts(capture) {
+  const artifacts = Array.isArray(capture?.artifacts) ? capture.artifacts : [];
+  const errors = [];
+  for (const artifact of artifacts) {
+    const artifactPath = artifact.path || "";
+    if (!artifactPath) {
+      errors.push("artifact.path:missing");
+      continue;
+    }
+    const absoluteArtifactPath = path.join(repoRoot, artifactPath);
+    if (!existsSync(absoluteArtifactPath)) {
+      errors.push(`${artifactPath}:missing`);
+      continue;
+    }
+    let document;
+    try {
+      document = JSON.parse(readFileSync(absoluteArtifactPath, "utf8"));
+    } catch (error) {
+      errors.push(`${artifactPath}:invalid-json:${error instanceof Error ? error.message : String(error)}`);
+      continue;
+    }
+    for (const [field, expected] of [
+      ["schema", artifact.schema],
+      ["runtimeId", artifact.runtimeId],
+      ["providerId", artifact.providerId],
+      ["surfaceId", artifact.surfaceId],
+    ]) {
+      if (expected && document[field] !== expected) {
+        errors.push(`${artifactPath}:${field}:expected ${expected} got ${document[field] || ""}`);
+      }
+    }
+    if (artifact.schema && manifest.schemas?.[artifact.schema]) {
+      try {
+        const schema = JSON.parse(readFileSync(path.join(repoRoot, manifest.schemas[artifact.schema]), "utf8"));
+        errors.push(...validateSchemaSubset(schema, document, `captureArtifact:${artifactPath}`));
+      } catch (error) {
+        errors.push(`${manifest.schemas[artifact.schema]}:unreadable:${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+    for (const linkedPath of [artifact.sourceSurfacePath, artifact.requestPath].filter(Boolean)) {
+      if (!existsSync(path.join(repoRoot, linkedPath))) {
+        errors.push(`${artifactPath}:linked-path:${linkedPath}:missing`);
+      }
+    }
+  }
+  return errors;
 }
 
 function collectSplitTargetBlockers(report) {

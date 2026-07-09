@@ -1113,6 +1113,12 @@
             "type": "string",
             "minLength": 1
           },
+          "captureArtifacts": {
+            "type": "array"
+          },
+          "captureArtifactErrors": {
+            "type": "array"
+          },
           "lifecycle": {
             "type": "object"
           },

@@ -114,7 +114,7 @@
     },
     "capture": {
       "ownerRepo": "EveTui",
-      "status": "pending-terminal-capture",
+      "status": "cell-grid-json-capture",
       "captureContract": {
         "ownerRepo": "EveTui",
         "runtimeId": "tui",
@@ -122,27 +122,41 @@
         "requestSchema": "gamecult.eve.runtime_capture_request.v1",
         "requestBuilder": "tools/evetui/evetui-capture-contract.mjs",
         "advertisementPath": "web/fixtures/aetheria.provider-advertisement.json",
-        "captureKind": "terminal-transcript-or-cell-grid",
-        "artifactKind": "ansi-transcript-or-json-grid",
-        "artifactPattern": "artifacts/evetui-capture/{stamp}/tui-transcript.ansi",
+        "captureKind": "terminal-cell-grid",
+        "artifactKind": "json-grid",
+        "artifactPattern": "artifacts/evetui-capture/{stamp}/tui-grid.json",
         "conformanceAttachment": "runtime.captureArtifacts[]",
         "requiredProvider": "aetheria",
         "requiredSurface": "aetheria.daemon.game",
         "authority": "Capture observes terminal projection only; provider state, command acceptance, and receipts stay provider-owned.",
-        "publishProof": "Terminal transcript or cell-grid capture artifact is attached to the runtime conformance report from EveTui."
+        "publishProof": "Terminal cell-grid JSON capture artifact is attached to the runtime conformance report from EveTui."
       },
       "evidencePaths": [
         "tools/evetui/evetui-capture-contract.mjs",
         "tools/evetui/evetui-capture-contract.test.mjs",
-        "scripts/run-evetui-capture-contract-smoke.ps1"
+        "tools/evetui/evetui-capture-artifact.mjs",
+        "tools/evetui/evetui-capture-artifact.test.mjs",
+        "scripts/run-evetui-capture-contract-smoke.ps1",
+        "scripts/run-evetui-capture-smoke.ps1"
       ],
       "pendingProofs": [
-        "TUI terminal transcript or cell-grid capture artifact is attached to the runtime conformance report."
+        "TUI capture artifact is produced from the EveTui owner repo rather than Eve incubation."
       ]
     }
   },
   "capture": {
-    "status": "missing",
-    "note": "TUI transcript or cell-grid capture is a split blocker until EveTui attaches durable terminal artifacts."
+    "status": "json-grid",
+    "note": "TUI attaches a provider-advertisement-backed gamecult.eve.tui_grid.v1 JSON capture artifact; packaged runtime ownership remains an EveTui split blocker.",
+    "artifacts": [
+      {
+        "kind": "json-grid",
+        "schema": "gamecult.eve.tui_grid.v1",
+        "path": "artifacts/evetui-capture/latest/tui-grid.json",
+        "providerId": "aetheria",
+        "surfaceId": "aetheria.daemon.game",
+        "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
+        "requestPath": "artifacts/evetui-capture/latest/capture-request.json"
+      }
+    ]
   }
 }

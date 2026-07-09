@@ -159,7 +159,7 @@ if ($captureContract.targetId -ne "tui") {
 if ($captureContract.requestSchema -ne "gamecult.eve.runtime_capture_request.v1") {
   throw "EveTui capture contract has unexpected request schema: $($captureContract.requestSchema)"
 }
-if ($captureContract.captureKind -ne "terminal-transcript-or-cell-grid") {
+if ($captureContract.captureKind -ne "terminal-cell-grid") {
   throw "EveTui capture contract has unexpected capture kind: $($captureContract.captureKind)"
 }
 foreach ($pathProperty in @("requestBuilder", "advertisementPath")) {
@@ -174,5 +174,6 @@ foreach ($pathProperty in @("requestBuilder", "advertisementPath")) {
 & (Join-Path $projectRoot "scripts\run-evetui-release-contract-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-evetui-provider-shell-smoke.ps1")
 & (Join-Path $projectRoot "scripts\run-evetui-capture-contract-smoke.ps1")
+& (Join-Path $projectRoot "scripts\run-evetui-capture-smoke.ps1")
 
 Write-Host "EveTui lifecycle smoke passed: $absoluteManifestPath"

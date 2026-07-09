@@ -24,9 +24,9 @@ test("builds TUI capture request from provider advertisement", () => {
   assert.equal(request.projectionKind, "provider-authored-world-surface");
   assert.equal(request.commandBoundary, "aetheria.daemon.commands");
   assert.equal(request.receiptSchema, "aetheria.eve_command_acceptance_status.v1");
-  assert.equal(request.captureKind, "terminal-transcript-or-cell-grid");
-  assert.equal(request.artifactKind, "ansi-transcript-or-json-grid");
-  assert.equal(request.artifactPath, "artifacts/evetui-capture/smoke/tui-transcript.ansi");
+  assert.equal(request.captureKind, "terminal-cell-grid");
+  assert.equal(request.artifactKind, "json-grid");
+  assert.equal(request.artifactPath, "artifacts/evetui-capture/smoke/tui-grid.json");
   assert.match(request.authority, /provider state/);
 });
 

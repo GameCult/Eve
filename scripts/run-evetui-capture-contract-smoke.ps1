@@ -84,15 +84,15 @@ foreach ($expectation in @(
   @{ field = "targetId"; value = "tui" },
   @{ field = "commandBoundary"; value = "aetheria.daemon.commands" },
   @{ field = "receiptSchema"; value = "aetheria.eve_command_acceptance_status.v1" },
-  @{ field = "captureKind"; value = "terminal-transcript-or-cell-grid" },
-  @{ field = "artifactKind"; value = "ansi-transcript-or-json-grid" },
+  @{ field = "captureKind"; value = "terminal-cell-grid" },
+  @{ field = "artifactKind"; value = "json-grid" },
   @{ field = "conformanceAttachment"; value = "runtime.captureArtifacts[]" }
 )) {
   if ($request.($expectation.field) -ne $expectation.value) {
     throw "EveTui capture request $($expectation.field) expected $($expectation.value) got $($request.($expectation.field))"
   }
 }
-if ($request.artifactPath -ne "artifacts/evetui-capture/$Stamp/tui-transcript.ansi") {
+if ($request.artifactPath -ne "artifacts/evetui-capture/$Stamp/tui-grid.json") {
   throw "Unexpected EveTui capture artifact path: $($request.artifactPath)"
 }
 

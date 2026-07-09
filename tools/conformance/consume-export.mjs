@@ -51,6 +51,7 @@ if (!exportDirectory) {
     "  --expect-runtime-handoff <runtimeId>",
     "  --expect-runtime-command-schema <runtimeId:schema>",
     "  --expect-runtime-capture-status <runtimeId:status>",
+    "  --expect-runtime-capture-artifact <runtimeId:kind:schema:providerId:surfaceId>",
     "  --expect-runtime-lifecycle-status <runtimeId:stage:status>",
     "  --expect-runtime-lifecycle-pending <runtimeId:stage:pending-proof-substring>",
     "  --expect-runtime-lifecycle-field <runtimeId:stage:field.path:value>",
@@ -588,6 +589,26 @@ function validateIndex(index, directory, expectations, errors) {
       errors.push(`runtimes:${expectation.runtimeId}:captureStatus:expected ${expectation.status} got ${runtime.captureStatus || ""}`);
     }
   }
+  for (const expectation of expectations.runtimeCaptureArtifacts) {
+    const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
+    if (!runtime) {
+      errors.push(`runtimes:${expectation.runtimeId}:missing`);
+      continue;
+    }
+    const artifacts = Array.isArray(runtime.captureArtifacts) ? runtime.captureArtifacts : [];
+    const artifact = artifacts.find(candidate =>
+      candidate.kind === expectation.kind
+      && candidate.schema === expectation.schema
+      && candidate.providerId === expectation.providerId
+      && candidate.surfaceId === expectation.surfaceId);
+    if (!artifact) {
+      errors.push(`runtimes:${expectation.runtimeId}:captureArtifacts:${expectation.kind}:${expectation.schema}:${expectation.providerId}:${expectation.surfaceId}:missing`);
+    }
+    const artifactErrors = Array.isArray(runtime.captureArtifactErrors) ? runtime.captureArtifactErrors : [];
+    if (artifactErrors.length) {
+      errors.push(`runtimes:${expectation.runtimeId}:captureArtifactErrors:${artifactErrors.join(",")}`);
+    }
+  }
   for (const expectation of expectations.runtimeLifecycleStatuses) {
     const runtime = runtimes.find(candidate => candidate.runtimeId === expectation.runtimeId);
     if (!runtime) {
@@ -1100,6 +1121,7 @@ function parseArguments(args) {
     runtimeHandoffs: [],
     runtimeCommandSchemas: [],
     runtimeCaptureStatuses: [],
+    runtimeCaptureArtifacts: [],
     runtimeLifecycleStatuses: [],
     runtimeLifecyclePendingProofs: [],
     runtimeLifecycleFields: [],
@@ -1154,6 +1176,7 @@ function parseArguments(args) {
     ["--expect-runtime-handoff", expectations.runtimeHandoffs],
     ["--expect-runtime-command-schema", expectations.runtimeCommandSchemas],
     ["--expect-runtime-capture-status", expectations.runtimeCaptureStatuses],
+    ["--expect-runtime-capture-artifact", expectations.runtimeCaptureArtifacts],
     ["--expect-runtime-lifecycle-status", expectations.runtimeLifecycleStatuses],
     ["--expect-runtime-lifecycle-pending", expectations.runtimeLifecyclePendingProofs],
     ["--expect-runtime-lifecycle-field", expectations.runtimeLifecycleFields],
@@ -1240,6 +1263,8 @@ function parseArguments(args) {
       target.push(parseRuntimeExpectation(value, "schema"));
     } else if (option === "--expect-runtime-capture-status") {
       target.push(parseRuntimeExpectation(value, "status"));
+    } else if (option === "--expect-runtime-capture-artifact") {
+      target.push(parseRuntimeCaptureArtifactExpectation(value));
     } else if (option === "--expect-runtime-lifecycle-status") {
       target.push(parseRuntimeLifecycleExpectation(value, "status"));
     } else if (option === "--expect-runtime-lifecycle-pending") {
@@ -1290,6 +1315,21 @@ function parseScreenshotMetricExpectation(value) {
     fixtureId: parts[1],
     metricKind: parts[2],
     status: parts[3],
+  };
+}
+
+function parseRuntimeCaptureArtifactExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 5 || parts.some(part => !part)) {
+    console.error(`Expected runtime capture artifact in <runtimeId:kind:schema:providerId:surfaceId> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    kind: parts[1],
+    schema: parts[2],
+    providerId: parts[3],
+    surfaceId: parts[4],
   };
 }
 

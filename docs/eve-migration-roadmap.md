@@ -507,9 +507,11 @@ Recently cut:
   summary, terminal-grid lowering, and the `tui` world/editor lowering claim;
   it now carries an executable terminal capture request contract through
   `tools/evetui/evetui-capture-contract.mjs` and
-  `scripts/run-evetui-capture-contract-smoke.ps1`. Plugin projection, terminal
-  package release, and actual transcript/cell-grid capture artifacts remain
-  pending.
+  `scripts/run-evetui-capture-contract-smoke.ps1`, plus a deterministic
+  `gamecult.eve.tui_grid.v1` JSON capture artifact through
+  `tools/evetui/evetui-capture-artifact.mjs` and
+  `scripts/run-evetui-capture-smoke.ps1`. Plugin projection, terminal package
+  release, and owner-repo production of the capture path remain pending.
 - EveTui release lifecycle now carries a structured pending release request
   contract. The runtime capability manifest reads version truth from
   `runtimes/incubating/eve-tui/package.json`, names the
@@ -568,6 +570,14 @@ Recently cut:
   `scripts/run-eveelectron-capture-contract-smoke.ps1` proves that request path
   without pretending an Electron window PNG has been captured. The actual
   capture artifact remains a split blocker for EveElectron.
+- EveTui capture lifecycle now attaches a typed terminal-grid artifact instead
+  of stopping at a request contract. `tools/evetui/evetui-capture-artifact.mjs`
+  lowers `web/fixtures/aetheria-world-surface.json` through `EveTuiShell`,
+  writes `artifacts/evetui-capture/latest/tui-grid.json`, and stores the paired
+  capture request beside it. Parity validates the artifact schema, provider,
+  surface, and linked request path, then exports it as `runtime.captureArtifacts[]`.
+  The split blocker is no longer "no artifact"; it is "EveTui must own this
+  capture path outside Eve incubation."
 - EveElectron release lifecycle now carries a structured pending release
   request contract. `releaseContract` names
   `gamecult.eve.runtime_release_request.v1`, the

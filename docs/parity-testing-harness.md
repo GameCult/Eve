@@ -389,6 +389,15 @@ exist. The current lifecycle proof is deliberately split:
   manifest and Aetheria provider advertisement; Unity editor or batchmode PNG
   capture remains a split blocker.
 
+TUI capture evidence is already typed even though EveTui remains incubating.
+`tools/evetui/evetui-capture-artifact.mjs` lowers the Aetheria world surface
+through `EveTuiShell` into `gamecult.eve.tui_grid.v1` and writes
+`artifacts/evetui-capture/latest/tui-grid.json`. The parity export includes
+that record as `runtime.captureArtifacts[]`; runtime-owner consumers can assert
+it without depending on Eve's source layout. The remaining blocker is
+owner-repo production of the same capture path, not absence of a cell-grid
+artifact.
+
 EveUnity split handoff evidence:
 
 ```powershell
@@ -511,8 +520,8 @@ Pending runtimes are allowed. Silent fake parity is not.
 
 ## Next Cuts
 
-1. Extend runtime-owned image/layout probes to the Unity/Electron/TUI capture
-   blockers.
+1. Extend runtime-owned image/layout probes to the Unity/Electron capture
+   blockers and move EveTui's JSON grid capture path into the EveTui owner repo.
 2. Normalize text scale and font loading across web, Flutter Android, Flutter
    desktop, and iOS.
 3. Give iOS a real `vn.stage` scene compositor instead of compact stacked
