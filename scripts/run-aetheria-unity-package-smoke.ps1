@@ -17,9 +17,12 @@ $aetheriaEveRuntimePackage = Join-Path $AetheriaRoot "Packages\org.gamecult.aeth
 $aetheriaEveRuntimeAsmdef = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\GameCult.Aetheria.EveRuntime.asmdef"
 $aetheriaSceneBridge = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\AetheriaEveUnitySceneProviderBridge.cs"
 $aetheriaSceneProviderComponent = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.eve-runtime\Runtime\AetheriaEveUnitySceneProviderComponent.cs"
+$aetheriaClientState = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaClientState.cs"
 $aetheriaSurfaceCatalog = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeEveSurfaceCatalog.cs"
 $aetheriaGameSurfaceBuilder = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonGameSurfaceBuilder.cs"
 $aetheriaDaemonOperationsClient = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonOperationsClient.cs"
+$aetheriaDaemonDocuments = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonDocuments.cs"
+$aetheriaRuntimeVerseClient = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeVerseClient.cs"
 if (-not (Test-Path $manifestPath)) {
   throw "Aetheria Unity package manifest not found: $manifestPath"
 }
@@ -44,6 +47,9 @@ if (-not (Test-Path $aetheriaSceneBridge)) {
 if (-not (Test-Path $aetheriaSceneProviderComponent)) {
   throw "Aetheria Eve Unity scene provider component not found: $aetheriaSceneProviderComponent"
 }
+if (-not (Test-Path $aetheriaClientState)) {
+  throw "Aetheria client state not found: $aetheriaClientState"
+}
 if (-not (Test-Path $aetheriaSurfaceCatalog)) {
   throw "Aetheria Eve surface catalog not found: $aetheriaSurfaceCatalog"
 }
@@ -52,6 +58,12 @@ if (-not (Test-Path $aetheriaGameSurfaceBuilder)) {
 }
 if (-not (Test-Path $aetheriaDaemonOperationsClient)) {
   throw "Aetheria daemon operations client not found: $aetheriaDaemonOperationsClient"
+}
+if (-not (Test-Path $aetheriaDaemonDocuments)) {
+  throw "Aetheria daemon documents not found: $aetheriaDaemonDocuments"
+}
+if (-not (Test-Path $aetheriaRuntimeVerseClient)) {
+  throw "Aetheria runtime Verse client not found: $aetheriaRuntimeVerseClient"
 }
 
 $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
@@ -136,7 +148,11 @@ foreach ($symbol in @(
   "Disconnect",
   "SubmitCommand",
   "ReadAdvertisedSurface",
+  "ReadAssetManifest",
   "runtimeState.ProviderAdvertisement.Latest",
+  "runtimeState.AssetManifest.Latest",
+  "AetheriaRuntimeVerseRecordKeys.DaemonAssetManifest",
+  "ToUnityPlayableWorldAssetManifest",
   "WorldInteraction",
   "AetheriaEveRuntimeUnityHooks.RequireControl",
   "ToReceipt(request, daemonEnvelope)",
@@ -198,6 +214,7 @@ foreach ($symbol in @(
   '"world.entity3d"',
   '"movementCommand"',
   '"assetManifest"',
+  '["assetManifest"] = AetheriaRuntimeVerseRecordKeys.DaemonAssetManifest.ToString()',
   '"arpg.pointer-keyboard.v1"',
   '"arpg.orbital-follow.v1"',
   'SetMoveVector',
@@ -227,16 +244,37 @@ foreach ($symbol in @(
   }
 }
 
-$aetheriaAssets = Get-Content -Raw -LiteralPath (Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeAssets.cs")
+$clientState = Get-Content -Raw -LiteralPath $aetheriaClientState
 foreach ($symbol in @(
-  '"prefab.entity.player"',
-  '"Prefabs/Ships/Djinni"',
-  '"prefab.entity.station"',
-  '"Prefabs/Stations/AsteroidOutpost"',
-  '"resourcesPath"'
+  "CultMeshDocumentHandle<AetheriaRuntimeAssetManifestDocument> assetManifest",
+  "AssetManifest = assetManifest",
+  "public CultMeshDocumentHandle<AetheriaRuntimeAssetManifestDocument> AssetManifest"
 )) {
-  if (-not $aetheriaAssets.Contains($symbol)) {
-    throw "Aetheria asset manifest is not publishing Unity playable world asset symbol: $symbol"
+  if (-not $clientState.Contains($symbol)) {
+    throw "Aetheria client state is not exposing provider-published asset manifest state: $symbol"
+  }
+}
+
+$daemonDocuments = Get-Content -Raw -LiteralPath $aetheriaDaemonDocuments
+foreach ($symbol in @(
+  "AssetManifestRecordRef",
+  "AetheriaRuntimeVerseRecordKeys.DaemonAssetManifest.ToString()",
+  "AetheriaRuntimeDaemonSchemas.AssetManifest"
+)) {
+  if (-not $daemonDocuments.Contains($symbol)) {
+    throw "Aetheria daemon documents are not advertising the asset manifest record: $symbol"
+  }
+}
+
+$runtimeVerseClient = Get-Content -Raw -LiteralPath $aetheriaRuntimeVerseClient
+foreach ($symbol in @(
+  "DaemonAssetManifest",
+  'new CultRecordKey("daemon:aetheria.asset_manifest.latest.v1")',
+  "Document<AetheriaRuntimeAssetManifestDocument>",
+  "AetheriaRuntimeVerseRecordKeys.DaemonAssetManifest"
+)) {
+  if (-not $runtimeVerseClient.Contains($symbol)) {
+    throw "Aetheria runtime Verse client is not publishing the daemon asset manifest record: $symbol"
   }
 }
 

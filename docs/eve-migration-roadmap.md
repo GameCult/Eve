@@ -249,8 +249,8 @@ Work:
 
 - Repixelizer owns job/session/artifact/operator fixtures once they carry real
   product state or receipts.
-- Aetheria owns RTS/ARPG world surfaces, assets, generated level state, command
-  receipts, and scenario conformance.
+- Aetheria owns RTS/ARPG world surfaces, daemon-published asset manifest
+  records, generated level state, command receipts, and scenario conformance.
 - Huginn owns `.cc` and Persona-state inspection fixture packs when they depend
   on runtime stewardship details.
 - Mimir owns sensor/media/control surfaces that depend on live stream timing or
@@ -679,11 +679,16 @@ Recently cut:
   document needs: surface kind, projection kind, command boundary, receipt
   schema, ownership, lowering targets, state schemas, and record pointer. The
   Aetheria Unity bridge now selects that provider-owned advertisement instead of
-  fabricating the Unity scene metadata locally. The next blocker is concrete
-  CultMesh/CultCache live reading: provider surface and asset manifest documents
-  must be consumed through real live record readers, then provider receipts plus
-  daemon snapshots must drive rendered Unity frames rather than renderer-local
-  simulation.
+  fabricating the Unity scene metadata locally. The asset manifest leg is now a
+  first-class live transport proof rather than a local catalog projection:
+  Aetheria client state exposes `AssetManifest`, the provider bridge reads
+  `runtimeState.AssetManifest.Latest()`, and the Unity manifest document points
+  at `AetheriaRuntimeVerseRecordKeys.DaemonAssetManifest`. EveUnity still
+  consumes only the generic provider/plugin contracts and sidecar transport
+  ports; Aetheria keeps the gameplay and asset authority. The remaining blocker
+  is rendered-frame proof from the future EveUnity owner repo, with provider
+  receipts plus daemon snapshots driving Unity frames rather than
+  renderer-local simulation.
 - EveElectron capture lifecycle now carries the same kind of structured pending
   capture contract. `captureContract` names the Electron shell runtime, capture
   kind, PNG artifact pattern, conformance attachment point, required Aetheria
@@ -1007,10 +1012,11 @@ Recently cut:
 - Aetheria now also carries the real provider-side proof for the target shape:
   a generic `EveUnityPlayableWorldRuntime` lowers the daemon-published 3D ARPG
   world surface through the Aetheria Eve provider bridge, resolves
-  provider-owned playable-world asset refs, submits movement through the
-  advertised `gamecult.eve.command.v1` boundary, observes provider-owned
-  receipts, and refreshes from daemon snapshots without importing Aetheria
-  product authority into EveUnity. Eve records this as the
+  provider-owned playable-world asset refs through the daemon-published
+  `AetheriaRuntimeVerseRecordKeys.DaemonAssetManifest` record, submits movement
+  through the advertised `gamecult.eve.command.v1` boundary, observes
+  provider-owned receipts, and refreshes from daemon snapshots without
+  importing Aetheria product authority into EveUnity. Eve records this as the
   `aetheria-playable-world-consumer-proof` observed-provider move set in
   `runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json`, and
   the split-target plus Aetheria consumer smokes assert it from the conformance
@@ -1018,10 +1024,13 @@ Recently cut:
   the future EveUnity owner repo, not whether the Unity client is generic.
 - Aetheria now has repeatable Unity package consumer-build evidence for the
   Eve UI Toolkit runtime. `scripts/run-aetheria-unity-package-smoke.ps1`
-  verifies Aetheria's Unity `Packages/manifest.json` consumes Eve's surface and
-  UI Toolkit packages by file reference, checks the generated
-  `GameCult.Eve.UnityUIToolkit.csproj` includes all current runtime files, and
-  builds the package through Aetheria's Unity-generated project.
+  verifies Aetheria's Unity `Packages/manifest.json` consumes Eve's surface,
+  Unity scene, and UI Toolkit packages by file reference, checks the generated
+  Unity projects include all current runtime files, asserts the Aetheria Unity
+  bridge reads `runtimeState.AssetManifest.Latest()` from client state
+  `AssetManifest` and publishes the
+  `AetheriaRuntimeVerseRecordKeys.DaemonAssetManifest` pointer, then builds the
+  packages through Aetheria's Unity-generated projects.
 - The EveUnity UI Toolkit split handoff now records Aetheria's Unity consumer
   boundary as `observed-provider` evidence. The handoff names Aetheria's
   package manifest, generated Unity project, assets root, daemon catalog
