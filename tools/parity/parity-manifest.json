@@ -573,6 +573,14 @@
             "scripts/run-eveunity-split-handoff-smoke.ps1",
             "packages/org.gamecult.eve.unity-uitoolkit/eve-runtime-capability.json"
           ]
+        },
+        {
+          "description": "Unity scene split handoff is machine-readable and smoke-checked.",
+          "status": "passed",
+          "evidencePaths": [
+            "runtimes/incubating/eve-unity-scene/eveunity-scene-split-handoff.json",
+            "scripts/run-eveunity-scene-split-handoff-smoke.ps1"
+          ]
         }
       ],
       "pendingProofs": [

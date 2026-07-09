@@ -369,6 +369,12 @@ Recently cut:
   runtime keeps the missing provider-agnostic scene body, command transport,
   scene capture, and advertised `unity-scene` lowering proof visible as
   EveUnity blockers.
+- Unity scene now has a direct split handoff smoke at
+  `scripts/run-eveunity-scene-split-handoff-smoke.ps1`. The smoke verifies the
+  scene runtime owns no current Eve source paths, does not treat Aetheria
+  product paths as generic runtime source, names the required Eve contracts,
+  and keeps the scene body, command transport, lowering claim, and capture as
+  external proofs until EveUnity owns them.
 - EveElectron now has a pending split target and handoff at
   `runtimes/incubating/eve-electron/eveelectron-split-handoff.json`. It does
   not claim an Electron runtime body yet. The handoff draws the line between a
