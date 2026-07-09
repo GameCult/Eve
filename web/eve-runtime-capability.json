@@ -78,9 +78,10 @@
     "test": {
       "ownerRepo": "Eve",
       "status": "node-tests-and-parity-harness",
-      "command": "node --test web/eve-dsl.test.mjs && powershell -ExecutionPolicy Bypass -File .\\scripts\\run-parity-harness.ps1",
+      "command": "node --test web/eve-dsl.test.mjs && npm --prefix packages/eve-browser-lowering test && powershell -ExecutionPolicy Bypass -File .\\scripts\\run-parity-harness.ps1",
       "evidencePaths": [
         "web/eve-dsl.test.mjs",
+        "packages/eve-browser-lowering/test/browser-lowering.test.mjs",
         "tools/parity/parity-manifest.json",
         "scripts/run-parity-harness.ps1"
       ],

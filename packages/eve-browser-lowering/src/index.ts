@@ -63,6 +63,7 @@ export interface EveProviderAdvertisement {
 }
 
 export interface EveBrowserLoweringOptions {
+  activeSurfaceId?: string;
   assetBaseUrl?: string;
   assetUrlResolver?: (uri: string, surface: EveSurfaceDocument | undefined) => string;
   body?: HTMLElement;
@@ -2193,7 +2194,7 @@ export function createEveCommandIntent(
 ): EveCommandIntent {
   const action = objectProps(props.action);
   const providerId = options.provider?.providerId || currentSurfaceDocument?.providerId || "surface unknown";
-  const surfaceId = options.provider?.surfaces?.[0]?.surfaceId || currentSurfaceDocument?.surface?.id || providerId;
+  const surfaceId = options.activeSurfaceId || currentSurfaceDocument?.surface?.id || options.provider?.surfaces?.[0]?.surfaceId || providerId;
   const worldInteraction = resolveAdvertisedWorldInteraction(options, surfaceId);
   const commandBoundary = firstString(worldInteraction.commandBoundary, props.commandBoundary, action.commandBoundary, action.target);
   const receiptSchema = firstString(worldInteraction.receiptSchema, props.receiptSchema, action.receiptSchema);

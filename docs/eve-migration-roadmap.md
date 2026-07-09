@@ -321,6 +321,11 @@ Recently cut:
   `worldInteraction.receiptSchema` into each `gamecult.eve.command.v1` intent.
   It can use component action metadata as a fallback, but the provider
   advertisement is the authority when present.
+- The browser lowerer command intent path now passes the active surface id
+  explicitly and tests that a provider with multiple world surfaces uses the
+  active surface advertisement instead of the provider's first advertised
+  surface. This keeps Aetheria game/editor command boundaries from collapsing
+  inside the generic web reference.
 - The conformance export carries `splitHandoffMoveCoverage[]`, joining runtime
   split handoff move sets to source path status. EveElectron now exposes the
   existing Aetheria `Aetheria.Rts.Web/Electron` and command transport paths as

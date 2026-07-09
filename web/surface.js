@@ -168,6 +168,7 @@ function renderSurface(state, source) {
   surfaceVersion.textContent = `v${state.version ?? "?"}`;
   const providerId = state.providerId || currentProvider?.providerId || "";
   renderEveSurface(state, app, {
+    activeSurfaceId: state.surface?.id,
     body: document.body,
     clientId: liveHermodr ? "hermodr.browser" : "browser.reference",
     commandSink: publishCommandIntent,

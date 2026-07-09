@@ -871,20 +871,24 @@
         },
         {
           "path": "packages/eve-browser-lowering/src/index.ts",
-          "contains": ["surface.slot", "embeddedDocuments", "cultui-embedded-slot", "createEveCommandIntent", "resolveComponentCommandId", "localAdvertisement"]
+          "contains": ["surface.slot", "embeddedDocuments", "cultui-embedded-slot", "createEveCommandIntent", "resolveComponentCommandId", "localAdvertisement", "activeSurfaceId"]
         }
       ],
       "commandTransportSmoke": {
         "schema": "gamecult.eve.command.v1",
-        "expectedPaths": ["packages/eve-browser-lowering/src/index.ts", "web/surface.js"],
+        "expectedPaths": ["packages/eve-browser-lowering/src/index.ts", "packages/eve-browser-lowering/test/browser-lowering.test.mjs", "web/surface.js"],
         "expectedSourceSymbols": [
           {
             "path": "packages/eve-browser-lowering/src/index.ts",
-            "contains": ["EveCommandIntent", "createEveCommandIntent", "schema: \"gamecult.eve.command.v1\"", "clientId", "commandBoundary", "receiptSchema"]
+            "contains": ["EveCommandIntent", "createEveCommandIntent", "schema: \"gamecult.eve.command.v1\"", "clientId", "commandBoundary", "receiptSchema", "activeSurfaceId"]
+          },
+          {
+            "path": "packages/eve-browser-lowering/test/browser-lowering.test.mjs",
+            "contains": ["activeSurfaceId", "aetheria.daemon.editor", "aetheria.daemon.editor.commands", "component.fallback.boundary"]
           },
           {
             "path": "web/surface.js",
-            "contains": ["publishCommandIntent", "/hermodr/commands/eve", "createEveCommandIntent", "browser.reference"]
+            "contains": ["publishCommandIntent", "/hermodr/commands/eve", "createEveCommandIntent", "browser.reference", "activeSurfaceId"]
           }
         ]
       },
@@ -904,8 +908,10 @@
         "test": {
           "ownerRepo": "Eve",
           "status": "node-tests-and-parity-harness",
+          "command": "node --test web/eve-dsl.test.mjs && npm --prefix packages/eve-browser-lowering test && powershell -ExecutionPolicy Bypass -File .\\scripts\\run-parity-harness.ps1",
           "evidencePaths": [
             "web/eve-dsl.test.mjs",
+            "packages/eve-browser-lowering/test/browser-lowering.test.mjs",
             "tools/parity/parity-manifest.json",
             "scripts/run-parity-harness.ps1"
           ],

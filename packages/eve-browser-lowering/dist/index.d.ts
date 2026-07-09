@@ -61,6 +61,7 @@ export interface EveProviderAdvertisement {
     };
 }
 export interface EveBrowserLoweringOptions {
+    activeSurfaceId?: string;
     assetBaseUrl?: string;
     assetUrlResolver?: (uri: string, surface: EveSurfaceDocument | undefined) => string;
     body?: HTMLElement;

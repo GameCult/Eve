@@ -9,7 +9,8 @@
     "styles.css"
   ],
   "scripts": {
-    "build": "C:\\Progra~1\\nodejs\\node.exe ./node_modules/typescript/bin/tsc -p tsconfig.json"
+    "build": "C:\\Progra~1\\nodejs\\node.exe ./node_modules/typescript/bin/tsc -p tsconfig.json",
+    "test": "C:\\Progra~1\\nodejs\\node.exe --test test/*.test.mjs"
   },
   "devDependencies": {
     "typescript": "^5.6.3"
