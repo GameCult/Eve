@@ -73,14 +73,16 @@ node $consumerScript $consumerExport `
   --expect-plugin-capability tex.math:tex.inline `
   --expect-plugin-capability tex.math:tex.block `
   --expect-plugin-runtime sai.vn:executable-sidecar `
+  --expect-plugin-runtime-transport sai.vn:cultnet-rudp `
   --expect-plugin-runtime-transport sai.vn:stdio `
   --expect-plugin-runtime-authority sai.vn:no-provider-state-mutation `
   --expect-plugin-runtime-field sai.vn:sidecar.processKind:long-running-daemon `
-  --expect-plugin-runtime-field sai.vn:sidecar.protocol:stdio-ndjson `
+  --expect-plugin-runtime-field sai.vn:sidecar.protocol:cultnet-operation-v0 `
   --expect-plugin-runtime-field sai.vn:sidecar.requestSchema:gamecult.eve.plugin_abi.request.v1 `
   --expect-plugin-runtime-field sai.vn:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
   --expect-plugin-runtime-field sai.vn:sidecar.stateAuthority:sai-sidecar-owns-story-session-provider-owns-command-acceptance `
   --expect-plugin-abi-field sai.vn:apply:expect.receiptSchema:gamecult.eve.command_receipt.v1 `
+  --expect-plugin-witness sai.vn:cultnet-operation-v0+rudp:pass `
   --expect-plugin-runtime norn.graph:executable-sidecar `
   --expect-plugin-runtime-transport norn.graph:stdio `
   --expect-plugin-runtime-authority norn.graph:no-provider-state-mutation `
