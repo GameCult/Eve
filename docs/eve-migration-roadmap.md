@@ -51,6 +51,10 @@ advertisements and typed command/receipt documents are the boundary.
   movement, targeting, and fire command receipts.
 - EveUnity's clean `TestProject` owns generic scene and UI Toolkit package
   verification; ordinary runtime tests no longer open or mutate Aetheria.
+- EveUnity can start from one CultMesh rendezvous endpoint, discover a Verse,
+  select an advertised `interactive-world` surface, and connect without
+  configured Aetheria provider or surface identifiers. The Aetheria daemon
+  publishes its Verse catalog on the same client endpoint.
 - CultLib emits a verified NuGet dependency closure for `GameCult.Mesh` and a
   clean package-reference consumer, while Unity consumes the corresponding
   `org.gamecult.cultlib` UPM assembly closure.
@@ -79,8 +83,9 @@ advertisements and typed command/receipt documents are the boundary.
 
 ### Generic Game Lowering
 
-- Replace local sibling-path discovery with CultMesh discovery for Aetheria,
-  plugins, schemas, and assets.
+- Route browser and remaining runtimes through Odin's aggregated provider
+  discovery rather than local catalogs or sibling paths; Unity's direct
+  CultMesh Verse discovery is the working reference.
 - Prove cold-start Unity play from published packages plus daemon
   advertisements, with no Aetheria checkout available to the client.
 - Expand world lowering only through generic surface contracts: entities,
