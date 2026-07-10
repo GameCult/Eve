@@ -287,8 +287,8 @@ Exit criteria:
 
 1. Graduate the generic Electron host/preload contract into EveElectron so
    Aetheria retains only daemon lifecycle and provider transport configuration.
-2. Replace incubating Sai/Norn projection declarations with one live sidecar
-   deployment witness per plugin, preserving their independent ownership.
+2. Build Sai's owner-side playback daemon and live sidecar witness without
+   absorbing Norn or TeX semantics into the Sai process.
 
 Recently cut:
 
@@ -353,6 +353,16 @@ Recently cut:
   renderer bundle, while the live Electron witness still proves the resolved
   field surface. Eve core documents this as the host/plugin decoding boundary,
   not as an Aetheria-specific exception.
+- Norn now has live runtime-independent sidecar proof, not only projection
+  declarations. The owner-repo `norn-eve-plugin` stays alive across correlated
+  `describe`, `validate`, `project`, and solver-backed `measure` requests over
+  advertised `stdio-ndjson`; all four operations satisfy Norn's ABI fixture.
+  Eve's generic sidecar witness launcher validates advertisement/fixture
+  agreement and response correlation, emits `gamecult.eve.plugin_witness.v1`,
+  and the conformance attachment path exports that witness without Norn source
+  paths. The first live run also removed a UTF-8 BOM framing fault at Norn's
+  NDJSON boundary. This proves Norn independently; it does not count as Sai
+  playback proof.
 
 - The clean EveUnity PlayMode client now consumes Aetheria's independently
   running daemon without importing Aetheria code. Aetheria builds its authored

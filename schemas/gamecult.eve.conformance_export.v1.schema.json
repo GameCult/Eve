@@ -66,6 +66,23 @@
         "additionalProperties": true
       }
     },
+    "pluginWitnesses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["witnessId", "pluginId", "ownerRepo", "status", "transport", "operationCount", "witnessExportPath"],
+        "properties": {
+          "witnessId": { "type": "string", "minLength": 1 },
+          "pluginId": { "type": "string", "minLength": 1 },
+          "ownerRepo": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["pass", "fail"] },
+          "transport": { "type": "string", "minLength": 1 },
+          "operationCount": { "type": "integer", "minimum": 1 },
+          "witnessExportPath": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": true
+      }
+    },
     "packs": {
       "type": "array",
       "items": {

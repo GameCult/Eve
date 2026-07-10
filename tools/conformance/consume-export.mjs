@@ -40,6 +40,7 @@ if (!exportDirectory) {
     "  --expect-plugin-abi-field <pluginId:operation:field.path:value>",
     "  --expect-plugin-abi-operation-coverage <pluginId:operation:status:ownerRepo>",
     "  --expect-plugin-handoff <pluginId>",
+    "  --expect-plugin-witness <pluginId:transport:status>",
     "  --expect-plugin-handoff-move <pluginId:moveSetId:pathKind:status:path-substring>",
     "  --expect-provider-handoff-move <providerId:moveSetId:pathKind:status:path-substring>",
     "  --expect-provider-surface <providerId:surfaceId>",
@@ -140,6 +141,7 @@ function validateIndex(index, directory, expectations, errors) {
   }
 
   const plugins = Array.isArray(index.plugins) ? index.plugins : [];
+  const pluginWitnesses = Array.isArray(index.pluginWitnesses) ? index.pluginWitnesses : [];
   const providers = Array.isArray(index.providers) ? index.providers : [];
   const runtimes = mergeRuntimeRecords(Array.isArray(index.runtimes) ? index.runtimes : [], exportedRuntimeTargets);
   const splitTargets = Array.isArray(index.splitTargets) ? index.splitTargets : [];
@@ -163,6 +165,7 @@ function validateIndex(index, directory, expectations, errors) {
   const worldSurfaceLoweringGaps = Array.isArray(index.worldSurfaceLoweringGaps) ? index.worldSurfaceLoweringGaps : [];
 
   validatePluginRecords(plugins, errors);
+  validatePluginWitnesses(pluginWitnesses, directory, errors);
   validatePluginAbiOperationCoverage(index.pluginAbiOperationCoverage, errors);
   validateProviderRecords(providers, errors);
   validateProviderPluginRequirementCoverage(index.providerPluginRequirementCoverage, errors);
@@ -227,6 +230,15 @@ function validateIndex(index, directory, expectations, errors) {
     if (witness.status !== expectation.status) {
       errors.push(`runtimeWitnesses:${witness.witnessId}:status:expected ${expectation.status} got ${witness.status || ""}`);
     }
+  }
+  for (const expectation of expectations.pluginWitnesses) {
+    const witness = pluginWitnesses.find(candidate =>
+      candidate.pluginId === expectation.pluginId && candidate.transport === expectation.transport);
+    if (!witness) {
+      errors.push(`pluginWitnesses:${expectation.pluginId}:${expectation.transport}:missing`);
+      continue;
+    }
+    if (witness.status !== expectation.status) errors.push(`pluginWitnesses:${expectation.pluginId}:status:expected ${expectation.status} got ${witness.status || ""}`);
   }
   for (const expectation of expectations.providerRuntimePluginProjectionCoverage) {
     const record = providerRuntimePluginProjectionCoverage.find(candidate =>
@@ -1168,6 +1180,23 @@ function validatePluginRecords(plugins, errors) {
   }
 }
 
+function validatePluginWitnesses(witnesses, directory, errors) {
+  if (!Array.isArray(witnesses)) return;
+  for (const [index, witness] of witnesses.entries()) {
+    for (const field of ["witnessId", "pluginId", "ownerRepo", "status", "transport", "operationCount", "witnessExportPath"]) {
+      if (witness?.[field] === undefined || witness?.[field] === "") errors.push(`pluginWitnesses:${index}:${field}:missing`);
+    }
+    const witnessPath = witness?.witnessExportPath ? path.join(directory, witness.witnessExportPath) : "";
+    if (!witnessPath || !existsSync(witnessPath)) {
+      errors.push(`pluginWitnesses:${index}:witnessExportPath:missing`);
+      continue;
+    }
+    const document = JSON.parse(readFileSyncUtf8(witnessPath));
+    if (document.schema !== "gamecult.eve.plugin_witness.v1") errors.push(`pluginWitnesses:${index}:schema:unexpected`);
+    if ((document.operations || []).length !== witness.operationCount) errors.push(`pluginWitnesses:${index}:operationCount:mismatch`);
+  }
+}
+
 function validatePluginAbiOperationCoverage(records, errors) {
   if (!Array.isArray(records)) {
     errors.push("pluginAbiOperationCoverage:missing");
@@ -1343,6 +1372,7 @@ function parseArguments(args) {
     pluginAbiFields: [],
     pluginAbiOperationCoverage: [],
     pluginHandoffs: [],
+    pluginWitnesses: [],
     pluginHandoffMoves: [],
     providers: [],
     providerSurfaces: [],
@@ -1408,6 +1438,7 @@ function parseArguments(args) {
     ["--expect-plugin-abi-field", expectations.pluginAbiFields],
     ["--expect-plugin-abi-operation-coverage", expectations.pluginAbiOperationCoverage],
     ["--expect-plugin-handoff", expectations.pluginHandoffs],
+    ["--expect-plugin-witness", expectations.pluginWitnesses],
     ["--expect-plugin-handoff-move", expectations.pluginHandoffMoves],
     ["--expect-provider-surface", expectations.providerSurfaces],
     ["--expect-provider-surface-kind", expectations.providerSurfaceKinds],
@@ -1488,6 +1519,8 @@ function parseArguments(args) {
       target.push(parsePluginAbiOperationCoverageExpectation(value));
     } else if (option === "--expect-plugin-handoff") {
       target.push(value);
+    } else if (option === "--expect-plugin-witness") {
+      target.push(parsePluginWitnessExpectation(value));
     } else if (option === "--expect-plugin-handoff-move") {
       target.push(parsePluginHandoffMoveExpectation(value));
     } else if (option === "--expect-provider-surface") {
@@ -1926,6 +1959,15 @@ function parseProviderExpectation(value, field) {
     providerId: value.slice(0, separator),
     [field]: value.slice(separator + 1),
   };
+}
+
+function parsePluginWitnessExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 3 || parts.some(part => !part)) {
+    console.error(`Expected plugin witness in <pluginId:transport:status> form, got: ${value}`);
+    process.exit(2);
+  }
+  return { pluginId: parts[0], transport: parts[1], status: parts[2] };
 }
 
 function parseProviderSurfaceKindExpectation(value) {
