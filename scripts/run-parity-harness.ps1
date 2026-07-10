@@ -56,6 +56,9 @@ try {
   node (Join-Path $conformanceRoot "tools\conformance\attach-runtime-witness.mjs") `
     "E:\Projects\EveElectron\artifacts\capture\aetheria-world\runtime-witness.json" `
     ".\artifacts\conformance\latest"
+  node (Join-Path $conformanceRoot "tools\conformance\attach-runtime-witness.mjs") `
+    "E:\Projects\EveUnity\artifacts\aetheria-daemon\runtime-witness.cold.json" `
+    ".\artifacts\conformance\latest"
   node (Join-Path $conformanceRoot "tools\conformance\attach-plugin-witness.mjs") `
     "E:\Projects\EvePlugins\artifacts\tex-math\runtime-witness.json" `
     ".\artifacts\conformance\latest"

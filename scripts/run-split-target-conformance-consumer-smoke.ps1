@@ -40,9 +40,9 @@ try {
     --expect-split-target-proof "EveFlutter:Flutter lifecycle evidence is declared" `
     --expect-split-target-blocker "EveFlutter:Tagged EveFlutter release" `
     --expect-split-target EveUnity `
-    --expect-split-target-status EveUnity:incubating `
+    --expect-split-target-status EveUnity:graduated `
     --expect-split-target-proof "EveUnity:Unity UI Toolkit package lifecycle is owned and tested from EveUnity" `
-    --expect-split-target-proof "EveUnity:Aetheria consumes Unity surface and UI Toolkit packages from EveUnity" `
+    --expect-split-target-proof "EveUnity:Aetheria consumes tagged Unity packages released by EveUnity" `
     --expect-split-target-proof "EveUnity:Unity scene runtime is owned by EveUnity" `
     --expect-split-target-proof "EveUnity:Unity scene lifecycle is owned and tested from EveUnity" `
     --expect-split-target-proof "EveUnity:Aetheria daemon 3D ARPG world lowers through a generic EveUnity playable-world client" `

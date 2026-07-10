@@ -162,7 +162,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-status linux-flutter:ssh-golden `
   --expect-runtime-capture-status android-flutter:adb-png `
   --expect-runtime-capture-status unity-uitoolkit:pending-native-capture `
-  --expect-runtime-capture-status unity-scene:partial-world-smoke-playmode-capture `
+  --expect-runtime-capture-status unity-scene:released-aetheria-playmode-capture `
   --expect-runtime-capture-status electron-shell:owner-window-png `
   --expect-runtime-capture-artifact electron-shell:png:image/png:eve.world-smoke:eve.world-smoke.surface `
   --expect-runtime-capture-artifact electron-shell:png:image/png:aetheria:aetheria.daemon.game `
@@ -175,6 +175,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-probe electron-shell:contract-artifact-present:png:EveElectron `
   --expect-runtime-witness electron-shell:eve.world-smoke:eve.world-smoke.surface:cold:pass `
   --expect-runtime-witness electron-shell:aetheria:aetheria.daemon.game:cold:pass `
+  --expect-runtime-witness unity-scene:aetheria.daemon:aetheria.game:cold:pass `
   --expect-runtime-capture-probe tui:contract-artifact-present:json-grid:EveTui `
   --expect-screenshot-metric web:embedded-surface:structure:pass `
   --expect-screenshot-metric web:embedded-surface:color-tokens:pass `
@@ -234,8 +235,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.surfaceId:aetheria.daemon.editor" `
   --expect-runtime-lifecycle-status unity-scene:release:tagged-upm-release `
   --expect-runtime-lifecycle-status unity-scene:test:released-package-editmode-batchmode `
-  --expect-runtime-lifecycle-status unity-scene:capture:partial-world-smoke-playmode-capture `
-  --expect-runtime-lifecycle-pending "unity-scene:capture:Attach the Aetheria daemon PlayMode PNG" `
+  --expect-runtime-lifecycle-status unity-scene:capture:released-aetheria-playmode-capture `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.packageName:org.gamecult.eve.unity-scene" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactKind:upm-package" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.tagPattern:eveunity-scene-v{version}" `

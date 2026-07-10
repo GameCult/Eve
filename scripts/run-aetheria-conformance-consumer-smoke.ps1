@@ -84,6 +84,7 @@ try {
     --expect-split-target-proof "EveUnity:Aetheria daemon 3D ARPG world lowers through a generic EveUnity playable-world client" `
     --expect-runtime-capture-probe electron-shell:contract-artifact-present:png:EveElectron `
     --expect-runtime-witness electron-shell:aetheria:aetheria.daemon.game:cold:pass `
+    --expect-runtime-witness unity-scene:aetheria.daemon:aetheria.game:cold:pass `
     --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:aetheria:aetheria.daemon.game `
     --expect-split-handoff-move EveTui:tui:tui-runtime-body:current:exists:eve-tui-shell.mjs `
     --expect-split-handoff-move EveTui:tui:tui-world-surface-lowering:current:exists:eve-tui-shell.mjs `

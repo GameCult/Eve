@@ -55,6 +55,10 @@ advertisements and typed command/receipt documents are the boundary.
   UI Toolkit. Its release-only consumer resolves those tags plus CultLib's
   assembled Unity package and passes 26 Unity EditMode tests without sibling
   package paths. Aetheria pins the same released sources.
+- The same released-package consumer cold-starts from Aetheria's CultMesh
+  rendezvous endpoint with no configured provider or surface ID, discovers the
+  daemon's `interactive-world`, loads provider-owned assets, and reconciles
+  movement, targeting, and action receipts without importing Aetheria code.
 - EveUnity can start from one CultMesh rendezvous endpoint, discover a Verse,
   select an advertised `interactive-world` surface, and connect without
   configured Aetheria provider or surface identifiers. The Aetheria daemon
@@ -95,9 +99,6 @@ advertisements and typed command/receipt documents are the boundary.
 - Route browser and remaining runtimes through Odin's aggregated provider
   discovery rather than local catalogs or sibling paths; Unity's direct
   CultMesh Verse discovery is the working reference.
-- Extend the released-package consumer from EditMode lowering proof to
-  cold-start PlayMode discovery against the separately running Aetheria daemon;
-  the generic client must still have no Aetheria code or package path.
 - Expand world lowering only through generic surface contracts: entities,
   transforms, animation state, collision/navigation intent, cameras, effects,
   interaction prompts, and command boundaries.
