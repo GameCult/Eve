@@ -7,6 +7,10 @@ $requiredPaths = @(
   "plugins\eve-plugin-tex\advertisement.json",
   "plugins\eve-plugin-tex\plugin-abi-fixture.json",
   "plugins\eve-plugin-tex\src\sidecar.mjs",
+  "plugins\eve-plugin-fields\plugin.json",
+  "plugins\eve-plugin-fields\advertisement.json",
+  "plugins\eve-plugin-fields\plugin-abi-fixture.json",
+  "plugins\eve-plugin-fields\src\sidecar.mjs",
   "scripts\run-tex-witness.mjs"
 )
 
@@ -23,8 +27,10 @@ try {
   if ($LASTEXITCODE -ne 0) { throw "EvePlugins tests failed." }
   npm run witness:tex
   if ($LASTEXITCODE -ne 0) { throw "EvePlugins TeX witness failed." }
+  npm run witness:fields
+  if ($LASTEXITCODE -ne 0) { throw "EvePlugins fields witness failed." }
 } finally {
   Pop-Location
 }
 
-Write-Host "EvePlugins TeX owner smoke passed: $EvePluginsRoot"
+Write-Host "EvePlugins TeX and fields owner smoke passed: $EvePluginsRoot"

@@ -467,6 +467,16 @@ Sai surface deploys with nested Norn or TeX, Sai composes the slots and keeps VN
 stage authority; Norn and TeX still publish and validate their own semantic
 contracts. Each plugin advertises only the ABI operations it actually owns.
 
+### Semantic Fields
+
+`fields.surface` owns `field.surface2d` and `gravity.surface` semantics plus the
+generic `gamecult.fields.*` document family. Providers own sampled scalar,
+vector, color, mask, and object documents. The plugin validates and projects
+those documents through the executable ABI; browser, Unity, and other runtimes
+own native canvas, shader, texture, or scene projection. A provider-specific
+field schema or array layout is not Eve core and must not be decoded inside a
+generic runtime transport.
+
 The carrier does not define the plugin. UTF-8 NDJSON over stdio remains a local
 debug adapter: one request document per line, one response per request in
 order, blank lines ignored, diagnostics on stderr. The production sidecar path

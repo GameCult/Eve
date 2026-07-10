@@ -63,6 +63,9 @@ try {
     "E:\Projects\EvePlugins\artifacts\tex-math\runtime-witness.json" `
     ".\artifacts\conformance\latest"
   node (Join-Path $conformanceRoot "tools\conformance\attach-plugin-witness.mjs") `
+    "E:\Projects\EvePlugins\artifacts\fields-surface\runtime-witness.json" `
+    ".\artifacts\conformance\latest"
+  node (Join-Path $conformanceRoot "tools\conformance\attach-plugin-witness.mjs") `
     "E:\Projects\Sai\artifacts\eve-plugin\runtime-witness.json" `
     ".\artifacts\conformance\latest"
   node (Join-Path $conformanceRoot "tools\conformance\attach-plugin-witness.mjs") `
