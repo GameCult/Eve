@@ -285,11 +285,36 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Move EveUnity toward split readiness with runtime-owned UPM release and
-   Unity capture/test lifecycle evidence.
+1. Repoint Eve conformance and handoff evidence at the graduated `EveUnity`
+   owner repo, then delete the duplicate
+   `runtimes/incubating/eve-unity-scene` body and Eve-local Unity lifecycle
+   scripts. Keep only Eve contracts and cross-repo conformance policy here.
+2. Add a real Unity PlayMode PNG/frame capture in EveUnity for Aetheria's
+   daemon-published game surface and the generic world-smoke provider.
+3. Replace Aetheria's local state-file polling adapter with a generic live
+   CultMesh/CultNet provider transport when that transport contract is ready;
+   Aetheria should then supply only provider advertisement and credentials.
 
 Recently cut:
 
+- `GameCult/EveUnity` now exists as the runtime owner repo. It owns
+  `packages/org.gamecult.eve.unity-scene`, the generic GameObject playable-world
+  host, camera/input components, plugin projection shells, package tests, UPM
+  packing, and its authority map. Commit `9341d44` established the repo and
+  commit `862d2bd` made its Aetheria consumer runner resolve the package from
+  the owner path.
+- Aetheria now consumes
+  `file:../EveUnity/packages/org.gamecult.eve.unity-scene` rather than Eve's
+  incubating runtime directory. Its provider-owned adapter remains under
+  `org.gamecult.aetheria.eve-runtime`; the generic lowerer no longer arrives
+  from the provider repo or Eve core. A consumer run through the owner path
+  passed all 21 `GameCult.Eve.UnityScene.Tests` tests, with results under
+  `E:\Projects\EveUnity\artifacts\aetheria-consumer\20260710T022930`.
+- The runtime split is not yet structurally complete because Eve's parity
+  manifest, handoff ledger, and Unity smokes still inspect the incubating copy.
+  Those references must move to owner-repo evidence before the duplicate body
+  is deleted. Until that deletion, EveUnity is the active package owner and
+  Eve's copy is migration residue, not a second runtime authority.
 - The web reference now has a schema-backed layout probe for the
   `embedded-surface` and `sai-vn` fixtures.
   `scripts/run-web-reference-layout-probe-smoke.ps1` builds the browser lowerer,
