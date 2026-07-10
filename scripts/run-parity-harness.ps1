@@ -27,6 +27,7 @@ try {
     -Port 8894 `
     -SkipBuild
   & (Join-Path $PSScriptRoot "run-eveunity-owner-smoke.ps1")
+  & (Join-Path $PSScriptRoot "run-eveplugins-owner-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1") `
     -AdvertisementPath "web\fixtures\eve-world-smoke.provider-advertisement.json" `
@@ -44,8 +45,10 @@ try {
   node .\tools\conformance\attach-runtime-witness.mjs `
     "E:\Projects\EveElectron\artifacts\capture\aetheria-world\runtime-witness.json" `
     ".\artifacts\conformance\latest"
+  node .\tools\conformance\attach-plugin-witness.mjs `
+    "E:\Projects\EvePlugins\artifacts\tex-math\runtime-witness.json" `
+    ".\artifacts\conformance\latest"
   & (Join-Path $PSScriptRoot "run-eveconformance-handoff-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-plugin-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-aetheria-provider-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveelectron-owner-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-split-handoff-smoke.ps1")

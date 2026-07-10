@@ -507,20 +507,20 @@
     {
       "pluginId": "tex.math",
       "title": "TeX Math",
-      "kind": "incubating",
+      "kind": "external-owner",
       "ownerRepo": "EvePlugins",
-      "repoRole": "plugin-incubating",
+      "repoRole": "plugin-owner",
       "splitTarget": "EvePlugins/eve-plugin-tex",
-      "graduationTrigger": "Split when TeX source, macro, baseline, cached render, and fallback fixtures are stable.",
+      "graduationTrigger": "Graduated: EvePlugins owns the executable TeX sidecar, fixtures, tests, and conformance witness.",
       "capabilities": ["embed.tex", "tex.inline", "tex.block"],
       "expectedRuntime": {
         "invocationModel": "executable-sidecar",
         "contract": "gamecult.eve.plugin_abi.v1",
-        "transports": ["cultmesh", "stdio"],
+        "transports": ["stdio"],
         "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"],
         "sidecar": {
           "processKind": "long-running-daemon",
-          "protocol": "cultmesh-rpc-with-stdio-dev-transport",
+          "protocol": "stdio-ndjson",
           "requestSchema": "gamecult.eve.plugin_abi.request.v1",
           "responseSchema": "gamecult.eve.plugin_abi.response.v1",
           "commandEnvelope": "gamecult.eve.command_invocation.v1",
@@ -530,17 +530,15 @@
       },
       "requiredFixtures": [],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
-      "manifestPath": "plugins/incubating/tex-math.plugin.json",
-      "abiFixturePath": "plugins/incubating/tex-math.plugin-abi-fixture.json",
-      "handoffPath": "plugins/incubating/tex-math.plugin-handoff.json",
+      "manifestPath": "../EvePlugins/plugins/eve-plugin-tex/plugin.json",
+      "abiFixturePath": "../EvePlugins/plugins/eve-plugin-tex/plugin-abi-fixture.json",
       "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
-      "advertisementPath": "plugins/incubating/tex-math.plugin-advertisement.json",
+      "advertisementPath": "../EvePlugins/plugins/eve-plugin-tex/advertisement.json",
       "expectedPaths": [
-        "plugins/incubating/tex-math.plugin.json",
-        "plugins/incubating/tex-math.plugin-abi-fixture.json",
-        "plugins/incubating/tex-math.plugin-advertisement.json",
-        "plugins/incubating/tex-math.plugin-handoff.json",
-        "scripts/run-plugin-handoff-smoke.ps1"
+        "../EvePlugins/plugins/eve-plugin-tex/plugin.json",
+        "../EvePlugins/plugins/eve-plugin-tex/plugin-abi-fixture.json",
+        "../EvePlugins/plugins/eve-plugin-tex/advertisement.json",
+        "../EvePlugins/plugins/eve-plugin-tex/src/sidecar.mjs"
       ]
     }
   ],

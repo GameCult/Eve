@@ -179,9 +179,9 @@ Purpose: move semantic ownership out of Eve core.
 
 Work:
 
-- Keep `plugins/incubating/sai-vn.plugin.json`,
-  `plugins/incubating/norn-graph.plugin.json`, and
-  `plugins/incubating/tex-math.plugin.json` as temporary manifests.
+- Consume Sai, Norn, and TeX manifests, advertisements, ABI fixtures, and
+  executable witnesses from their owner repos. Eve keeps only the ABI schemas,
+  provider composition fixtures, and capability-gap policy.
 - Define `gamecult.eve.plugin.v1` and
   `gamecult.eve.plugin_advertisement.v1` as explicit schemas. First-cut JSON
   schemas live under `schemas/` and the parity harness validates incubating
@@ -192,8 +192,9 @@ Work:
   and projection fixtures are stable.
 - Move `norn.graph` to Norn when graph layout, interaction, fallback, and
   conformance fixtures are stable.
-- Move `tex.math` to EvePlugins when TeX source, macro, baseline, cached render,
-  and fallback fixtures are stable.
+- Keep `tex.math` in EvePlugins. Its retained sidecar owns KaTeX parsing,
+  typeset render results, cache behavior, and source fallback while providers
+  retain source-state authority.
 - Treat nested plugin placement as composition, not custody. A Sai surface may
   deploy with nested Norn or TeX surfaces when those independent plugin
   sidecars are available, but Sai does not depend on them for VN authority and
@@ -285,10 +286,30 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Audit the migration against the target ownership rule and remove any
-   remaining runtime, plugin-semantic, or provider-product authority from Eve.
+1. Graduate the Flutter runtime body into `EveFlutter`; it is now the largest
+   native projection/build/capture lifecycle still sharing Eve's worktree.
+2. Move Aetheria product fixtures and scenarios behind an owner-repo
+   conformance pack while retaining only the minimal generic world oracle in
+   Eve.
+3. Split `EveConformance` when owner runtimes can consume its schema catalog,
+   packs, witness attachments, and runner without Eve source-layout knowledge.
 
 Recently cut:
+
+- `GameCult/EvePlugins` now owns `tex.math`. The owner sidecar uses KaTeX for
+  parsing and typesetting and implements `describe`, `validate`, `project`,
+  `lower`, `measure`, and `apply` over one retained `stdio-ndjson` process.
+  Its conformance witness proves render-result caching does not mutate provider
+  source state. Eve consumes the owner manifest, advertisement, ABI fixture,
+  executable, and witness; the incubating copies and handoff machinery are
+  deleted.
+
+- EveUnity now owns `org.gamecult.eve.surface`,
+  `org.gamecult.eve.unity-uitoolkit`, and `org.gamecult.eve.unity-scene` along
+  with their package build, test, and capture-request entry points. Aetheria
+  consumes all three directly from EveUnity. Eve's duplicate package bodies,
+  split handoff, release proxies, and semantic JSON capture proxy are deleted;
+  native UI Toolkit PNG capture remains an explicit owner-repo lifecycle gap.
 
 - EveElectron now produces native offscreen-painted 1280x800 PNG captures for
   both `eve.world-smoke.surface` and `aetheria.daemon.game`. The owner runner
@@ -995,15 +1016,10 @@ Recently cut:
   graduates. The conformance export carries `conformanceHandoffPath`, and the
   generic consumer smoke asserts it so EveConformance split readiness is not
   trapped in Eve's parity manifest.
-- Sai and TeX have plugin handoff manifests at
-  `plugins/incubating/sai-vn.plugin-handoff.json`,
-  `plugins/incubating/tex-math.plugin-handoff.json`, plus a shared verifier at
-  `scripts/run-plugin-handoff-smoke.ps1`. The handoffs name the manifest,
-  advertisement, ABI fixture, move sets, contract inputs, forbidden imports,
-  and external proofs that must move to the owner repos. The conformance export
-  carries plugin `handoffPath` and `pluginHandoffMoveCoverage[]`, and the
-  plugin-owner smoke asserts them so Sai, Norn, and EvePlugins can consume the
-  plugin boundary without reading Eve's parity manifest.
+- Sai, Norn, and TeX have crossed their handoff boundaries. Eve consumes each
+  owner manifest, advertisement, ABI fixture, and executable sidecar directly;
+  conformance attaches owner-produced witnesses instead of exporting migration
+  handoff documents as if migration were still pending.
 - Norn has crossed that handoff boundary. `Norn/plugins` now publishes the
   `norn.graph` manifest, advertisement, and ABI fixture, while
   `Norn/crates/norn-eve-plugin` runs the first executable sidecar over bounded
@@ -1200,32 +1216,11 @@ Recently cut:
   the split-target plus Aetheria consumer smokes assert it from the conformance
   export. The remaining blocker is owner-repo PNG/frame capture from the future
   EveUnity repo, not whether the Unity client is generic.
-- Aetheria now has repeatable Unity package consumer-build evidence for the
-  Eve UI Toolkit runtime. `scripts/run-aetheria-unity-package-smoke.ps1`
-  verifies Aetheria's Unity `Packages/manifest.json` consumes Eve's surface,
-  Unity scene, and UI Toolkit packages by file reference, checks the generated
-  Unity projects include all current runtime files, asserts the Aetheria Unity
-  bridge reads `runtimeState.AssetManifest.Latest()` from client state
-  `AssetManifest` and publishes the
-  `AetheriaRuntimeVerseRecordKeys.DaemonAssetManifest` pointer, then builds the
-  packages through Aetheria's Unity-generated projects.
-- The EveUnity UI Toolkit split handoff now records Aetheria's Unity consumer
-  boundary as `observed-provider` evidence. The handoff names Aetheria's
-  package manifest, generated Unity project, assets root, daemon catalog
-  client, and Unity smoke as provider-owned pressure sources that prove a real
-  game consumes EveUnity without making those Aetheria paths EveUnity source.
-  `scripts/run-eveunity-split-handoff-smoke.ps1`,
-  `scripts/run-split-target-conformance-consumer-smoke.ps1`, and
-  `scripts/run-aetheria-conformance-consumer-smoke.ps1` assert that boundary
-  from the manifest/export.
-- Unity UI Toolkit now attaches a schema-backed semantic projection capture
-  artifact at
-  `artifacts/eveunity-uitoolkit-capture/latest/unity-uitoolkit-projection.json`.
-  Parity validates it against
-  `gamecult.eve.unity_uitoolkit_projection.v1`, exports it as
-  `runtime.captureArtifacts[]`, and the runtime-owner consumer smoke asserts it.
-  This proves the UI Toolkit command-surface projection is typed evidence while
-  leaving real Unity editor or batchmode PNG capture as the EveUnity blocker.
+- Aetheria's Unity package manifest consumes the surface, UI Toolkit, and scene
+  packages from EveUnity. Eve's owner smoke verifies those references and asks
+  EveUnity to build the UI Toolkit package. UI Toolkit capture is reported as
+  missing until EveUnity emits a native PNG; an Eve-generated semantic JSON
+  projection is no longer allowed to impersonate runtime evidence.
 - Unity UI Toolkit now has a first-party `norn.graph` projection-adapter proof
   for `embed.norn`. `NornGraphUiToolkitProjectionAdapter` owns the native
   embedded graph shell and graph command emission path, while the Norn sidecar

@@ -302,19 +302,18 @@ requested. Unity UI Toolkit, Electron shell, and TUI declare
 because the editor advertisement does not include the `unity-scene` lowering
 target.
 
-Plugin owner handoff smoke:
+Plugin owner smoke:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\run-plugin-handoff-smoke.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\run-eveplugins-owner-smoke.ps1
 ```
 
-That script validates the Sai and Norn handoff manifests against their plugin
-manifests, advertisements, ABI fixtures, move-set paths, contract inputs, and
-external proofs. It also checks that the manifest and advertisement agree on
-the runtime-independent executable sidecar boundary: `gamecult.eve.plugin_abi.v1`,
-CultMesh/stdio transport, renderer independence, no provider-state mutation,
-provider-owned command acceptance, and `runtime.sidecar` process/protocol/schema
-fields. The plugin-owner conformance smoke also asserts those handoff paths,
+That script runs EvePlugins tests and the retained TeX sidecar witness. Sai,
+Norn, and TeX manifests are read from their owner repos and must agree with the
+runtime-independent `gamecult.eve.plugin_abi.v1` boundary: renderer
+independence, no provider-state mutation, provider-owned command acceptance,
+and explicit `runtime.sidecar` process/protocol/schema fields. The plugin-owner
+conformance smoke asserts the attached owner witnesses,
 runtime boundary claims, and exported sidecar fields from the conformance
 export.
 
