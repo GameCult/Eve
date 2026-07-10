@@ -122,7 +122,6 @@ namespace GameCult.Eve.Surface
         {
         }
 
-        [SerializationConstructor]
         public EveSurfaceComponent(
             string id,
             string kind,
@@ -132,12 +131,36 @@ namespace GameCult.Eve.Surface
             IReadOnlyList<EveEmbeddedDocumentSlot> embeddedDocuments,
             IReadOnlyDictionary<string, string>? layout = null,
             IReadOnlyDictionary<string, string>? style = null)
+            : this(
+                id,
+                kind,
+                props,
+                children,
+                (stateBindings ?? Array.Empty<CultMeshStateBindingDescriptor>())
+                    .Select(CultMeshStateBindingRecord.FromBinding)
+                    .ToArray(),
+                embeddedDocuments,
+                layout,
+                style)
+        {
+        }
+
+        [SerializationConstructor]
+        public EveSurfaceComponent(
+            string id,
+            string kind,
+            IReadOnlyDictionary<string, string> props,
+            IReadOnlyList<EveSurfaceComponent> children,
+            CultMeshStateBindingRecord[] stateBindingRecords,
+            IReadOnlyList<EveEmbeddedDocumentSlot> embeddedDocuments,
+            IReadOnlyDictionary<string, string>? layout = null,
+            IReadOnlyDictionary<string, string>? style = null)
         {
             Id = id ?? "";
             Kind = kind ?? "";
             Props = props ?? new Dictionary<string, string>(StringComparer.Ordinal);
             Children = children ?? Array.Empty<EveSurfaceComponent>();
-            StateBindings = stateBindings ?? Array.Empty<CultMeshStateBindingDescriptor>();
+            StateBindingRecords = stateBindingRecords ?? Array.Empty<CultMeshStateBindingRecord>();
             EmbeddedDocuments = embeddedDocuments ?? Array.Empty<EveEmbeddedDocumentSlot>();
             Layout = layout ?? new Dictionary<string, string>(StringComparer.Ordinal);
             Style = style ?? new Dictionary<string, string>(StringComparer.Ordinal);
@@ -156,7 +179,11 @@ namespace GameCult.Eve.Surface
         public IReadOnlyList<EveSurfaceComponent> Children { get; }
 
         [Key(4)]
-        public IReadOnlyList<CultMeshStateBindingDescriptor> StateBindings { get; }
+        public CultMeshStateBindingRecord[] StateBindingRecords { get; }
+
+        [IgnoreMember]
+        public IReadOnlyList<CultMeshStateBindingDescriptor> StateBindings =>
+            StateBindingRecords.Select(record => record.ToBinding()).ToArray();
 
         [Key(5)]
         public IReadOnlyList<EveEmbeddedDocumentSlot> EmbeddedDocuments { get; }
@@ -200,19 +227,29 @@ namespace GameCult.Eve.Surface
     [MessagePackObject]
     public sealed class EveEmbeddedDocumentSlot
     {
-        [SerializationConstructor]
         public EveEmbeddedDocumentSlot(
             string slotId,
             string documentId,
             string schemaId,
             string presentationKind,
             CultMeshRouteHint? routeHint = null)
+            : this(slotId, documentId, schemaId, presentationKind, CultMeshRouteRecord.FromRoute(routeHint))
+        {
+        }
+
+        [SerializationConstructor]
+        public EveEmbeddedDocumentSlot(
+            string slotId,
+            string documentId,
+            string schemaId,
+            string presentationKind,
+            CultMeshRouteRecord route)
         {
             SlotId = slotId ?? "";
             DocumentId = documentId ?? "";
             SchemaId = schemaId ?? "";
             PresentationKind = presentationKind ?? "";
-            RouteHint = routeHint ?? CultMeshRouteHint.Automatic;
+            Route = route ?? CultMeshRouteRecord.FromRoute(CultMeshRouteHint.Automatic);
         }
 
         [Key(0)]
@@ -228,7 +265,10 @@ namespace GameCult.Eve.Surface
         public string PresentationKind { get; }
 
         [Key(4)]
-        public CultMeshRouteHint RouteHint { get; }
+        public CultMeshRouteRecord Route { get; }
+
+        [IgnoreMember]
+        public CultMeshRouteHint RouteHint => Route.ToRoute();
     }
 
     [MessagePackObject]
@@ -251,14 +291,22 @@ namespace GameCult.Eve.Surface
     [MessagePackObject]
     public sealed class EveCommandTemplate
     {
-        [SerializationConstructor]
         public EveCommandTemplate(CultMeshOperationBindingDescriptor operation)
+            : this(CultMeshOperationBindingRecord.FromBinding(operation))
         {
-            Operation = operation ?? throw new ArgumentNullException(nameof(operation));
+        }
+
+        [SerializationConstructor]
+        public EveCommandTemplate(CultMeshOperationBindingRecord operationRecord)
+        {
+            OperationRecord = operationRecord ?? throw new ArgumentNullException(nameof(operationRecord));
         }
 
         [Key(0)]
-        public CultMeshOperationBindingDescriptor Operation { get; }
+        public CultMeshOperationBindingRecord OperationRecord { get; }
+
+        [IgnoreMember]
+        public CultMeshOperationBindingDescriptor Operation => OperationRecord.ToBinding();
 
         [IgnoreMember]
         public string Command => Operation.OperationId;
