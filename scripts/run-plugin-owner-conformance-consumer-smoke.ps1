@@ -84,13 +84,15 @@ node $consumerScript $consumerExport `
   --expect-plugin-abi-field sai.vn:apply:expect.receiptSchema:gamecult.eve.command_receipt.v1 `
   --expect-plugin-witness sai.vn:cultnet-operation-v0+rudp:pass `
   --expect-plugin-runtime norn.graph:executable-sidecar `
+  --expect-plugin-runtime-transport norn.graph:cultnet-rudp `
   --expect-plugin-runtime-transport norn.graph:stdio `
   --expect-plugin-runtime-authority norn.graph:no-provider-state-mutation `
   --expect-plugin-runtime-field norn.graph:sidecar.processKind:long-running-daemon `
-  --expect-plugin-runtime-field norn.graph:sidecar.protocol:stdio-ndjson `
+  --expect-plugin-runtime-field norn.graph:sidecar.protocol:cultnet-operation-v0 `
   --expect-plugin-runtime-field norn.graph:sidecar.requestSchema:gamecult.eve.plugin_abi.request.v1 `
   --expect-plugin-runtime-field norn.graph:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
   --expect-plugin-runtime-field norn.graph:sidecar.stateAuthority:proposes-plugin-state-only-provider-accepts `
+  --expect-plugin-witness norn.graph:cultnet-operation-v0+rudp:pass `
   --expect-plugin-operation tex.math:describe `
   --expect-plugin-operation tex.math:validate `
   --expect-plugin-operation tex.math:project `

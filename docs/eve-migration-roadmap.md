@@ -64,8 +64,8 @@ advertisements and typed command/receipt documents are the boundary.
 - EveElectron owns its shell, security lifecycle, captures, and runtime witness.
 - EveFlutter owns the generic Flutter clients and platform lifecycle.
 - Sai and Norn publish independent sidecar plugins. Sai serves retained Ink
-  sessions through CultNet RUDP operation envelopes; Norn remains on the debug
-  transport until the shared Rust operation host is complete. A Sai surface may request
+  sessions and Norn serves graph projection and measurement through CultNet
+  RUDP operation envelopes. A Sai surface may request
   nested Norn or TeX capabilities when those plugins are available.
 - EvePlugins owns the TeX sidecar and KaTeX-backed semantic witness.
 - The TeX owner sidecar serves its Eve ABI over CultNet RUDP operation
@@ -105,10 +105,9 @@ advertisements and typed command/receipt documents are the boundary.
 
 - Publish the verified CultLib NuGet and Unity package artifacts from tagged
   releases and consume released versions in runtime CI.
-- Replace Norn's development `stdio-ndjson` transport with the shared CultNet
-  operation service while preserving the same plugin ABI operations. The
-  TypeScript host is complete and proves Sai and TeX; the Rust host must follow
-  CultNet Rust's in-progress peer reset work instead of growing a Norn proxy.
+- Publish the shared TypeScript and Rust CultNet operation hosts from tagged
+  CultLib releases. Sai, Norn, and TeX prove the same operation envelope across
+  both language implementations; stdio remains a local diagnostic adapter.
 - Graduate remaining graph fixture ownership fully to Norn once no Eve fixture
   is its semantic owner. Sai already owns VN/Ink execution and its live witness.
 - Keep nested plugin availability explicit and non-transitive: Sai does not own

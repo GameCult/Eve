@@ -34,6 +34,8 @@ try {
   & (Join-Path $PSScriptRoot "run-eveplugins-owner-smoke.ps1")
   node "E:\Projects\Sai\scripts\run-eve-cultnet-witness.mjs"
   if ($LASTEXITCODE -ne 0) { throw "Sai plugin owner witness failed with exit code $LASTEXITCODE" }
+  node "E:\Projects\Norn\scripts\run-eve-cultnet-witness.mjs"
+  if ($LASTEXITCODE -ne 0) { throw "Norn plugin owner witness failed with exit code $LASTEXITCODE" }
   & (Join-Path $PSScriptRoot "run-eveflutter-owner-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1") `
@@ -59,6 +61,9 @@ try {
     ".\artifacts\conformance\latest"
   node (Join-Path $conformanceRoot "tools\conformance\attach-plugin-witness.mjs") `
     "E:\Projects\Sai\artifacts\eve-plugin\runtime-witness.json" `
+    ".\artifacts\conformance\latest"
+  node (Join-Path $conformanceRoot "tools\conformance\attach-plugin-witness.mjs") `
+    "E:\Projects\Norn\artifacts\eve-plugin\runtime-witness.json" `
     ".\artifacts\conformance\latest"
   & (Join-Path $PSScriptRoot "run-eveelectron-owner-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-split-handoff-smoke.ps1")
