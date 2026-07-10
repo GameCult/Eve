@@ -119,6 +119,11 @@ advertisements and typed command/receipt documents are the boundary.
   provider-document polling, tuple conversion, Canvas/WebGL projection, GPU
   resources, asset overlays, and capability-gap reporting. The general CultUI
   lowerer dispatches plugin component kinds without field-specific branches.
+- EvePlugins publishes runtime-neutral C# fields contracts as UPM and .NET
+  packages. EveUnity scene `0.1.2` owns the second native adapter: structured
+  splat buffers, RenderTexture rasterization, and the generic fields shader.
+  Aetheria implements the plugin interfaces and retains only a MonoScript-GUID
+  compatibility shell; its buffer and shader authority are deleted.
 - The TeX owner sidecar serves its Eve ABI over CultNet RUDP operation
   envelopes; its stdio protocol is retained only as a local debug adapter.
 - Aetheria owns its provider advertisement, world surface, scenario, asset
@@ -163,9 +168,10 @@ advertisements and typed command/receipt documents are the boundary.
   is its semantic owner. Sai already owns VN/Ink execution and its live witness.
 - Keep nested plugin availability explicit and non-transitive: Sai does not own
   Norn or TeX.
-- Add a second independent `fields.surface` runtime adapter and conformance
-  capture before graduating the plugin from incubation. Keep projection native
-  to each runtime; do not move Canvas/WebGL implementation into plugin semantics.
+- Add a provider-independent EveUnity render capture for `fields.surface`
+  before graduating the plugin from incubation. Keep projection native to each
+  runtime; do not move Canvas/WebGL or Unity shader implementation into plugin
+  semantics.
 
 ### Conformance
 
