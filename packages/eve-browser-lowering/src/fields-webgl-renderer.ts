@@ -542,7 +542,6 @@ void main() {
   v_source = a_source;
   v_value = a_value;
 }`;
-
 const GRAVITY_SPLAT_FRAGMENT_SHADER = `#version 300 es
 precision highp float;
 in vec2 v_local;
@@ -653,4 +652,3 @@ void main() {
   color += clamp(lines, 0.0, 1.7);
   outColor = vec4(color, 1.0);
 }`;
-
