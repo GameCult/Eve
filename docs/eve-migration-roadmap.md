@@ -77,6 +77,12 @@ advertisements and typed command/receipt documents are the boundary.
   transport. It starts from an Odin-resolved peer and advertisement record,
   follows provider-advertised surface/command/receipt/document references, and
   does not compile provider IDs, schemas, or record keys into the runtime.
+- Aetheria's Electron client now delegates live provider advertisement, surface,
+  command invocation, and receipt reads to that EveElectron transport. Its cold
+  daemon witness proves the shared CultNet connection contract, portable Eve
+  MessagePack documents, provider acceptance, and deterministic receipt records.
+  The superseded Aetheria surface/provider readers, command serializer, and
+  generated Eve IPC handler authority have been deleted.
 - EveFlutter owns the generic Flutter clients and platform lifecycle.
 - Sai and Norn publish independent sidecar plugins. Sai serves retained Ink
   sessions and Norn serves graph projection and measurement through CultNet
@@ -106,12 +112,14 @@ advertisements and typed command/receipt documents are the boundary.
 - Route browser and remaining runtimes through Odin's aggregated provider
   discovery rather than local catalogs or sibling paths; Unity's direct
   CultMesh Verse discovery is the working reference.
-- Replace the Eve IPC path in `Aetheria.Rts.Web` with EveElectron's generic live
-  provider client, then delete the Aetheria-owned Electron preload, generated
-  Eve bindings, transport-derived surface keys, and renderer shell. Keep only
+- Publish record references for Aetheria's embedded objects, gravity, and render
+  splat viewport documents in the interactive-world surface contract. Then move
+  embedded-document reads to EveElectron and delete the final Eve-facing method
+  from `AetheriaCultMeshClient`.
+- Replace the remaining Aetheria-owned Electron preload/generated Eve API types
+  and renderer shell with EveElectron/EveWeb-owned equivalents. Keep only
   provider-owned daemon launch/development tooling until a generic launcher
-  owns that lifecycle. This cut is not complete while
-  `AetheriaCultMeshClient` still answers Eve surface IPC.
+  owns that lifecycle.
 - Expand world lowering only through generic surface contracts: entities,
   transforms, animation state, collision/navigation intent, cameras, effects,
   interaction prompts, and command boundaries.
