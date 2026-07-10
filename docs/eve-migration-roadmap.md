@@ -51,14 +51,18 @@ advertisements and typed command/receipt documents are the boundary.
   movement, targeting, and fire command receipts.
 - EveUnity's clean `TestProject` owns generic scene and UI Toolkit package
   verification; ordinary runtime tests no longer open or mutate Aetheria.
-- EveUnity publishes immutable `0.1.0` Git package tags for surface, scene, and
-  UI Toolkit. Its release-only consumer resolves those tags plus CultLib's
-  assembled Unity package and passes 26 Unity EditMode tests without sibling
-  package paths. Aetheria pins the same released sources.
+- EveUnity publishes immutable `0.1.0` Git package tags for surface and UI
+  Toolkit plus scene `0.1.1`, whose generic CultMesh composition root discovers
+  playable worlds without product identifiers. Its release-only consumer
+  resolves those tags plus CultLib's assembled Unity package and passes 26
+  Unity EditMode tests without sibling package paths. Aetheria pins the same
+  released sources.
 - The same released-package consumer cold-starts from Aetheria's CultMesh
   rendezvous endpoint with no configured provider or surface ID, discovers the
   daemon's `interactive-world`, loads provider-owned assets, and reconciles
   movement, targeting, and action receipts without importing Aetheria code.
+- Aetheria pins the same scene `0.1.1` release; no Aetheria Unity component
+  constructs the generic CultMesh client transport used by that witness.
 - EveUnity can start from one CultMesh rendezvous endpoint, discover a Verse,
   select an advertised `interactive-world` surface, and connect without
   configured Aetheria provider or surface identifiers. The Aetheria daemon
