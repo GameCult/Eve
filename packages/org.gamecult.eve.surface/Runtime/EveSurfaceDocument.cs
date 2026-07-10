@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using GameCult.Caching;
 using GameCult.Mesh;
 using MessagePack;
@@ -284,7 +285,17 @@ namespace GameCult.Eve.Surface
             string clientId,
             string commandBoundary = "",
             string receiptSchema = "")
-            : this(SchemaId, providerId, surfaceId, operation, payload, issuedAt, clientId, commandBoundary, receiptSchema)
+            : this(
+                SchemaId,
+                providerId,
+                surfaceId,
+                CultMeshOperationInvocationRecord.FromInvocation(operation),
+                payload?.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+                    ?? new Dictionary<string, string>(StringComparer.Ordinal),
+                issuedAt,
+                clientId,
+                commandBoundary,
+                receiptSchema)
         {
         }
 
@@ -293,8 +304,8 @@ namespace GameCult.Eve.Surface
             string schema,
             string providerId,
             string surfaceId,
-            CultMeshOperationInvocationDescriptor operation,
-            CultMeshOperationPayload payload,
+            CultMeshOperationInvocationRecord operation,
+            Dictionary<string, string> payload,
             DateTimeOffset issuedAt,
             string clientId,
             string commandBoundary,
@@ -303,8 +314,10 @@ namespace GameCult.Eve.Surface
             Schema = string.IsNullOrWhiteSpace(schema) ? SchemaId : schema;
             ProviderId = providerId;
             SurfaceId = surfaceId;
-            Operation = operation ?? throw new ArgumentNullException(nameof(operation));
-            Payload = payload ?? CultMeshOperationPayload.Empty;
+            OperationRecord = operation ?? throw new ArgumentNullException(nameof(operation));
+            PayloadFields = payload == null
+                ? new Dictionary<string, string>(StringComparer.Ordinal)
+                : new Dictionary<string, string>(payload, StringComparer.Ordinal);
             IssuedAt = issuedAt;
             ClientId = clientId;
             CommandBoundary = commandBoundary ?? "";
@@ -321,13 +334,19 @@ namespace GameCult.Eve.Surface
         public string SurfaceId { get; }
 
         [Key(3)]
-        public CultMeshOperationInvocationDescriptor Operation { get; }
+        public CultMeshOperationInvocationRecord OperationRecord { get; }
+
+        [IgnoreMember]
+        public CultMeshOperationInvocationDescriptor Operation => OperationRecord.ToInvocation();
 
         [IgnoreMember]
         public string Command => Operation.OperationId;
 
         [Key(4)]
-        public CultMeshOperationPayload Payload { get; }
+        public Dictionary<string, string> PayloadFields { get; }
+
+        [IgnoreMember]
+        public CultMeshOperationPayload Payload => new CultMeshOperationPayload(PayloadFields);
 
         [Key(5)]
         public DateTimeOffset IssuedAt { get; }
