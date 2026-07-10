@@ -169,27 +169,24 @@ typesetting semantics.
 `embed.norn` means "run Norn here." It is not a request to draw a static graph
 with whatever local widget happens to be nearby.
 
-Minimum props:
+Minimum boundary:
 
-- `engine.id`: `norn`
-- `engine.contract`: Norn surface contract id, currently
-  `gamecult.norn.surface.v1`.
-- `engine.web.wasm`: optional WASM asset for browser clients.
-- `engine.native.rustCrate`: native solver crate, usually `norn-rs`.
-- `layout`: layout mode and solver knobs.
-- `graph.nodes` and `graph.edges`: provider graph state.
-- `interaction.nodeAction`: command emitted when a node is activated.
-- `placement`: scene placement instructions.
+- `pluginId`: `norn.graph`.
+- `capability`: `embed.norn`.
+- an embedded-document slot with `schemaId: norn.graph.document.v1` and a
+  provider/Norn-owned CultMesh `documentId`.
+- `interaction.nodeAction`: command emitted to the composing provider when a
+  node is activated.
+- `placement`: scene placement instructions owned by the composing surface.
 
-Each target renderer embeds Norn by using the strongest local path available:
+Graph nodes, edges, solver settings, runtime packages, WASM assets, and native
+crate hints belong to Norn's document and plugin advertisement. They are not
+inline Eve or Sai surface semantics.
 
-- Web: Norn WASM / `@gamecult/norn-viewer`.
-- iOS: native graph view using the Norn layout output, eventually Rust FFI.
-- Android: native graph view using the same Norn contract, eventually Rust FFI.
-- Windows Direct2D: Norn layout lowered to Direct2D/DirectWrite primitives.
-
-If a client cannot run Norn, it must report a capability gap. It may show a
-read-only fallback, but it must not silently pretend the fallback is full Norn.
+The Norn plugin advertisement declares its invocation and projection paths. A
+runtime resolves the advertised `embed.norn` capability without importing Norn
+internals. If it cannot do so, it must report a capability gap. It may show a
+read-only fallback, but it must not silently claim full Norn support.
 
 ### `embed.tex`
 

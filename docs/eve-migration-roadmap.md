@@ -52,16 +52,16 @@ advertisements and typed command/receipt documents are the boundary.
 - EveUnity's clean `TestProject` owns generic scene and UI Toolkit package
   verification; ordinary runtime tests no longer open or mutate Aetheria.
 - EveUnity publishes immutable `0.1.0` Git package tags for surface and UI
-  Toolkit plus scene `0.1.1`, whose generic CultMesh composition root discovers
+  Toolkit plus scene `0.1.4`, whose generic CultMesh composition root discovers
   playable worlds without product identifiers. Its release-only consumer
-  resolves those tags plus CultLib's assembled Unity package and passes 26
+  resolves those tags plus CultLib's assembled Unity package and passes 30
   Unity EditMode tests without sibling package paths. Aetheria pins the same
   released sources.
 - The same released-package consumer cold-starts from Aetheria's CultMesh
   rendezvous endpoint with no configured provider or surface ID, discovers the
   daemon's `interactive-world`, loads provider-owned assets, and reconciles
   movement, targeting, and action receipts without importing Aetheria code.
-- Aetheria pins the same scene `0.1.1` release; no Aetheria Unity component
+- Aetheria pins the same scene `0.1.4` release; no Aetheria Unity component
   constructs the generic CultMesh client transport used by that witness.
 - EveUnity can start from one CultMesh rendezvous endpoint, discover a Verse,
   select an advertised `interactive-world` surface, and connect without
@@ -106,6 +106,9 @@ advertisements and typed command/receipt documents are the boundary.
   sessions and Norn serves graph projection and measurement through CultNet
   RUDP operation envelopes. A Sai surface may request
   nested Norn or TeX capabilities when those plugins are available.
+- Norn owns the nested graph document, layout semantics, runtime advertisement,
+  ABI fixture, and conformance evidence. Eve's Sai contract fixture carries only
+  an `embed.norn` capability request and Norn-owned CultMesh document reference.
 - EvePlugins owns the TeX sidecar and KaTeX-backed semantic witness.
 - EvePlugins owns the independent `fields.surface` sidecar, generic
   `gamecult.fields.*` document model, fixtures, tests, and CultNet witness.
@@ -114,7 +117,8 @@ advertisements and typed command/receipt documents are the boundary.
 - Aetheria publishes objects, gravity, and render splats as
   `gamecult.fields.*` documents and advertises `fields.surface` on graphical
   surfaces that use them. Hermodr carries decoded MessagePack values without
-  interpreting field tuples; the browser fields adapter owns that conversion.
+  interpreting field schemas or tuples; each runtime's Fields adapter owns
+  conversion and projection.
 - The browser fields adapter owns field component matching, canvas lifecycle,
   provider-document polling, tuple conversion, Canvas/WebGL projection, GPU
   resources, asset overlays, and capability-gap reporting. The general CultUI
@@ -172,8 +176,6 @@ advertisements and typed command/receipt documents are the boundary.
 - Publish the shared TypeScript and Rust CultNet operation hosts from tagged
   CultLib releases. Sai, Norn, and TeX prove the same operation envelope across
   both language implementations; stdio remains a local diagnostic adapter.
-- Graduate remaining graph fixture ownership fully to Norn once no Eve fixture
-  is its semantic owner. Sai already owns VN/Ink execution and its live witness.
 - Keep nested plugin availability explicit and non-transitive: Sai does not own
   Norn or TeX.
 - Move any remaining provider-specific field source composition only when it

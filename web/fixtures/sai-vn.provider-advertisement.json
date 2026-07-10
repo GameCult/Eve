@@ -34,6 +34,11 @@
       "kind": "owner-repo",
       "ref": "Sai",
       "summary": "Sai owns VN/Ink semantics once the plugin ABI graduates; Eve only hosts this fixture while the contract is forming."
+    },
+    {
+      "kind": "plugin-advertisement",
+      "ref": "Norn/plugins/norn-graph.plugin-advertisement.json",
+      "summary": "Norn owns graph documents, layout semantics, runtime hints, and graph conformance fixtures."
     }
   ],
   "surfaces": [

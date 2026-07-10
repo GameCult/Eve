@@ -9,10 +9,11 @@
     "path": "web/fixtures/sai-vn-surface.json"
   },
   "purpose": "Proves a Sai-owned visual-novel plugin surface can compose independently-owned Norn and TeX nested surfaces.",
-  "exitCriteria": "Provider scenarios remain in Eve only as contract fixtures; Sai owns VN/Ink story state, commands, projection, and plugin ABI cases.",
+  "exitCriteria": "Provider scenarios remain in Eve only as contract fixtures; Sai owns VN/Ink state and commands, while Norn and TeX own their nested documents, semantics, runtime advertisements, and plugin ABI cases.",
   "asserts": [
     "vn.stage component",
     "embed.norn component",
+    "Norn-owned embedded graph document reference",
     "embed.tex component",
     "story command descriptors",
     "required Sai plugin capability",

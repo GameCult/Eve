@@ -57,43 +57,21 @@
         {
           "id": "sai.graph",
           "kind": "embed.norn",
+          "embeddedDocuments": [
+            {
+              "slotId": "graph",
+              "documentId": "cultmesh://norn/graphs/sai-nested-norn",
+              "schemaId": "norn.graph.document.v1",
+              "presentationKind": "embed.norn"
+            }
+          ],
           "props": {
             "label": "GameCult Ink Knot Graph",
-            "engine": {
-              "id": "norn",
-              "contract": "gamecult.norn.surface.v1",
-              "web": {
-                "wasm": "/static/interactive/norn/norn-rs.wasm",
-                "package": "@gamecult/norn-viewer"
-              },
-              "native": {
-                "rustCrate": "norn-rs",
-                "direct2dAdapter": "fensalir.norn.direct2d"
-              }
-            },
-            "layout": {
-              "mode": "norn.2d",
-              "iterations": 220,
-              "rankGap": 150,
-              "nodeGap": 88,
-              "edgeLength": 132
-            },
-            "graph": {
-              "nodes": [
-                { "id": "hub", "label": "Hub", "target": "hub", "x": 0.2, "y": 0.2, "current": true },
-                { "id": "eve", "label": "Eve", "target": "eve", "x": 0.72, "y": 0.24 },
-                { "id": "sai", "label": "Sai", "target": "sai", "x": 0.48, "y": 0.55 }
-              ],
-              "edges": [
-                { "source": "hub", "target": "eve" },
-                { "source": "hub", "target": "sai" },
-                { "source": "sai", "target": "eve" }
-              ]
-            },
+            "pluginId": "norn.graph",
+            "capability": "embed.norn",
             "interaction": {
               "nodeAction": "story.jump",
-              "focusFollowsStory": true,
-              "rendererMustUseNorn": true
+              "focusFollowsStory": true
             },
             "placement": {
               "space": "scene",

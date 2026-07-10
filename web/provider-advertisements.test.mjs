@@ -6,6 +6,7 @@ import { findProviderCatalogEntry, mergeProviderAdvertisement } from "./provider
 const catalog = JSON.parse(readFileSync(new URL("./local-provider-catalog.json", import.meta.url), "utf8"));
 const worldSmokeAdvertisement = JSON.parse(readFileSync(new URL("./fixtures/eve-world-smoke.provider-advertisement.json", import.meta.url), "utf8"));
 const saiAdvertisement = JSON.parse(readFileSync(new URL("./fixtures/sai-vn.provider-advertisement.json", import.meta.url), "utf8"));
+const saiSurface = JSON.parse(readFileSync(new URL("./fixtures/sai-vn-surface.json", import.meta.url), "utf8"));
 
 test("merges generic world fixture transport with advertised world interaction", () => {
   const catalogProvider = findProviderCatalogEntry(catalog, "eve.world-smoke");
@@ -42,4 +43,17 @@ test("preserves Sai required and optional nested plugin requirements from advert
   assert.equal(byPlugin.get("tex.math").availability, "optional-nested");
   assert.deepEqual(byPlugin.get("tex.math").requiredCapabilities, []);
   assert.deepEqual(byPlugin.get("tex.math").optionalCapabilities, ["embed.tex"]);
+});
+
+test("composes Norn by advertised capability and owner document", () => {
+  const norn = saiSurface.surface.root.children.find(component => component.kind === "embed.norn");
+  const [graphDocument] = norn.embeddedDocuments;
+
+  assert.equal(norn.props.pluginId, "norn.graph");
+  assert.equal(norn.props.capability, "embed.norn");
+  assert.equal(graphDocument.schemaId, "norn.graph.document.v1");
+  assert.equal(graphDocument.documentId, "cultmesh://norn/graphs/sai-nested-norn");
+  assert.equal("engine" in norn.props, false);
+  assert.equal("layout" in norn.props, false);
+  assert.equal("graph" in norn.props, false);
 });
