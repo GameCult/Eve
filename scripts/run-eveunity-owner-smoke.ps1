@@ -30,7 +30,7 @@ $expectedDependencies = @{
   "org.gamecult.eve.surface" = "https://github.com/GameCult/EveUnity.git?path=/packages/org.gamecult.eve.surface#eveunity-surface-v0.1.0"
   "org.gamecult.eve.unity-uitoolkit" = "https://github.com/GameCult/EveUnity.git?path=/packages/org.gamecult.eve.unity-uitoolkit#eveunity-uitoolkit-v0.1.0"
   "org.gamecult.eve.plugin-fields" = "https://github.com/GameCult/EvePlugins.git?path=/plugins/eve-plugin-fields/unity/org.gamecult.eve.plugin-fields#eve-plugin-fields-unity-v0.1.1"
-  "org.gamecult.eve.unity-scene" = "https://github.com/GameCult/EveUnity.git?path=/packages/org.gamecult.eve.unity-scene#eveunity-scene-v0.1.2"
+  "org.gamecult.eve.unity-scene" = "https://github.com/GameCult/EveUnity.git?path=/packages/org.gamecult.eve.unity-scene#eveunity-scene-v0.1.4"
 }
 
 foreach ($entry in $expectedDependencies.GetEnumerator()) {

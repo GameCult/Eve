@@ -120,10 +120,18 @@ advertisements and typed command/receipt documents are the boundary.
   resources, asset overlays, and capability-gap reporting. The general CultUI
   lowerer dispatches plugin component kinds without field-specific branches.
 - EvePlugins publishes runtime-neutral C# fields contracts as UPM and .NET
-  packages. EveUnity scene `0.1.2` owns the second native adapter: structured
-  splat buffers, RenderTexture rasterization, and the generic fields shader.
+  packages. EveUnity scene `0.1.4` owns the second native adapter: structured
+  splat buffers, RenderTexture rasterization, layer texture allocation, and the
+  generic fields shader.
   Aetheria implements the plugin interfaces and retains only a MonoScript-GUID
-  compatibility shell; its buffer and shader authority are deleted.
+  compatibility shell; its buffer, shader, layer filtering, blend selection,
+  and texture-allocation authority are deleted. Aetheria retains only the table
+  mapping canonical layers onto product material properties and shader globals.
+- The released Unity adapter's provider-independent EditMode witness renders a
+  synthetic `gamecult.fields.splats.v1` document through the GPU path, asserts
+  nonblank pixels, and writes `artifacts/fields-surface/latest/unity-fields.png`.
+  With browser and Unity native proofs plus the sidecar witness, `fields.surface`
+  is graduated in EvePlugins.
 - The TeX owner sidecar serves its Eve ABI over CultNet RUDP operation
   envelopes; its stdio protocol is retained only as a local debug adapter.
 - Aetheria owns its provider advertisement, world surface, scenario, asset
@@ -168,10 +176,10 @@ advertisements and typed command/receipt documents are the boundary.
   is its semantic owner. Sai already owns VN/Ink execution and its live witness.
 - Keep nested plugin availability explicit and non-transitive: Sai does not own
   Norn or TeX.
-- Add a provider-independent EveUnity render capture for `fields.surface`
-  before graduating the plugin from incubation. Keep projection native to each
-  runtime; do not move Canvas/WebGL or Unity shader implementation into plugin
-  semantics.
+- Move any remaining provider-specific field source composition only when it
+  can consume the portable contracts without weakening provider ownership.
+  Keep projection native to each runtime; do not move Canvas/WebGL or Unity
+  shader implementation into plugin semantics.
 
 ### Conformance
 
