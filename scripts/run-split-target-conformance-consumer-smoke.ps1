@@ -49,7 +49,7 @@ try {
     --expect-split-target EveElectron `
     --expect-split-target-status EveElectron:graduated `
     --expect-split-target-proof "EveElectron:EveElectron owner repository publishes the generic runtime package" `
-    --expect-split-target-proof "EveElectron:EveElectron owns secure window and preload lifecycle" `
+    --expect-split-target-proof "EveElectron:EveElectron owns secure window, preload, and generic CultMesh asset lifecycle" `
     --expect-split-target EveTui `
     --expect-split-target-status EveTui:incubating `
     --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `

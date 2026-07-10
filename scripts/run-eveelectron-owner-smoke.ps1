@@ -21,7 +21,7 @@ $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
 if ($manifest.schema -ne "gamecult.eve.runtime_capability.v1" -or $manifest.runtimeId -ne "electron-shell" -or $manifest.owner -ne "EveElectron") {
   throw "EveElectron owner manifest identity is invalid."
 }
-foreach ($feature in @("providerAdvertisements", "commandTransport", "surfaceTreeProjection", "securePreloadBridge", "windowLifecycle")) {
+foreach ($feature in @("providerAdvertisements", "commandTransport", "surfaceTreeProjection", "securePreloadBridge", "windowLifecycle", "liveProviderHost", "providerAssets")) {
   if (-not (@($manifest.supportedFeatures) -contains $feature)) { throw "EveElectron owner manifest missing feature: $feature" }
 }
 
@@ -35,6 +35,7 @@ foreach ($symbol in @("startEveElectronProviderHost", "@gamecult/eve-electron/li
 }
 if (-not $liveHost.Contains("eve-provider-preload-entry.cjs") -or
     -not $liveHost.Contains("registerEveProviderIpc") -or
+    -not $liveHost.Contains("registerEveAssetProtocol") -or
     -not $liveHost.Contains("createEveElectronWindow") -or
     -not $preloadEntry.Contains("installEveProviderBridge")) {
   throw "Aetheria host does not consume EveElectron's standalone provider preload."

@@ -87,13 +87,16 @@ advertisements and typed command/receipt documents are the boundary.
 - EveElectron owns the standalone preload entry and generic browser renderer
   bootstrap. Aetheria consumes those runtime bodies directly; its generated
   renderer API contract, product preload, preload copy script, and product IPC
-  registration are deleted. The Aetheria renderer entry now supplies only its
-  provider asset-URL boundary before mounting the generic runtime.
+  registration are deleted.
 - EveElectron owns the live main-process provider host: secure window creation,
   provider client construction, Eve IPC and receipt handling, provider readiness,
   renderer loading, and cleanup. Aetheria delegates that lifecycle and retains
   only daemon development launch, provider target configuration, its live smoke
-  scenario, and the asset protocol implementation.
+  scenario, and provider-owned asset records.
+- EveElectron owns generic CultMesh asset reads and the `eve-asset` protocol.
+  The Aetheria renderer and main process contain no product asset transport;
+  the cold-daemon witness decodes a provider-owned world image through the
+  generic runtime path.
 - EveFlutter owns the generic Flutter clients and platform lifecycle.
 - Sai and Norn publish independent sidecar plugins. Sai serves retained Ink
   sessions and Norn serves graph projection and measurement through CultNet
@@ -123,9 +126,6 @@ advertisements and typed command/receipt documents are the boundary.
 - Route browser and remaining runtimes through Odin's aggregated provider
   discovery rather than local catalogs or sibling paths; Unity's direct
   CultMesh Verse discovery is the working reference.
-- Advertise browser/Electron asset resolution as a provider capability and move
-  the remaining Aetheria asset protocol reader behind EveElectron's generic
-  provider client. Keep daemon development launch configuration in Aetheria.
 - Expand world lowering only through generic surface contracts: entities,
   transforms, animation state, collision/navigation intent, cameras, effects,
   interaction prompts, and command boundaries.
