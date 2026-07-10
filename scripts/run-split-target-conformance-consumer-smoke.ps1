@@ -34,11 +34,10 @@ Push-Location $projectRoot
 try {
   node $consumerScript $exportPath `
     --expect-split-target EveFlutter `
-    --expect-split-target-status EveFlutter:incubating `
+    --expect-split-target-status EveFlutter:graduated `
     --expect-split-target-proof "EveFlutter:Provider picker consumes provider advertisements" `
     --expect-split-target-proof "EveFlutter:Conformance pack can be consumed" `
-    --expect-split-target-proof "EveFlutter:Flutter lifecycle evidence is declared" `
-    --expect-split-target-blocker "EveFlutter:Tagged EveFlutter release" `
+    --expect-split-target-proof "EveFlutter:Flutter lifecycle, owner CI, tagged release, and capture evidence" `
     --expect-split-target EveUnity `
     --expect-split-target-status EveUnity:graduated `
     --expect-split-target-proof "EveUnity:Unity UI Toolkit package lifecycle is owned and tested from EveUnity" `
