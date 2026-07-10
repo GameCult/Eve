@@ -70,6 +70,9 @@ advertisements and typed command/receipt documents are the boundary.
   `cultnet.operation_response.v0` envelopes in TypeScript, C#, and Rust. These
   carry Eve plugin ABI documents without moving plugin semantics into CultLib.
 - EveElectron owns its shell, security lifecycle, captures, and runtime witness.
+- EveElectron owns its Electron test dependency and consumes Aetheria capture
+  inputs from Aetheria's provider pack; it no longer borrows Aetheria's
+  `node_modules` or Eve-local copies of product fixtures.
 - EveFlutter owns the generic Flutter clients and platform lifecycle.
 - Sai and Norn publish independent sidecar plugins. Sai serves retained Ink
   sessions and Norn serves graph projection and measurement through CultNet
