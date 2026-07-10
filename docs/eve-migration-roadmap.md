@@ -111,6 +111,9 @@ advertisements and typed command/receipt documents are the boundary.
   `gamecult.fields.*` document model, fixtures, tests, and CultNet witness.
   Aetheria remains owner of sampled field truth; runtimes remain owners of
   native field projection.
+- Aetheria publishes objects, gravity, and render splats as
+  `gamecult.fields.*` documents. Odin/Hermodr recognizes those plugin-owned
+  schema identities and contains no Aetheria viewport-schema branch.
 - The TeX owner sidecar serves its Eve ABI over CultNet RUDP operation
   envelopes; its stdio protocol is retained only as a local debug adapter.
 - Aetheria owns its provider advertisement, world surface, scenario, asset
@@ -155,10 +158,10 @@ advertisements and typed command/receipt documents are the boundary.
   is its semantic owner. Sai already owns VN/Ink execution and its live witness.
 - Keep nested plugin availability explicit and non-transitive: Sai does not own
   Norn or TeX.
-- Migrate Aetheria viewport publications from `gamecult.aetheria.*_viewport`
-  arrays to the `fields.surface` document model, then delete the Aetheria schema
-  decoders from Hermodr and move browser field projection behind a runtime
-  adapter for the advertised plugin.
+- Move Hermodr's generic field normalization out of its provider transport and
+  move browser field projection behind a runtime adapter resolved from the
+  advertised `fields.surface` plugin. Hermodr should carry typed documents;
+  plugin/runtime owners should interpret and project them.
 
 ### Conformance
 
