@@ -4,12 +4,15 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$projectRoot = Split-Path -Parent $PSScriptRoot
 $manifestPath = Join-Path $EveElectronRoot "eve-runtime-capability.json"
 $packagePath = Join-Path $EveElectronRoot "package.json"
 $shellPath = Join-Path $EveElectronRoot "src\eve-electron-shell.mjs"
 $windowPath = Join-Path $EveElectronRoot "src\window-host.mjs"
 $preloadPath = Join-Path $EveElectronRoot "src\eve-provider-preload.cjs"
-foreach ($path in @($manifestPath, $packagePath, $shellPath, $windowPath, $preloadPath)) {
+$preloadEntryPath = Join-Path $EveElectronRoot "src\eve-provider-preload-entry.cjs"
+$rendererRuntimePath = Join-Path $EveElectronRoot "src\eve-electron-renderer.mjs"
+foreach ($path in @($manifestPath, $packagePath, $shellPath, $windowPath, $preloadPath, $preloadEntryPath, $rendererRuntimePath)) {
   if (-not (Test-Path -LiteralPath $path)) { throw "EveElectron owner path missing: $path" }
 }
 
@@ -22,19 +25,22 @@ foreach ($feature in @("providerAdvertisements", "commandTransport", "surfaceTre
 }
 
 $main = Get-Content -LiteralPath (Join-Path $AetheriaRoot "Aetheria.Rts.Web\Electron\main.ts") -Raw
-$preload = Get-Content -LiteralPath (Join-Path $AetheriaRoot "Aetheria.Rts.Web\Electron\preload.cjs") -Raw
 $renderer = Get-Content -LiteralPath (Join-Path $AetheriaRoot "Aetheria.Rts.Web\Client\app.ts") -Raw
+$preloadEntry = Get-Content -LiteralPath $preloadEntryPath -Raw
+$rendererRuntime = Get-Content -LiteralPath $rendererRuntimePath -Raw
 foreach ($symbol in @("createEveElectronWindow", "registerEveWindowControls", "@gamecult/eve-electron")) {
   if (-not $main.Contains($symbol)) { throw "Aetheria Electron host does not consume owner symbol: $symbol" }
 }
-if (-not $preload.Contains("installEveProviderBridge") -or -not $preload.Contains("@gamecult/eve-electron/preload")) {
-  throw "Aetheria preload does not consume EveElectron's generic provider bridge."
+if (-not $main.Contains("eve-provider-preload-entry.cjs") -or -not $preloadEntry.Contains("installEveProviderBridge")) {
+  throw "Aetheria host does not consume EveElectron's standalone provider preload."
 }
-if ($preload.Contains('eveSurface: request =>') -or $preload.Contains('submitEveCommand: request =>')) {
-  throw "Aetheria product namespace still publishes duplicate generic Eve methods."
+if (Test-Path -LiteralPath (Join-Path $AetheriaRoot "Aetheria.Rts.Web\Electron\preload.cjs")) {
+  throw "Aetheria still owns a product preload."
 }
-if (-not $renderer.Contains("window.eveProvider.providerAdvertisement") -or $renderer.Contains("window.aetheriaRts.eveProviderAdvertisement")) {
-  throw "Aetheria renderer has not transferred generic provider authority to window.eveProvider."
+if (-not $renderer.Contains("mountEveElectronProvider") -or
+    -not $rendererRuntime.Contains("eveProvider.providerAdvertisement") -or
+    $renderer.Contains("window.aetheriaRts")) {
+  throw "Aetheria renderer has not transferred generic provider authority to EveElectron."
 }
 
 Push-Location $EveElectronRoot
