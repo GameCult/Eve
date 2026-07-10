@@ -81,7 +81,6 @@ try {
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:electron-shell:covered:EveElectron:electron-shell `
     --expect-command-boundary-coverage aetheria:aetheria.daemon.editor:tui:covered:EveTui:tui `
     --expect-split-target-proof "EveUnity:Aetheria daemon 3D ARPG world lowers through a generic EveUnity playable-world client" `
-    --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:aetheria:aetheria.daemon.game `
     --expect-runtime-capture-probe electron-shell:contract-artifact-present:png:EveElectron `
     --expect-runtime-witness electron-shell:aetheria:aetheria.daemon.game:cold:pass `
     --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:aetheria:aetheria.daemon.game `
@@ -91,9 +90,6 @@ try {
     --expect-split-target-proof "EveElectron:Aetheria consumes EveElectron for generic window and preload authority" `
     --expect-split-target-blocker "EveTui:TUI package release is cut from EveTui rather than Eve incubation" `
     --expect-split-target-blocker "EveTui:TUI capture path is owned by EveTui rather than Eve incubation" `
-    --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:Packages/manifest.json `
-    --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:GameCult.Eve.UnityUIToolkit.csproj `
-    --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:Aetheria.State.Unity/AetheriaRuntimeCatalogClient.cs `
     --expect-provider-command aetheria:aetheria.daemon.commands `
     --expect-provider-receipt-state aetheria:accepted `
     --expect-provider-receipt-state aetheria:pending `

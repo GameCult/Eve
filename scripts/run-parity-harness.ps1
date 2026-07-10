@@ -26,16 +26,7 @@ try {
     -OutputPath "artifacts\web-reference-layout-probe\latest\eve-world-smoke.json" `
     -Port 8894 `
     -SkipBuild
-  & (Join-Path $PSScriptRoot "run-eveunity-uitoolkit-capture-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-eveunity-uitoolkit-capture-smoke.ps1") `
-    -AdvertisementPath "web\fixtures\eve-world-smoke.provider-advertisement.json" `
-    -SurfacePath "web\fixtures\eve-world-smoke-surface.json" `
-    -OutputPath "artifacts\eveunity-uitoolkit-capture\latest\eve-world-smoke-unity-uitoolkit-projection.json" `
-    -RequestOutputPath "artifacts\eveunity-uitoolkit-capture\latest\eve-world-smoke-capture-request.json" `
-    -ExpectedProviderId "eve.world-smoke" `
-    -ExpectedSurfaceId "eve.world-smoke.surface" `
-    -ExpectedCommandBoundary "eve.world-smoke.commands" `
-    -ExpectedReceiptSchema "eve.world_smoke.command_receipt.v1"
+  & (Join-Path $PSScriptRoot "run-eveunity-owner-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1") `
     -AdvertisementPath "web\fixtures\eve-world-smoke.provider-advertisement.json" `
@@ -56,8 +47,6 @@ try {
   & (Join-Path $PSScriptRoot "run-eveconformance-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-plugin-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-aetheria-provider-handoff-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-eveunity-split-handoff-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-eveunity-release-artifact-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveelectron-owner-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-split-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-lifecycle-smoke.ps1")

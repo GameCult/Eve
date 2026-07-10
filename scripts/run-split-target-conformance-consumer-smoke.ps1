@@ -39,16 +39,11 @@ try {
     --expect-split-target-blocker "EveFlutter:Tagged EveFlutter release" `
     --expect-split-target EveUnity `
     --expect-split-target-status EveUnity:incubating `
-    --expect-split-target-proof "EveUnity:Unity lifecycle evidence is declared" `
-    --expect-split-target-proof "EveUnity:EveUnity split handoff is machine-readable" `
+    --expect-split-target-proof "EveUnity:Unity UI Toolkit package lifecycle is owned and tested from EveUnity" `
+    --expect-split-target-proof "EveUnity:Aetheria consumes Unity surface and UI Toolkit packages from EveUnity" `
     --expect-split-target-proof "EveUnity:Unity scene runtime is owned by EveUnity" `
     --expect-split-target-proof "EveUnity:Unity scene lifecycle is owned and tested from EveUnity" `
     --expect-split-target-proof "EveUnity:Aetheria daemon 3D ARPG world lowers through a generic EveUnity playable-world client" `
-    --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:aetheria:aetheria.daemon.game `
-    --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:eve.world-smoke:eve.world-smoke.surface `
-    --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:Packages/manifest.json `
-    --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:GameCult.Eve.UnityUIToolkit.csproj `
-    --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:Aetheria.State.Unity/AetheriaRuntimeCatalogClient.cs `
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target EveElectron `
     --expect-split-target-status EveElectron:graduated `
