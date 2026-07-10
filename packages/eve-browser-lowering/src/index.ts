@@ -391,7 +391,7 @@ export function renderEveComponent(
     });
   }
 
-  if (kind === "world.scene3d") {
+  if (kind === "world.scene3d" || kind === "world.scene2d") {
     return renderWorldScene(node, props, layout, style, options);
   }
 
