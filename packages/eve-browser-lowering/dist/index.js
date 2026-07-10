@@ -1,3 +1,76 @@
+export function selectAdvertisedSurface(provider, requestedSurfaceId = "") {
+    const surfaces = provider.surfaces || provider.localAdvertisement?.surfaces || [];
+    const selected = requestedSurfaceId
+        ? surfaces.find(surface => surface.surfaceId === requestedSurfaceId)
+        : surfaces.find(surface => surface.status !== "unavailable") ?? surfaces[0];
+    if (!selected?.surfaceId) {
+        throw new Error(`Provider ${provider.providerId || "(unknown)"} does not advertise surface ${requestedSurfaceId || "(first available)"}.`);
+    }
+    return selected;
+}
+export class EveBrowserProviderHost {
+    host;
+    transport;
+    options;
+    active = false;
+    lastSurfaceVersion = "";
+    pollHandle;
+    provider;
+    selected;
+    constructor(host, transport, options = {}) {
+        this.host = host;
+        this.transport = transport;
+        this.options = options;
+    }
+    async start() {
+        this.provider = await this.transport.providerAdvertisement();
+        this.selected = selectAdvertisedSurface(this.provider, this.options.requestedSurfaceId);
+        this.active = true;
+        await this.refresh();
+        const pollMs = Math.max(0, this.options.pollMs ?? 250);
+        if (pollMs > 0) {
+            this.pollHandle = window.setInterval(() => void this.refresh(), pollMs);
+        }
+    }
+    stop() {
+        this.active = false;
+        if (this.pollHandle !== undefined)
+            window.clearInterval(this.pollHandle);
+        this.pollHandle = undefined;
+    }
+    async refresh() {
+        if (!this.active || !this.provider || !this.selected)
+            return;
+        try {
+            const surface = await this.transport.surface(this.selected);
+            const version = `${surface.providerId || ""}:${surface.surface?.id || ""}:${surface.version ?? ""}`;
+            if (version === this.lastSurfaceVersion)
+                return;
+            this.lastSurfaceVersion = version;
+            renderEveSurface(surface, this.host, {
+                activeSurfaceId: this.selected.surfaceId,
+                assetUrlResolver: this.transport.resolveAssetUrl,
+                body: this.options.body,
+                clientId: this.options.clientId || "eve-browser",
+                commandSink: intent => this.submit(intent),
+                documentResolver: this.transport.resolveDocument,
+                provider: this.provider,
+                source: this.options.source,
+                statusElement: this.options.statusElement,
+            });
+        }
+        catch (error) {
+            if (this.options.statusElement) {
+                this.options.statusElement.textContent = error instanceof Error ? error.message : "Eve surface unavailable.";
+            }
+        }
+    }
+    async submit(intent) {
+        await this.transport.submitCommand(intent);
+        this.lastSurfaceVersion = "";
+        window.setTimeout(() => void this.refresh(), 100);
+    }
+}
 const defaultStyleTokens = {
     "--bg": "#020909",
     "--bg-top": "#020909",

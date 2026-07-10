@@ -1,6 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createEveCommandIntent } from "../dist/index.js";
+import { createEveCommandIntent, selectAdvertisedSurface } from "../dist/index.js";
+
+test("selects the requested surface from provider authority", () => {
+  const provider = {
+    providerId: "example",
+    surfaces: [
+      { surfaceId: "example.menu", status: "available" },
+      { surfaceId: "example.world", status: "available" },
+    ],
+  };
+
+  assert.equal(selectAdvertisedSurface(provider, "example.world").surfaceId, "example.world");
+  assert.throws(() => selectAdvertisedSurface(provider, "example.missing"), /does not advertise surface/);
+});
 
 test("command intents use the active surface advertisement boundary", () => {
   const intent = createEveCommandIntent("aetheria.daemon.editor.inspect", {

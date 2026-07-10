@@ -51,6 +51,9 @@ export interface EveSurfaceWorldInteraction {
 }
 export interface EveProviderSurfaceAdvertisement {
     surfaceId?: string;
+    key?: string;
+    status?: string;
+    transport?: string;
     worldInteraction?: EveSurfaceWorldInteraction;
 }
 export interface EveProviderAdvertisement {
@@ -71,6 +74,37 @@ export interface EveBrowserLoweringOptions {
     provider?: EveProviderAdvertisement;
     source?: string;
     statusElement?: HTMLElement;
+}
+export interface EveBrowserProviderTransport {
+    providerAdvertisement(): Promise<EveProviderAdvertisement>;
+    surface(surface: EveProviderSurfaceAdvertisement): Promise<EveSurfaceDocument>;
+    submitCommand(intent: EveCommandIntent): Promise<unknown>;
+    resolveDocument?: EveBrowserLoweringOptions["documentResolver"];
+    resolveAssetUrl?: EveBrowserLoweringOptions["assetUrlResolver"];
+}
+export interface EveBrowserProviderHostOptions {
+    body?: HTMLElement;
+    clientId?: string;
+    pollMs?: number;
+    requestedSurfaceId?: string;
+    source?: string;
+    statusElement?: HTMLElement;
+}
+export declare function selectAdvertisedSurface(provider: EveProviderAdvertisement, requestedSurfaceId?: string): EveProviderSurfaceAdvertisement;
+export declare class EveBrowserProviderHost {
+    private readonly host;
+    private readonly transport;
+    private readonly options;
+    private active;
+    private lastSurfaceVersion;
+    private pollHandle;
+    private provider;
+    private selected;
+    constructor(host: HTMLElement, transport: EveBrowserProviderTransport, options?: EveBrowserProviderHostOptions);
+    start(): Promise<void>;
+    stop(): void;
+    refresh(): Promise<void>;
+    private submit;
 }
 export interface EveEmbeddedDocumentRequest {
     documentId: string;

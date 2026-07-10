@@ -285,11 +285,11 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Move the browser/Electron Aetheria product frontends onto the same
-   advertisement, command, receipt, and interactive-world authority used by
-   the generic Unity client.
-2. Turn the Unity live witness into a conformance-pack attachment with cold and
+1. Turn the Unity live witness into a conformance-pack attachment with cold and
    warm asset-transfer timings, command receipts, and screenshot metrics.
+2. Replace Aetheria's specialized browser embedded-document methods with a
+   generic CultMesh document handle once the field/plugin document contract is
+   explicit; do not move Aetheria gravity or object schemas into Eve.
 
 Recently cut:
 
@@ -311,6 +311,16 @@ Recently cut:
   intent instead of relying on legacy loadout groups. Runtime camera framing
   uses aggregate authored-renderer bounds; the resulting frame is attached at
   `E:\Projects\EveUnity\artifacts\aetheria-daemon\aetheria-daemon-world.png`.
+- Eve's browser lowerer now owns `EveBrowserProviderHost`: provider
+  advertisement selection, surface polling, lowering, command submission, and
+  command-triggered refresh. Aetheria Electron publishes its provider
+  advertisement over preload IPC and supplies a narrow CultMesh adapter. Its
+  renderer no longer selects `eve:surface:aetheria.daemon.game` or owns the
+  refresh loop; the product launcher configures the desired advertised surface.
+  Eve parity and generated-binding checks pass. The existing Stage 7C Electron
+  live smoke currently times out in its initial CultMesh frame probe before the
+  renderer loads, despite the daemon log showing published frames, so that
+  launch witness remains open rather than being counted as lowering proof.
 
 - The clean EveUnity PlayMode client now consumes Aetheria's independently
   running daemon without importing Aetheria code. Aetheria builds its authored
@@ -321,9 +331,9 @@ Recently cut:
   entity pose on a wrapper root, submits movement, observes the authoritative
   receipt and later surface version, and captures
   `E:\Projects\EveUnity\artifacts\aetheria-daemon\aetheria-daemon-world.png`.
-  The warm-cache witness passes; first-load transfer still needs a persistent
-  CDN session, and the current capture framing is diagnostic rather than a
-  presentation-quality gameplay camera.
+  Cold- and warm-cache witnesses pass through the retained CDN session. The
+  current capture framing is diagnostic rather than a presentation-quality
+  gameplay camera.
 
 - Eve core now publishes typed CultCache wire documents for provider
   advertisement, command invocation, and provider receipt. Command descriptors
@@ -1359,11 +1369,7 @@ Evidence on 2026-07-10:
 
 Remaining before this gate is complete:
 
-- publish and consume Aetheria's asset manifest through a generic core boundary
-  so the clean client uses provider-authored assets rather than fallback
-  geometry;
-- add one action/combat invocation witness alongside movement;
-- attach both PNGs and receipt/version evidence to the exported conformance
+- attach both PNGs, cold/warm transfer timings, and receipt/version evidence to the exported conformance
   pack rather than leaving them only in EveUnity's local artifacts.
 
 ## Stop Conditions
