@@ -66,6 +66,8 @@ advertisements and typed command/receipt documents are the boundary.
 - Sai and Norn publish independent sidecar plugins. A Sai surface may request
   nested Norn or TeX capabilities when those plugins are available.
 - EvePlugins owns the TeX sidecar and KaTeX-backed semantic witness.
+- The TeX owner sidecar serves its Eve ABI over CultNet RUDP operation
+  envelopes; its stdio protocol is retained only as a local debug adapter.
 - Aetheria owns its provider advertisement, world surface, scenario, asset
   manifest, and conformance pack.
 - EveConformance owns the parity manifest, runner, fixture exporter, witness

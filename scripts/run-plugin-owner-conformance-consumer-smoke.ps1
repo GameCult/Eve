@@ -100,16 +100,17 @@ node $consumerScript $consumerExport `
   --expect-plugin-abi-operation-coverage tex.math:apply:contracted:EvePlugins `
   --expect-plugin-runtime tex.math:executable-sidecar `
   --expect-plugin-runtime-transport tex.math:stdio `
+  --expect-plugin-runtime-transport tex.math:cultnet-rudp `
   --expect-plugin-runtime-authority tex.math:no-provider-state-mutation `
   --expect-plugin-runtime-field tex.math:sidecar.processKind:long-running-daemon `
-  --expect-plugin-runtime-field tex.math:sidecar.protocol:stdio-ndjson `
+  --expect-plugin-runtime-field tex.math:sidecar.protocol:cultnet-operation-v0 `
   --expect-plugin-runtime-field tex.math:sidecar.requestSchema:gamecult.eve.plugin_abi.request.v1 `
   --expect-plugin-runtime-field tex.math:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
   --expect-plugin-runtime-field tex.math:sidecar.stateAuthority:emits-render-results-only-provider-owns-source-state `
   --expect-plugin-abi-field tex.math:lower:expect.loweringKind:typeset-fragment `
   --expect-plugin-abi-field tex.math:lower:expect.fallbackKind:source-text `
   --expect-plugin-abi-field tex.math:apply:expect.receiptSchema:gamecult.eve.plugin_receipt.v1 `
-  --expect-plugin-witness tex.math:stdio-ndjson:pass
+  --expect-plugin-witness tex.math:cultnet-operation-v0+rudp:pass
 
 if ($LASTEXITCODE -ne 0) {
   throw "Plugin owner conformance consumer smoke failed with exit code $LASTEXITCODE"
