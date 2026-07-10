@@ -148,6 +148,10 @@ advertisements and typed command/receipt documents are the boundary.
   provider and surface identity, selects `interactive-world` by capability, and
   resolves assets through provider-advertised CDN routes. Its live startup path
   contains no Aetheria identifiers; local catalogs remain offline oracle data.
+- EveConformance materializes all provider, plugin, runtime, and kernel inputs
+  from public Git URLs at immutable commits. Cold conformance runs reject
+  checkout/lock mismatches and export the evidence lock coordinates plus digest,
+  so sibling development layout is no longer conformance authority.
 
 ## Remaining Work
 
@@ -187,8 +191,8 @@ advertisements and typed command/receipt documents are the boundary.
 
 - Move remaining fixture metadata that describes product/plugin semantics to
   its owner pack; Eve keeps only minimal contract fixtures.
-- Run EveConformance CI against released runtime/plugin artifacts, not only
-  sibling development checkouts.
+- Run the locked EveConformance workspace in CI and attach published binary,
+  package, capture, and witness artifacts for each release.
 - Publish immutable conformance exports and capability matrices per release.
 - Remove obsolete split-handoff schemas and checks after every named owner repo
   has a released consumer path.
