@@ -469,20 +469,18 @@
     {
       "pluginId": "norn.graph",
       "title": "Norn Graph",
-      "kind": "external-owner-planned",
+      "kind": "external-owner",
       "ownerRepo": "Norn",
-      "repoRole": "plugin-incubating",
-      "splitTarget": "Norn/eve-plugin-graph",
-      "graduationTrigger": "Split when embed.norn graph layout, interaction, fallback, and conformance fixtures are stable.",
+      "repoRole": "plugin-owner",
       "capabilities": ["embed.norn", "graph.node.activate"],
       "expectedRuntime": {
         "invocationModel": "executable-sidecar",
         "contract": "gamecult.eve.plugin_abi.v1",
-        "transports": ["cultmesh", "stdio"],
+        "transports": ["stdio"],
         "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"],
         "sidecar": {
           "processKind": "long-running-daemon",
-          "protocol": "cultmesh-rpc-with-stdio-dev-transport",
+          "protocol": "stdio-ndjson",
           "requestSchema": "gamecult.eve.plugin_abi.request.v1",
           "responseSchema": "gamecult.eve.plugin_abi.response.v1",
           "commandEnvelope": "gamecult.eve.command.v1",
@@ -492,17 +490,15 @@
       },
       "requiredFixtures": [],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
-      "manifestPath": "plugins/incubating/norn-graph.plugin.json",
-      "abiFixturePath": "plugins/incubating/norn-graph.plugin-abi-fixture.json",
-      "handoffPath": "plugins/incubating/norn-graph.plugin-handoff.json",
+      "manifestPath": "../Norn/plugins/norn-graph.plugin.json",
+      "abiFixturePath": "../Norn/plugins/norn-graph.plugin-abi-fixture.json",
       "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
-      "advertisementPath": "plugins/incubating/norn-graph.plugin-advertisement.json",
+      "advertisementPath": "../Norn/plugins/norn-graph.plugin-advertisement.json",
       "expectedPaths": [
-        "plugins/incubating/norn-graph.plugin.json",
-        "plugins/incubating/norn-graph.plugin-abi-fixture.json",
-        "plugins/incubating/norn-graph.plugin-advertisement.json",
-        "plugins/incubating/norn-graph.plugin-handoff.json",
-        "scripts/run-plugin-handoff-smoke.ps1"
+        "../Norn/plugins/norn-graph.plugin.json",
+        "../Norn/plugins/norn-graph.plugin-abi-fixture.json",
+        "../Norn/plugins/norn-graph.plugin-advertisement.json",
+        "../Norn/crates/norn-eve-plugin/src/main.rs"
       ]
     },
     {

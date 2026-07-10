@@ -1,7 +1,6 @@
 param(
   [string[]] $HandoffPaths = @(
     "plugins\incubating\sai-vn.plugin-handoff.json",
-    "plugins\incubating\norn-graph.plugin-handoff.json",
     "plugins\incubating\tex-math.plugin-handoff.json"
   )
 )

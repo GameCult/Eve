@@ -867,9 +867,8 @@ Recently cut:
   graduates. The conformance export carries `conformanceHandoffPath`, and the
   generic consumer smoke asserts it so EveConformance split readiness is not
   trapped in Eve's parity manifest.
-- Sai, Norn, and TeX now have plugin handoff manifests at
+- Sai and TeX have plugin handoff manifests at
   `plugins/incubating/sai-vn.plugin-handoff.json`,
-  `plugins/incubating/norn-graph.plugin-handoff.json`, and
   `plugins/incubating/tex-math.plugin-handoff.json`, plus a shared verifier at
   `scripts/run-plugin-handoff-smoke.ps1`. The handoffs name the manifest,
   advertisement, ABI fixture, move sets, contract inputs, forbidden imports,
@@ -877,6 +876,13 @@ Recently cut:
   carries plugin `handoffPath` and `pluginHandoffMoveCoverage[]`, and the
   plugin-owner smoke asserts them so Sai, Norn, and EvePlugins can consume the
   plugin boundary without reading Eve's parity manifest.
+- Norn has crossed that handoff boundary. `Norn/plugins` now publishes the
+  `norn.graph` manifest, advertisement, and ABI fixture, while
+  `Norn/crates/norn-eve-plugin` runs the first executable sidecar over bounded
+  NDJSON stdio. Eve consumes those owner paths directly and no longer carries
+  a duplicate Norn manifest or handoff document. The plugin currently owns
+  `describe`, `validate`, `project`, and solver-backed `measure`; runtime
+  lowering and provider command acceptance remain outside Norn.
 - Aetheria now has a provider handoff manifest at
   `web/fixtures/aetheria-provider-handoff.json` and a verifier at
   `scripts/run-aetheria-provider-handoff-smoke.ps1`. The handoff names the

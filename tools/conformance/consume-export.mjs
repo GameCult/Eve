@@ -1129,9 +1129,10 @@ function validateWorldSurfaceLoweringGaps(gaps, errors) {
 function validatePluginRecords(plugins, errors) {
   for (const plugin of plugins) {
     const label = `plugins:${plugin.pluginId || "unknown"}`;
-    for (const field of ["pluginId", "status", "ownerRepo", "splitTarget", "manifestPath", "advertisementPath", "abiFixturePath"]) {
+    for (const field of ["pluginId", "status", "ownerRepo", "manifestPath", "advertisementPath", "abiFixturePath"]) {
       if (!plugin?.[field]) errors.push(`${label}:${field}:missing`);
     }
+    if (plugin.status !== "active" && !plugin.splitTarget) errors.push(`${label}:splitTarget:missing`);
     for (const field of ["capabilities", "abiOperations", "optionalPlugins"]) {
       if (!Array.isArray(plugin?.[field])) errors.push(`${label}:${field}:expected array`);
     }

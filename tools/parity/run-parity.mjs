@@ -621,7 +621,9 @@ async function evaluatePlugin(plugin, fixtureResults) {
                 ? "invalid-plugin-handoff"
                 : plugin.kind === "incubating"
                   ? "incubating"
-                  : "external-owner-planned";
+                  : plugin.kind === "external-owner"
+                    ? "active"
+                    : "external-owner-planned";
 
   return {
     pluginId: plugin.pluginId,
@@ -978,7 +980,7 @@ function validateProviderPluginRequirements(provider, requirements, pluginResult
       if (!optional) errors.push(`${provider.advertisementPath}:${requirement.surfaceId}:plugin:${requirement.pluginId}:missing`);
       continue;
     }
-    if (plugin.status !== "incubating" && plugin.status !== "external-owner-planned") {
+    if (!["active", "incubating", "external-owner-planned"].includes(plugin.status)) {
       errors.push(`${provider.advertisementPath}:${requirement.surfaceId}:plugin:${requirement.pluginId}:status:${plugin.status}`);
       continue;
     }
@@ -1141,7 +1143,8 @@ async function validatePluginAbiFixture(plugin) {
       }
     }
 
-    for (const operation of ["describe", "validate", "project", "lower", "measure", "apply"]) {
+    const claimedOperations = pluginManifest.runtime?.sidecar?.operations || [];
+    for (const operation of claimedOperations) {
       if (!operations.has(operation)) errors.push(`${plugin.abiFixturePath}:operation:${operation}:missing`);
     }
     errors.push(...missingMembers(
@@ -1150,7 +1153,8 @@ async function validatePluginAbiFixture(plugin) {
       `${plugin.manifestPath}:runtime.sidecar.operations`,
     ));
 
-    if (!(pluginManifest.abiFixtures || []).includes(plugin.abiFixturePath)) {
+    const fixtureBasename = path.basename(plugin.abiFixturePath);
+    if (!(pluginManifest.abiFixtures || []).some(candidate => path.basename(candidate) === fixtureBasename)) {
       errors.push(`${plugin.manifestPath}:abiFixtures:${plugin.abiFixturePath}:missing`);
     }
 
@@ -1173,34 +1177,40 @@ async function validatePluginAbiFixture(plugin) {
     errors.push(...missingMembers(manifestComponentKinds, project.ownedComponentKinds || [], `${plugin.abiFixturePath}:project.ownedComponentKinds`));
     if (!project.projectionKind) errors.push(`${plugin.abiFixturePath}:project.projectionKind:missing`);
 
-    const lower = operations.get("lower")?.expect || {};
-    errors.push(...missingMembers(manifestComponentKinds, lower.preservedComponentKinds || [], `${plugin.abiFixturePath}:lower.preservedComponentKinds`));
-    if (!lower.loweringKind) errors.push(`${plugin.abiFixturePath}:lower.loweringKind:missing`);
-
-    const measure = operations.get("measure")?.expect || {};
-    if (!measure.measurementKind) errors.push(`${plugin.abiFixturePath}:measure.measurementKind:missing`);
-    if (!(measure.measurementOutputs || []).length) errors.push(`${plugin.abiFixturePath}:measure.measurementOutputs:missing`);
-    if (measure.preservesProviderAuthority !== true) errors.push(`${plugin.abiFixturePath}:measure.preservesProviderAuthority:expected true`);
-
-    const apply = operations.get("apply")?.expect || {};
-    if (apply.receiptSchema !== sidecarReceiptSchema) {
-      errors.push(`${plugin.abiFixturePath}:apply.receiptSchema:expected ${sidecarReceiptSchema} got ${apply.receiptSchema || ""}`);
+    if (claimedOperations.includes("lower")) {
+      const lower = operations.get("lower")?.expect || {};
+      errors.push(...missingMembers(manifestComponentKinds, lower.preservedComponentKinds || [], `${plugin.abiFixturePath}:lower.preservedComponentKinds`));
+      if (!lower.loweringKind) errors.push(`${plugin.abiFixturePath}:lower.loweringKind:missing`);
     }
-    if (manifestCommands.length) {
-      const commandEffects = apply.commandEffects || {};
-      for (const command of manifestCommands) {
-        if (!commandEffects[command]) {
-          errors.push(`${plugin.abiFixturePath}:apply.commandEffects:${command}:missing`);
-          continue;
-        }
 
-        const expectedEffect = manifestCommandEffects.get(command);
-        if (commandEffects[command] !== expectedEffect) {
-          errors.push(`${plugin.abiFixturePath}:apply.commandEffects:${command}:expected ${expectedEffect} got ${commandEffects[command]}`);
-        }
+    if (claimedOperations.includes("measure")) {
+      const measure = operations.get("measure")?.expect || {};
+      if (!measure.measurementKind) errors.push(`${plugin.abiFixturePath}:measure.measurementKind:missing`);
+      if (!(measure.measurementOutputs || []).length) errors.push(`${plugin.abiFixturePath}:measure.measurementOutputs:missing`);
+      if (measure.preservesProviderAuthority !== true) errors.push(`${plugin.abiFixturePath}:measure.preservesProviderAuthority:expected true`);
+    }
+
+    if (claimedOperations.includes("apply")) {
+      const apply = operations.get("apply")?.expect || {};
+      if (apply.receiptSchema !== sidecarReceiptSchema) {
+        errors.push(`${plugin.abiFixturePath}:apply.receiptSchema:expected ${sidecarReceiptSchema} got ${apply.receiptSchema || ""}`);
       }
-    } else if (!(apply.stateEffects || []).length) {
-      errors.push(`${plugin.abiFixturePath}:apply.stateEffects:missing`);
+      if (manifestCommands.length) {
+        const commandEffects = apply.commandEffects || {};
+        for (const command of manifestCommands) {
+          if (!commandEffects[command]) {
+            errors.push(`${plugin.abiFixturePath}:apply.commandEffects:${command}:missing`);
+            continue;
+          }
+
+          const expectedEffect = manifestCommandEffects.get(command);
+          if (commandEffects[command] !== expectedEffect) {
+            errors.push(`${plugin.abiFixturePath}:apply.commandEffects:${command}:expected ${expectedEffect} got ${commandEffects[command]}`);
+          }
+        }
+      } else if (!(apply.stateEffects || []).length) {
+        errors.push(`${plugin.abiFixturePath}:apply.stateEffects:missing`);
+      }
     }
   } catch (error) {
     errors.push(`${plugin.abiFixturePath}:invalid-json:${error instanceof Error ? error.message : String(error)}`);
@@ -1862,6 +1872,7 @@ function evaluateSplitTargets(splitTargets, runtimeResults) {
 }
 
 function requiredIncubationFields(entry) {
+  if (entry.kind === "external-owner") return ["ownerRepo", "repoRole"];
   if (entry.repoRole === "core") return ["ownerRepo", "repoRole"];
   return ["ownerRepo", "repoRole", "graduationTrigger"];
 }
@@ -1993,8 +2004,8 @@ function summarize(fixtures, runtimes, plugins, providers, splitTargets) {
     passedFixtures: fixtures.filter(fixture => fixture.status === "pass").length,
     failedFixtures: fixtures.filter(fixture => fixture.status !== "pass").length,
     totalPlugins: plugins.length,
-    healthyPlugins: plugins.filter(plugin => plugin.status === "incubating" || plugin.status === "external-owner-planned").length,
-    failedPlugins: plugins.filter(plugin => plugin.status !== "incubating" && plugin.status !== "external-owner-planned").length,
+    healthyPlugins: plugins.filter(plugin => ["active", "incubating", "external-owner-planned"].includes(plugin.status)).length,
+    failedPlugins: plugins.filter(plugin => !["active", "incubating", "external-owner-planned"].includes(plugin.status)).length,
     totalProviders: providers.length,
     advertisedProviders: providers.filter(provider => provider.status === "advertised").length,
     failedProviders: providers.filter(provider => provider.status !== "advertised").length,

@@ -456,8 +456,14 @@ Runtime projection support is not plugin hosting. A Unity, Electron, Flutter,
 TUI, or web client may provide an adapter for sidecar-advertised Norn or TeX
 output, but the sidecar daemon and plugin ABI remain runtime independent. If a
 Sai surface deploys with nested Norn or TeX, Sai composes the slots and keeps VN
-stage authority; Norn and TeX still publish, validate, lower, and receive
-commands through their own plugin contracts.
+stage authority; Norn and TeX still publish and validate their own semantic
+contracts. Each plugin advertises only the ABI operations it actually owns.
+
+The carrier does not define the plugin. The first executable Norn proof uses
+UTF-8 NDJSON over stdio: one request document per line, one response per
+request in order, blank lines ignored, diagnostics on stderr. A future
+CultMesh daemon transport must carry the same typed request and response
+documents; it must not create a second semantic API.
 
 Nested availability is a composition fact, not a Sai dependency story. A Sai
 surface can be deployed with a nested Norn or TeX surface only when that other
@@ -473,6 +479,11 @@ Norn plugin responsibilities:
   pan, zoom, and jump;
 - define fallback and capability-gap behavior when a renderer cannot run Norn;
 - provide graph/map fixtures for Eve parity.
+
+Norn currently claims `describe`, `validate`, `project`, and `measure`. It does
+not claim `lower` or `apply`: runtime lowerers own native projection, and
+providers own command acceptance and receipts. Conformance validates advertised
+operations rather than forcing every plugin to pretend it owns all ABI verbs.
 
 TeX plugin responsibilities:
 

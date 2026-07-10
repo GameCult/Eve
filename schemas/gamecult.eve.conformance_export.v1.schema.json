@@ -144,7 +144,6 @@
           "runtimeId",
           "runtimeStatus",
           "ownerRepo",
-          "splitTarget",
           "pluginId",
           "severity",
           "reason",
@@ -982,8 +981,7 @@
             "minLength": 1
           },
           "splitTarget": {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           "manifestPath": {
             "type": "string",

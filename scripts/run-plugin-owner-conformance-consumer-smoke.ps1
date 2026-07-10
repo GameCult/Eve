@@ -45,12 +45,9 @@ node $consumerScript $consumerExport `
   --expect-plugin norn.graph `
   --expect-plugin tex.math `
   --expect-plugin-handoff sai.vn `
-  --expect-plugin-handoff norn.graph `
   --expect-plugin-handoff tex.math `
   --expect-plugin-handoff-move sai.vn:plugin-manifest:current:exists:sai-vn.plugin.json `
   --expect-plugin-handoff-move sai.vn:abi-conformance:current:exists:sai-vn.plugin-abi-fixture.json `
-  --expect-plugin-handoff-move norn.graph:plugin-manifest:current:exists:norn-graph.plugin.json `
-  --expect-plugin-handoff-move norn.graph:abi-conformance:current:exists:norn-graph.plugin-abi-fixture.json `
   --expect-plugin-handoff-move tex.math:plugin-manifest:current:exists:tex-math.plugin.json `
   --expect-plugin-handoff-move tex.math:abi-conformance:current:exists:tex-math.plugin-abi-fixture.json `
   --expect-plugin-operation sai.vn:describe `
@@ -66,12 +63,8 @@ node $consumerScript $consumerExport `
   --expect-plugin-operation norn.graph:describe `
   --expect-plugin-operation norn.graph:validate `
   --expect-plugin-operation norn.graph:project `
-  --expect-plugin-operation norn.graph:lower `
   --expect-plugin-operation norn.graph:measure `
-  --expect-plugin-operation norn.graph:apply `
   --expect-plugin-abi-operation-coverage norn.graph:describe:contracted:Norn `
-  --expect-plugin-abi-operation-coverage norn.graph:lower:contracted:Norn `
-  --expect-plugin-abi-operation-coverage norn.graph:apply:contracted:Norn `
   --expect-provider-plugin-requirement gamecult.home.vn:sai.visual_novel.surface:norn.graph:optional-satisfied:Norn:optional-nested `
   --expect-provider-plugin-requirement gamecult.home.vn:sai.visual_novel.surface:tex.math:optional-satisfied:EvePlugins:optional-nested `
   --expect-independent-nested-plugin gamecult.home.vn:sai.visual_novel.surface:sai.vn:norn.graph:Norn `
@@ -96,15 +89,13 @@ node $consumerScript $consumerExport `
   --expect-plugin-abi-field sai.vn:lower:expect.commandEnvelope:gamecult.eve.command.v1 `
   --expect-plugin-abi-field sai.vn:apply:expect.receiptSchema:gamecult.eve.command_receipt.v1 `
   --expect-plugin-runtime norn.graph:executable-sidecar `
-  --expect-plugin-runtime-transport norn.graph:cultmesh `
+  --expect-plugin-runtime-transport norn.graph:stdio `
   --expect-plugin-runtime-authority norn.graph:no-provider-state-mutation `
   --expect-plugin-runtime-field norn.graph:sidecar.processKind:long-running-daemon `
-  --expect-plugin-runtime-field norn.graph:sidecar.protocol:cultmesh-rpc-with-stdio-dev-transport `
+  --expect-plugin-runtime-field norn.graph:sidecar.protocol:stdio-ndjson `
   --expect-plugin-runtime-field norn.graph:sidecar.requestSchema:gamecult.eve.plugin_abi.request.v1 `
   --expect-plugin-runtime-field norn.graph:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
   --expect-plugin-runtime-field norn.graph:sidecar.stateAuthority:proposes-plugin-state-only-provider-accepts `
-  --expect-plugin-abi-field norn.graph:lower:expect.commandEnvelope:gamecult.eve.command.v1 `
-  --expect-plugin-abi-field norn.graph:apply:expect.receiptSchema:gamecult.eve.command_receipt.v1 `
   --expect-plugin-operation tex.math:describe `
   --expect-plugin-operation tex.math:validate `
   --expect-plugin-operation tex.math:project `
