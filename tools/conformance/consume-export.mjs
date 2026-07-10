@@ -59,6 +59,7 @@ if (!exportDirectory) {
     "  --expect-runtime-command-schema <runtimeId:schema>",
     "  --expect-runtime-capture-status <runtimeId:status>",
     "  --expect-runtime-capture-artifact <runtimeId:kind:schema:providerId:surfaceId>",
+    "  --expect-runtime-witness <runtimeId:providerId:surfaceId:cacheState:status>",
     "  --expect-runtime-lifecycle-status <runtimeId:stage:status>",
     "  --expect-runtime-lifecycle-pending <runtimeId:stage:pending-proof-substring>",
     "  --expect-runtime-lifecycle-field <runtimeId:stage:field.path:value>",
@@ -154,6 +155,7 @@ function validateIndex(index, directory, expectations, errors) {
   const commandBoundaryCoverage = Array.isArray(index.commandBoundaryCoverage) ? index.commandBoundaryCoverage : [];
   const screenshotComparisonMetrics = Array.isArray(index.screenshotComparisonMetrics) ? index.screenshotComparisonMetrics : [];
   const runtimeCaptureProbeCoverage = Array.isArray(index.runtimeCaptureProbeCoverage) ? index.runtimeCaptureProbeCoverage : [];
+  const runtimeWitnesses = Array.isArray(index.runtimeWitnesses) ? index.runtimeWitnesses : [];
   const splitTargetBlockers = Array.isArray(index.splitTargetBlockers) ? index.splitTargetBlockers : [];
   const splitHandoffMoveCoverage = Array.isArray(index.splitHandoffMoveCoverage) ? index.splitHandoffMoveCoverage : [];
   const pluginHandoffMoveCoverage = Array.isArray(index.pluginHandoffMoveCoverage) ? index.pluginHandoffMoveCoverage : [];
@@ -190,6 +192,7 @@ function validateIndex(index, directory, expectations, errors) {
   validateCommandBoundaryCoverage(index.commandBoundaryCoverage, errors);
   validateScreenshotComparisonMetrics(index.screenshotComparisonMetrics, errors);
   validateRuntimeCaptureProbeCoverage(index.runtimeCaptureProbeCoverage, errors);
+  validateRuntimeWitnesses(runtimeWitnesses, directory, errors);
   validateWorldSurfaceLoweringGaps(index.worldSurfaceLoweringGaps, errors);
   for (const expectedGap of expectations.capabilityGaps) {
     if (!capabilityGaps.some(gap => capabilityGapText(gap).includes(expectedGap))) {
@@ -209,6 +212,20 @@ function validateIndex(index, directory, expectations, errors) {
     }
     if (record.runtimeOwnerRepo !== expectation.ownerRepo) {
       errors.push(`runtimePluginProjectionCoverage:${expectation.runtimeId}:${expectation.pluginId}:runtimeOwnerRepo:expected ${expectation.ownerRepo} got ${record.runtimeOwnerRepo || ""}`);
+    }
+  }
+  for (const expectation of expectations.runtimeWitnesses) {
+    const witness = runtimeWitnesses.find(candidate =>
+      candidate.runtimeId === expectation.runtimeId &&
+      candidate.providerId === expectation.providerId &&
+      candidate.surfaceId === expectation.surfaceId &&
+      candidate.cacheState === expectation.cacheState);
+    if (!witness) {
+      errors.push(`runtimeWitnesses:${expectation.runtimeId}:${expectation.providerId}:${expectation.surfaceId}:${expectation.cacheState}:missing`);
+      continue;
+    }
+    if (witness.status !== expectation.status) {
+      errors.push(`runtimeWitnesses:${witness.witnessId}:status:expected ${expectation.status} got ${witness.status || ""}`);
     }
   }
   for (const expectation of expectations.providerRuntimePluginProjectionCoverage) {
@@ -1239,6 +1256,28 @@ function validateRuntimeRecords(runtimes, errors) {
   }
 }
 
+function validateRuntimeWitnesses(witnesses, directory, errors) {
+  if (!Array.isArray(witnesses)) return;
+  for (const [index, witness] of witnesses.entries()) {
+    for (const field of ["witnessId", "runtimeId", "runtimeOwnerRepo", "providerId", "surfaceId", "projectionKind", "status", "cacheState", "witnessExportPath", "artifactCount"]) {
+      if (witness?.[field] === undefined || witness?.[field] === "") errors.push(`runtimeWitnesses:${index}:${field}:missing`);
+    }
+    const witnessPath = witness?.witnessExportPath ? path.join(directory, witness.witnessExportPath) : "";
+    if (!witnessPath || !existsSync(witnessPath)) {
+      errors.push(`runtimeWitnesses:${index}:witnessExportPath:missing`);
+      continue;
+    }
+    const document = JSON.parse(readFileSyncUtf8(witnessPath));
+    if (document.schema !== "gamecult.eve.runtime_witness.v1") errors.push(`runtimeWitnesses:${index}:schema:unexpected`);
+    if ((document.artifacts || []).length !== witness.artifactCount) errors.push(`runtimeWitnesses:${index}:artifactCount:mismatch`);
+    for (const artifact of document.artifacts || []) {
+      if (!artifact.exportPath || !existsSync(path.join(directory, artifact.exportPath))) {
+        errors.push(`runtimeWitnesses:${index}:artifact:${artifact.kind || "unknown"}:missing`);
+      }
+    }
+  }
+}
+
 function validateSplitTargetRecords(splitTargets, errors) {
   for (const target of splitTargets) {
     const label = `splitTargets:${target.id || "unknown"}`;
@@ -1325,6 +1364,7 @@ function parseArguments(args) {
     runtimeCommandSchemas: [],
     runtimeCaptureStatuses: [],
     runtimeCaptureArtifacts: [],
+    runtimeWitnesses: [],
     runtimeLifecycleStatuses: [],
     runtimeLifecyclePendingProofs: [],
     runtimeLifecycleFields: [],
@@ -1387,6 +1427,7 @@ function parseArguments(args) {
     ["--expect-runtime-command-schema", expectations.runtimeCommandSchemas],
     ["--expect-runtime-capture-status", expectations.runtimeCaptureStatuses],
     ["--expect-runtime-capture-artifact", expectations.runtimeCaptureArtifacts],
+    ["--expect-runtime-witness", expectations.runtimeWitnesses],
     ["--expect-runtime-lifecycle-status", expectations.runtimeLifecycleStatuses],
     ["--expect-runtime-lifecycle-pending", expectations.runtimeLifecyclePendingProofs],
     ["--expect-runtime-lifecycle-field", expectations.runtimeLifecycleFields],
@@ -1485,6 +1526,8 @@ function parseArguments(args) {
       target.push(parseRuntimeExpectation(value, "status"));
     } else if (option === "--expect-runtime-capture-artifact") {
       target.push(parseRuntimeCaptureArtifactExpectation(value));
+    } else if (option === "--expect-runtime-witness") {
+      target.push(parseRuntimeWitnessExpectation(value));
     } else if (option === "--expect-runtime-lifecycle-status") {
       target.push(parseRuntimeLifecycleExpectation(value, "status"));
     } else if (option === "--expect-runtime-lifecycle-pending") {
@@ -1907,6 +1950,21 @@ function parseRuntimeExpectation(value, field) {
   return {
     runtimeId: value.slice(0, separator),
     [field]: value.slice(separator + 1),
+  };
+}
+
+function parseRuntimeWitnessExpectation(value) {
+  const parts = value.split(":");
+  if (parts.length !== 5 || parts.some(part => !part)) {
+    console.error(`Expected runtime witness in <runtimeId:providerId:surfaceId:cacheState:status> form, got: ${value}`);
+    process.exit(2);
+  }
+  return {
+    runtimeId: parts[0],
+    providerId: parts[1],
+    surfaceId: parts[2],
+    cacheState: parts[3],
+    status: parts[4],
   };
 }
 

@@ -46,6 +46,26 @@
     "incubationPolicy": {
       "type": "string"
     },
+    "runtimeWitnesses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["witnessId", "runtimeId", "runtimeOwnerRepo", "providerId", "surfaceId", "projectionKind", "status", "cacheState", "witnessExportPath", "artifactCount"],
+        "properties": {
+          "witnessId": { "type": "string", "minLength": 1 },
+          "runtimeId": { "type": "string", "minLength": 1 },
+          "runtimeOwnerRepo": { "type": "string", "minLength": 1 },
+          "providerId": { "type": "string", "minLength": 1 },
+          "surfaceId": { "type": "string", "minLength": 1 },
+          "projectionKind": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["pass", "fail"] },
+          "cacheState": { "enum": ["cold", "warm"] },
+          "witnessExportPath": { "type": "string", "minLength": 1 },
+          "artifactCount": { "type": "integer", "minimum": 1 }
+        },
+        "additionalProperties": true
+      }
+    },
     "packs": {
       "type": "array",
       "items": {

@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.runtime_witness.v1",
+  "title": "Eve Runtime Witness",
+  "type": "object",
+  "required": [
+    "schema", "witnessId", "runtimeId", "runtimeOwnerRepo", "providerId",
+    "surfaceId", "projectionKind", "status", "generatedAtUtc", "execution",
+    "assertions", "receipts", "screenshotMetrics", "artifacts", "authority"
+  ],
+  "properties": {
+    "schema": { "const": "gamecult.eve.runtime_witness.v1" },
+    "witnessId": { "type": "string", "minLength": 1 },
+    "runtimeId": { "type": "string", "minLength": 1 },
+    "runtimeOwnerRepo": { "type": "string", "minLength": 1 },
+    "providerId": { "type": "string", "minLength": 1 },
+    "surfaceId": { "type": "string", "minLength": 1 },
+    "projectionKind": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["pass", "fail"] },
+    "generatedAtUtc": { "type": "string", "minLength": 1 },
+    "execution": {
+      "type": "object",
+      "required": ["cacheState", "durationMs", "testDurationMs"],
+      "properties": {
+        "cacheState": { "enum": ["cold", "warm"] },
+        "durationMs": { "type": "number", "minimum": 0 },
+        "testDurationMs": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "assertions": {
+      "type": "object",
+      "required": ["providerAdvertisement", "providerAssets", "movement", "targeting", "action", "initialVersion", "finalVersion"],
+      "properties": {
+        "providerAdvertisement": { "type": "boolean" },
+        "providerAssets": { "type": "boolean" },
+        "movement": { "type": "boolean" },
+        "targeting": { "type": "boolean" },
+        "action": { "type": "boolean" },
+        "initialVersion": { "type": "number", "minimum": 0 },
+        "finalVersion": { "type": "number", "minimum": 0 },
+        "movementDistance": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "receipts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["commandKind", "commandId", "state", "sourceVersion"],
+        "properties": {
+          "commandKind": { "type": "string", "minLength": 1 },
+          "commandId": { "type": "string", "minLength": 1 },
+          "state": { "enum": ["accepted", "reconciled"] },
+          "sourceVersion": { "type": "number", "minimum": 0 }
+        },
+        "additionalProperties": true
+      }
+    },
+    "screenshotMetrics": {
+      "type": "object",
+      "required": ["width", "height", "encodedSizeBytes", "sha256"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "encodedSizeBytes": { "type": "integer", "minimum": 1 },
+        "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" }
+      },
+      "additionalProperties": true
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["kind", "path", "sha256", "sizeBytes"],
+        "properties": {
+          "kind": { "type": "string", "minLength": 1 },
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+          "sizeBytes": { "type": "integer", "minimum": 1 },
+          "width": { "type": "integer", "minimum": 1 },
+          "height": { "type": "integer", "minimum": 1 },
+          "exportPath": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "authority": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": true
+}

@@ -285,9 +285,7 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Turn the Unity live witness into a conformance-pack attachment with cold and
-   warm asset-transfer timings, command receipts, and screenshot metrics.
-2. Replace Aetheria's specialized browser embedded-document methods with a
+1. Replace Aetheria's specialized browser embedded-document methods with a
    generic CultMesh document handle once the field/plugin document contract is
    explicit; do not move Aetheria gravity or object schemas into Eve.
 
@@ -336,6 +334,16 @@ Recently cut:
   witness requires the Eve-owned world scene, provider entity markers, and one
   controlled marker in the rendered DOM, so surrounding HUD text cannot stand
   in for interactive-world lowering proof.
+- Eve now defines `gamecult.eve.runtime_witness.v1`, and EveUnity's live
+  Aetheria runner emits owner-repo witnesses with cache mode, wall/test timing,
+  provider advertisement and asset assertions, movement distance, initial and
+  final surface versions, terminal movement/target/action receipts, screenshot
+  dimensions/hash/size, and hashed test results. The conformance attachment
+  tool validates the schema, copies declared artifacts into export-relative
+  paths, and indexes the witness without retaining EveUnity source paths.
+  Export consumption passed for both `eveunity.aetheria.game.warm` (68.27 s
+  wall, 7.72 s test) and `eveunity.aetheria.game.cold` (138.90 s wall,
+  111.52 s test), including all three reconciled command receipts.
 
 - The clean EveUnity PlayMode client now consumes Aetheria's independently
   running daemon without importing Aetheria code. Aetheria builds its authored
@@ -1382,10 +1390,9 @@ Evidence on 2026-07-10:
   runtime surface serializer. Core surface wire fields use CultMesh transport
   records; provider-private surface documents remain separate authority.
 
-Remaining before this gate is complete:
-
-- attach both PNGs, cold/warm transfer timings, and receipt/version evidence to the exported conformance
-  pack rather than leaving them only in EveUnity's local artifacts.
+This gate is complete: cold and warm runtime-owned witnesses attach their PNG,
+test result, receipt, version, movement, timing, and screenshot evidence to a
+consumer-verifiable conformance export.
 
 ## Stop Conditions
 

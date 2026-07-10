@@ -25,6 +25,7 @@
     "gamecult.eve.runtime_split_handoff.v1": "schemas/gamecult.eve.runtime_split_handoff.v1.schema.json",
     "gamecult.eve.runtime_release_request.v1": "schemas/gamecult.eve.runtime_release_request.v1.schema.json",
     "gamecult.eve.runtime_capture_request.v1": "schemas/gamecult.eve.runtime_capture_request.v1.schema.json",
+    "gamecult.eve.runtime_witness.v1": "schemas/gamecult.eve.runtime_witness.v1.schema.json",
     "gamecult.eve.web_layout_probe.v1": "schemas/gamecult.eve.web_layout_probe.v1.schema.json",
     "gamecult.eve.provider_scenario.v1": "schemas/gamecult.eve.provider_scenario.v1.schema.json",
     "gamecult.eve.provider_advertisement.v1": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",

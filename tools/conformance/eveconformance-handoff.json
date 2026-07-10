@@ -43,7 +43,8 @@
         "schemas/gamecult.eve.plugin_abi.request.v1.schema.json",
         "schemas/gamecult.eve.plugin_abi.response.v1.schema.json",
         "schemas/gamecult.eve.runtime_release_request.v1.schema.json",
-        "schemas/gamecult.eve.runtime_capture_request.v1.schema.json"
+        "schemas/gamecult.eve.runtime_capture_request.v1.schema.json",
+        "schemas/gamecult.eve.runtime_witness.v1.schema.json"
       ],
       "replacementProof": "EveConformance publishes the schema catalog and copied schema documents needed by conformance, plugin, provider, and runtime consumers."
     },
@@ -92,6 +93,7 @@
     "gamecult.eve.plugin_abi.response.v1",
     "gamecult.eve.runtime_release_request.v1",
     "gamecult.eve.runtime_capture_request.v1",
+    "gamecult.eve.runtime_witness.v1",
     "gamecult.eve.provider_advertisement.v1",
     "gamecult.eve.provider_handoff.v1",
     "gamecult.eve.electron_shell_projection.v1",
