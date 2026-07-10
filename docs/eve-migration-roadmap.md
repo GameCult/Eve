@@ -285,12 +285,32 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Replace EveUnity's scoped per-chunk CDN requests with a persistent transfer
-   session while retaining content-addressed disk caching and hash checks.
-2. Add generic action/combat command evidence and improve runtime-owned camera
-   framing for provider-authored world assets.
+1. Move the browser/Electron Aetheria product frontends onto the same
+   advertisement, command, receipt, and interactive-world authority used by
+   the generic Unity client.
+2. Turn the Unity live witness into a conformance-pack attachment with cold and
+   warm asset-transfer timings, command receipts, and screenshot metrics.
 
 Recently cut:
+
+- CultLib now owns `CultMeshSnapshotSession`, a retained endpoint connection
+  for ordered bulk snapshot transfer. RUDP ACK packets are sequence-neutral,
+  fragmented data is acknowledged as it arrives, and sequenced control packets
+  release ordered frames they unblock. This removes the unreliable-control
+  gaps and per-chunk reconnect churn that previously made CDN transfer stall.
+- EveUnity uses the retained session only for CultMesh CDN manifests/chunks;
+  live surface and receipt snapshots retain their scoped authority. It batches
+  two 24 KiB chunks per request, verifies the completed bundle, and caches it
+  by SHA-256. A cold-cache Aetheria witness transferred 384 chunks and passed
+  in 165 seconds; the corresponding warm-cache witness passed in under a
+  minute including CultLib rebuild and Unity startup.
+- The generic Unity witness now proves movement, target acquisition, and fire
+  action through the advertised world commands and authoritative receipts.
+  Aetheria's daemon-owned `ProjectileWeapon` state is now the fire-capability
+  authority for group zero, and player firing consumes the submitted daemon
+  intent instead of relying on legacy loadout groups. Runtime camera framing
+  uses aggregate authored-renderer bounds; the resulting frame is attached at
+  `E:\Projects\EveUnity\artifacts\aetheria-daemon\aetheria-daemon-world.png`.
 
 - The clean EveUnity PlayMode client now consumes Aetheria's independently
   running daemon without importing Aetheria code. Aetheria builds its authored
