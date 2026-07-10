@@ -277,14 +277,11 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.0.providerId:eve.world-smoke" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
-  --expect-runtime-lifecycle-status tui:release:pending-tui-package `
+  --expect-runtime-lifecycle-status tui:release:owner-npm-package `
   --expect-runtime-lifecycle-status tui:test:provider-shell-contract-skeleton `
   --expect-runtime-lifecycle-status tui:capture:cell-grid-json-capture `
-  --expect-runtime-lifecycle-pending "tui:release:TUI package release" `
-  --expect-runtime-lifecycle-pending "tui:test:TUI provider-advertisement smoke runs from EveTui with durable terminal transcript or cell-grid artifacts" `
-  --expect-runtime-lifecycle-pending "tui:capture:TUI capture artifact is produced from the EveTui owner repo" `
   --expect-runtime-lifecycle-field "tui:release:releaseContract.artifactKind:terminal-runtime" `
-  --expect-runtime-lifecycle-field "tui:release:releaseContract.versionSource:runtimes/incubating/eve-tui/package.json" `
+  --expect-runtime-lifecycle-field "tui:release:releaseContract.versionSource:package.json" `
   --expect-runtime-lifecycle-field "tui:release:releaseContract.requestSchema:gamecult.eve.runtime_release_request.v1" `
   --expect-runtime-lifecycle-field "tui:release:releaseContract.requestBuilder:tools/evetui/evetui-release-contract.mjs" `
   --expect-runtime-lifecycle-field "tui:release:releaseContract.artifactPattern:artifacts/evetui-release/{version}/eve-tui-{version}.tgz" `

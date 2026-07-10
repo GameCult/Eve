@@ -51,18 +51,11 @@ try {
     --expect-split-target-proof "EveElectron:EveElectron owner repository publishes the generic runtime package" `
     --expect-split-target-proof "EveElectron:EveElectron owns secure window, preload, and generic CultMesh asset lifecycle" `
     --expect-split-target EveTui `
-    --expect-split-target-status EveTui:incubating `
-    --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `
+    --expect-split-target-status EveTui:graduated `
+    --expect-split-target-proof "EveTui:EveTui owns a tagged package and runtime lifecycle" `
     --expect-split-target-proof "EveTui:EveTui lifecycle contract is machine-readable" `
     --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:aetheria:aetheria.daemon.game `
-    --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:eve.world-smoke:eve.world-smoke.surface `
-    --expect-split-handoff-move EveTui:tui:tui-runtime-body:current:exists:eve-tui-shell.mjs `
-    --expect-split-handoff-move EveTui:tui:tui-world-surface-lowering:current:exists:eve-tui-shell.mjs `
-    --expect-split-handoff-move EveTui:tui:tui-command-transport:current:exists:eve-tui-shell.mjs `
-    --expect-split-handoff-move EveTui:tui:tui-plugin-projection:current:exists:sai-vn-surface.json `
-    --expect-split-handoff-move EveTui:tui:tui-capture-lifecycle:current:exists:evetui-capture-contract.mjs `
-    --expect-split-target-blocker "EveTui:TUI package release is cut from EveTui rather than Eve incubation" `
-    --expect-split-target-blocker "EveTui:TUI capture path is owned by EveTui rather than Eve incubation"
+    --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:eve.world-smoke:eve.world-smoke.surface
   if ($LASTEXITCODE -ne 0) {
     throw "Split target conformance consumer smoke failed with exit code $LASTEXITCODE"
   }

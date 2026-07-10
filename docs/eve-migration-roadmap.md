@@ -155,12 +155,14 @@ advertisements and typed command/receipt documents are the boundary.
 - EveConformance CI runs that locked public workspace on every push and uploads
   a commit-keyed evidence bundle. Version tags attach the same lock, reports,
   capability matrix, packs, captures, and typed witnesses to a GitHub release.
+- EveTui owns the terminal lowerer, command-intent projection, package and test
+  lifecycle, and durable Aetheria/generic-world grid captures. Its `0.1.1`
+  package is built from the owner repo; Eve no longer contains a TUI runtime.
 
 ## Remaining Work
 
 ### Runtime Graduation
 
-- Extract EveTui when its process lifecycle and release surface are stable.
 - Move Android Kotlin and iOS UIKit lowerers into runtime owner repos or retire
   them when Flutter is the intended native owner.
 - Tag EveFlutter releases and remove remaining incubation claims.

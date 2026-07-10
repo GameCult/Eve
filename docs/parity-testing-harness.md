@@ -464,7 +464,7 @@ exist. The current lifecycle proof is deliberately split:
   rendered Unity frame.
 
 TUI capture evidence is already typed even though EveTui remains incubating.
-`tools/evetui/evetui-capture-artifact.mjs` lowers the Aetheria world surface
+`EveTui/tools/evetui/evetui-capture-artifact.mjs` lowers the Aetheria world surface
 through `EveTuiShell` into `gamecult.eve.tui_grid.v1` and writes
 `artifacts/evetui-capture/latest/tui-grid.json`. The parity export includes
 that record as `runtime.captureArtifacts[]`; runtime-owner consumers can assert

@@ -37,16 +37,6 @@ try {
   node "E:\Projects\Norn\scripts\run-eve-cultnet-witness.mjs"
   if ($LASTEXITCODE -ne 0) { throw "Norn plugin owner witness failed with exit code $LASTEXITCODE" }
   & (Join-Path $PSScriptRoot "run-eveflutter-owner-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1") `
-    -AdvertisementPath "web\fixtures\eve-world-smoke.provider-advertisement.json" `
-    -SurfacePath "web\fixtures\eve-world-smoke-surface.json" `
-    -OutputPath "artifacts\evetui-capture\latest\eve-world-smoke-tui-grid.json" `
-    -RequestOutputPath "artifacts\evetui-capture\latest\eve-world-smoke-capture-request.json" `
-    -ExpectedProviderId "eve.world-smoke" `
-    -ExpectedSurfaceId "eve.world-smoke.surface" `
-    -ExpectedCommandBoundary "eve.world-smoke.commands" `
-    -ExpectedReceiptSchema "eve.world_smoke.command_receipt.v1"
   $env:EVE_KERNEL_ROOT = $projectRoot
   $env:EVE_CONFORMANCE_OUTPUT = Join-Path $projectRoot "artifacts\conformance"
   node (Join-Path $conformanceRoot "tools\parity\run-parity.mjs")
@@ -72,8 +62,6 @@ try {
     "E:\Projects\Norn\artifacts\eve-plugin\runtime-witness.json" `
     ".\artifacts\conformance\latest"
   & (Join-Path $PSScriptRoot "run-eveelectron-owner-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-evetui-split-handoff-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-evetui-lifecycle-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-conformance-consumer-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-plugin-owner-conformance-consumer-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-runtime-owner-conformance-consumer-smoke.ps1")
