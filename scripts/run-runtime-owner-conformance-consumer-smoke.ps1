@@ -57,7 +57,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-status android-flutter:active `
   --expect-runtime-status unity-uitoolkit:active `
   --expect-runtime-status unity-scene:active `
-  --expect-runtime-status electron-shell:pending `
+  --expect-runtime-status electron-shell:active `
   --expect-runtime-status tui:active `
   --expect-runtime-status direct2d:external-adapter-spike `
   --expect-runtime-feature web:providerAdvertisements `
@@ -106,7 +106,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-world-field unity-scene:unity-scene:supportLevel:unity-playable-world-scene-command-surface `
   --expect-runtime-world-field unity-scene:unity-scene:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
   --expect-runtime-world-target electron-shell:electron-shell `
-  --expect-runtime-world-field electron-shell:electron-shell:supportLevel:electron-shell-surface-tree-command-surface `
+  --expect-runtime-world-field electron-shell:electron-shell:supportLevel:provider-shell-surface-tree-command-surface `
   --expect-runtime-world-field electron-shell:electron-shell:ownership:runtime-lowers-provider-world-surface-without-owning-world-state `
   --expect-runtime-world-target tui:tui `
   --expect-runtime-world-field tui:tui:supportLevel:terminal-grid-command-surface `
@@ -165,16 +165,14 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:eve.world-smoke:eve.world-smoke.surface `
   --expect-runtime-capture-status unity-scene:partial-world-smoke-playmode-capture `
-  --expect-runtime-capture-status electron-shell:json-projection `
-  --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:aetheria:aetheria.daemon.game `
-  --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:eve.world-smoke:eve.world-smoke.surface `
+  --expect-runtime-capture-status electron-shell:pending-owner-window-capture `
   --expect-runtime-capture-status tui:json-grid `
   --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:eve.world-smoke:eve.world-smoke.surface `
   --expect-runtime-capture-status direct2d:missing `
   --expect-runtime-capture-probe unity-uitoolkit:semantic-artifact-present-capture-pending:png:EveUnity `
   --expect-runtime-capture-probe unity-scene:control-artifact-present-product-capture-pending:png:EveUnity `
-  --expect-runtime-capture-probe electron-shell:semantic-artifact-present-capture-pending:png:EveElectron `
+  --expect-runtime-capture-probe electron-shell:contract-artifact-missing:png:EveElectron `
   --expect-runtime-capture-probe tui:contract-artifact-present:json-grid:EveTui `
   --expect-screenshot-metric web:embedded-surface:structure:pass `
   --expect-screenshot-metric web:embedded-surface:color-tokens:pass `
@@ -263,29 +261,25 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.additionalProviderSurfaces.0.providerId:eve.world-smoke" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
-  --expect-runtime-lifecycle-status electron-shell:release:pending-electron-package `
-  --expect-runtime-lifecycle-status electron-shell:test:provider-shell-contract-skeleton `
-  --expect-runtime-lifecycle-status electron-shell:capture:pending-electron-window-capture `
-  --expect-runtime-lifecycle-pending "electron-shell:release:Electron packaged app release" `
-  --expect-runtime-lifecycle-pending "electron-shell:test:Electron provider-advertisement smoke runs from EveElectron in a packaged Electron window" `
-  --expect-runtime-lifecycle-pending "electron-shell:capture:Electron window capture artifact" `
-  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.artifactKind:electron-app" `
-  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.versionSource:runtimes/incubating/eve-electron/package.json" `
+  --expect-runtime-lifecycle-status electron-shell:release:owner-npm-package `
+  --expect-runtime-lifecycle-status electron-shell:test:owner-package-tests-and-aetheria-live-smoke `
+  --expect-runtime-lifecycle-status electron-shell:capture:pending-owner-window-capture `
+  --expect-runtime-lifecycle-pending "electron-shell:capture:Capture one non-product and one Aetheria window" `
+  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.artifactKind:npm-package" `
+  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.versionSource:package.json" `
   --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.requestSchema:gamecult.eve.runtime_release_request.v1" `
-  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.requestBuilder:tools/eveelectron/eveelectron-release-contract.mjs" `
-  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.artifactPattern:artifacts/eveelectron-release/{version}/eve-electron-{version}.zip" `
-  --expect-runtime-lifecycle-field "electron-shell:test:testContract.runnerKind:electron-provider-shell-smoke" `
-  --expect-runtime-lifecycle-field "electron-shell:test:testContract.runnerScript:scripts/run-eveelectron-provider-shell-smoke.ps1" `
+  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.requestBuilder:npm pack" `
+  --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.artifactPattern:gamecult-eve-electron-{version}.tgz" `
+  --expect-runtime-lifecycle-field "electron-shell:test:testContract.runnerKind:node-and-provider-live-smoke" `
+  --expect-runtime-lifecycle-field "electron-shell:test:testContract.runnerScript:npm test" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.captureKind:electron-window-png" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.targetId:electron-shell" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `
-  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requestBuilder:tools/eveelectron/eveelectron-capture-contract.mjs" `
-  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.advertisementPath:web/fixtures/aetheria.provider-advertisement.json" `
-  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requiredSurface:aetheria.daemon.game" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requestBuilder:pending" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.advertisementPath:provider-supplied" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requiredSurface:aetheria.game" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.0.providerId:eve.world-smoke" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
-  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.1.providerId:aetheria" `
-  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.1.surfaceId:aetheria.daemon.editor" `
   --expect-runtime-lifecycle-status tui:release:pending-tui-package `
   --expect-runtime-lifecycle-status tui:test:provider-shell-contract-skeleton `
   --expect-runtime-lifecycle-status tui:capture:cell-grid-json-capture `

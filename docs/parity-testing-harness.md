@@ -474,12 +474,11 @@ it without depending on Eve's source layout. The remaining blocker is
 owner-repo production of the same capture path, not absence of a cell-grid
 artifact.
 
-Electron semantic capture evidence follows the same evidence rule without
-pretending it is a packaged window PNG. `tools/eveelectron/eveelectron-capture-artifact.mjs`
-lowers the Aetheria world surface through `EveElectronShell` into
-`gamecult.eve.electron_shell_projection.v1` and writes
-`artifacts/eveelectron-capture/latest/electron-shell-projection.json`. The
-remaining blocker is packaged Electron window capture.
+Electron runtime evidence is consumed from the `EveElectron` owner repo.
+Eve core no longer manufactures a JSON shell projection and presents it as
+runtime capture evidence. Until EveElectron attaches real window PNGs for a
+generic provider and Aetheria, the capture contract reports
+`contract-artifact-missing` and remains visibly pending.
 
 Unity scene runtime evidence is now consumed from the `EveUnity` owner repo
 through the parity runtime's `sourceRoot`. Eve does not generate a substitute

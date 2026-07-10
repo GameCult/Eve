@@ -52,21 +52,9 @@ try {
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target EveElectron `
     --expect-split-target-status EveElectron:incubating `
-    --expect-split-target-proof "EveElectron:EveElectron split handoff is machine-readable" `
-    --expect-split-target-proof "EveElectron:EveElectron lifecycle contract is machine-readable" `
-    --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:aetheria:aetheria.daemon.game `
-    --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:eve.world-smoke:eve.world-smoke.surface `
-    --expect-split-target-blocker "EveElectron:runtime:electron-shell:status:pending" `
-    --expect-split-target-blocker-record EveElectron:runtime-status:electron-shell `
-    --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:current:exists:eve-electron-shell.mjs `
-    --expect-split-handoff-move EveElectron:electron-shell:electron-command-transport:current:exists:eve-electron-shell.mjs `
-    --expect-split-handoff-move EveElectron:electron-shell:electron-world-surface-lowering:current:exists:eve-electron-shell.mjs `
-    --expect-split-handoff-move EveElectron:electron-shell:electron-plugin-projection:current:exists:sai-vn-surface.json `
-    --expect-split-handoff-move EveElectron:electron-shell:electron-capture-lifecycle:current:exists:eveelectron-capture-contract.mjs `
-    --expect-split-handoff-move EveElectron:electron-shell:electron-shell-runtime:observed-provider:exists:Aetheria.Rts.Web/Electron `
-    --expect-split-handoff-move EveElectron:electron-shell:electron-command-transport:observed-provider:exists:Aetheria.Rts.Web/Client/app.ts `
-    --expect-split-handoff-move EveElectron:electron-shell:electron-world-surface-lowering:observed-provider:exists:Aetheria.Rts.Web/Client `
-    --expect-split-target-blocker "EveElectron:Electron shell runtime body graduates to EveElectron outside Aetheria product code" `
+    --expect-split-target-proof "EveElectron:EveElectron owner repository publishes the generic runtime package" `
+    --expect-split-target-proof "EveElectron:EveElectron owns secure window and preload lifecycle" `
+    --expect-split-target-blocker "EveElectron:Electron packaged window PNG capture artifacts are attached to conformance output" `
     --expect-split-target EveTui `
     --expect-split-target-status EveTui:incubating `
     --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `

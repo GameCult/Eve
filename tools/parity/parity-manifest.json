@@ -658,45 +658,43 @@
       "id": "EveElectron",
       "ownerRepo": "EveElectron",
       "repoRole": "runtime-target",
-      "status": "pending",
+      "status": "graduated-runtime-capture-pending",
       "runtimes": ["electron-shell"],
       "requiredRuntimeStatuses": ["active"],
       "requiredFeatures": ["providerAdvertisements", "surfaceTreeProjection", "embeddedDocuments"],
       "requiredPlugins": [],
       "proofs": [
         {
-          "description": "EveElectron split handoff is machine-readable.",
+          "description": "EveElectron owner repository publishes the generic runtime package.",
           "status": "passed",
           "evidencePaths": [
-            "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
-            "scripts/run-eveelectron-split-handoff-smoke.ps1",
-            "docs/eve-migration-roadmap.md",
-            "docs/parity-testing-harness.md"
+            "../EveElectron/package.json",
+            "../EveElectron/eve-runtime-capability.json",
+            "../EveElectron/src/index.mjs"
           ]
         },
         {
-          "description": "EveElectron lifecycle contract is machine-readable and smoke-checked.",
+          "description": "EveElectron owns secure window and preload lifecycle.",
           "status": "passed",
           "evidencePaths": [
-            "runtimes/incubating/eve-electron/eve-runtime-capability.json",
-            "scripts/run-eveelectron-lifecycle-smoke.ps1",
-            "scripts/run-eveelectron-provider-shell-smoke.ps1"
+            "../EveElectron/src/window-host.mjs",
+            "../EveElectron/src/eve-provider-preload.cjs",
+            "../EveElectron/test/window-host.test.mjs",
+            "../EveElectron/test/preload.test.cjs"
           ]
         },
         {
-          "description": "EveElectron provider-shell skeleton selects advertised surfaces, projects Eve surface trees, and emits Eve command intents.",
+          "description": "Aetheria consumes EveElectron for generic window and preload authority while retaining provider transport and daemon lifecycle.",
           "status": "passed",
           "evidencePaths": [
-            "runtimes/incubating/eve-electron/package.json",
-            "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
-            "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
-            "scripts/run-eveelectron-provider-shell-smoke.ps1"
+            "../Aetheria/Aetheria.Rts.Web/package.json",
+            "../Aetheria/Aetheria.Rts.Web/Electron/main.ts",
+            "../Aetheria/Aetheria.Rts.Web/Electron/preload.cjs",
+            "../Aetheria/Aetheria.Rts.Web/Client/app.ts"
           ]
         }
       ],
       "pendingProofs": [
-        "Electron shell runtime body graduates to EveElectron outside Aetheria product code.",
-        "Electron renders embedded Eve documents in a packaged Electron window.",
         "Electron packaged window PNG capture artifacts are attached to conformance output."
       ]
     },
@@ -750,19 +748,20 @@
     {
       "id": "electron-shell",
       "title": "Electron shell",
-      "kind": "pending",
+      "kind": "active",
       "ownerRepo": "EveElectron",
       "repoRole": "runtime-target",
       "splitTarget": "EveElectron",
-      "graduationTrigger": "Split when Electron has a provider-agnostic shell body, provider advertisement consumption, command transport, packaged app lifecycle, and capture evidence independent of Aetheria product code.",
+      "currentHostRepo": "EveElectron",
+      "sourceRoot": "../EveElectron",
+      "graduationTrigger": "Graduated: the runtime body and package are owned here.",
       "capabilityManifest": {
         "schemaPath": "schemas/gamecult.eve.runtime_capability.v1.schema.json",
-        "manifestPath": "runtimes/incubating/eve-electron/eve-runtime-capability.json"
+        "manifestPath": "eve-runtime-capability.json"
       },
-      "splitHandoffPath": "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
       "requiredFixtures": ["embedded-surface", "aetheria-world", "eve-world-smoke"],
       "pluginFixtures": ["sai-vn"],
-      "supportedFeatures": ["providerAdvertisements", "commandTransport", "surfaceTreeProjection", "embeddedDocuments", "pluginProjection"],
+      "supportedFeatures": ["providerAdvertisements", "commandTransport", "surfaceTreeProjection", "embeddedDocuments", "pluginProjection", "securePreloadBridge", "windowLifecycle"],
       "supportedPlugins": [
         {
           "pluginId": "sai.vn",
@@ -783,94 +782,51 @@
           "targetId": "electron-shell",
           "surfaceKinds": ["interactive-world", "interactive-world-editor"],
           "projectionKinds": ["provider-authored-world-surface", "provider-authored-world-editor-surface"],
-          "supportLevel": "electron-shell-surface-tree-command-surface",
+          "supportLevel": "provider-shell-surface-tree-command-surface",
           "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
           "evidencePaths": [
-            "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
-            "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
-            "web/fixtures/sai-vn-surface.json",
-            "web/fixtures/aetheria.provider-advertisement.json",
-            "web/fixtures/eve-world-smoke.provider-advertisement.json"
+            "src/eve-electron-shell.mjs",
+            "src/window-host.mjs",
+            "src/eve-provider-preload.cjs",
+            "test/shell.test.mjs",
+            "test/window-host.test.mjs",
+            "test/preload.test.cjs"
           ]
         }
       ],
       "expectedPaths": [
-        "runtimes/incubating/eve-electron/package.json",
-        "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
-        "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
-        "runtimes/incubating/eve-electron/eveelectron-split-handoff.json",
-        "runtimes/incubating/eve-electron/eve-runtime-capability.json",
-        "scripts/run-eveelectron-lifecycle-smoke.ps1",
-        "scripts/run-eveelectron-provider-shell-smoke.ps1",
-        "scripts/run-eveelectron-release-contract-smoke.ps1",
-        "scripts/run-eveelectron-capture-contract-smoke.ps1",
-        "scripts/run-eveelectron-capture-smoke.ps1",
-        "tools/eveelectron/eveelectron-release-contract.mjs",
-        "tools/eveelectron/eveelectron-release-contract.test.mjs",
-        "tools/eveelectron/eveelectron-capture-contract.mjs",
-        "tools/eveelectron/eveelectron-capture-contract.test.mjs",
-        "tools/eveelectron/eveelectron-capture-artifact.mjs",
-        "tools/eveelectron/eveelectron-capture-artifact.test.mjs"
+        "../EveElectron/package.json",
+        "../EveElectron/package-lock.json",
+        "../EveElectron/eve-runtime-capability.json",
+        "../EveElectron/src/eve-electron-shell.mjs",
+        "../EveElectron/src/window-host.mjs",
+        "../EveElectron/src/eve-provider-preload.cjs",
+        "../EveElectron/test/shell.test.mjs",
+        "../EveElectron/test/window-host.test.mjs",
+        "../EveElectron/test/preload.test.cjs"
       ],
       "expectedSourceSymbols": [
         {
-          "path": "runtimes/incubating/eve-electron/src/eve-electron-shell.mjs",
+          "path": "../EveElectron/src/eve-electron-shell.mjs",
           "contains": ["EveElectronShell", "selectSurface", "lowerSurface", "createCommandIntent", "normalizeSurfaceDocument", "buildShellNode", "buildPluginProjection", "normalizeEmbeddedDocuments", "embeddedDocuments", "shellElementKind", "sai.vn", "norn.graph", "tex.math", "sidecar-advertised-plugin-abi", "worldInteraction", "commandBoundary", "receiptSchema", "electron-shell"]
         },
         {
-          "path": "runtimes/incubating/eve-electron/test/eve-electron-shell.test.mjs",
-          "contains": ["selects the active advertised provider surface", "lowers provider surface trees into an Electron shell projection", "lowers Sai, Norn, and TeX sidecar plugin shells without owning semantics", "embeddedDocuments", "norn.map", "sai-vn-stage-shell", "norn-graph-shell", "tex-math-shell", "optional-nested", "rejects surface documents that do not match the advertised target", "command intents carry provider-advertised boundaries", "aetheria.daemon.commands", "aetheria.eve_command_acceptance_status.v1"]
+          "path": "../EveElectron/test/shell.test.mjs",
+          "contains": ["lowers a non-product interactive world", "fixture.world", "provider-authored-world-surface", "fixture.world.commands"]
         },
         {
-          "path": "tools/eveelectron/eveelectron-capture-contract.mjs",
-          "contains": ["buildElectronCaptureRequest", "gamecult.eve.runtime_capture_request.v1", "loweringTargets", "artifactPattern", "writeCaptureRequest"]
+          "path": "../EveElectron/src/window-host.mjs",
+          "contains": ["createEveElectronWindow", "registerEveWindowControls", "contextIsolation", "nodeIntegration", "setWindowOpenHandler"]
         },
         {
-          "path": "tools/eveelectron/eveelectron-capture-contract.test.mjs",
-          "contains": ["builds Electron shell capture request from provider advertisement", "builds Electron shell capture request from a declared generic world provider", "rejects capture request when the surface does not advertise Electron shell", "electron-shell", "aetheria.daemon.commands", "eve.world-smoke.commands"]
-        },
-        {
-          "path": "tools/eveelectron/eveelectron-capture-artifact.mjs",
-          "contains": ["buildElectronCaptureArtifact", "EveElectronShell", "gamecult.eve.electron_shell_projection.v1", "json-projection", "writeElectronCaptureArtifact", "request-output"]
-        },
-        {
-          "path": "tools/eveelectron/eveelectron-capture-artifact.test.mjs",
-          "contains": ["builds Electron shell projection capture artifact", "builds Electron shell projection capture artifact from a generic world provider", "gamecult.eve.electron_shell_projection.v1", "electron-shell-projection-json", "eve.world-smoke.commands"]
-        },
-        {
-          "path": "tools/eveelectron/eveelectron-release-contract.mjs",
-          "contains": ["buildElectronReleaseRequest", "gamecult.eve.runtime_release_request.v1", "eveelectron-release", "writeReleaseRequest"]
-        },
-        {
-          "path": "tools/eveelectron/eveelectron-release-contract.test.mjs",
-          "contains": ["builds EveElectron release request from package manifest", "eveelectron-v0.1.0", "artifacts/eveelectron-release/0.1.0/eve-electron-0.1.0.zip"]
+          "path": "../EveElectron/src/eve-provider-preload.cjs",
+          "contains": ["installEveProviderBridge", "providerAdvertisement", "surface", "document", "submitCommand", "windowControl"]
         }
       ],
       "capture": {
-        "status": "json-projection",
-        "note": "Electron attaches a provider-advertisement-backed gamecult.eve.electron_shell_projection.v1 JSON projection artifact; packaged window PNG capture remains an EveElectron split blocker.",
-        "artifacts": [
-          {
-            "kind": "json-projection",
-            "schema": "gamecult.eve.electron_shell_projection.v1",
-            "path": "artifacts/eveelectron-capture/latest/electron-shell-projection.json",
-            "runtimeId": "electron-shell",
-            "providerId": "aetheria",
-            "surfaceId": "aetheria.daemon.game",
-            "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
-            "requestPath": "artifacts/eveelectron-capture/latest/capture-request.json"
-          },
-          {
-            "kind": "json-projection",
-            "schema": "gamecult.eve.electron_shell_projection.v1",
-            "path": "artifacts/eveelectron-capture/latest/eve-world-smoke-electron-shell-projection.json",
-            "runtimeId": "electron-shell",
-            "providerId": "eve.world-smoke",
-            "surfaceId": "eve.world-smoke.surface",
-            "sourceSurfacePath": "web/fixtures/eve-world-smoke-surface.json",
-            "requestPath": "artifacts/eveelectron-capture/latest/eve-world-smoke-capture-request.json"
-          }
-        ]
+        "status": "pending-owner-window-capture",
+        "note": "EveElectron owns capture production; Eve core no longer manufactures runtime projection artifacts on its behalf.",
+        "artifacts": []
       }
     },
     {

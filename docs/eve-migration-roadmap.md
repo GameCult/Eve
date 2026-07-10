@@ -285,10 +285,22 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Graduate the generic Electron host/preload contract into EveElectron so
-   Aetheria retains only daemon lifecycle and provider transport configuration.
+1. Produce owner-repo Electron window captures for the generic world fixture
+   and Aetheria, then attach them to conformance from EveElectron.
 
 Recently cut:
+
+- `GameCult/EveElectron` now owns the generic Electron runtime package. Its
+  shell lowers provider-advertised surfaces and command intents; its window
+  host owns secure `BrowserWindow` construction and controls; its preload
+  helper exposes the narrow `window.eveProvider` transport. Aetheria consumes
+  those package APIs while retaining daemon launch, CultMesh decoding, asset
+  protocol, authored renderer assets, and product smoke assertions. The live
+  Stage 7C Electron daemon witness passes through that path. Eve parity reads
+  the owner capability manifest directly, and the incubating runtime body,
+  split handoff, release tools, capture tools, and duplicate lifecycle smokes
+  have been deleted from Eve. Owner-produced PNG attachment is the remaining
+  Electron deliverable.
 
 - Sai now owns a live runtime-independent Ink playback sidecar. One retained
   `stdio-ndjson` process opens a compiled story, applies a branch choice,
