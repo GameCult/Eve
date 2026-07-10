@@ -1,6 +1,6 @@
 param(
   [string] $CapabilityManifestPath = "runtimes\incubating\eve-tui\eve-runtime-capability.json",
-  [string] $AdvertisementPath = "web\fixtures\aetheria.provider-advertisement.json",
+  [string] $AdvertisementPath = "..\Aetheria\conformance\eve\aetheria.provider-advertisement.json",
   [string] $OutputPath = "artifacts\evetui-capture-contract\latest\capture-request.json",
   [string] $Stamp = "smoke"
 )

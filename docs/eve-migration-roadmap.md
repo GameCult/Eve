@@ -286,13 +286,17 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Move Aetheria product fixtures and scenarios behind an owner-repo
-   conformance pack while retaining only the minimal generic world oracle in
-   Eve.
-2. Split `EveConformance` when owner runtimes can consume its schema catalog,
+1. Split `EveConformance` when owner runtimes can consume its schema catalog,
    packs, witness attachments, and runner without Eve source-layout knowledge.
 
 Recently cut:
+
+- Aetheria now owns its Eve provider conformance pack: advertisement, daemon
+  game/editor surfaces, fixture metadata, command replay scenario, and Unity
+  asset manifest. Eve's fixture/provider ledger resolves that pack through an
+  owner `sourceRoot`; browser reference keeps only the generic world-smoke
+  oracle. The duplicated Aetheria fixtures, local browser entry, provider
+  handoff, and handoff smoke are deleted from Eve.
 
 - `GameCult/EveFlutter` now owns the Flutter app, Windows/Linux/Android/iOS
   platform glue, provider picker, command-intent lowering, tests, golden
@@ -772,7 +776,7 @@ Recently cut:
   remains a split blocker for EveUnity.
 - Unity UI Toolkit now also has schema-backed semantic projection evidence.
   `tools/eveunity/eveunity-uitoolkit-capture-artifact.mjs` lowers
-  `web/fixtures/aetheria-world-surface.json` into
+  Aetheria's owner-pack world surface into
   `gamecult.eve.unity_uitoolkit_projection.v1`, writes
   `artifacts/eveunity-uitoolkit-capture/latest/unity-uitoolkit-projection.json`,
   and exports it as `runtime.captureArtifacts[]`. The builder also proves Sai,
@@ -782,7 +786,7 @@ Recently cut:
   artifact.
 - Unity scene capture now has the same semantic artifact boundary as Electron
   without pretending it is a rendered Unity frame. `tools/eveunity/eveunity-scene-capture-artifact.mjs`
-  lowers `web/fixtures/aetheria-world-surface.json` into
+  lowers Aetheria's owner-pack world surface into
   `gamecult.eve.unity_scene_projection.v1`, writes
   `artifacts/eveunity-scene-capture/latest/unity-scene-projection.json`, and
   exports it as `runtime.captureArtifacts[]`. The builder also proves Sai,
@@ -899,7 +903,7 @@ Recently cut:
   `json-grid` artifact satisfies its contract but still needs EveTui ownership.
 - EveTui capture lifecycle now attaches a typed terminal-grid artifact instead
   of stopping at a request contract. `tools/evetui/evetui-capture-artifact.mjs`
-  lowers `web/fixtures/aetheria-world-surface.json` through `EveTuiShell`,
+  lowers Aetheria's owner-pack world surface through `EveTuiShell`,
   writes `artifacts/evetui-capture/latest/tui-grid.json`, and stores the paired
   capture request beside it. Parity validates the artifact schema, provider,
   surface, and linked request path, then exports it as `runtime.captureArtifacts[]`.
@@ -1033,16 +1037,9 @@ Recently cut:
   a duplicate Norn manifest or handoff document. The plugin currently owns
   `describe`, `validate`, `project`, and solver-backed `measure`; runtime
   lowering and provider command acceptance remain outside Norn.
-- Aetheria now has a provider handoff manifest at
-  `web/fixtures/aetheria-provider-handoff.json` and a verifier at
-  `scripts/run-aetheria-provider-handoff-smoke.ps1`. The handoff names the
-  advertisement, interactive world fixture, provider scenario, contract inputs,
-  forbidden imports, and external proofs that must move to Aetheria. The
-  conformance export carries the handoff path and
-  `providerHandoffMoveCoverage[]`, and the Aetheria consumer smoke asserts
-  provider advertisement, interactive world surface, conformance fixture, and
-  scenario move records so provider ownership does not depend on Eve's source
-  layout or parity manifest.
+- Aetheria crossed its provider handoff boundary. Its owner pack under
+  `Aetheria/conformance/eve` is validated in place and consumed directly by
+  Eve; no provider handoff document remains in the kernel.
 - EveUnity now has a machine-readable split handoff at
   `packages/org.gamecult.eve.unity-uitoolkit/eveunity-split-handoff.json` and
   a verifier at `scripts/run-eveunity-split-handoff-smoke.ps1`. The handoff

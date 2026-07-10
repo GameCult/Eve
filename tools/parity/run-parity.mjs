@@ -71,7 +71,7 @@ if (conformanceExportErrors.length > 0) process.exitCode = 1;
 
 async function evaluateFixture(fixture) {
   const startedAt = Date.now();
-  const state = await loadSurface(fixture.surface);
+  const state = await loadSurface(fixture, fixture.surface);
   const root = state.surface?.root;
   const nodes = root ? flattenSurface(root) : [];
   const kindCounts = countBy(nodes, node => node.kind || "unknown");
@@ -264,8 +264,8 @@ async function evaluateFixture(fixture) {
   };
 }
 
-async function loadSurface(surface) {
-  const absolutePath = path.join(repoRoot, surface.path);
+async function loadSurface(owner, surface) {
+  const absolutePath = resolveOwnedPath(owner, surface.path);
   const source = await readFile(absolutePath, "utf8");
   if (surface.transport === "local-eve-dsl") return compileEveDsl(source);
   if (surface.transport === "local-json") return JSON.parse(source);
@@ -795,7 +795,8 @@ async function evaluateFixtureMetadata(fixture) {
   const errors = [];
   if (!fixture.metadataPath) return { metadata: null, errors: ["metadataPath:missing"] };
 
-  errors.push(...await validateJsonDocument(
+  errors.push(...await validateOwnedJsonDocument(
+    fixture,
     manifest.schemas?.["gamecult.eve.conformance_fixture.v1"],
     fixture.metadataPath,
     {
@@ -805,7 +806,7 @@ async function evaluateFixtureMetadata(fixture) {
   ));
   if (errors.length) return { metadata: null, errors };
 
-  const metadata = await readJsonDocument(fixture.metadataPath);
+  const metadata = await readOwnedJsonDocument(fixture, fixture.metadataPath);
   if (metadata.pack !== fixture.pack) errors.push(`pack:expected ${fixture.pack} got ${metadata.pack}`);
   if (metadata.ownerRepo !== fixture.ownerRepo) errors.push(`ownerRepo:expected ${fixture.ownerRepo} got ${metadata.ownerRepo}`);
   if (metadata.surface?.transport !== fixture.surface?.transport) {
@@ -821,15 +822,15 @@ async function evaluateFixtureMetadata(fixture) {
 
 async function evaluateProvider(provider, fixtureResults, pluginResults) {
   const expectedPaths = provider.expectedPaths || [];
-  const missingPaths = expectedPaths.filter(candidate => !existsSync(path.join(repoRoot, candidate)));
+  const missingPaths = expectedPaths.filter(candidate => !existsSync(resolveOwnedPath(provider, candidate)));
   const requiredFixtures = provider.requiredFixtures || [];
   const missingRequiredFixtures = requiredFixtures.filter(id => !fixtureResults.some(fixture => fixture.id === id && fixture.status === "pass"));
   const missingIncubationFields = requiredIncubationFields(provider).filter(field => !provider[field]);
-  const advertisementErrors = await validateJsonDocument(provider.schemaPath, provider.advertisementPath, {
+  const advertisementErrors = await validateOwnedJsonDocument(provider, provider.schemaPath, provider.advertisementPath, {
     schema: "gamecult.eve.provider_advertisement.v1",
     providerId: provider.providerId,
   });
-  const advertisement = advertisementErrors.length ? null : await readJsonDocument(provider.advertisementPath);
+  const advertisement = advertisementErrors.length ? null : await readOwnedJsonDocument(provider, provider.advertisementPath);
   const schemaIds = advertisement ? extractProviderSchemaIds(advertisement.schemas || []) : [];
   const advertisedSchemaIds = advertisement ? [...new Set([
     ...schemaIds,
@@ -848,7 +849,7 @@ async function evaluateProvider(provider, fixtureResults, pluginResults) {
   const missingSurfaceKinds = validateProviderSurfaceKinds(provider, surfaceKinds);
   const missingCommands = (provider.expectedCommands || []).filter(command => !commandIds.includes(command));
   const scenarioErrors = await validateProviderScenario(provider, advertisement, fixtureResults, advertisedSchemaIds, surfaceIds, commandIds);
-  const scenario = scenarioErrors.length || !provider.scenarioPath ? null : await readJsonDocument(provider.scenarioPath);
+  const scenario = scenarioErrors.length || !provider.scenarioPath ? null : await readOwnedJsonDocument(provider, provider.scenarioPath);
   const handoffErrors = await validateProviderHandoff(provider);
   const status = missingPaths.length
     ? "missing-body"
@@ -1027,10 +1028,44 @@ async function readJsonDocument(documentPath) {
   return JSON.parse(await readFile(path.join(repoRoot, documentPath), "utf8"));
 }
 
+function resolveOwnedPath(owner, candidate) {
+  return path.resolve(repoRoot, owner?.sourceRoot || ".", candidate);
+}
+
+async function readOwnedJsonDocument(owner, documentPath) {
+  return JSON.parse(await readFile(resolveOwnedPath(owner, documentPath), "utf8"));
+}
+
+async function validateOwnedJsonDocument(owner, schemaPath, documentPath, expected = {}) {
+  const errors = [];
+  if (!schemaPath) errors.push("schemaPath:missing");
+  if (!documentPath) errors.push("documentPath:missing");
+  if (errors.length) return errors;
+
+  const absoluteSchemaPath = path.join(repoRoot, schemaPath);
+  const absoluteDocumentPath = resolveOwnedPath(owner, documentPath);
+  if (!existsSync(absoluteSchemaPath)) errors.push(`${schemaPath}:missing`);
+  if (!existsSync(absoluteDocumentPath)) errors.push(`${documentPath}:missing`);
+  if (errors.length) return errors;
+
+  try {
+    const schema = JSON.parse(await readFile(absoluteSchemaPath, "utf8"));
+    const document = JSON.parse(await readFile(absoluteDocumentPath, "utf8"));
+    errors.push(...validateSchemaSubset(schema, document));
+    for (const [key, value] of Object.entries(expected)) {
+      if (document[key] !== value) errors.push(`${documentPath}:${key}:expected ${value} got ${document[key]}`);
+    }
+  } catch (error) {
+    errors.push(`${documentPath}:invalid-json:${error instanceof Error ? error.message : String(error)}`);
+  }
+  return errors;
+}
+
 async function validateProviderScenario(provider, advertisement, fixtureResults, advertisedSchemaIds, surfaceIds, commandIds) {
   if (!provider.scenarioPath) return [];
 
-  const errors = await validateJsonDocument(
+  const errors = await validateOwnedJsonDocument(
+    provider,
     manifest.schemas?.["gamecult.eve.provider_scenario.v1"],
     provider.scenarioPath,
     {
@@ -1041,7 +1076,7 @@ async function validateProviderScenario(provider, advertisement, fixtureResults,
   if (errors.length) return errors;
 
   try {
-    const scenario = await readJsonDocument(provider.scenarioPath);
+    const scenario = await readOwnedJsonDocument(provider, provider.scenarioPath);
     if (scenario.ownerRepo !== provider.ownerRepo) {
       errors.push(`${provider.scenarioPath}:ownerRepo:expected ${provider.ownerRepo} got ${scenario.ownerRepo}`);
     }

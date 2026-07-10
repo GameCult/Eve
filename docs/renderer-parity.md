@@ -47,8 +47,8 @@ provider picker:
 
 - `Repixelizer`: loads `web/fixtures/repixelizer.provider-advertisement.json`
   and `web/fixtures/repixelizer.eve-surface.json`.
-- `Aetheria`: loads `web/fixtures/aetheria.provider-advertisement.json`
-  and `web/fixtures/aetheria-world-surface.json`.
+- `Aetheria`: consumes the provider-owned advertisement and world surface from
+  `Aetheria/conformance/eve`.
 - `Sai VN Surface`: loads `web/fixtures/sai-vn.provider-advertisement.json`
   and `web/fixtures/sai-vn-surface.json`.
 - `Fensalir Direct2D`: loads

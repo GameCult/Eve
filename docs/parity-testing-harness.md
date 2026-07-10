@@ -317,17 +317,16 @@ conformance smoke asserts the attached owner witnesses,
 runtime boundary claims, and exported sidecar fields from the conformance
 export.
 
-Aetheria provider handoff smoke:
+Aetheria provider-pack smoke:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\run-aetheria-provider-handoff-smoke.ps1
+node E:\Projects\Aetheria\scripts\verify-eve-conformance-pack.mjs
 ```
 
-That script validates `web/fixtures/aetheria-provider-handoff.json` against the
-provider advertisement and scenario. The handoff names the advertisement,
-interactive world surface fixture, provider scenario, Eve contracts, forbidden
-imports, and external proofs that must become Aetheria-owned before the
-provider pack leaves Eve incubation.
+That owner script validates Aetheria's advertisement, interactive world
+surface, fixture metadata, provider scenario, and asset manifest. Eve consumes
+those documents through the provider entry's `sourceRoot`; it does not keep a
+second product fixture corpus.
 
 EveFlutter consumer smoke:
 

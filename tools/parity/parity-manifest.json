@@ -211,11 +211,12 @@
       "title": "Aetheria Interactive World",
       "pack": "provider",
       "ownerRepo": "Aetheria",
+      "sourceRoot": "../Aetheria",
       "surface": {
         "transport": "local-json",
-        "path": "web/fixtures/aetheria-world-surface.json"
+        "path": "conformance/eve/aetheria-world-surface.json"
       },
-      "metadataPath": "web/fixtures/aetheria-world-surface.conformance.json",
+      "metadataPath": "conformance/eve/aetheria-world-surface.conformance.json",
       "expect": {
         "providerId": "aetheria",
         "componentKinds": ["surface", "card", "text", "metric", "partition", "field.surface2d", "control.button"],
@@ -385,11 +386,11 @@
       "kind": "game.runtime",
       "ownerRepo": "Aetheria",
       "repoRole": "provider-external",
+      "sourceRoot": "../Aetheria",
       "graduationTrigger": "Aetheria owns RTS/ARPG world surfaces, generated level state, assets, command receipts, and scenario conformance; Eve keeps contract fixtures only.",
       "schemaPath": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
-      "advertisementPath": "web/fixtures/aetheria.provider-advertisement.json",
-      "scenarioPath": "web/fixtures/aetheria-world-scenario.json",
-      "handoffPath": "web/fixtures/aetheria-provider-handoff.json",
+      "advertisementPath": "conformance/eve/aetheria.provider-advertisement.json",
+      "scenarioPath": "conformance/eve/aetheria-world-scenario.json",
       "requiredFixtures": ["aetheria-world"],
       "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "gamecult.eve.command_invocation.v1", "gamecult.eve.unity_playable_world_asset_manifest.v1", "aetheria.runtime.daemon.frame.v1"],
       "expectedSurfaces": ["aetheria.daemon.game", "aetheria.daemon.editor"],
@@ -399,9 +400,9 @@
       },
       "expectedCommands": ["aetheria.daemon.commands"],
       "expectedPaths": [
-        "web/fixtures/aetheria-world-scenario.json",
-        "web/fixtures/aetheria-provider-handoff.json",
-        "scripts/run-aetheria-provider-handoff-smoke.ps1"
+        "conformance/eve/provider-pack.json",
+        "conformance/eve/aetheria-world-scenario.json",
+        "scripts/verify-eve-conformance-pack.mjs"
       ]
     },
     {
@@ -840,7 +841,7 @@
             "runtimeId": "electron-shell",
             "providerId": "aetheria",
             "surfaceId": "aetheria.daemon.game",
-            "sourceSurfacePath": "../Eve/web/fixtures/aetheria-world-surface.json",
+            "sourceSurfacePath": "../Aetheria/conformance/eve/aetheria-world-surface.json",
             "requestPath": "artifacts/capture/aetheria-world/runtime-witness.json"
           }
         ]
@@ -889,7 +890,7 @@
             "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
             "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
             "web/fixtures/sai-vn-surface.json",
-            "web/fixtures/aetheria.provider-advertisement.json",
+            "../Aetheria/conformance/eve/aetheria.provider-advertisement.json",
             "web/fixtures/eve-world-smoke.provider-advertisement.json"
           ]
         }
@@ -957,7 +958,7 @@
             "path": "artifacts/evetui-capture/latest/tui-grid.json",
             "providerId": "aetheria",
             "surfaceId": "aetheria.daemon.game",
-            "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
+            "sourceSurfacePath": "../Aetheria/conformance/eve/aetheria-world-surface.json",
             "requestPath": "artifacts/evetui-capture/latest/capture-request.json"
           },
           {
@@ -1157,7 +1158,7 @@
             "targetId": "unity-scene",
             "requestSchema": "gamecult.eve.runtime_capture_request.v1",
             "requestBuilder": "scripts/build-capture-request.ps1",
-            "advertisementPath": "GameCult/Aetheria:web/fixtures/aetheria.provider-advertisement.json",
+            "advertisementPath": "Aetheria:conformance/eve/aetheria.provider-advertisement.json",
             "captureKind": "unity-scene-frame-png",
             "artifactKind": "png",
             "artifactPattern": "artifacts/eveunity-scene-capture/{stamp}/unity-scene.png",
@@ -1197,9 +1198,8 @@
       "supportedFeatures": ["embeddedDocuments", "providerAdvertisements", "stateBindings", "styleTokens", "authorityWitnesses"],
       "localProviderCatalog": {
         "path": "web/local-provider-catalog.json",
-        "requiredProviders": ["aetheria", "eve.world-smoke", "repixelizer", "gamecult.home.vn"],
+        "requiredProviders": ["eve.world-smoke", "repixelizer", "gamecult.home.vn"],
         "requiredAdvertisements": [
-          "web/fixtures/aetheria.provider-advertisement.json",
           "web/fixtures/eve-world-smoke.provider-advertisement.json",
           "web/fixtures/repixelizer.provider-advertisement.json",
           "web/fixtures/sai-vn.provider-advertisement.json"
@@ -1229,7 +1229,6 @@
           "evidencePaths": [
             "web/surface.js",
             "packages/eve-browser-lowering/src/index.ts",
-            "web/fixtures/aetheria.provider-advertisement.json",
             "web/fixtures/eve-world-smoke.provider-advertisement.json"
           ]
         }
@@ -1245,11 +1244,11 @@
         },
         {
           "path": "web/provider-advertisements.test.mjs",
-          "contains": ["preserves Sai required and optional nested plugin requirements from advertisement", "merges local fixture transport with advertised Aetheria world interaction", "loads Aetheria Unity playable world asset manifest as provider-authored data", "gamecult.eve.unity_playable_world_asset_manifest.v1", "merges generic world fixture transport with advertised world interaction", "requiresPlugins", "worldInteraction", "optional-nested", "aetheria.daemon.commands", "eve.world-smoke.commands"]
+          "contains": ["preserves Sai required and optional nested plugin requirements from advertisement", "merges generic world fixture transport with advertised world interaction", "requiresPlugins", "worldInteraction", "optional-nested", "eve.world-smoke.commands"]
         },
         {
           "path": "web/local-provider-catalog.json",
-          "contains": ["aetheria.provider-advertisement.json", "eve-world-smoke.provider-advertisement.json", "repixelizer.provider-advertisement.json", "sai-vn.provider-advertisement.json"]
+          "contains": ["eve-world-smoke.provider-advertisement.json", "repixelizer.provider-advertisement.json", "sai-vn.provider-advertisement.json"]
         },
         {
           "path": "packages/eve-browser-lowering/src/index.ts",
@@ -1604,7 +1603,7 @@
           "evidencePaths": [
             "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs",
             "packages/org.gamecult.eve.unity-uitoolkit/Tests/Editor/EveUiToolkitSurfaceLowererTests.cs",
-            "../Eve/web/fixtures/aetheria.provider-advertisement.json",
+            "../Aetheria/conformance/eve/aetheria.provider-advertisement.json",
             "../Eve/web/fixtures/eve-world-smoke.provider-advertisement.json"
           ]
         }
@@ -1784,7 +1783,7 @@
             "targetId": "unity-uitoolkit",
             "requestSchema": "gamecult.eve.runtime_capture_request.v1",
             "requestBuilder": "scripts/build-uitoolkit-capture-request.ps1",
-            "advertisementPath": "web/fixtures/aetheria.provider-advertisement.json",
+            "advertisementPath": "../Aetheria/conformance/eve/aetheria.provider-advertisement.json",
             "captureKind": "unity-editor-or-batchmode-png",
             "artifactKind": "png",
             "artifactPattern": "artifacts/eveunity-uitoolkit-capture/{stamp}/unity-uitoolkit.png",

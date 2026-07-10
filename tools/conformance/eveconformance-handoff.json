@@ -67,7 +67,6 @@
       "currentPaths": [
         "web/fixtures/cultui-slider-inspector.conformance.json",
         "web/fixtures/sai-vn-surface.conformance.json",
-        "web/fixtures/aetheria-world-surface.conformance.json",
         "web/fixtures/fensalir-direct2d-surface.conformance.json",
         "web/fixtures/cultui-embedded-surface.conformance.json"
       ],

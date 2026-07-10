@@ -65,7 +65,7 @@
         "runtimes/incubating/eve-tui/src/eve-tui-shell.mjs",
         "runtimes/incubating/eve-tui/test/eve-tui-shell.test.mjs",
         "web/fixtures/sai-vn-surface.json",
-        "web/fixtures/aetheria.provider-advertisement.json",
+        "../Aetheria/conformance/eve/aetheria.provider-advertisement.json",
         "web/fixtures/eve-world-smoke.provider-advertisement.json"
       ]
     }
@@ -142,7 +142,7 @@
         "targetId": "tui",
         "requestSchema": "gamecult.eve.runtime_capture_request.v1",
         "requestBuilder": "tools/evetui/evetui-capture-contract.mjs",
-        "advertisementPath": "web/fixtures/aetheria.provider-advertisement.json",
+        "advertisementPath": "../Aetheria/conformance/eve/aetheria.provider-advertisement.json",
         "captureKind": "terminal-cell-grid",
         "artifactKind": "json-grid",
         "artifactPattern": "artifacts/evetui-capture/{stamp}/tui-grid.json",
@@ -187,7 +187,7 @@
         "path": "artifacts/evetui-capture/latest/tui-grid.json",
         "providerId": "aetheria",
         "surfaceId": "aetheria.daemon.game",
-        "sourceSurfacePath": "web/fixtures/aetheria-world-surface.json",
+        "sourceSurfacePath": "../Aetheria/conformance/eve/aetheria-world-surface.json",
         "requestPath": "artifacts/evetui-capture/latest/capture-request.json"
       }
     ]

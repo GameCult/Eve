@@ -3,19 +3,6 @@
   "purpose": "Browser reference fallback catalog for local provider advertisements and fixture surfaces. This is not live discovery truth.",
   "providers": [
     {
-      "providerId": "aetheria",
-      "title": "Aetheria",
-      "kind": "game.runtime",
-      "advertisement": "./fixtures/aetheria.provider-advertisement.json",
-      "surfaces": [
-        {
-          "transport": "local-json",
-          "surfaceId": "aetheria.daemon.game",
-          "url": "./fixtures/aetheria-world-surface.json"
-        }
-      ]
-    },
-    {
       "providerId": "eve.world-smoke",
       "title": "Generic Interactive World Smoke",
       "kind": "contract.fixture",

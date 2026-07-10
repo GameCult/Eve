@@ -225,7 +225,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.targetId:unity-uitoolkit" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requestBuilder:scripts/build-uitoolkit-capture-request.ps1" `
-  --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.advertisementPath:web/fixtures/aetheria.provider-advertisement.json" `
+  --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.advertisementPath:../Aetheria/conformance/eve/aetheria.provider-advertisement.json" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.conformanceAttachment:runtime.captureArtifacts[]" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredProvider:aetheria" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.requiredSurface:aetheria.daemon.game" `
@@ -258,7 +258,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.targetId:unity-scene" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requestBuilder:scripts/build-capture-request.ps1" `
-  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.advertisementPath:GameCult/Aetheria:web/fixtures/aetheria.provider-advertisement.json" `
+  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.advertisementPath:Aetheria:conformance/eve/aetheria.provider-advertisement.json" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.additionalProviderSurfaces.0.providerId:eve.world-smoke" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
@@ -299,7 +299,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.targetId:tui" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.requestBuilder:tools/evetui/evetui-capture-contract.mjs" `
-  --expect-runtime-lifecycle-field "tui:capture:captureContract.advertisementPath:web/fixtures/aetheria.provider-advertisement.json" `
+  --expect-runtime-lifecycle-field "tui:capture:captureContract.advertisementPath:../Aetheria/conformance/eve/aetheria.provider-advertisement.json" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.additionalProviderSurfaces.0.providerId:eve.world-smoke" `
   --expect-runtime-lifecycle-field "tui:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `

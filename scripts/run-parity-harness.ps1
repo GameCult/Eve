@@ -50,7 +50,6 @@ try {
     "E:\Projects\EvePlugins\artifacts\tex-math\runtime-witness.json" `
     ".\artifacts\conformance\latest"
   & (Join-Path $PSScriptRoot "run-eveconformance-handoff-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-aetheria-provider-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveelectron-owner-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-split-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-lifecycle-smoke.ps1")

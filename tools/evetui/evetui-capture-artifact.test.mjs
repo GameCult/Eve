@@ -3,9 +3,9 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { buildTuiCaptureArtifact } from "./evetui-capture-artifact.mjs";
 
-const advertisement = JSON.parse(readFileSync(new URL("../../web/fixtures/aetheria.provider-advertisement.json", import.meta.url), "utf8"));
+const advertisement = JSON.parse(readFileSync(new URL("../../../Aetheria/conformance/eve/aetheria.provider-advertisement.json", import.meta.url), "utf8"));
 const capabilityManifest = JSON.parse(readFileSync(new URL("../../runtimes/incubating/eve-tui/eve-runtime-capability.json", import.meta.url), "utf8"));
-const surfaceDocument = JSON.parse(readFileSync(new URL("../../web/fixtures/aetheria-world-surface.json", import.meta.url), "utf8"));
+const surfaceDocument = JSON.parse(readFileSync(new URL("../../../Aetheria/conformance/eve/aetheria-world-surface.json", import.meta.url), "utf8"));
 const worldSmokeAdvertisement = JSON.parse(readFileSync(new URL("../../web/fixtures/eve-world-smoke.provider-advertisement.json", import.meta.url), "utf8"));
 const worldSmokeSurfaceDocument = JSON.parse(readFileSync(new URL("../../web/fixtures/eve-world-smoke-surface.json", import.meta.url), "utf8"));
 
@@ -14,7 +14,7 @@ test("builds TUI JSON grid capture artifact from provider advertisement and surf
     advertisement,
     capabilityManifest,
     surfaceDocument,
-    advertisementPath: "web/fixtures/aetheria.provider-advertisement.json",
+    advertisementPath: "conformance/eve/aetheria.provider-advertisement.json",
     capabilityManifestPath: "runtimes/incubating/eve-tui/eve-runtime-capability.json",
     stamp: "smoke",
     width: 72,

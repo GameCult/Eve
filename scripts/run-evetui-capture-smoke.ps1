@@ -1,7 +1,7 @@
 param(
   [string] $CapabilityManifestPath = "runtimes\incubating\eve-tui\eve-runtime-capability.json",
-  [string] $AdvertisementPath = "web\fixtures\aetheria.provider-advertisement.json",
-  [string] $SurfacePath = "web\fixtures\aetheria-world-surface.json",
+  [string] $AdvertisementPath = "..\Aetheria\conformance\eve\aetheria.provider-advertisement.json",
+  [string] $SurfacePath = "..\Aetheria\conformance\eve\aetheria-world-surface.json",
   [string] $OutputPath = "artifacts\evetui-capture\latest\tui-grid.json",
   [string] $RequestOutputPath = "artifacts\evetui-capture\latest\capture-request.json",
   [string] $Stamp = "latest",

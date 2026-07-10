@@ -151,7 +151,7 @@ function advertisement() {
       {
         surfaceId: "aetheria.daemon.game",
         transport: "local-json",
-        url: "web/fixtures/aetheria-world-surface.json",
+        url: "conformance/eve/aetheria-world-surface.json",
         worldInteraction: {
           projectionKind: "provider-authored-world-surface",
           commandBoundary: "aetheria.daemon.commands",
@@ -162,7 +162,7 @@ function advertisement() {
       {
         surfaceId: "aetheria.daemon.editor",
         transport: "local-json",
-        url: "web/fixtures/aetheria-world-surface.json",
+        url: "conformance/eve/aetheria-world-surface.json",
         worldInteraction: {
           projectionKind: "provider-authored-world-editor-surface",
           commandBoundary: "aetheria.daemon.commands",

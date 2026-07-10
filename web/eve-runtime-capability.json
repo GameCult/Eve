@@ -58,7 +58,6 @@
       "evidencePaths": [
         "web/surface.js",
         "packages/eve-browser-lowering/src/index.ts",
-        "web/fixtures/aetheria.provider-advertisement.json",
         "web/fixtures/eve-world-smoke.provider-advertisement.json"
       ]
     }

@@ -4,36 +4,8 @@ import test from "node:test";
 import { findProviderCatalogEntry, mergeProviderAdvertisement } from "./provider-advertisements.mjs";
 
 const catalog = JSON.parse(readFileSync(new URL("./local-provider-catalog.json", import.meta.url), "utf8"));
-const aetheriaAdvertisement = JSON.parse(readFileSync(new URL("./fixtures/aetheria.provider-advertisement.json", import.meta.url), "utf8"));
-const aetheriaUnityAssetManifest = JSON.parse(readFileSync(new URL("./fixtures/aetheria.unity-playable-world-asset-manifest.json", import.meta.url), "utf8"));
 const worldSmokeAdvertisement = JSON.parse(readFileSync(new URL("./fixtures/eve-world-smoke.provider-advertisement.json", import.meta.url), "utf8"));
 const saiAdvertisement = JSON.parse(readFileSync(new URL("./fixtures/sai-vn.provider-advertisement.json", import.meta.url), "utf8"));
-
-test("merges local fixture transport with advertised Aetheria world interaction", () => {
-  const catalogProvider = findProviderCatalogEntry(catalog, "aetheria");
-  const provider = mergeProviderAdvertisement(catalogProvider, aetheriaAdvertisement);
-  const surface = provider.surfaces.find(candidate => candidate.surfaceId === "aetheria.daemon.game");
-
-  assert.equal(surface.transport, "local-json");
-  assert.equal(surface.url, "./fixtures/aetheria-world-surface.json");
-  assert.equal(surface.surfaceKind, "interactive-world");
-  assert.equal(surface.worldInteraction.projectionKind, "provider-authored-world-surface");
-  assert.equal(surface.worldInteraction.commandBoundary, "aetheria.daemon.commands");
-  assert.equal(surface.worldInteraction.receiptSchema, "aetheria.eve_command_acceptance_status.v1");
-  assert.equal(provider.localAdvertisement.providerId, "aetheria");
-  assert.ok(aetheriaAdvertisement.schemas.includes("gamecult.eve.unity_playable_world_asset_manifest.v1"));
-});
-
-test("loads Aetheria Unity playable world asset manifest as provider-authored data", () => {
-  assert.equal(aetheriaUnityAssetManifest.schema, "gamecult.eve.unity_playable_world_asset_manifest.v1");
-  assert.equal(aetheriaUnityAssetManifest.providerId, "aetheria");
-  assert.equal(aetheriaUnityAssetManifest.manifestRef, "cultmesh://aetheria/assets/manifest");
-
-  const byKind = new Map(aetheriaUnityAssetManifest.entries.map(entry => [entry.entityKind, entry]));
-  assert.equal(byKind.get("player").assetRef, "cultmesh://aetheria/assets/map/entity/player");
-  assert.equal(byKind.get("player").resourcesPath, "resources://Aetheria/Entities/Vanguard.prefab");
-  assert.equal(byKind.get("enemy").prefabKey, "aetheria.raider");
-});
 
 test("merges generic world fixture transport with advertised world interaction", () => {
   const catalogProvider = findProviderCatalogEntry(catalog, "eve.world-smoke");
