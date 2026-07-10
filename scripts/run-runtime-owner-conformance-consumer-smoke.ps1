@@ -164,7 +164,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-status unity-uitoolkit:json-projection `
   --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:eve.world-smoke:eve.world-smoke.surface `
-  --expect-runtime-capture-status unity-scene:pending-unity-frame-capture `
+  --expect-runtime-capture-status unity-scene:partial-world-smoke-playmode-capture `
   --expect-runtime-capture-status electron-shell:json-projection `
   --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:eve.world-smoke:eve.world-smoke.surface `
@@ -173,7 +173,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:eve.world-smoke:eve.world-smoke.surface `
   --expect-runtime-capture-status direct2d:missing `
   --expect-runtime-capture-probe unity-uitoolkit:semantic-artifact-present-capture-pending:png:EveUnity `
-  --expect-runtime-capture-probe unity-scene:contract-artifact-missing:png:EveUnity `
+  --expect-runtime-capture-probe unity-scene:control-artifact-present-product-capture-pending:png:EveUnity `
   --expect-runtime-capture-probe electron-shell:semantic-artifact-present-capture-pending:png:EveElectron `
   --expect-runtime-capture-probe tui:contract-artifact-present:json-grid:EveTui `
   --expect-screenshot-metric web:embedded-surface:structure:pass `
@@ -236,10 +236,10 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.surfaceId:aetheria.daemon.editor" `
   --expect-runtime-lifecycle-status unity-scene:release:owner-repo-upm-artifact `
   --expect-runtime-lifecycle-status unity-scene:test:unity-scene-editmode-batchmode `
-  --expect-runtime-lifecycle-status unity-scene:capture:pending-unity-frame-capture `
+  --expect-runtime-lifecycle-status unity-scene:capture:partial-world-smoke-playmode-capture `
   --expect-runtime-lifecycle-pending "unity-scene:release:Cut and publish the first tagged EveUnity package release" `
   --expect-runtime-lifecycle-pending "unity-scene:test:Move the Aetheria consumer scenario into a provider-owned conformance pack" `
-  --expect-runtime-lifecycle-pending "unity-scene:capture:Unity scene screenshot or frame-capture PNG artifact" `
+  --expect-runtime-lifecycle-pending "unity-scene:capture:Attach the Aetheria daemon PlayMode PNG" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.packageName:org.gamecult.eve.unity-scene" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactKind:upm-package" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.tagPattern:eveunity-scene-v{version}" `

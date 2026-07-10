@@ -285,14 +285,22 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Add a real Unity PlayMode PNG/frame capture in EveUnity for Aetheria's
-   daemon-published game surface and the generic world-smoke provider.
-2. Replace Aetheria's local state-file polling adapter with a generic live
-   CultMesh/CultNet provider transport when that transport contract is ready;
-   Aetheria should then supply only provider advertisement and credentials.
+1. Run the same EveUnity-owned PlayMode client against Aetheria's separately
+   running daemon and attach the Aetheria world PNG plus command/receipt proof.
+2. Graduate the generic Unity transport and capture contracts only after the
+   product witness proves that no Aetheria authority leaked into EveUnity.
 
 Recently cut:
 
+- EveUnity now owns a minimal clean `TestProject` that installs CultLib, Eve
+  surface contracts, and the EveUnity scene package without Aetheria code. Its
+  generic `eve.world-smoke` PlayMode test lowers a world, routes a command
+  intent, and emits a real 640x360 PNG. Conformance records this as a valid
+  control artifact while keeping the Aetheria daemon product capture blocked.
+- CultLib now owns generation of `org.gamecult.cultlib`, the explicit managed
+  assembly closure consumed by clean Unity clients. Eve declares CultLib as a
+  surface-package dependency; provider repos no longer need to vendor Brokkr's
+  private DLL layout to compile the generic client.
 - Eve no longer contains `runtimes/incubating/eve-unity-scene`. Runtime
   capability, source-symbol, lifecycle, and package evidence now resolve from
   `../EveUnity` through the parity runtime's `sourceRoot`. Eve-local scene

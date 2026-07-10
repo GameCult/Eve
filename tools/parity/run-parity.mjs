@@ -320,7 +320,7 @@ async function evaluateRuntime(runtime, fixtureResults) {
   const lifecycleManifestDocument = await readRuntimeLifecycleManifestDocument(runtime);
   const lifecycle = runtime.lifecycle || capabilityManifestDocument?.lifecycle || readLifecycleStages(lifecycleManifestDocument);
   const capture = runtime.capture || capabilityManifestDocument?.capture || null;
-  const captureArtifactErrors = validateRuntimeCaptureArtifacts(capture);
+  const captureArtifactErrors = validateRuntimeCaptureArtifacts(runtime, capture);
   const lifecycleErrors = await validateRuntimeLifecycle(runtime, lifecycle, lifecycleManifestDocument);
   const splitHandoffPath = await readRuntimeSplitHandoffPath(runtime);
   const splitHandoffErrors = await validateRuntimeSplitHandoff(runtime, splitHandoffPath);
@@ -2673,7 +2673,11 @@ function buildRuntimeCaptureProbeRecord(runtime) {
   const currentArtifactKind = artifact.kind || "";
   const hasContract = Boolean(contractArtifactKind || contract.captureKind || contract.requestSchema);
   const artifactPresent = Boolean(currentArtifactKind && artifact.path);
-  const contractArtifactPresent = hasContract && artifactPresent && currentArtifactKind === contractArtifactKind && !errors.length;
+  const providerMatches = !contract.requiredProvider || artifact.providerId === contract.requiredProvider;
+  const surfaceMatches = !contract.requiredSurface || artifact.surfaceId === contract.requiredSurface;
+  const contractTargetMatches = providerMatches && surfaceMatches;
+  const contractArtifactPresent = hasContract && artifactPresent && contractTargetMatches && currentArtifactKind === contractArtifactKind && !errors.length;
+  const controlArtifactPresent = hasContract && artifactPresent && !contractTargetMatches && currentArtifactKind === contractArtifactKind && !errors.length;
   const semanticArtifactOnly = hasContract && artifactPresent && currentArtifactKind !== contractArtifactKind && !errors.length;
 
   let status = "missing-capture-contract";
@@ -2683,6 +2687,10 @@ function buildRuntimeCaptureProbeRecord(runtime) {
     status = "contract-artifact-present";
     severity = "info";
     detail = "Runtime capture artifact satisfies the lifecycle capture contract.";
+  } else if (controlArtifactPresent) {
+    status = "control-artifact-present-product-capture-pending";
+    severity = "blocker";
+    detail = `Runtime publishes a ${currentArtifactKind} control artifact for ${artifact.providerId || "another provider"}; ${contract.requiredProvider || "the required provider"} product capture remains owner-repo work.`;
   } else if (semanticArtifactOnly) {
     status = "semantic-artifact-present-capture-pending";
     severity = contractArtifactKind === "png" ? "blocker" : "gap";
@@ -2944,7 +2952,7 @@ function readRuntimeLayoutProbe(runtime, fixtureId) {
   return { config, document, errors };
 }
 
-function validateRuntimeCaptureArtifacts(capture) {
+function validateRuntimeCaptureArtifacts(runtime, capture) {
   const artifacts = Array.isArray(capture?.artifacts) ? capture.artifacts : [];
   const errors = [];
   for (const artifact of artifacts) {
@@ -2953,9 +2961,12 @@ function validateRuntimeCaptureArtifacts(capture) {
       errors.push("artifact.path:missing");
       continue;
     }
-    const absoluteArtifactPath = path.join(repoRoot, artifactPath);
+    const absoluteArtifactPath = resolveRuntimeOwnedPath(runtime, artifactPath);
     if (!existsSync(absoluteArtifactPath)) {
       errors.push(`${artifactPath}:missing`);
+      continue;
+    }
+    if (artifact.kind === "png") {
       continue;
     }
     let document;
@@ -2984,7 +2995,7 @@ function validateRuntimeCaptureArtifacts(capture) {
       }
     }
     for (const linkedPath of [artifact.sourceSurfacePath, artifact.requestPath].filter(Boolean)) {
-      if (!existsSync(path.join(repoRoot, linkedPath))) {
+      if (!existsSync(resolveRuntimeOwnedPath(runtime, linkedPath))) {
         errors.push(`${artifactPath}:linked-path:${linkedPath}:missing`);
       }
     }

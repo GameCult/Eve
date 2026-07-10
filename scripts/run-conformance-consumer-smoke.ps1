@@ -101,7 +101,7 @@ try {
     --expect-screenshot-metric web:eve-world-smoke:bounding-boxes:pass `
     --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
     --expect-runtime-capture-probe unity-uitoolkit:semantic-artifact-present-capture-pending:png:EveUnity `
-    --expect-runtime-capture-probe unity-scene:contract-artifact-missing:png:EveUnity `
+    --expect-runtime-capture-probe unity-scene:control-artifact-present-product-capture-pending:png:EveUnity `
     --expect-runtime-capture-probe electron-shell:semantic-artifact-present-capture-pending:png:EveElectron `
     --expect-runtime-capture-probe tui:contract-artifact-present:json-grid:EveTui `
     --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release" `
