@@ -57,8 +57,7 @@
         "scripts/run-plugin-owner-conformance-consumer-smoke.ps1",
         "scripts/run-runtime-owner-conformance-consumer-smoke.ps1",
         "scripts/run-split-target-conformance-consumer-smoke.ps1",
-        "scripts/run-aetheria-conformance-consumer-smoke.ps1",
-        "scripts/run-eveflutter-conformance-consumer-smoke.ps1"
+        "scripts/run-aetheria-conformance-consumer-smoke.ps1"
       ],
       "replacementProof": "Runtime, plugin, provider, and split-target consumers can verify exported packs without reading Eve's parity manifest."
     },

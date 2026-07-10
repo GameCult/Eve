@@ -81,6 +81,9 @@ try {
   if ($LASTEXITCODE -ne 0) {
     throw "Semantic parity harness failed with exit code $LASTEXITCODE"
   }
+  $flutterSurface = Join-Path $runRoot "flutter-current-surface.json"
+  node .\tools\parity\export-fixture.mjs $ProviderId $flutterSurface | Out-Host
+  if ($LASTEXITCODE -ne 0) { throw "Flutter fixture export failed with exit code $LASTEXITCODE" }
 
   foreach ($case in $responsiveCases) {
     Invoke-Capture "web-$($case.id)" {
@@ -106,8 +109,9 @@ try {
     Invoke-Capture "android-flutter-$($case.id)" {
       $args = @(
         "-ExecutionPolicy", "Bypass",
-        "-File", ".\scripts\capture-android-flutter-parity.ps1",
+        "-File", "E:\Projects\EveFlutter\scripts\capture-android-flutter-parity.ps1",
         "-FixtureId", $ProviderId,
+        "-SurfacePath", $flutterSurface,
         "-OutputPath", (Join-Path $runRoot "android-flutter-periwinkle-$($case.id).png"),
         "-Width", $case.width,
         "-Height", $case.height,
@@ -125,8 +129,9 @@ try {
 
   foreach ($case in $androidDeviceCases) {
     Invoke-Capture "android-flutter-$($case.id)" {
-      powershell -ExecutionPolicy Bypass -File .\scripts\capture-android-flutter-parity.ps1 `
+      powershell -ExecutionPolicy Bypass -File E:\Projects\EveFlutter\scripts\capture-android-flutter-parity.ps1 `
         -FixtureId $ProviderId `
+        -SurfacePath $flutterSurface `
         -OutputPath (Join-Path $runRoot "android-flutter-periwinkle-$($case.id).png") `
         -Orientation $case.orientation `
         -SkipBuild
@@ -135,9 +140,10 @@ try {
 
   foreach ($case in $responsiveCases) {
     Invoke-Capture "windows-$($case.id)" {
-      powershell -ExecutionPolicy Bypass -File .\scripts\capture-flutter-parity.ps1 `
+      powershell -ExecutionPolicy Bypass -File E:\Projects\EveFlutter\scripts\capture-flutter-parity.ps1 `
         -Target windows `
         -FixtureId $ProviderId `
+        -SurfacePath $flutterSurface `
         -ViewportId $case.id `
         -OutputPath (Join-Path $runRoot "windows-flutter-$ProviderId-$($case.id).png")
     }
@@ -145,9 +151,10 @@ try {
 
   foreach ($case in $responsiveCases) {
     Invoke-Capture "linux-$($case.id)" {
-      powershell -ExecutionPolicy Bypass -File .\scripts\capture-linux-flutter-parity.ps1 `
+      powershell -ExecutionPolicy Bypass -File E:\Projects\EveFlutter\scripts\capture-linux-flutter-parity.ps1 `
         -SshTarget $LinuxSshTarget `
         -FixtureId $ProviderId `
+        -SurfacePath $flutterSurface `
         -ViewportId $case.id `
         -OutputPath (Join-Path $runRoot "linux-flutter-$ProviderId-$($case.id).png")
     }

@@ -414,7 +414,7 @@ async function readRuntimeLifecycleManifestDocument(runtime) {
   const lifecyclePath = runtime.lifecycleManifest?.manifestPath;
   if (!lifecyclePath) return null;
   try {
-    return await readJsonDocument(lifecyclePath);
+    return JSON.parse(await readFile(resolveRuntimeOwnedPath(runtime, lifecyclePath), "utf8"));
   } catch {
     return null;
   }
@@ -435,13 +435,20 @@ async function validateRuntimeLifecycle(runtime, lifecycle, lifecycleDocument) {
   const schemaPath = runtime.lifecycleManifest?.schemaPath || manifest.schemas?.["gamecult.eve.runtime_lifecycle.v1"];
   const errors = [];
   if (runtime.lifecycleManifest?.manifestPath) {
-    errors.push(...await validateJsonDocument(schemaPath, runtime.lifecycleManifest.manifestPath, {
-      schema: "gamecult.eve.runtime_lifecycle.v1",
-    }));
     if (!lifecycleDocument) {
       errors.push(`${runtime.lifecycleManifest.manifestPath}:unreadable`);
-    } else if (!Array.isArray(lifecycleDocument.runtimes) || !lifecycleDocument.runtimes.includes(runtime.id)) {
-      errors.push(`${runtime.lifecycleManifest.manifestPath}:runtimes:${runtime.id}:missing`);
+    } else {
+      errors.push(...await validateJsonDocumentAgainstSchemaPath(
+        schemaPath,
+        lifecycleDocument,
+        `runtimeLifecycleManifest:${runtime.id}`,
+      ));
+      if (lifecycleDocument.schema !== "gamecult.eve.runtime_lifecycle.v1") {
+        errors.push(`${runtime.lifecycleManifest.manifestPath}:schema:expected gamecult.eve.runtime_lifecycle.v1 got ${lifecycleDocument.schema || ""}`);
+      }
+      if (!Array.isArray(lifecycleDocument.runtimes) || !lifecycleDocument.runtimes.includes(runtime.id)) {
+        errors.push(`${runtime.lifecycleManifest.manifestPath}:runtimes:${runtime.id}:missing`);
+      }
     }
   }
 
@@ -1405,12 +1412,12 @@ async function validateRuntimeCommandTransportSmoke(runtime) {
   }
 
   for (const candidate of smoke.expectedPaths || []) {
-    if (!existsSync(path.join(repoRoot, candidate))) errors.push(`path:${candidate}:missing`);
+    if (!existsSync(resolveRuntimeOwnedPath(runtime, candidate))) errors.push(`path:${candidate}:missing`);
   }
 
   for (const expectation of smoke.expectedSourceSymbols || []) {
     const sourcePath = expectation.path || "";
-    const absolutePath = path.join(repoRoot, sourcePath);
+    const absolutePath = resolveRuntimeOwnedPath(runtime, sourcePath);
     if (!existsSync(absolutePath)) {
       errors.push(`source:${sourcePath}:missing`);
       continue;

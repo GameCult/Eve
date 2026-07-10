@@ -255,7 +255,7 @@ Plugin, provider, and EveConformance handoff documents are also schema-backed:
 `gamecult.eve.conformance_handoff.v1` are exported through the schema catalog.
 Owner consumer smokes assert those schemas before trusting handoff paths.
 Runtime lifecycle records use `gamecult.eve.runtime_lifecycle.v1`. Standalone
-lifecycle documents such as `flutter/eve_parity/eveflutter-lifecycle.json` and
+lifecycle documents such as `../EveFlutter/eveflutter-lifecycle.json` and
 embedded runtime capability lifecycle blocks validate against the same stage
 shape, and exported runtime records carry `lifecycleErrors`.
 Runtime shell output contracts are schema-backed too:
@@ -335,7 +335,7 @@ EveFlutter consumer smoke:
 powershell -ExecutionPolicy Bypass -File .\scripts\run-eveflutter-conformance-consumer-smoke.ps1
 ```
 
-That script runs the export consumer from `flutter/eve_parity` and asserts the
+The EveFlutter owner script runs the export consumer from `EveFlutter` and asserts the
 runtime pack, Sai provider fixture, Flutter runtime targets, and `EveFlutter`
 split target without reading `tools/parity/parity-manifest.json`.
 
@@ -633,18 +633,18 @@ The harness tracks every target runtime:
 - Windows / Flutter: screenshot target through the Flutter parity golden smoke,
   with phone, tablet, and desktop goldens. Required nested-surface evidence:
   `flutter test --plain-name embedded_surface_fixture_contract` plus
-  `scripts/capture-flutter-parity.ps1 -FixtureId
+  `E:\Projects\EveFlutter\scripts\capture-flutter-parity.ps1 -FixtureId
   gamecult.eve.embedded-demo`.
 - Linux / Flutter: screenshot target through Nightwing over SSH. The smoke
-  stages `flutter/eve_parity`, runs Flutter goldens on Nightwing, and pulls back
+  stages the EveFlutter owner repo, runs Flutter goldens on Nightwing, and pulls back
   phone, tablet, and desktop PNGs. Required nested-surface evidence:
-  `scripts/capture-linux-flutter-parity.ps1 -FixtureId
+  `E:\Projects\EveFlutter\scripts\capture-linux-flutter-parity.ps1 -FixtureId
   gamecult.eve.embedded-demo`.
 - Android / Flutter: screenshot target through the same Flutter renderer,
   packaged as a debug APK, installed on Periwinkle through `adb`, and captured
   with optional `adb shell wm size`, orientation control, and `adb exec-out
   screencap`; the script restores device size and rotation after each viewport.
-  Required nested-surface evidence: `scripts/capture-android-flutter-parity.ps1
+  Required nested-surface evidence: `E:\Projects\EveFlutter\scripts\capture-android-flutter-parity.ps1
   -FixtureId gamecult.eve.embedded-demo`.
 - Android / Kotlin device edge: lightweight native CultMesh dashboard and
   sensor host. Required nested-surface evidence:

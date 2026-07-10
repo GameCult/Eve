@@ -28,6 +28,7 @@ try {
     -SkipBuild
   & (Join-Path $PSScriptRoot "run-eveunity-owner-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveplugins-owner-smoke.ps1")
+  & (Join-Path $PSScriptRoot "run-eveflutter-owner-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-capture-smoke.ps1") `
     -AdvertisementPath "web\fixtures\eve-world-smoke.provider-advertisement.json" `

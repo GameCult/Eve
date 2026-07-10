@@ -570,8 +570,8 @@
           "description": "Provider picker consumes provider advertisements without Eve source-layout knowledge.",
           "status": "passed",
           "evidencePaths": [
-            "flutter/eve_parity/lib/main.dart",
-            "flutter/eve_parity/test/parity_smoke_test.dart",
+            "../EveFlutter/lib/main.dart",
+            "../EveFlutter/test/parity_smoke_test.dart",
             "tools/parity/run-parity.mjs"
           ]
         },
@@ -579,7 +579,7 @@
           "description": "Conformance pack can be consumed without depending on Eve's local harness layout.",
           "status": "passed",
           "evidencePaths": [
-            "scripts/run-eveflutter-conformance-consumer-smoke.ps1",
+            "../EveFlutter/scripts/run-eveflutter-conformance-consumer-smoke.ps1",
             "tools/conformance/consume-export.mjs",
             "tools/parity/run-parity.mjs"
           ]
@@ -588,11 +588,11 @@
           "description": "Flutter lifecycle evidence is declared and smoke-checked for EveFlutter incubation.",
           "status": "passed",
           "evidencePaths": [
-            "flutter/eve_parity/eveflutter-lifecycle.json",
-            "scripts/run-eveflutter-lifecycle-smoke.ps1",
-            "scripts/capture-flutter-parity.ps1",
-            "scripts/capture-linux-flutter-parity.ps1",
-            "scripts/capture-android-flutter-parity.ps1"
+            "../EveFlutter/eveflutter-lifecycle.json",
+            "../EveFlutter/scripts/run-eveflutter-lifecycle-smoke.ps1",
+            "../EveFlutter/scripts/capture-flutter-parity.ps1",
+            "../EveFlutter/scripts/capture-linux-flutter-parity.ps1",
+            "../EveFlutter/scripts/capture-android-flutter-parity.ps1"
           ]
         }
       ],
@@ -1347,13 +1347,15 @@
       "id": "windows-flutter",
       "title": "Windows / Flutter",
       "kind": "active",
-      "ownerRepo": "Eve",
-      "repoRole": "runtime-incubating",
+      "ownerRepo": "EveFlutter",
+      "repoRole": "runtime-target",
       "splitTarget": "EveFlutter",
-      "graduationTrigger": "Split when Flutter has provider picker, command transport, plugin projection adapters, and its own build/release lifecycle.",
+      "currentHostRepo": "EveFlutter",
+      "sourceRoot": "../EveFlutter",
+      "graduationTrigger": "Graduated: EveFlutter owns Flutter projection, provider selection, command intents, platform builds, tests, and captures.",
       "lifecycleManifest": {
         "schemaPath": "schemas/gamecult.eve.runtime_lifecycle.v1.schema.json",
-        "manifestPath": "flutter/eve_parity/eveflutter-lifecycle.json"
+        "manifestPath": "eveflutter-lifecycle.json"
       },
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
@@ -1372,24 +1374,24 @@
           "capabilities": ["embed.tex"]
         }
       ],
-      "expectedPaths": ["flutter/eve_parity/lib/main.dart", "scripts/capture-flutter-parity.ps1"],
+      "expectedPaths": ["lib/main.dart", "scripts/capture-flutter-parity.ps1"],
       "expectedSourceSymbols": [
         {
-          "path": "flutter/eve_parity/lib/main.dart",
+          "path": "lib/main.dart",
           "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot", "EveProviderCatalog", "EveProviderPicker"]
         }
       ],
       "commandTransportSmoke": {
         "schema": "gamecult.eve.command_invocation.v1",
-        "expectedPaths": ["flutter/eve_parity/lib/main.dart", "flutter/eve_parity/test/parity_smoke_test.dart"],
+        "expectedPaths": ["lib/main.dart", "test/parity_smoke_test.dart"],
         "expectedSourceSymbols": [
           {
-            "path": "flutter/eve_parity/lib/main.dart",
+            "path": "lib/main.dart",
             "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command_invocation.v1", "flutter-parity"]
           },
           {
-            "path": "flutter/eve_parity/test/parity_smoke_test.dart",
-            "contains": ["emits gamecult Eve command intent", "aetheria.daemon.commands", "aetheria.daemon.focus"]
+            "path": "test/parity_smoke_test.dart",
+            "contains": ["emits a provider-routed Eve command intent", "world.example.commands", "world.example.focus"]
           }
         ]
       },
@@ -1402,13 +1404,15 @@
       "id": "linux-flutter",
       "title": "Linux / Flutter",
       "kind": "active",
-      "ownerRepo": "Eve",
-      "repoRole": "runtime-incubating",
+      "ownerRepo": "EveFlutter",
+      "repoRole": "runtime-target",
       "splitTarget": "EveFlutter",
-      "graduationTrigger": "Split with EveFlutter when Linux capture and runner health become runtime-owned.",
+      "currentHostRepo": "EveFlutter",
+      "sourceRoot": "../EveFlutter",
+      "graduationTrigger": "Graduated: EveFlutter owns Linux build and capture lifecycle.",
       "lifecycleManifest": {
         "schemaPath": "schemas/gamecult.eve.runtime_lifecycle.v1.schema.json",
-        "manifestPath": "flutter/eve_parity/eveflutter-lifecycle.json"
+        "manifestPath": "eveflutter-lifecycle.json"
       },
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
@@ -1427,24 +1431,24 @@
           "capabilities": ["embed.tex"]
         }
       ],
-      "expectedPaths": ["flutter/eve_parity/linux", "scripts/capture-flutter-parity.ps1"],
+      "expectedPaths": ["linux", "scripts/capture-linux-flutter-parity.ps1"],
       "expectedSourceSymbols": [
         {
-          "path": "flutter/eve_parity/lib/main.dart",
+          "path": "lib/main.dart",
           "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot", "EveProviderCatalog", "EveProviderPicker"]
         }
       ],
       "commandTransportSmoke": {
         "schema": "gamecult.eve.command_invocation.v1",
-        "expectedPaths": ["flutter/eve_parity/lib/main.dart", "flutter/eve_parity/test/parity_smoke_test.dart"],
+        "expectedPaths": ["lib/main.dart", "test/parity_smoke_test.dart"],
         "expectedSourceSymbols": [
           {
-            "path": "flutter/eve_parity/lib/main.dart",
+            "path": "lib/main.dart",
             "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command_invocation.v1", "flutter-parity"]
           },
           {
-            "path": "flutter/eve_parity/test/parity_smoke_test.dart",
-            "contains": ["emits gamecult Eve command intent", "aetheria.daemon.commands", "aetheria.daemon.focus"]
+            "path": "test/parity_smoke_test.dart",
+            "contains": ["emits a provider-routed Eve command intent", "world.example.commands", "world.example.focus"]
           }
         ]
       },
@@ -1481,13 +1485,15 @@
       "id": "android-flutter",
       "title": "Android / Flutter",
       "kind": "active",
-      "ownerRepo": "Eve",
-      "repoRole": "runtime-incubating",
+      "ownerRepo": "EveFlutter",
+      "repoRole": "runtime-target",
       "splitTarget": "EveFlutter",
-      "graduationTrigger": "Split with EveFlutter when Android APK smoke, provider discovery, command transport, and plugin projection adapters are runtime-owned.",
+      "currentHostRepo": "EveFlutter",
+      "sourceRoot": "../EveFlutter",
+      "graduationTrigger": "Graduated: EveFlutter owns Android APK, discovery, command, plugin projection, and capture lifecycle.",
       "lifecycleManifest": {
         "schemaPath": "schemas/gamecult.eve.runtime_lifecycle.v1.schema.json",
-        "manifestPath": "flutter/eve_parity/eveflutter-lifecycle.json"
+        "manifestPath": "eveflutter-lifecycle.json"
       },
       "requiredFixtures": ["embedded-surface"],
       "pluginFixtures": ["sai-vn"],
@@ -1506,24 +1512,24 @@
           "capabilities": ["embed.tex"]
         }
       ],
-      "expectedPaths": ["flutter/eve_parity/lib/main.dart", "scripts/capture-android-flutter-parity.ps1"],
+      "expectedPaths": ["lib/main.dart", "scripts/capture-android-flutter-parity.ps1"],
       "expectedSourceSymbols": [
         {
-          "path": "flutter/eve_parity/lib/main.dart",
+          "path": "lib/main.dart",
           "contains": ["embeddedDocuments", "surface.slot", "EveEmbeddedDocumentSlot", "EveProviderCatalog", "EveProviderPicker"]
         }
       ],
       "commandTransportSmoke": {
         "schema": "gamecult.eve.command_invocation.v1",
-        "expectedPaths": ["flutter/eve_parity/lib/main.dart", "flutter/eve_parity/test/parity_smoke_test.dart"],
+        "expectedPaths": ["lib/main.dart", "test/parity_smoke_test.dart"],
         "expectedSourceSymbols": [
           {
-            "path": "flutter/eve_parity/lib/main.dart",
+            "path": "lib/main.dart",
             "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command_invocation.v1", "flutter-parity"]
           },
           {
-            "path": "flutter/eve_parity/test/parity_smoke_test.dart",
-            "contains": ["emits gamecult Eve command intent", "aetheria.daemon.commands", "aetheria.daemon.focus"]
+            "path": "test/parity_smoke_test.dart",
+            "contains": ["emits a provider-routed Eve command intent", "world.example.commands", "world.example.focus"]
           }
         ]
       },

@@ -286,15 +286,21 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Graduate the Flutter runtime body into `EveFlutter`; it is now the largest
-   native projection/build/capture lifecycle still sharing Eve's worktree.
-2. Move Aetheria product fixtures and scenarios behind an owner-repo
+1. Move Aetheria product fixtures and scenarios behind an owner-repo
    conformance pack while retaining only the minimal generic world oracle in
    Eve.
-3. Split `EveConformance` when owner runtimes can consume its schema catalog,
+2. Split `EveConformance` when owner runtimes can consume its schema catalog,
    packs, witness attachments, and runner without Eve source-layout knowledge.
 
 Recently cut:
+
+- `GameCult/EveFlutter` now owns the Flutter app, Windows/Linux/Android/iOS
+  platform glue, provider picker, command-intent lowering, tests, golden
+  captures, and capture runners. Its owner tests use generic provider documents
+  and pass across phone, tablet, and desktop. The runtime no longer hardcodes
+  Repixelizer asset filenames or reads Aetheria/Eve fixture paths. Eve prepares
+  contract fixtures, invokes the owner smoke, and reads the owner lifecycle;
+  the in-repo Flutter body and platform scripts are deleted.
 
 - `GameCult/EvePlugins` now owns `tex.math`. The owner sidecar uses KaTeX for
   parsing and typesetting and implements `describe`, `validate`, `project`,
@@ -1085,11 +1091,11 @@ Recently cut:
   incubating until tagged UPM release, batchmode runner ownership, and capture
   artifacts live under the `EveUnity` repo.
 - EveFlutter now has explicit lifecycle incubation evidence at
-  `flutter/eve_parity/eveflutter-lifecycle.json` and a smoke runner at
-  `scripts/run-eveflutter-lifecycle-smoke.ps1`. The smoke validates the
+  `EveFlutter/eveflutter-lifecycle.json` and an owner smoke runner at
+  `scripts/run-eveflutter-owner-smoke.ps1`. The smoke validates the
   lifecycle document, checks release/test/capture evidence paths, runs Dart
   analysis from the bundled SDK, and consumes the exported conformance pack from
-  inside `flutter/eve_parity`. The split-readiness blocker is now narrower:
+  inside the owner repo. The remaining lifecycle blocker is narrower:
   tagged release, test runner ownership, and capture runner ownership must move
   to `EveFlutter`, rather than pretending the lifecycle shape is still unknown.
 - EveFlutter now has a provider-catalog picker primitive. `EveProviderCatalog`
@@ -1100,8 +1106,8 @@ Recently cut:
   provider-picker proof as passed while leaving release/capture lifecycle
   ownership as the remaining EveFlutter blocker.
 - EveFlutter now has a conformance consumer smoke at
-  `scripts/run-eveflutter-conformance-consumer-smoke.ps1`. It runs from
-  `flutter/eve_parity`, consumes the exported conformance pack, and asserts the
+  `EveFlutter/scripts/run-eveflutter-conformance-consumer-smoke.ps1`. It runs from
+  the owner repo, consumes the exported conformance pack, and asserts the
   runtime pack, Sai provider fixture, Flutter runtimes, and `EveFlutter` split
   target without reading Eve's parity manifest. The split-readiness report now
   records that as a passed proof instead of leaving it as a permanent pending
