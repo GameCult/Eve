@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.asset_catalog.v1",
+  "title": "Eve Asset Catalog",
+  "type": "object",
+  "required": ["schema", "providerId", "catalogId", "version", "assets"],
+  "properties": {
+    "schema": { "const": "gamecult.eve.asset_catalog.v1" },
+    "providerId": { "type": "string", "minLength": 1 },
+    "catalogId": { "type": "string", "minLength": 1 },
+    "version": { "type": "integer", "minimum": 0 },
+    "updatedAtUtc": { "type": "string" },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["assetRef", "assetKind", "variants"],
+        "properties": {
+          "assetRef": { "type": "string", "minLength": 1 },
+          "assetKind": { "type": "string", "minLength": 1 },
+          "metadata": { "type": "object", "additionalProperties": { "type": "string" } },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["runtimeId", "platform", "format", "uri", "contentHash", "sizeBytes", "assetKey"],
+              "properties": {
+                "runtimeId": { "type": "string", "minLength": 1 },
+                "platform": { "type": "string", "minLength": 1 },
+                "format": { "type": "string", "minLength": 1 },
+                "uri": { "type": "string", "minLength": 1 },
+                "contentHash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+                "sizeBytes": { "type": "integer", "minimum": 0 },
+                "assetKey": { "type": "string", "minLength": 1 },
+                "metadata": { "type": "object", "additionalProperties": { "type": "string" } }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

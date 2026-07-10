@@ -285,12 +285,25 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Run the same EveUnity-owned PlayMode client against Aetheria's separately
-   running daemon and attach the Aetheria world PNG plus command/receipt proof.
-2. Graduate the generic Unity transport and capture contracts only after the
-   product witness proves that no Aetheria authority leaked into EveUnity.
+1. Replace EveUnity's scoped per-chunk CDN requests with a persistent transfer
+   session while retaining content-addressed disk caching and hash checks.
+2. Add generic action/combat command evidence and improve runtime-owned camera
+   framing for provider-authored world assets.
 
 Recently cut:
+
+- The clean EveUnity PlayMode client now consumes Aetheria's independently
+  running daemon without importing Aetheria code. Aetheria builds its authored
+  prefabs into a provider-owned Unity AssetBundle, advertises an Eve core asset
+  catalog, and serves the immutable bundle through standard CultMesh CDN
+  manifest/chunk documents. EveUnity selects the platform variant, verifies
+  size and SHA-256, caches it by content hash, loads the prefab hierarchy, owns
+  entity pose on a wrapper root, submits movement, observes the authoritative
+  receipt and later surface version, and captures
+  `E:\Projects\EveUnity\artifacts\aetheria-daemon\aetheria-daemon-world.png`.
+  The warm-cache witness passes; first-load transfer still needs a persistent
+  CDN session, and the current capture framing is diagnostic rather than a
+  presentation-quality gameplay camera.
 
 - Eve core now publishes typed CultCache wire documents for provider
   advertisement, command invocation, and provider receipt. Command descriptors
