@@ -76,6 +76,7 @@
   "contractInputs": [
     "gamecult.eve.surface.v1",
     "gamecult.eve.command.v1",
+    "gamecult.eve.command_invocation.v1",
     "gamecult.eve.command_receipt.v1",
     "gamecult.eve.conformance_export.v1",
     "gamecult.eve.conformance_handoff.v1",

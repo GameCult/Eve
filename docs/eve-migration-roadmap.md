@@ -292,6 +292,12 @@ Exit criteria:
 
 Recently cut:
 
+- Eve core now publishes typed CultCache wire documents for provider
+  advertisement, command invocation, and provider receipt. Command descriptors
+  remain `gamecult.eve.command.v1`; executable intents are the distinct
+  `gamecult.eve.command_invocation.v1` contract. Receipts carry the provider's
+  source version, and EveUnity withholds terminal receipts until that version
+  is actually lowered.
 - EveUnity now owns a minimal clean `TestProject` that installs CultLib, Eve
   surface contracts, and the EveUnity scene package without Aetheria code. Its
   generic `eve.world-smoke` PlayMode test lowers a world, routes a command

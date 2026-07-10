@@ -5,31 +5,14 @@
   "type": "object",
   "required": ["schema", "command"],
   "properties": {
-    "schema": {
-      "const": "gamecult.eve.command.v1"
-    },
-    "command": {
-      "type": "string",
-      "minLength": 1
-    },
-    "label": {
-      "type": "string"
-    },
-    "surfaceId": {
-      "type": "string"
-    },
-    "transport": {
-      "type": "string"
-    },
-    "authority": {
-      "type": "string"
-    },
-    "result": {
-      "type": "string"
-    },
-    "payloadSchema": {
-      "type": "string"
-    }
+    "schema": { "const": "gamecult.eve.command.v1" },
+    "command": { "type": "string", "minLength": 1 },
+    "label": { "type": "string" },
+    "surfaceId": { "type": "string" },
+    "transport": { "type": "string" },
+    "authority": { "type": "string" },
+    "result": { "type": "string" },
+    "payloadSchema": { "type": "string" }
   },
   "additionalProperties": true
 }

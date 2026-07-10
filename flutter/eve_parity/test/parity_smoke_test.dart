@@ -114,7 +114,7 @@ void main() {
     await tester.pump();
 
     expect(intents, hasLength(1));
-    expect(intents.single.schema, 'gamecult.eve.command.v1');
+    expect(intents.single.schema, 'gamecult.eve.command_invocation.v1');
     expect(intents.single.providerId, 'aetheria');
     expect(intents.single.surfaceId, 'aetheria.daemon.game');
     expect(intents.single.command, 'aetheria.daemon.commands');

@@ -269,9 +269,11 @@ namespace GameCult.Eve.Surface
         public string Transport => Operation.RouteHint.Description ?? "";
     }
 
+    [CultDocument("gamecult.eve.command", SchemaId)]
+    [MessagePackObject]
     public sealed class EveSurfaceCommandRequest
     {
-        public const string SchemaId = "gamecult.eve.command.v1";
+        public const string SchemaId = "gamecult.eve.command_invocation.v1";
 
         public EveSurfaceCommandRequest(
             string providerId,
@@ -282,7 +284,23 @@ namespace GameCult.Eve.Surface
             string clientId,
             string commandBoundary = "",
             string receiptSchema = "")
+            : this(SchemaId, providerId, surfaceId, operation, payload, issuedAt, clientId, commandBoundary, receiptSchema)
         {
+        }
+
+        [SerializationConstructor]
+        public EveSurfaceCommandRequest(
+            string schema,
+            string providerId,
+            string surfaceId,
+            CultMeshOperationInvocationDescriptor operation,
+            CultMeshOperationPayload payload,
+            DateTimeOffset issuedAt,
+            string clientId,
+            string commandBoundary,
+            string receiptSchema)
+        {
+            Schema = string.IsNullOrWhiteSpace(schema) ? SchemaId : schema;
             ProviderId = providerId;
             SurfaceId = surfaceId;
             Operation = operation ?? throw new ArgumentNullException(nameof(operation));
@@ -293,24 +311,37 @@ namespace GameCult.Eve.Surface
             ReceiptSchema = receiptSchema ?? "";
         }
 
-        public string Schema => SchemaId;
+        [Key(0)]
+        public string Schema { get; }
 
+        [Key(1)]
         public string ProviderId { get; }
 
+        [Key(2)]
         public string SurfaceId { get; }
 
+        [Key(3)]
         public CultMeshOperationInvocationDescriptor Operation { get; }
 
+        [IgnoreMember]
         public string Command => Operation.OperationId;
 
+        [Key(4)]
         public CultMeshOperationPayload Payload { get; }
 
+        [Key(5)]
         public DateTimeOffset IssuedAt { get; }
 
+        [Key(6)]
         public string ClientId { get; }
 
+        [Key(7)]
         public string CommandBoundary { get; }
 
+        [Key(8)]
         public string ReceiptSchema { get; }
+
+        [IgnoreMember]
+        public string CommandId => Operation.IdempotencyKey ?? "";
     }
 }

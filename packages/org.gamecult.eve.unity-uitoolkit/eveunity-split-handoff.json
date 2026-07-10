@@ -75,6 +75,7 @@
   "contractInputs": [
     "gamecult.eve.surface.v1",
     "gamecult.eve.command.v1",
+    "gamecult.eve.command_invocation.v1",
     "gamecult.eve.provider_advertisement.v1",
     "gamecult.eve.plugin_advertisement.v1",
     "gamecult.eve.plugin.v1",

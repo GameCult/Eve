@@ -48,6 +48,7 @@
   "contractInputs": [
     "gamecult.eve.surface.v1",
     "gamecult.eve.command.v1",
+    "gamecult.eve.command_invocation.v1",
     "gamecult.eve.unity_playable_world_asset_manifest.v1",
     "gamecult.eve.provider_advertisement.v1",
     "gamecult.eve.provider_scenario.v1",

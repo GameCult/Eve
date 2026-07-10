@@ -19,7 +19,7 @@
       "requestSchema": "gamecult.eve.plugin_abi.request.v1",
       "responseSchema": "gamecult.eve.plugin_abi.response.v1",
       "operations": ["describe", "validate", "project", "lower", "measure", "apply"],
-      "commandEnvelope": "gamecult.eve.command.v1",
+      "commandEnvelope": "gamecult.eve.command_invocation.v1",
       "receiptSchema": "gamecult.eve.plugin_receipt.v1",
       "stateAuthority": "emits-render-results-only-provider-owns-source-state"
     }

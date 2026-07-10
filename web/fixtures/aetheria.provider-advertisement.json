@@ -39,6 +39,7 @@
     "aetheria.runtime.daemon.command.v1",
     "gamecult.eve.surface.v1",
     "gamecult.eve.command.v1",
+    "gamecult.eve.command_invocation.v1",
     "gamecult.eve.unity_playable_world_asset_manifest.v1"
   ],
   "witnesses": [

@@ -86,7 +86,7 @@ node $consumerScript $consumerExport `
   --expect-plugin-runtime-field sai.vn:sidecar.requestSchema:gamecult.eve.plugin_abi.request.v1 `
   --expect-plugin-runtime-field sai.vn:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
   --expect-plugin-runtime-field sai.vn:sidecar.stateAuthority:proposes-plugin-state-only-provider-accepts `
-  --expect-plugin-abi-field sai.vn:lower:expect.commandEnvelope:gamecult.eve.command.v1 `
+  --expect-plugin-abi-field sai.vn:lower:expect.commandEnvelope:gamecult.eve.command_invocation.v1 `
   --expect-plugin-abi-field sai.vn:apply:expect.receiptSchema:gamecult.eve.command_receipt.v1 `
   --expect-plugin-runtime norn.graph:executable-sidecar `
   --expect-plugin-runtime-transport norn.graph:stdio `

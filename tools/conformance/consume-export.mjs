@@ -850,7 +850,7 @@ function validateIndex(index, directory, expectations, errors) {
   if (!providers.some(provider => provider.providerId === "aetheria" && provider.scenarioPath)) {
     errors.push("providers:aetheria:scenarioPath:missing");
   }
-  if (!runtimes.some(runtime => runtime.runtimeId === "unity-uitoolkit" && runtime.commandTransportSchema === "gamecult.eve.command.v1")) {
+  if (!runtimes.some(runtime => runtime.runtimeId === "unity-uitoolkit" && runtime.commandTransportSchema === "gamecult.eve.command_invocation.v1")) {
     errors.push("runtimes:unity-uitoolkit:commandTransportSchema:missing");
   }
   if (!splitTargets.some(target => target.id === "EveUnity")) {
@@ -1061,8 +1061,8 @@ function validateCommandBoundaryCoverage(records, errors) {
     for (const field of ["providerId", "providerOwnerRepo", "surfaceId", "targetId", "runtimeId", "runtimeOwnerRepo", "status", "severity", "commandBoundary", "receiptSchema"]) {
       if (!record?.[field]) errors.push(`commandBoundaryCoverage:${index}:${field}:missing`);
     }
-    if (record?.status === "covered" && record.runtimeCommandSchema !== "gamecult.eve.command.v1") {
-      errors.push(`commandBoundaryCoverage:${index}:runtimeCommandSchema:expected gamecult.eve.command.v1 got ${record.runtimeCommandSchema || ""}`);
+    if (record?.status === "covered" && record.runtimeCommandSchema !== "gamecult.eve.command_invocation.v1") {
+      errors.push(`commandBoundaryCoverage:${index}:runtimeCommandSchema:expected gamecult.eve.command_invocation.v1 got ${record.runtimeCommandSchema || ""}`);
     }
   }
 }

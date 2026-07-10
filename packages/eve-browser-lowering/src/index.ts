@@ -33,7 +33,7 @@ export type EveSurfaceStyles =
 
 export interface EveCommandIntent {
   type: "surface-command";
-  schema: "gamecult.eve.command.v1";
+  schema: "gamecult.eve.command_invocation.v1";
   providerId: string;
   surfaceId: string;
   command: string;
@@ -2200,7 +2200,7 @@ export function createEveCommandIntent(
   const receiptSchema = firstString(worldInteraction.receiptSchema, props.receiptSchema, action.receiptSchema);
   const intent: EveCommandIntent = {
     type: "surface-command",
-    schema: "gamecult.eve.command.v1",
+    schema: "gamecult.eve.command_invocation.v1",
     providerId,
     surfaceId,
     command: commandId || stringProp(action.type, "invoke"),

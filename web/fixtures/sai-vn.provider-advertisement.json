@@ -18,6 +18,7 @@
   "schemas": [
     "gamecult.eve.surface.v1",
     "gamecult.eve.command.v1",
+    "gamecult.eve.command_invocation.v1",
     "sai.vn.story_session.v1",
     "sai.vn.visual_manifest.v1",
     "norn.graph.document.v1",

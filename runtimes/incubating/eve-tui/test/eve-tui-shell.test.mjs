@@ -38,7 +38,7 @@ test("command intents carry provider-advertised boundaries", () => {
     },
   );
 
-  assert.equal(intent.schema, "gamecult.eve.command.v1");
+  assert.equal(intent.schema, "gamecult.eve.command_invocation.v1");
   assert.equal(intent.providerId, "aetheria");
   assert.equal(intent.surfaceId, "aetheria.daemon.game");
   assert.equal(intent.commandBoundary, "aetheria.daemon.commands");

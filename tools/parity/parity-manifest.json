@@ -11,6 +11,7 @@
     "gamecult.eve.conformance_export.v1": "schemas/gamecult.eve.conformance_export.v1.schema.json",
     "gamecult.eve.capability_matrix.v1": "schemas/gamecult.eve.capability_matrix.v1.schema.json",
     "gamecult.eve.command.v1": "schemas/gamecult.eve.command.v1.schema.json",
+    "gamecult.eve.command_invocation.v1": "schemas/gamecult.eve.command_invocation.v1.schema.json",
     "gamecult.eve.command_receipt.v1": "schemas/gamecult.eve.command_receipt.v1.schema.json",
     "gamecult.eve.plugin.v1": "schemas/gamecult.eve.plugin.v1.schema.json",
     "gamecult.eve.plugin_receipt.v1": "schemas/gamecult.eve.plugin_receipt.v1.schema.json",
@@ -372,7 +373,7 @@
       "schemaPath": "schemas/gamecult.eve.provider_advertisement.v1.schema.json",
       "advertisementPath": "web/fixtures/sai-vn.provider-advertisement.json",
       "requiredFixtures": [],
-      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "sai.vn.story_session.v1"],
+      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "gamecult.eve.command_invocation.v1", "sai.vn.story_session.v1"],
       "expectedSurfaces": ["sai.visual_novel.surface"],
       "expectedCommands": ["story.continue", "story.choose", "story.jump", "style.patch"]
     },
@@ -388,7 +389,7 @@
       "scenarioPath": "web/fixtures/aetheria-world-scenario.json",
       "handoffPath": "web/fixtures/aetheria-provider-handoff.json",
       "requiredFixtures": ["aetheria-world"],
-      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "gamecult.eve.unity_playable_world_asset_manifest.v1", "aetheria.runtime.daemon.frame.v1"],
+      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "gamecult.eve.command_invocation.v1", "gamecult.eve.unity_playable_world_asset_manifest.v1", "aetheria.runtime.daemon.frame.v1"],
       "expectedSurfaces": ["aetheria.daemon.game", "aetheria.daemon.editor"],
       "expectedSurfaceKinds": {
         "aetheria.daemon.game": "interactive-world",
@@ -412,7 +413,7 @@
       "advertisementPath": "web/fixtures/eve-world-smoke.provider-advertisement.json",
       "scenarioPath": "web/fixtures/eve-world-smoke-scenario.json",
       "requiredFixtures": ["eve-world-smoke"],
-      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "eve.world_smoke.frame.v1", "eve.world_smoke.command_receipt.v1"],
+      "expectedSchemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "gamecult.eve.command_invocation.v1", "eve.world_smoke.frame.v1", "eve.world_smoke.command_receipt.v1"],
       "expectedSurfaces": ["eve.world-smoke.surface"],
       "expectedSurfaceKinds": {
         "eve.world-smoke.surface": "interactive-world"
@@ -446,7 +447,7 @@
           "protocol": "cultmesh-rpc-with-stdio-dev-transport",
           "requestSchema": "gamecult.eve.plugin_abi.request.v1",
           "responseSchema": "gamecult.eve.plugin_abi.response.v1",
-          "commandEnvelope": "gamecult.eve.command.v1",
+          "commandEnvelope": "gamecult.eve.command_invocation.v1",
           "receiptSchema": "gamecult.eve.command_receipt.v1",
           "stateAuthority": "proposes-plugin-state-only-provider-accepts"
         }
@@ -472,6 +473,8 @@
       "kind": "external-owner",
       "ownerRepo": "Norn",
       "repoRole": "plugin-owner",
+      "splitTarget": "Norn",
+      "graduationTrigger": "Graduated: Norn owns graph semantics, fixtures, ABI sidecar, and release lifecycle.",
       "capabilities": ["embed.norn", "graph.node.activate"],
       "expectedRuntime": {
         "invocationModel": "executable-sidecar",
@@ -483,7 +486,7 @@
           "protocol": "stdio-ndjson",
           "requestSchema": "gamecult.eve.plugin_abi.request.v1",
           "responseSchema": "gamecult.eve.plugin_abi.response.v1",
-          "commandEnvelope": "gamecult.eve.command.v1",
+          "commandEnvelope": "gamecult.eve.command_invocation.v1",
           "receiptSchema": "gamecult.eve.command_receipt.v1",
           "stateAuthority": "proposes-plugin-state-only-provider-accepts"
         }
@@ -520,7 +523,7 @@
           "protocol": "cultmesh-rpc-with-stdio-dev-transport",
           "requestSchema": "gamecult.eve.plugin_abi.request.v1",
           "responseSchema": "gamecult.eve.plugin_abi.response.v1",
-          "commandEnvelope": "gamecult.eve.command.v1",
+          "commandEnvelope": "gamecult.eve.command_invocation.v1",
           "receiptSchema": "gamecult.eve.plugin_receipt.v1",
           "stateAuthority": "emits-render-results-only-provider-owns-source-state"
         }
@@ -1281,12 +1284,12 @@
         }
       ],
       "commandTransportSmoke": {
-        "schema": "gamecult.eve.command.v1",
+        "schema": "gamecult.eve.command_invocation.v1",
         "expectedPaths": ["packages/eve-browser-lowering/src/index.ts", "packages/eve-browser-lowering/test/browser-lowering.test.mjs", "web/surface.js"],
         "expectedSourceSymbols": [
           {
             "path": "packages/eve-browser-lowering/src/index.ts",
-            "contains": ["EveCommandIntent", "createEveCommandIntent", "schema: \"gamecult.eve.command.v1\"", "clientId", "commandBoundary", "receiptSchema", "activeSurfaceId"]
+            "contains": ["EveCommandIntent", "createEveCommandIntent", "schema: \"gamecult.eve.command_invocation.v1\"", "clientId", "commandBoundary", "receiptSchema", "activeSurfaceId"]
           },
           {
             "path": "packages/eve-browser-lowering/test/browser-lowering.test.mjs",
@@ -1404,12 +1407,12 @@
         }
       ],
       "commandTransportSmoke": {
-        "schema": "gamecult.eve.command.v1",
+        "schema": "gamecult.eve.command_invocation.v1",
         "expectedPaths": ["flutter/eve_parity/lib/main.dart", "flutter/eve_parity/test/parity_smoke_test.dart"],
         "expectedSourceSymbols": [
           {
             "path": "flutter/eve_parity/lib/main.dart",
-            "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command.v1", "flutter-parity"]
+            "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command_invocation.v1", "flutter-parity"]
           },
           {
             "path": "flutter/eve_parity/test/parity_smoke_test.dart",
@@ -1459,12 +1462,12 @@
         }
       ],
       "commandTransportSmoke": {
-        "schema": "gamecult.eve.command.v1",
+        "schema": "gamecult.eve.command_invocation.v1",
         "expectedPaths": ["flutter/eve_parity/lib/main.dart", "flutter/eve_parity/test/parity_smoke_test.dart"],
         "expectedSourceSymbols": [
           {
             "path": "flutter/eve_parity/lib/main.dart",
-            "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command.v1", "flutter-parity"]
+            "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command_invocation.v1", "flutter-parity"]
           },
           {
             "path": "flutter/eve_parity/test/parity_smoke_test.dart",
@@ -1538,12 +1541,12 @@
         }
       ],
       "commandTransportSmoke": {
-        "schema": "gamecult.eve.command.v1",
+        "schema": "gamecult.eve.command_invocation.v1",
         "expectedPaths": ["flutter/eve_parity/lib/main.dart", "flutter/eve_parity/test/parity_smoke_test.dart"],
         "expectedSourceSymbols": [
           {
             "path": "flutter/eve_parity/lib/main.dart",
-            "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command.v1", "flutter-parity"]
+            "contains": ["EveCommandIntent", "createEveCommandIntent", "resolveComponentCommandId", "commandSink", "gamecult.eve.command_invocation.v1", "flutter-parity"]
           },
           {
             "path": "flutter/eve_parity/test/parity_smoke_test.dart",
@@ -1675,7 +1678,7 @@
         }
       ],
       "commandTransportSmoke": {
-        "schema": "gamecult.eve.command.v1",
+        "schema": "gamecult.eve.command_invocation.v1",
         "expectedPaths": [
           "packages/org.gamecult.eve.surface/Runtime/EveSurfaceDocument.cs",
           "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs"
@@ -1683,7 +1686,7 @@
         "expectedSourceSymbols": [
           {
             "path": "packages/org.gamecult.eve.surface/Runtime/EveSurfaceDocument.cs",
-            "contains": ["EveSurfaceCommandRequest", "SchemaId", "gamecult.eve.command.v1", "ClientId"]
+            "contains": ["EveSurfaceCommandRequest", "SchemaId", "gamecult.eve.command_invocation.v1", "ClientId"]
           },
           {
             "path": "packages/org.gamecult.eve.unity-uitoolkit/Runtime/EveUiToolkitSurfaceLowerer.cs",
@@ -1895,7 +1898,7 @@
       "demotionReason": "Fensalir has an external Aquarium.EveSurface adapter spike and a recorded gamecult.eve.surface.v1 adapter fixture, but Eve still has no Direct2D frame capture or runtime-owned command smoke.",
       "activationCriteria": [
         "Fensalir runs recorded gamecult.eve.surface.v1 fixtures without provider-specific renderer knowledge.",
-        "Fensalir emits gamecult.eve.command.v1 intents through the advertised provider command boundary.",
+        "Fensalir emits gamecult.eve.command_invocation.v1 intents through the advertised provider command boundary.",
         "Direct2D capture artifacts are produced and attached to the parity report."
       ],
       "requiredFixtures": ["fensalir-direct2d"],

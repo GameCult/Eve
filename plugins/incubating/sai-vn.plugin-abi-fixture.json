@@ -56,7 +56,7 @@
         "loweringKind": "runtime-neutral-stage-parts",
         "preservedComponentKinds": ["vn.stage", "panel.dialogue", "text.dialogue", "rail.actions"],
         "delegatedPlugins": ["norn.graph", "tex.math"],
-        "commandEnvelope": "gamecult.eve.command.v1"
+        "commandEnvelope": "gamecult.eve.command_invocation.v1"
       }
     },
     {

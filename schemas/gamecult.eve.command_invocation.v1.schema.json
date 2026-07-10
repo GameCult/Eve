@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.command_invocation.v1",
+  "title": "Eve Command Invocation",
+  "type": "object",
+  "required": [
+    "schema",
+    "providerId",
+    "surfaceId",
+    "operation",
+    "payload",
+    "issuedAt",
+    "clientId",
+    "commandBoundary",
+    "receiptSchema"
+  ],
+  "properties": {
+    "schema": { "const": "gamecult.eve.command_invocation.v1" },
+    "providerId": { "type": "string", "minLength": 1 },
+    "surfaceId": { "type": "string", "minLength": 1 },
+    "operation": {
+      "type": "object",
+      "required": ["operationId"],
+      "properties": {
+        "operationId": { "type": "string", "minLength": 1 },
+        "schemaId": { "type": "string" },
+        "idempotencyKey": { "type": "string" },
+        "routeHint": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "payload": { "type": "object" },
+    "issuedAt": { "type": "string" },
+    "clientId": { "type": "string", "minLength": 1 },
+    "commandBoundary": { "type": "string", "minLength": 1 },
+    "receiptSchema": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false
+}

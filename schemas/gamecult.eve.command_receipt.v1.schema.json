@@ -6,10 +6,14 @@
   "required": [
     "schema",
     "receiptId",
+    "commandId",
     "command",
     "state",
     "ownerRepo",
-    "authority"
+    "authority",
+    "providerId",
+    "surfaceId",
+    "sourceVersion"
   ],
   "properties": {
     "schema": {
@@ -60,6 +64,10 @@
     },
     "issuedAtUtc": {
       "type": "string"
+    },
+    "sourceVersion": {
+      "type": "integer",
+      "minimum": 0
     }
   },
   "additionalProperties": true

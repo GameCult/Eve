@@ -19,7 +19,7 @@
       }
     ],
     "commands": ["eve.world-smoke.commands"],
-    "schemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "eve.world_smoke.command_receipt.v1"]
+    "schemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "gamecult.eve.command_invocation.v1", "eve.world_smoke.command_receipt.v1"]
   },
   "commandIntents": [
     {

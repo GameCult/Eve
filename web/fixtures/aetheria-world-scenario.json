@@ -26,7 +26,7 @@
       }
     ],
     "commands": ["aetheria.daemon.commands"],
-    "schemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "aetheria.eve_command_acceptance_status.v1"]
+    "schemas": ["gamecult.eve.surface.v1", "gamecult.eve.command.v1", "gamecult.eve.command_invocation.v1", "aetheria.eve_command_acceptance_status.v1"]
   },
   "commandIntents": [
     {

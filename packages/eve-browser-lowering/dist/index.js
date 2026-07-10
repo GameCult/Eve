@@ -1847,7 +1847,7 @@ export function createEveCommandIntent(commandId, props = {}, options = currentO
     const receiptSchema = firstString(worldInteraction.receiptSchema, props.receiptSchema, action.receiptSchema);
     const intent = {
         type: "surface-command",
-        schema: "gamecult.eve.command.v1",
+        schema: "gamecult.eve.command_invocation.v1",
         providerId,
         surfaceId,
         command: commandId || stringProp(action.type, "invoke"),

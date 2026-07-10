@@ -151,12 +151,12 @@ node $consumerScript $consumerExport `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:tui:norn.graph:optional-supported:EveTui `
   --expect-provider-runtime-plugin-projection gamecult.home.vn:sai.visual_novel.surface:tui:tex.math:optional-supported:EveTui `
   --expect-runtime-handoff unity-uitoolkit `
-  --expect-runtime-command-schema web:gamecult.eve.command.v1 `
-  --expect-runtime-command-schema windows-flutter:gamecult.eve.command.v1 `
-  --expect-runtime-command-schema unity-uitoolkit:gamecult.eve.command.v1 `
-  --expect-runtime-command-schema unity-scene:gamecult.eve.command.v1 `
-  --expect-runtime-command-schema electron-shell:gamecult.eve.command.v1 `
-  --expect-runtime-command-schema tui:gamecult.eve.command.v1 `
+  --expect-runtime-command-schema web:gamecult.eve.command_invocation.v1 `
+  --expect-runtime-command-schema windows-flutter:gamecult.eve.command_invocation.v1 `
+  --expect-runtime-command-schema unity-uitoolkit:gamecult.eve.command_invocation.v1 `
+  --expect-runtime-command-schema unity-scene:gamecult.eve.command_invocation.v1 `
+  --expect-runtime-command-schema electron-shell:gamecult.eve.command_invocation.v1 `
+  --expect-runtime-command-schema tui:gamecult.eve.command_invocation.v1 `
   --expect-runtime-capture-status web:chrome-headless `
   --expect-runtime-capture-status windows-flutter:golden `
   --expect-runtime-capture-status linux-flutter:ssh-golden `

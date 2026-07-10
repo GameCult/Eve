@@ -232,12 +232,13 @@ report the degradation.
 
 ## Commands
 
-Commands use `gamecult.eve.command.v1`:
+Authored command descriptors use `gamecult.eve.command.v1`. Runtime command
+invocations use `gamecult.eve.command_invocation.v1`:
 
 ```json
 {
   "type": "surface-command",
-  "schema": "gamecult.eve.command.v1",
+  "schema": "gamecult.eve.command_invocation.v1",
   "providerId": "gamecult.home.vn",
   "surfaceId": "sai.visual_novel.surface",
   "command": "story.choose",

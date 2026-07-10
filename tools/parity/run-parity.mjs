@@ -1400,8 +1400,8 @@ async function validateRuntimeCommandTransportSmoke(runtime) {
   if (!smoke) return [];
 
   const errors = [];
-  if (smoke.schema !== "gamecult.eve.command.v1") {
-    errors.push(`schema:expected gamecult.eve.command.v1 got ${smoke.schema || ""}`);
+  if (smoke.schema !== "gamecult.eve.command_invocation.v1") {
+    errors.push(`schema:expected gamecult.eve.command_invocation.v1 got ${smoke.schema || ""}`);
   }
 
   for (const candidate of smoke.expectedPaths || []) {
@@ -3261,7 +3261,7 @@ function collectCommandBoundaryCoverage(report) {
         status = "missing-runtime-claim";
       } else if (missingProviderBoundary) {
         status = "missing-provider-boundary";
-      } else if (runtimeCommandSchema !== "gamecult.eve.command.v1") {
+      } else if (runtimeCommandSchema !== "gamecult.eve.command_invocation.v1") {
         status = "missing-command-transport";
       }
       coverage.push({

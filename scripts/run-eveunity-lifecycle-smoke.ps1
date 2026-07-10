@@ -65,7 +65,7 @@ foreach ($claim in @(
   }
 }
 
-if ($manifest.commandTransport.schema -ne "gamecult.eve.command.v1") {
+if ($manifest.commandTransport.schema -ne "gamecult.eve.command_invocation.v1") {
   throw "Unexpected EveUnity command schema: $($manifest.commandTransport.schema)"
 }
 

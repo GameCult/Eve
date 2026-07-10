@@ -61,7 +61,7 @@ export class EveElectronShell {
 
     const intent = {
       type: "surface-command",
-      schema: "gamecult.eve.command.v1",
+      schema: "gamecult.eve.command_invocation.v1",
       providerId: selected.providerId,
       surfaceId: selected.surfaceId,
       command,
