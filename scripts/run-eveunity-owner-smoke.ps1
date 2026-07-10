@@ -12,7 +12,10 @@ $requiredOwnerPaths = @(
   "packages\org.gamecult.eve.unity-scene\package.json",
   "packages\org.gamecult.eve.unity-scene\eve-runtime-capability.json",
   "scripts\pack-uitoolkit.ps1",
-  "scripts\run-uitoolkit-tests.ps1"
+  "scripts\run-uitoolkit-tests.ps1",
+  "scripts\run-release-consumer-tests.ps1",
+  "ReleaseConsumerProject\Packages\manifest.json",
+  "ReleaseConsumerProject\Packages\packages-lock.json"
 )
 
 foreach ($relativePath in $requiredOwnerPaths) {
@@ -24,9 +27,9 @@ foreach ($relativePath in $requiredOwnerPaths) {
 
 $aetheriaManifest = Get-Content (Join-Path $AetheriaRoot "Packages\manifest.json") -Raw | ConvertFrom-Json
 $expectedDependencies = @{
-  "org.gamecult.eve.surface" = "file:../../EveUnity/packages/org.gamecult.eve.surface"
-  "org.gamecult.eve.unity-uitoolkit" = "file:../../EveUnity/packages/org.gamecult.eve.unity-uitoolkit"
-  "org.gamecult.eve.unity-scene" = "file:../../EveUnity/packages/org.gamecult.eve.unity-scene"
+  "org.gamecult.eve.surface" = "https://github.com/GameCult/EveUnity.git?path=/packages/org.gamecult.eve.surface#eveunity-surface-v0.1.0"
+  "org.gamecult.eve.unity-uitoolkit" = "https://github.com/GameCult/EveUnity.git?path=/packages/org.gamecult.eve.unity-uitoolkit#eveunity-uitoolkit-v0.1.0"
+  "org.gamecult.eve.unity-scene" = "https://github.com/GameCult/EveUnity.git?path=/packages/org.gamecult.eve.unity-scene#eveunity-scene-v0.1.0"
 }
 
 foreach ($entry in $expectedDependencies.GetEnumerator()) {
@@ -41,4 +44,4 @@ if ($LASTEXITCODE -ne 0) {
   throw "EveUnity UI Toolkit package smoke failed."
 }
 
-Write-Host "EveUnity owns the Unity packages and Aetheria consumes them from the owner repo."
+Write-Host "EveUnity owns tagged Unity packages and Aetheria consumes their immutable releases."

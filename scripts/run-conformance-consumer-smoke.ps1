@@ -105,7 +105,7 @@ try {
     --expect-runtime-witness electron-shell:eve.world-smoke:eve.world-smoke.surface:cold:pass `
     --expect-runtime-witness electron-shell:aetheria:aetheria.daemon.game:cold:pass `
     --expect-runtime-capture-probe tui:contract-artifact-present:json-grid:EveTui `
-    --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release"
+    --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Unity PlayMode frame capture"
   if ($LASTEXITCODE -ne 0) {
     throw "Conformance consumer smoke failed with exit code $LASTEXITCODE"
   }

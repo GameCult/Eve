@@ -46,7 +46,6 @@ try {
     --expect-split-target-proof "EveUnity:Unity scene runtime is owned by EveUnity" `
     --expect-split-target-proof "EveUnity:Unity scene lifecycle is owned and tested from EveUnity" `
     --expect-split-target-proof "EveUnity:Aetheria daemon 3D ARPG world lowers through a generic EveUnity playable-world client" `
-    --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target EveElectron `
     --expect-split-target-status EveElectron:graduated `
     --expect-split-target-proof "EveElectron:EveElectron owner repository publishes the generic runtime package" `

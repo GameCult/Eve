@@ -51,6 +51,10 @@ advertisements and typed command/receipt documents are the boundary.
   movement, targeting, and fire command receipts.
 - EveUnity's clean `TestProject` owns generic scene and UI Toolkit package
   verification; ordinary runtime tests no longer open or mutate Aetheria.
+- EveUnity publishes immutable `0.1.0` Git package tags for surface, scene, and
+  UI Toolkit. Its release-only consumer resolves those tags plus CultLib's
+  assembled Unity package and passes 26 Unity EditMode tests without sibling
+  package paths. Aetheria pins the same released sources.
 - EveUnity can start from one CultMesh rendezvous endpoint, discover a Verse,
   select an advertised `interactive-world` surface, and connect without
   configured Aetheria provider or surface identifiers. The Aetheria daemon
@@ -84,8 +88,6 @@ advertisements and typed command/receipt documents are the boundary.
 - Extract EveTui when its process lifecycle and release surface are stable.
 - Move Android Kotlin and iOS UIKit lowerers into runtime owner repos or retire
   them when Flutter is the intended native owner.
-- Tag and publish EveUnity UPM packages; prove installation from a released
-  package rather than sibling source paths.
 - Tag EveFlutter releases and remove remaining incubation claims.
 
 ### Generic Game Lowering
@@ -93,8 +95,9 @@ advertisements and typed command/receipt documents are the boundary.
 - Route browser and remaining runtimes through Odin's aggregated provider
   discovery rather than local catalogs or sibling paths; Unity's direct
   CultMesh Verse discovery is the working reference.
-- Prove cold-start Unity play from published packages plus daemon
-  advertisements, with no Aetheria checkout available to the client.
+- Extend the released-package consumer from EditMode lowering proof to
+  cold-start PlayMode discovery against the separately running Aetheria daemon;
+  the generic client must still have no Aetheria code or package path.
 - Expand world lowering only through generic surface contracts: entities,
   transforms, animation state, collision/navigation intent, cameras, effects,
   interaction prompts, and command boundaries.

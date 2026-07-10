@@ -190,11 +190,9 @@ node $consumerScript $consumerExport `
   --expect-screenshot-metric unity-scene:aetheria-world:bounding-boxes:pending-capture `
   --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
   --expect-screenshot-metric tui:aetheria-world:bounding-boxes:terminal-grid-capture `
-  --expect-runtime-lifecycle-status unity-uitoolkit:release:upm-package-artifact-smoke `
-  --expect-runtime-lifecycle-status unity-uitoolkit:test:batchmode-editmode-tests-and-consumer-build-smoke `
+  --expect-runtime-lifecycle-status unity-uitoolkit:release:tagged-upm-release `
+  --expect-runtime-lifecycle-status unity-uitoolkit:test:released-package-editmode-batchmode `
   --expect-runtime-lifecycle-status unity-uitoolkit:capture:pending-editor-capture `
-  --expect-runtime-lifecycle-pending "unity-uitoolkit:release:Tagged UPM release" `
-  --expect-runtime-lifecycle-pending "unity-uitoolkit:test:Cut and publish the first tagged EveUnity UI Toolkit package release" `
   --expect-runtime-lifecycle-pending "unity-uitoolkit:capture:Unity batchmode or editor capture artifact" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.packageName:org.gamecult.eve.unity-uitoolkit" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:release:releaseContract.artifactKind:upm-package" `
@@ -234,10 +232,9 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.providerId:aetheria" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.surfaceId:aetheria.daemon.editor" `
-  --expect-runtime-lifecycle-status unity-scene:release:owner-repo-upm-artifact `
-  --expect-runtime-lifecycle-status unity-scene:test:unity-scene-editmode-batchmode `
+  --expect-runtime-lifecycle-status unity-scene:release:tagged-upm-release `
+  --expect-runtime-lifecycle-status unity-scene:test:released-package-editmode-batchmode `
   --expect-runtime-lifecycle-status unity-scene:capture:partial-world-smoke-playmode-capture `
-  --expect-runtime-lifecycle-pending "unity-scene:release:Cut and publish the first tagged EveUnity package release" `
   --expect-runtime-lifecycle-pending "unity-scene:capture:Attach the Aetheria daemon PlayMode PNG" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.packageName:org.gamecult.eve.unity-scene" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactKind:upm-package" `
