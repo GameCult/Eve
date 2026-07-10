@@ -152,6 +152,9 @@ advertisements and typed command/receipt documents are the boundary.
   from public Git URLs at immutable commits. Cold conformance runs reject
   checkout/lock mismatches and export the evidence lock coordinates plus digest,
   so sibling development layout is no longer conformance authority.
+- EveConformance CI runs that locked public workspace on every push and uploads
+  a commit-keyed evidence bundle. Version tags attach the same lock, reports,
+  capability matrix, packs, captures, and typed witnesses to a GitHub release.
 
 ## Remaining Work
 
@@ -191,9 +194,6 @@ advertisements and typed command/receipt documents are the boundary.
 
 - Move remaining fixture metadata that describes product/plugin semantics to
   its owner pack; Eve keeps only minimal contract fixtures.
-- Run the locked EveConformance workspace in CI and attach published binary,
-  package, capture, and witness artifacts for each release.
-- Publish immutable conformance exports and capability matrices per release.
 - Remove obsolete split-handoff schemas and checks after every named owner repo
   has a released consumer path.
 
