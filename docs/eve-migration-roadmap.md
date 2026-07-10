@@ -285,18 +285,25 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Repoint Eve conformance and handoff evidence at the graduated `EveUnity`
-   owner repo, then delete the duplicate
-   `runtimes/incubating/eve-unity-scene` body and Eve-local Unity lifecycle
-   scripts. Keep only Eve contracts and cross-repo conformance policy here.
-2. Add a real Unity PlayMode PNG/frame capture in EveUnity for Aetheria's
+1. Add a real Unity PlayMode PNG/frame capture in EveUnity for Aetheria's
    daemon-published game surface and the generic world-smoke provider.
-3. Replace Aetheria's local state-file polling adapter with a generic live
+2. Replace Aetheria's local state-file polling adapter with a generic live
    CultMesh/CultNet provider transport when that transport contract is ready;
    Aetheria should then supply only provider advertisement and credentials.
 
 Recently cut:
 
+- Eve no longer contains `runtimes/incubating/eve-unity-scene`. Runtime
+  capability, source-symbol, lifecycle, and package evidence now resolve from
+  `../EveUnity` through the parity runtime's `sourceRoot`. Eve-local scene
+  release, capture, lifecycle, split-handoff, and EditMode runner scripts were
+  deleted. `unity-scene` is active in parity; its real frame capture remains a
+  visible lifecycle gap rather than a JSON projection standing in for pixels.
+- EveUnity now owns typed release and capture request builders alongside its
+  UPM pack and consumer-test scripts. The release builder describes a package
+  request; the capture builder consumes a provider advertisement and describes
+  the requested frame. Neither claims a release tag or PNG exists before the
+  corresponding owner-repo artifact is produced.
 - `GameCult/EveUnity` now exists as the runtime owner repo. It owns
   `packages/org.gamecult.eve.unity-scene`, the generic GameObject playable-world
   host, camera/input components, plugin projection shells, package tests, UPM
@@ -310,11 +317,6 @@ Recently cut:
   from the provider repo or Eve core. A consumer run through the owner path
   passed all 21 `GameCult.Eve.UnityScene.Tests` tests, with results under
   `E:\Projects\EveUnity\artifacts\aetheria-consumer\20260710T022930`.
-- The runtime split is not yet structurally complete because Eve's parity
-  manifest, handoff ledger, and Unity smokes still inspect the incubating copy.
-  Those references must move to owner-repo evidence before the duplicate body
-  is deleted. Until that deletion, EveUnity is the active package owner and
-  Eve's copy is migration residue, not a second runtime authority.
 - The web reference now has a schema-backed layout probe for the
   `embedded-surface` and `sai-vn` fixtures.
   `scripts/run-web-reference-layout-probe-smoke.ps1` builds the browser lowerer,

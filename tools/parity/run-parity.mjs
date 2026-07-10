@@ -274,14 +274,14 @@ async function loadSurface(surface) {
 
 async function evaluateRuntime(runtime, fixtureResults) {
   const expectedPaths = runtime.expectedPaths || [];
-  const missingPaths = expectedPaths.filter(candidate => !existsSync(path.join(repoRoot, candidate)));
+  const missingPaths = expectedPaths.filter(candidate => !existsSync(resolveRuntimeOwnedPath(runtime, candidate)));
   const expectedExternalPaths = runtime.expectedExternalPaths || [];
   const missingExternalPaths = expectedExternalPaths.filter(candidate => !existsSync(candidate));
   const expectedSourceSymbols = runtime.expectedSourceSymbols || [];
   const missingSourceSymbols = [];
   for (const expectation of expectedSourceSymbols) {
     const sourcePath = expectation.path || "";
-    const absolutePath = path.join(repoRoot, sourcePath);
+    const absolutePath = resolveRuntimeOwnedPath(runtime, sourcePath);
     if (!existsSync(absolutePath)) {
       missingSourceSymbols.push(`${sourcePath}:missing`);
       continue;
@@ -404,7 +404,7 @@ async function readRuntimeCapabilityManifestDocument(runtime) {
   const manifestPath = runtime.capabilityManifest?.manifestPath;
   if (!manifestPath) return null;
   try {
-    return await readJsonDocument(manifestPath);
+    return JSON.parse(await readFile(resolveRuntimeOwnedPath(runtime, manifestPath), "utf8"));
   } catch {
     return null;
   }
@@ -477,7 +477,7 @@ async function validateRuntimeLifecycle(runtime, lifecycle, lifecycleDocument) {
   for (const stage of ["release", "test", "capture"]) {
     const stageDocument = lifecycle[stage];
     for (const evidencePath of stageDocument?.evidencePaths || []) {
-      if (!existsSync(path.join(repoRoot, evidencePath))) {
+      if (!existsSync(resolveRuntimeOwnedPath(runtime, evidencePath))) {
         errors.push(`lifecycle.${stage}.evidence:${evidencePath}:missing`);
       }
     }
@@ -1419,13 +1419,14 @@ async function validateRuntimeCapabilityManifest(runtime) {
   const capabilityManifest = runtime.capabilityManifest;
   if (!capabilityManifest) return [];
 
-  const errors = await validateJsonDocument(capabilityManifest.schemaPath, capabilityManifest.manifestPath, {
+  const manifestDocumentPath = path.relative(repoRoot, resolveRuntimeOwnedPath(runtime, capabilityManifest.manifestPath));
+  const errors = await validateJsonDocument(capabilityManifest.schemaPath, manifestDocumentPath, {
     schema: "gamecult.eve.runtime_capability.v1",
     runtimeId: runtime.id,
   });
   if (errors.length) return errors;
 
-  const documentPath = path.join(repoRoot, capabilityManifest.manifestPath);
+  const documentPath = resolveRuntimeOwnedPath(runtime, capabilityManifest.manifestPath);
   const document = JSON.parse(await readFile(documentPath, "utf8"));
   const supportedFeatures = document.supportedFeatures || [];
   const supportedPlugins = document.supportedPlugins || [];
@@ -1449,6 +1450,7 @@ async function validateRuntimeCapabilityManifest(runtime) {
     runtime.worldSurfaceLowering || [],
     worldSurfaceLowering,
     `${capabilityManifest.manifestPath}:worldSurfaceLowering`,
+    runtime,
   ));
 
   const expectedCommandSchema = runtimeCommandTransportSchema(runtime);
@@ -1472,12 +1474,13 @@ async function validateRuntimeCapabilityManifest(runtime) {
     runtime.lifecycle || {},
     lifecycle,
     capabilityManifest.manifestPath,
+    runtime,
   ));
 
   return errors;
 }
 
-function compareWorldSurfaceLoweringClaims(expectedClaims, actualClaims, label) {
+function compareWorldSurfaceLoweringClaims(expectedClaims, actualClaims, label, runtime) {
   const errors = [];
   const actualByTarget = new Map((actualClaims || []).map(claim => [claim.targetId, claim]));
   for (const expected of expectedClaims || []) {
@@ -1495,7 +1498,7 @@ function compareWorldSurfaceLoweringClaims(expectedClaims, actualClaims, label) 
     errors.push(...missingMembers(expected.projectionKinds || [], actual.projectionKinds || [], `${label}:${expected.targetId}.projectionKinds`));
     errors.push(...missingMembers(expected.evidencePaths || [], actual.evidencePaths || [], `${label}:${expected.targetId}.evidencePaths`));
     for (const evidencePath of actual.evidencePaths || []) {
-      if (!existsSync(path.join(repoRoot, evidencePath))) {
+      if (!existsSync(resolveRuntimeOwnedPath(runtime, evidencePath))) {
         errors.push(`${label}:${expected.targetId}.evidencePath:${evidencePath}:missing`);
       }
     }
@@ -1503,7 +1506,7 @@ function compareWorldSurfaceLoweringClaims(expectedClaims, actualClaims, label) 
   return errors;
 }
 
-function compareRuntimeLifecycleClaims(expectedLifecycle, actualLifecycle, manifestPath) {
+function compareRuntimeLifecycleClaims(expectedLifecycle, actualLifecycle, manifestPath, runtime) {
   const errors = [];
   for (const stage of ["release", "test", "capture"]) {
     const expected = expectedLifecycle[stage];
@@ -1523,12 +1526,12 @@ function compareRuntimeLifecycleClaims(expectedLifecycle, actualLifecycle, manif
 
     errors.push(...missingMembers(expected.evidencePaths || [], actual.evidencePaths || [], `${label}.evidencePaths`));
     errors.push(...missingMembers(expected.pendingProofs || [], actual.pendingProofs || [], `${label}.pendingProofs`));
-    errors.push(...compareReleaseContract(expected.releaseContract, actual.releaseContract, `${label}.releaseContract`));
-    errors.push(...compareTestContract(expected.testContract, actual.testContract, `${label}.testContract`));
+    errors.push(...compareReleaseContract(expected.releaseContract, actual.releaseContract, `${label}.releaseContract`, runtime));
+    errors.push(...compareTestContract(expected.testContract, actual.testContract, `${label}.testContract`, runtime));
     errors.push(...compareCaptureContract(expected.captureContract, actual.captureContract, `${label}.captureContract`));
 
     for (const evidencePath of actual.evidencePaths || []) {
-      if (!existsSync(path.join(repoRoot, evidencePath))) {
+      if (!existsSync(resolveRuntimeOwnedPath(runtime, evidencePath))) {
         errors.push(`${label}.evidencePaths:${evidencePath}:missing`);
       }
     }
@@ -1576,7 +1579,7 @@ function captureSurfaceClaimKeys(claims) {
     .filter(claim => claim !== ":");
 }
 
-function compareTestContract(expected, actual, label) {
+function compareTestContract(expected, actual, label, runtime) {
   const errors = [];
   if (!expected) return errors;
   if (!actual) return [`${label}:missing`];
@@ -1597,7 +1600,7 @@ function compareTestContract(expected, actual, label) {
       errors.push(`${label}.${key}:expected ${expected[key] || ""} got ${actual[key] || ""}`);
     }
   }
-  if (actual.runnerScript && !existsSync(path.join(repoRoot, actual.runnerScript))) {
+  if (actual.runnerScript && !existsSync(resolveRuntimeOwnedPath(runtime, actual.runnerScript))) {
     errors.push(`${label}.runnerScript:${actual.runnerScript}:missing`);
   }
   if (actual.consumerProject && !existsSync(actual.consumerProject)) {
@@ -1625,7 +1628,7 @@ function compareTestContract(expected, actual, label) {
   return errors;
 }
 
-function compareReleaseContract(expected, actual, label) {
+function compareReleaseContract(expected, actual, label, runtime) {
   const errors = [];
   if (!expected) return errors;
   if (!actual) return [`${label}:missing`];
@@ -1638,7 +1641,7 @@ function compareReleaseContract(expected, actual, label) {
     errors.push(`${label}.requestSchema:${actual.requestSchema}:missing-schema-catalog-entry`);
   }
   for (const key of ["packageRoot", "versionSource", "requestBuilder", "artifactBuilder"]) {
-    if (actual[key] && !existsSync(path.join(repoRoot, actual[key]))) {
+    if (actual[key] && !existsSync(resolveRuntimeOwnedPath(runtime, actual[key]))) {
       errors.push(`${label}.${key}:${actual[key]}:missing`);
     }
   }
@@ -1649,6 +1652,13 @@ function compareReleaseContract(expected, actual, label) {
     ["packageName", "version", "packageManager", "ownerRepo", "purpose"],
   ));
   return errors;
+}
+
+function resolveRuntimeOwnedPath(runtime, candidate) {
+  if (!candidate) return repoRoot;
+  if (path.isAbsolute(candidate)) return candidate;
+  const sourceRoot = runtime?.sourceRoot || ".";
+  return path.resolve(repoRoot, sourceRoot, candidate);
 }
 
 function compareDependencyRecords(expectedRecords, actualRecords, label, keys) {

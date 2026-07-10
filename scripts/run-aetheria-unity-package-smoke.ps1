@@ -1,5 +1,6 @@
 param(
-  [string] $AetheriaRoot = "E:\Projects\Aetheria"
+  [string] $AetheriaRoot = "E:\Projects\Aetheria",
+  [string] $EveUnityRoot = "E:\Projects\EveUnity"
 )
 
 $ErrorActionPreference = "Stop"
@@ -7,6 +8,9 @@ $ErrorActionPreference = "Stop"
 $eveRoot = Split-Path -Parent $PSScriptRoot
 if (-not (Test-Path $AetheriaRoot)) {
   throw "Aetheria repo not found: $AetheriaRoot"
+}
+if (-not (Test-Path $EveUnityRoot)) {
+  throw "EveUnity repo not found: $EveUnityRoot"
 }
 
 $manifestPath = Join-Path $AetheriaRoot "Packages\manifest.json"
@@ -24,8 +28,9 @@ $aetheriaGameSurfaceBuilder = Join-Path $AetheriaRoot "Packages\org.gamecult.aet
 $aetheriaDaemonOperationsClient = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonOperationsClient.cs"
 $aetheriaDaemonDocuments = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeDaemonDocuments.cs"
 $aetheriaRuntimeVerseClient = Join-Path $AetheriaRoot "Packages\org.gamecult.aetheria.state\Runtime\AetheriaRuntimeVerseClient.cs"
-$eveUnitySceneProviderConnection = Join-Path $eveRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneProviderConnection.cs"
-$eveUnitySceneLiveProviderBridge = Join-Path $eveRoot "runtimes\incubating\eve-unity-scene\Runtime\EveUnitySceneLiveProviderBridge.cs"
+$eveUnityScenePackage = Join-Path $EveUnityRoot "packages\org.gamecult.eve.unity-scene"
+$eveUnitySceneProviderConnection = Join-Path $eveUnityScenePackage "Runtime\EveUnitySceneProviderConnection.cs"
+$eveUnitySceneLiveProviderBridge = Join-Path $eveUnityScenePackage "Runtime\EveUnitySceneLiveProviderBridge.cs"
 if (-not (Test-Path $manifestPath)) {
   throw "Aetheria Unity package manifest not found: $manifestPath"
 }
@@ -81,7 +86,7 @@ if (-not (Test-Path $eveUnitySceneLiveProviderBridge)) {
 $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
 $requiredDependencies = @{
   "org.gamecult.eve.surface" = "file:../../Eve/packages/org.gamecult.eve.surface"
-  "org.gamecult.eve.unity-scene" = "file:../../Eve/runtimes/incubating/eve-unity-scene"
+  "org.gamecult.eve.unity-scene" = "file:../EveUnity/packages/org.gamecult.eve.unity-scene"
   "org.gamecult.eve.unity-uitoolkit" = "file:../../Eve/packages/org.gamecult.eve.unity-uitoolkit"
 }
 foreach ($dependencyName in $requiredDependencies.Keys) {
@@ -122,7 +127,7 @@ $requiredSceneCompileItems = @(
   "Runtime\EveUnityPlayableWorldAssetManifest.cs"
 )
 foreach ($compileItem in $requiredSceneCompileItems) {
-  $expected = Join-Path $eveRoot "runtimes\incubating\eve-unity-scene\$compileItem"
+  $expected = Join-Path $eveUnityScenePackage $compileItem
   if (-not $sceneProject.Contains($expected)) {
     throw "Aetheria GameCult.Eve.UnityScene.csproj missing compile item: $expected"
   }

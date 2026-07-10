@@ -36,15 +36,6 @@ try {
     -ExpectedSurfaceId "eve.world-smoke.surface" `
     -ExpectedCommandBoundary "eve.world-smoke.commands" `
     -ExpectedReceiptSchema "eve.world_smoke.command_receipt.v1"
-  & (Join-Path $PSScriptRoot "run-eveunity-scene-capture-smoke.ps1") `
-    -AdvertisementPath "web\fixtures\eve-world-smoke.provider-advertisement.json" `
-    -SurfacePath "web\fixtures\eve-world-smoke-surface.json" `
-    -OutputPath "artifacts\eveunity-scene-capture\latest\eve-world-smoke-unity-scene-projection.json" `
-    -RequestOutputPath "artifacts\eveunity-scene-capture\latest\eve-world-smoke-capture-request.json" `
-    -ExpectedProviderId "eve.world-smoke" `
-    -ExpectedSurfaceId "eve.world-smoke.surface" `
-    -ExpectedCommandBoundary "eve.world-smoke.commands" `
-    -ExpectedReceiptSchema "eve.world_smoke.command_receipt.v1"
   & (Join-Path $PSScriptRoot "run-eveelectron-capture-smoke.ps1") `
     -AdvertisementPath "web\fixtures\eve-world-smoke.provider-advertisement.json" `
     -SurfacePath "web\fixtures\eve-world-smoke-surface.json" `
@@ -70,9 +61,6 @@ try {
   & (Join-Path $PSScriptRoot "run-aetheria-provider-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveunity-split-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveunity-release-artifact-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-eveunity-scene-split-handoff-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-eveunity-scene-release-artifact-smoke.ps1")
-  & (Join-Path $PSScriptRoot "run-eveunity-scene-lifecycle-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveelectron-split-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveelectron-lifecycle-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-split-handoff-smoke.ps1")

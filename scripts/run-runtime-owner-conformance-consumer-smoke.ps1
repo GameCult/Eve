@@ -56,7 +56,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-status linux-flutter:active `
   --expect-runtime-status android-flutter:active `
   --expect-runtime-status unity-uitoolkit:active `
-  --expect-runtime-status unity-scene:pending `
+  --expect-runtime-status unity-scene:active `
   --expect-runtime-status electron-shell:pending `
   --expect-runtime-status tui:active `
   --expect-runtime-status direct2d:external-adapter-spike `
@@ -164,9 +164,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-status unity-uitoolkit:json-projection `
   --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:eve.world-smoke:eve.world-smoke.surface `
-  --expect-runtime-capture-status unity-scene:json-projection `
-  --expect-runtime-capture-artifact unity-scene:json-projection:gamecult.eve.unity_scene_projection.v1:aetheria:aetheria.daemon.game `
-  --expect-runtime-capture-artifact unity-scene:json-projection:gamecult.eve.unity_scene_projection.v1:eve.world-smoke:eve.world-smoke.surface `
+  --expect-runtime-capture-status unity-scene:pending-unity-frame-capture `
   --expect-runtime-capture-status electron-shell:json-projection `
   --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-artifact electron-shell:json-projection:gamecult.eve.electron_shell_projection.v1:eve.world-smoke:eve.world-smoke.surface `
@@ -175,7 +173,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:eve.world-smoke:eve.world-smoke.surface `
   --expect-runtime-capture-status direct2d:missing `
   --expect-runtime-capture-probe unity-uitoolkit:semantic-artifact-present-capture-pending:png:EveUnity `
-  --expect-runtime-capture-probe unity-scene:semantic-artifact-present-capture-pending:png:EveUnity `
+  --expect-runtime-capture-probe unity-scene:contract-artifact-missing:png:EveUnity `
   --expect-runtime-capture-probe electron-shell:semantic-artifact-present-capture-pending:png:EveElectron `
   --expect-runtime-capture-probe tui:contract-artifact-present:json-grid:EveTui `
   --expect-screenshot-metric web:embedded-surface:structure:pass `
@@ -236,32 +234,32 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.providerId:aetheria" `
   --expect-runtime-lifecycle-field "unity-uitoolkit:capture:captureContract.additionalProviderSurfaces.1.surfaceId:aetheria.daemon.editor" `
-  --expect-runtime-lifecycle-status unity-scene:release:unity-scene-upm-artifact-smoke `
+  --expect-runtime-lifecycle-status unity-scene:release:owner-repo-upm-artifact `
   --expect-runtime-lifecycle-status unity-scene:test:unity-scene-editmode-batchmode `
-  --expect-runtime-lifecycle-status unity-scene:capture:pending-unity-scene-capture `
-  --expect-runtime-lifecycle-pending "unity-scene:release:Unity scene package release" `
-  --expect-runtime-lifecycle-pending "unity-scene:test:Unity scene EditMode runner" `
+  --expect-runtime-lifecycle-status unity-scene:capture:pending-unity-frame-capture `
+  --expect-runtime-lifecycle-pending "unity-scene:release:Cut and publish the first tagged EveUnity package release" `
+  --expect-runtime-lifecycle-pending "unity-scene:test:Move the Aetheria consumer scenario into a provider-owned conformance pack" `
   --expect-runtime-lifecycle-pending "unity-scene:capture:Unity scene screenshot or frame-capture PNG artifact" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.packageName:org.gamecult.eve.unity-scene" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactKind:upm-package" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.tagPattern:eveunity-scene-v{version}" `
-  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.versionSource:runtimes/incubating/eve-unity-scene/package.json" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.versionSource:packages/org.gamecult.eve.unity-scene/package.json" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requestSchema:gamecult.eve.runtime_release_request.v1" `
-  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requestBuilder:tools/eveunity/eveunity-release-contract.mjs" `
-  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactBuilder:tools/eveunity/eveunity-release-artifact.mjs" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requestBuilder:scripts/build-release-request.ps1" `
+  --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactBuilder:scripts/pack.ps1" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactPattern:artifacts/eveunity-scene-release/{version}/org.gamecult.eve.unity-scene-{version}.tgz" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requiredPackageDependencies.0.packageName:org.gamecult.eve.surface" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requiredPackageDependencies.0.ownerRepo:Eve" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.requiredPackageDependencies.0.packageManager:upm" `
   --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerKind:unity-editmode-batchmode" `
-  --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerScript:scripts/run-aetheria-unity-scene-editmode-tests.ps1" `
+  --expect-runtime-lifecycle-field "unity-scene:test:testContract.runnerScript:scripts/run-package-tests.ps1" `
   --expect-runtime-lifecycle-field "unity-scene:test:testContract.testPlatform:EditMode" `
   --expect-runtime-lifecycle-field "unity-scene:test:testContract.testAssembly:GameCult.Eve.UnityScene.Tests" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.captureKind:unity-scene-frame-png" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.targetId:unity-scene" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `
-  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requestBuilder:tools/eveunity/eveunity-capture-contract.mjs" `
-  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.advertisementPath:web/fixtures/aetheria.provider-advertisement.json" `
+  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requestBuilder:scripts/build-capture-request.ps1" `
+  --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.advertisementPath:GameCult/Aetheria:web/fixtures/aetheria.provider-advertisement.json" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.additionalProviderSurfaces.0.providerId:eve.world-smoke" `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `

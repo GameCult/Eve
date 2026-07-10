@@ -481,15 +481,11 @@ lowers the Aetheria world surface through `EveElectronShell` into
 `artifacts/eveelectron-capture/latest/electron-shell-projection.json`. The
 remaining blocker is packaged Electron window capture.
 
-Unity scene semantic capture evidence follows the same rule without pretending
-it is a rendered Unity frame. `tools/eveunity/eveunity-scene-capture-artifact.mjs`
-lowers the Aetheria world surface into `gamecult.eve.unity_scene_projection.v1`
-and writes `artifacts/eveunity-scene-capture/latest/unity-scene-projection.json`.
-It records scene graph projection, embedded slots, sidecar plugin projection
-metadata, and a `playableWorld` extraction for generic `world.scene3d` /
-`world.entity3d` ARPG data: state pointer, asset manifest, camera/input profile,
-entity transforms, asset refs, and daemon command affordances. The Unity scene
-runtime also declares `providerSurfaceSession` and carries
+Unity scene runtime evidence is now consumed from the `EveUnity` owner repo
+through the parity runtime's `sourceRoot`. Eve does not generate a substitute
+JSON scene capture. Until EveUnity attaches a real PlayMode PNG or frame, the
+capture contract reports `contract-artifact-missing` and remains visibly
+pending. The owner runtime declares `providerSurfaceSession` and carries
 `EveUnitySceneClientSession`, a provider-snapshot boundary that lowers the
 active surface and emits `gamecult.eve.command.v1` intents without Aetheria
 types. It also declares `providerSurfaceSource` through
