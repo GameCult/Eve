@@ -317,10 +317,17 @@ Recently cut:
   advertisement over preload IPC and supplies a narrow CultMesh adapter. Its
   renderer no longer selects `eve:surface:aetheria.daemon.game` or owns the
   refresh loop; the product launcher configures the desired advertised surface.
-  Eve parity and generated-binding checks pass. The existing Stage 7C Electron
-  live smoke currently times out in its initial CultMesh frame probe before the
-  renderer loads, despite the daemon log showing published frames, so that
-  launch witness remains open rather than being counted as lowering proof.
+  Eve parity and generated-binding checks pass. The Stage 7C Electron live
+  smoke discovers the provider advertisement, verifies `aetheria.game`, lowers
+  the provider surface into the renderer, reads field documents and daemon
+  authority/session state, and receives an accepted Eve command receipt.
+- TypeScript and C# RUDP now share one sequence invariant: ACK packets are
+  sequence-neutral receipt metadata, every data fragment is acknowledged, and
+  sequenced control can release ordered frames it unblocks. The previous TS ACK
+  allocator consumed a sequence number that C# correctly ignored, leaving the
+  next ordered snapshot request buffered forever. CultNet TS unit tests, the
+  CultMesh TS suite, Aetheria's local Stage 7C verifier, and its full Electron
+  verifier all pass with the repaired protocol.
 
 - The clean EveUnity PlayMode client now consumes Aetheria's independently
   running daemon without importing Aetheria code. Aetheria builds its authored
