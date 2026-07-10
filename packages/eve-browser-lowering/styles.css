@@ -814,6 +814,85 @@ body[data-pixel-art="true"] .cultui-background {
   padding: 6px 8px;
 }
 
+.cultui-world-scene {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  min-height: min(72vh, 760px);
+  overflow: hidden;
+  outline: none;
+  background: rgba(2, 8, 12, 0.5);
+}
+
+.cultui-world-scene:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.cultui-world-heading {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+.cultui-world-heading span {
+  color: var(--quiet);
+}
+
+.cultui-world-plane {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(var(--pixel-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pixel-grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.cultui-world-entity {
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(224, 238, 240, 0.65);
+  border-radius: 50%;
+  color: #f1f5f4;
+  background: rgba(24, 34, 38, 0.92);
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+}
+
+.cultui-world-entity.faction-player { border-color: #54d9c7; color: #9ff8e8; }
+.cultui-world-entity.faction-raider,
+.cultui-world-entity.faction-hostile { border-color: #ff695f; color: #ffaaa3; }
+.cultui-world-entity[data-controlled="true"] { box-shadow: 0 0 0 3px rgba(255, 190, 72, 0.4); }
+
+.cultui-world-entity-glyph {
+  align-self: center;
+  font: 700 16px/1 var(--font-mono);
+}
+
+.cultui-world-entity-label {
+  position: absolute;
+  top: 38px;
+  width: max-content;
+  max-width: 132px;
+  overflow: hidden;
+  color: var(--text);
+  font: 600 11px/1.2 var(--font-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 .cultui-swatch {
   width: 36px;
   min-height: 36px;

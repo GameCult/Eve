@@ -201,6 +201,9 @@ export function renderEveComponent(node, options = currentOptions) {
     if (kind === "field.surface2d" || kind === "gravity.surface") {
         return renderGravitySurface(node, props, layout, style, options);
     }
+    if (kind === "world.scene3d") {
+        return renderWorldScene(node, props, layout, style, options);
+    }
     if (kind === "image.background") {
         const view = el("div", "cultui-background");
         const src = resolveAssetUrl(firstString(props.src, props.assetUri, props.assetRef, ""));
@@ -666,6 +669,131 @@ function renderGravitySurface(node, props, layout, style, options) {
     window.setTimeout(scheduleDraw, 300);
     window.setTimeout(scheduleDraw, 1000);
     return canvas;
+}
+export function projectWorldScene(node) {
+    const entities = (node.children || []).filter(child => child.kind === "world.entity3d");
+    const positions = entities.map(entity => vector3Prop(objectProps(entity.props).position, [0, 0, 0]));
+    const xs = positions.map(position => position[0]);
+    const zs = positions.map(position => position[2]);
+    const minX = Math.min(...xs, -1);
+    const maxX = Math.max(...xs, 1);
+    const minZ = Math.min(...zs, -1);
+    const maxZ = Math.max(...zs, 1);
+    const spanX = Math.max(1, maxX - minX);
+    const spanZ = Math.max(1, maxZ - minZ);
+    const padding = 6;
+    return entities.map((entity, index) => {
+        const props = objectProps(entity.props);
+        return {
+            entityId: firstString(props.entityId, entity.id),
+            faction: stringProp(props.faction, "neutral"),
+            kind: stringProp(props.entityKind, "entity"),
+            label: firstString(props.label, props.entityId, entity.id, "Entity"),
+            controlled: boolProp(props.controllable),
+            xPercent: padding + ((positions[index][0] - minX) / spanX) * (100 - padding * 2),
+            yPercent: padding + (1 - ((positions[index][2] - minZ) / spanZ)) * (100 - padding * 2),
+            source: entity,
+        };
+    });
+}
+function renderWorldScene(node, props, layout, style, options) {
+    const scene = el("section", "cultui-world-scene");
+    assignId(scene, node);
+    applyGeneratedLayout(scene, layout, style);
+    scene.tabIndex = 0;
+    scene.setAttribute("aria-label", stringProp(props.label, "Interactive world"));
+    const entities = projectWorldScene(node);
+    const controlled = entities.find(entity => entity.controlled);
+    const heading = el("div", "cultui-world-heading");
+    heading.append(el("strong", "", stringProp(props.label, "World")));
+    heading.append(el("span", "", `${entities.length} entities`));
+    scene.append(heading);
+    const plane = el("div", "cultui-world-plane");
+    for (const entity of entities) {
+        const marker = el("button", `cultui-world-entity faction-${cssIdentifier(entity.faction)} kind-${cssIdentifier(entity.kind)}`);
+        marker.type = "button";
+        marker.style.left = `${entity.xPercent}%`;
+        marker.style.top = `${entity.yPercent}%`;
+        marker.dataset.entityId = entity.entityId;
+        marker.dataset.controlled = entity.controlled ? "true" : "false";
+        marker.title = entity.label;
+        marker.setAttribute("aria-label", `${entity.label}, ${entity.kind}, ${entity.faction}`);
+        marker.append(el("span", "cultui-world-entity-glyph", worldEntityGlyph(entity.kind)));
+        marker.append(el("span", "cultui-world-entity-label", entity.label));
+        const entityProps = objectProps(entity.source.props);
+        const targetCommand = firstString(entityProps.targetCommand, props.targetCommand, entityProps.focusCommand, props.focusCommand);
+        if (targetCommand) {
+            marker.addEventListener("click", () => emitWorldCommand(targetCommand, {
+                actorEntityId: controlled?.entityId || firstString(props.playerEntityId),
+                entityId: entity.entityId,
+                targetEntityId: entity.entityId,
+                targetEntityKey: entity.entityId,
+            }, entity.source, options));
+        }
+        plane.append(marker);
+    }
+    scene.append(plane);
+    scene.addEventListener("keydown", event => {
+        const direction = worldDirectionForKey(event.key);
+        if (direction) {
+            event.preventDefault();
+            const command = firstString(props.movementCommand, objectProps(controlled?.source.props).moveCommand);
+            if (command)
+                emitWorldCommand(command, {
+                    actorEntityId: controlled?.entityId || firstString(props.playerEntityId),
+                    actorEntityKey: controlled?.entityId || firstString(props.playerEntityId),
+                    directionX: direction[0],
+                    directionY: direction[1],
+                    scalar: 1,
+                }, node, options);
+            return;
+        }
+        const command = event.key === " "
+            ? firstString(props.actionCommand, objectProps(controlled?.source.props).actionCommand)
+            : event.key.toLowerCase() === "f"
+                ? firstString(props.focusCommand, objectProps(controlled?.source.props).focusCommand)
+                : "";
+        if (command) {
+            event.preventDefault();
+            emitWorldCommand(command, {
+                actionId: event.key === " " ? "0" : "focus",
+                actorEntityId: controlled?.entityId || firstString(props.playerEntityId),
+                actorEntityKey: controlled?.entityId || firstString(props.playerEntityId),
+            }, node, options);
+        }
+    });
+    return scene;
+}
+function emitWorldCommand(command, action, node, options) {
+    void options.commandSink?.(createWorldActionIntent(command, action, options), node);
+}
+export function createWorldActionIntent(command, action, options = currentOptions) {
+    return createEveCommandIntent(command, { action }, options);
+}
+function worldDirectionForKey(key) {
+    switch (key.toLowerCase()) {
+        case "w":
+        case "arrowup": return [0, 1];
+        case "s":
+        case "arrowdown": return [0, -1];
+        case "a":
+        case "arrowleft": return [-1, 0];
+        case "d":
+        case "arrowright": return [1, 0];
+        default: return undefined;
+    }
+}
+function worldEntityGlyph(kind) {
+    if (kind.includes("station"))
+        return "S";
+    if (kind.includes("projectile"))
+        return ".";
+    if (kind.includes("ship"))
+        return "^";
+    return "+";
+}
+function cssIdentifier(value) {
+    return value.toLowerCase().replace(/[^a-z0-9_-]+/g, "-");
 }
 async function resolveGravitySurfaceDocuments(node, props, options, state) {
     if (!options.documentResolver || state.loading)

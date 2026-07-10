@@ -328,6 +328,14 @@ Recently cut:
   next ordered snapshot request buffered forever. CultNet TS unit tests, the
   CultMesh TS suite, Aetheria's local Stage 7C verifier, and its full Electron
   verifier all pass with the repaired protocol.
+- The browser lowerer now gives `world.scene3d` / `world.entity3d` a generic
+  tactical projection. It normalizes provider-authored X/Z poses into a stable
+  viewport, distinguishes controlled and faction markers, and maps target,
+  movement, focus, and action input into provider-routed Eve command intents.
+  It does not advance poses or simulate combat locally. Aetheria's Electron
+  witness requires the Eve-owned world scene, provider entity markers, and one
+  controlled marker in the rendered DOM, so surrounding HUD text cannot stand
+  in for interactive-world lowering proof.
 
 - The clean EveUnity PlayMode client now consumes Aetheria's independently
   running daemon without importing Aetheria code. Aetheria builds its authored

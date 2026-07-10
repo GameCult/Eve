@@ -118,8 +118,20 @@ export interface EveResolvedDocument {
     schemaId?: string;
     surface?: EveSurfaceDocument["surface"];
 }
+export interface EveProjectedWorldEntity {
+    entityId: string;
+    faction: string;
+    kind: string;
+    label: string;
+    controlled: boolean;
+    xPercent: number;
+    yPercent: number;
+    source: EveSurfaceComponent;
+}
 export declare function renderEveSurface(surface: EveSurfaceDocument, host: HTMLElement, options?: EveBrowserLoweringOptions): HTMLElement;
 export declare function renderEveComponent(node: EveSurfaceComponent, options?: EveBrowserLoweringOptions): HTMLElement;
+export declare function projectWorldScene(node: EveSurfaceComponent): EveProjectedWorldEntity[];
+export declare function createWorldActionIntent(command: string, action: Record<string, unknown>, options?: EveBrowserLoweringOptions): EveCommandIntent;
 export declare function applyEveSurfaceStyles(styles: EveSurfaceStyles | undefined, body?: HTMLElement): void;
 export declare function createEveCommandIntent(commandId: string, props?: Record<string, unknown>, options?: EveBrowserLoweringOptions): EveCommandIntent;
 export declare function emptyState(message: string): HTMLElement;
