@@ -658,7 +658,7 @@
       "id": "EveElectron",
       "ownerRepo": "EveElectron",
       "repoRole": "runtime-target",
-      "status": "graduated-runtime-capture-pending",
+      "status": "graduated",
       "runtimes": ["electron-shell"],
       "requiredRuntimeStatuses": ["active"],
       "requiredFeatures": ["providerAdvertisements", "surfaceTreeProjection", "embeddedDocuments"],
@@ -694,9 +694,7 @@
           ]
         }
       ],
-      "pendingProofs": [
-        "Electron packaged window PNG capture artifacts are attached to conformance output."
-      ]
+      "pendingProofs": []
     },
     {
       "id": "EveTui",
@@ -824,9 +822,30 @@
         }
       ],
       "capture": {
-        "status": "pending-owner-window-capture",
-        "note": "EveElectron owns capture production; Eve core no longer manufactures runtime projection artifacts on its behalf.",
-        "artifacts": []
+        "status": "owner-window-png",
+        "note": "EveElectron owns native window PNG production for the generic and Aetheria provider surfaces.",
+        "artifacts": [
+          {
+            "kind": "png",
+            "schema": "image/png",
+            "path": "artifacts/capture/generic-world/window.png",
+            "runtimeId": "electron-shell",
+            "providerId": "eve.world-smoke",
+            "surfaceId": "eve.world-smoke.surface",
+            "sourceSurfacePath": "../Eve/web/fixtures/eve-world-smoke-surface.json",
+            "requestPath": "artifacts/capture/generic-world/runtime-witness.json"
+          },
+          {
+            "kind": "png",
+            "schema": "image/png",
+            "path": "artifacts/capture/aetheria-world/window.png",
+            "runtimeId": "electron-shell",
+            "providerId": "aetheria",
+            "surfaceId": "aetheria.daemon.game",
+            "sourceSurfacePath": "../Eve/web/fixtures/aetheria-world-surface.json",
+            "requestPath": "artifacts/capture/aetheria-world/runtime-witness.json"
+          }
+        ]
       }
     },
     {

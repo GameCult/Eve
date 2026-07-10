@@ -476,9 +476,9 @@ artifact.
 
 Electron runtime evidence is consumed from the `EveElectron` owner repo.
 Eve core no longer manufactures a JSON shell projection and presents it as
-runtime capture evidence. Until EveElectron attaches real window PNGs for a
-generic provider and Aetheria, the capture contract reports
-`contract-artifact-missing` and remains visibly pending.
+runtime capture evidence. EveElectron produces native offscreen-painted PNGs
+for the generic world fixture and Aetheria, emits hashed runtime witnesses, and
+the parity harness attaches both witnesses to the conformance export.
 
 Unity scene runtime evidence is now consumed from the `EveUnity` owner repo
 through the parity runtime's `sourceRoot`. Eve does not generate a substitute

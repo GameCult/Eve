@@ -43,6 +43,8 @@ try {
   if ($LASTEXITCODE -ne 0) { throw "EveElectron owner tests failed with exit code $LASTEXITCODE" }
   npm pack --dry-run | Out-Null
   if ($LASTEXITCODE -ne 0) { throw "EveElectron owner package smoke failed with exit code $LASTEXITCODE" }
+  powershell -ExecutionPolicy Bypass -File scripts/capture-conformance.ps1 -EveRoot $projectRoot
+  if ($LASTEXITCODE -ne 0) { throw "EveElectron owner capture smoke failed with exit code $LASTEXITCODE" }
 } finally {
   Pop-Location
 }

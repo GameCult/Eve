@@ -51,10 +51,9 @@ try {
     --expect-split-handoff-move EveUnity:unity-uitoolkit:aetheria-unity-consumer-boundary:observed-provider:exists:Aetheria.State.Unity/AetheriaRuntimeCatalogClient.cs `
     --expect-split-target-blocker "EveUnity:Tagged UPM release" `
     --expect-split-target EveElectron `
-    --expect-split-target-status EveElectron:incubating `
+    --expect-split-target-status EveElectron:graduated `
     --expect-split-target-proof "EveElectron:EveElectron owner repository publishes the generic runtime package" `
     --expect-split-target-proof "EveElectron:EveElectron owns secure window and preload lifecycle" `
-    --expect-split-target-blocker "EveElectron:Electron packaged window PNG capture artifacts are attached to conformance output" `
     --expect-split-target EveTui `
     --expect-split-target-status EveTui:incubating `
     --expect-split-target-proof "EveTui:EveTui split handoff is machine-readable" `

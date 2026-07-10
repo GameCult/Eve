@@ -285,10 +285,20 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Produce owner-repo Electron window captures for the generic world fixture
-   and Aetheria, then attach them to conformance from EveElectron.
+1. Audit the migration against the target ownership rule and remove any
+   remaining runtime, plugin-semantic, or provider-product authority from Eve.
 
 Recently cut:
+
+- EveElectron now produces native offscreen-painted 1280x800 PNG captures for
+  both `eve.world-smoke.surface` and `aetheria.daemon.game`. The owner runner
+  emits generic runtime witnesses with dimensions, byte counts, SHA-256 hashes,
+  provider/surface assertions, and runtime-owned authority. Eve's parity
+  harness regenerates the captures, attaches both witnesses to conformance,
+  and downstream consumers require them. The generic runtime-witness contract
+  no longer requires Unity-specific movement, targeting, action, or receipt
+  fields; those remain valid profile assertions when a gameplay witness has
+  them. EveElectron is now reported as graduated rather than "ready to split."
 
 - `GameCult/EveElectron` now owns the generic Electron runtime package. Its
   shell lowers provider-advertised surfaces and command intents; its window

@@ -47,6 +47,12 @@ try {
     -ExpectedCommandBoundary "eve.world-smoke.commands" `
     -ExpectedReceiptSchema "eve.world_smoke.command_receipt.v1"
   node .\tools\parity\run-parity.mjs
+  node .\tools\conformance\attach-runtime-witness.mjs `
+    "E:\Projects\EveElectron\artifacts\capture\generic-world\runtime-witness.json" `
+    ".\artifacts\conformance\latest"
+  node .\tools\conformance\attach-runtime-witness.mjs `
+    "E:\Projects\EveElectron\artifacts\capture\aetheria-world\runtime-witness.json" `
+    ".\artifacts\conformance\latest"
   & (Join-Path $PSScriptRoot "run-eveconformance-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-plugin-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-aetheria-provider-handoff-smoke.ps1")

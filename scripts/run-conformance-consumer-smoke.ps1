@@ -102,7 +102,9 @@ try {
     --expect-screenshot-metric electron-shell:aetheria-world:bounding-boxes:pending-capture `
     --expect-runtime-capture-probe unity-uitoolkit:semantic-artifact-present-capture-pending:png:EveUnity `
     --expect-runtime-capture-probe unity-scene:control-artifact-present-product-capture-pending:png:EveUnity `
-    --expect-runtime-capture-probe electron-shell:contract-artifact-missing:png:EveElectron `
+    --expect-runtime-capture-probe electron-shell:contract-artifact-present:png:EveElectron `
+    --expect-runtime-witness electron-shell:eve.world-smoke:eve.world-smoke.surface:cold:pass `
+    --expect-runtime-witness electron-shell:aetheria:aetheria.daemon.game:cold:pass `
     --expect-runtime-capture-probe tui:contract-artifact-present:json-grid:EveTui `
     --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release" `
     --expect-conformance-handoff

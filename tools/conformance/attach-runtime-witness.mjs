@@ -64,7 +64,7 @@ function validateWitness(value) {
   if (value.schema !== "gamecult.eve.runtime_witness.v1") throw new Error(`Unexpected runtime witness schema: ${value.schema || ""}`);
   if (!value.execution?.cacheState || !Number.isFinite(value.execution?.durationMs)) throw new Error("Runtime witness execution is incomplete.");
   if (!value.assertions || typeof value.assertions !== "object") throw new Error("Runtime witness assertions are missing.");
-  if (!Array.isArray(value.receipts) || !value.receipts.length) throw new Error("Runtime witness receipts are missing.");
+  if (value.receipts !== undefined && !Array.isArray(value.receipts)) throw new Error("Runtime witness receipts must be an array when present.");
   if (!Array.isArray(value.artifacts) || !value.artifacts.length) throw new Error("Runtime witness artifacts are missing.");
   for (const artifact of value.artifacts) {
     if (!artifact.path || !/^[a-f0-9]{64}$/i.test(artifact.sha256 || "") || !(artifact.sizeBytes > 0)) {

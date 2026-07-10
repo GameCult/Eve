@@ -1856,7 +1856,7 @@ function evaluateSplitTargets(splitTargets, runtimeResults) {
       id: target.id,
       ownerRepo: target.ownerRepo || "",
       repoRole: target.repoRole || "",
-      status: blockers.length ? "incubating" : "ready-to-split",
+      status: blockers.length ? "incubating" : target.status === "graduated" ? "graduated" : "ready-to-split",
       declaredStatus: target.status || "",
       runtimes: runtimeIds,
       runtimeStatuses,
@@ -2014,6 +2014,7 @@ function summarize(fixtures, runtimes, plugins, providers, splitTargets) {
     pendingRuntimes: runtimes.filter(runtime => runtime.status !== "active").length,
     totalSplitTargets: splitTargets.length,
     readySplitTargets: splitTargets.filter(target => target.status === "ready-to-split").length,
+    graduatedSplitTargets: splitTargets.filter(target => target.status === "graduated").length,
   };
 }
 

@@ -165,14 +165,18 @@ node $consumerScript $consumerExport `
   --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-artifact unity-uitoolkit:json-projection:gamecult.eve.unity_uitoolkit_projection.v1:eve.world-smoke:eve.world-smoke.surface `
   --expect-runtime-capture-status unity-scene:partial-world-smoke-playmode-capture `
-  --expect-runtime-capture-status electron-shell:pending-owner-window-capture `
+  --expect-runtime-capture-status electron-shell:owner-window-png `
+  --expect-runtime-capture-artifact electron-shell:png:image/png:eve.world-smoke:eve.world-smoke.surface `
+  --expect-runtime-capture-artifact electron-shell:png:image/png:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-status tui:json-grid `
   --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:aetheria:aetheria.daemon.game `
   --expect-runtime-capture-artifact tui:json-grid:gamecult.eve.tui_grid.v1:eve.world-smoke:eve.world-smoke.surface `
   --expect-runtime-capture-status direct2d:missing `
   --expect-runtime-capture-probe unity-uitoolkit:semantic-artifact-present-capture-pending:png:EveUnity `
   --expect-runtime-capture-probe unity-scene:control-artifact-present-product-capture-pending:png:EveUnity `
-  --expect-runtime-capture-probe electron-shell:contract-artifact-missing:png:EveElectron `
+  --expect-runtime-capture-probe electron-shell:contract-artifact-present:png:EveElectron `
+  --expect-runtime-witness electron-shell:eve.world-smoke:eve.world-smoke.surface:cold:pass `
+  --expect-runtime-witness electron-shell:aetheria:aetheria.daemon.game:cold:pass `
   --expect-runtime-capture-probe tui:contract-artifact-present:json-grid:EveTui `
   --expect-screenshot-metric web:embedded-surface:structure:pass `
   --expect-screenshot-metric web:embedded-surface:color-tokens:pass `
@@ -263,8 +267,7 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "unity-scene:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
   --expect-runtime-lifecycle-status electron-shell:release:owner-npm-package `
   --expect-runtime-lifecycle-status electron-shell:test:owner-package-tests-and-aetheria-live-smoke `
-  --expect-runtime-lifecycle-status electron-shell:capture:pending-owner-window-capture `
-  --expect-runtime-lifecycle-pending "electron-shell:capture:Capture one non-product and one Aetheria window" `
+  --expect-runtime-lifecycle-status electron-shell:capture:owner-window-captures `
   --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.artifactKind:npm-package" `
   --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.versionSource:package.json" `
   --expect-runtime-lifecycle-field "electron-shell:release:releaseContract.requestSchema:gamecult.eve.runtime_release_request.v1" `
@@ -275,9 +278,9 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.captureKind:electron-window-png" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.targetId:electron-shell" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requestSchema:gamecult.eve.runtime_capture_request.v1" `
-  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requestBuilder:pending" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requestBuilder:scripts/capture-conformance.ps1" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.advertisementPath:provider-supplied" `
-  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requiredSurface:aetheria.game" `
+  --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.requiredSurface:aetheria.daemon.game" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.0.providerId:eve.world-smoke" `
   --expect-runtime-lifecycle-field "electron-shell:capture:captureContract.additionalProviderSurfaces.0.surfaceId:eve.world-smoke.surface" `
   --expect-runtime-lifecycle-status tui:release:pending-tui-package `
