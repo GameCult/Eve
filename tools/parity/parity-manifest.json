@@ -432,41 +432,39 @@
     {
       "pluginId": "sai.vn",
       "title": "Sai Visual Novel",
-      "kind": "external-owner-planned",
+      "kind": "external-owner",
       "ownerRepo": "Sai",
-      "repoRole": "plugin-incubating",
-      "splitTarget": "Sai/sai-vn-plugin",
-      "graduationTrigger": "Split when VN/Ink semantics, story command fixtures, and ABI project/apply/validate cases are stable.",
+      "repoRole": "plugin-owner",
+      "splitTarget": "Sai",
+      "graduationTrigger": "Graduated: Sai owns retained Ink playback, fixtures, ABI sidecar, and release lifecycle.",
       "capabilities": ["vn.stage", "story.choose", "story.continue", "story.jump"],
       "optionalPlugins": ["norn.graph", "tex.math"],
       "expectedRuntime": {
         "invocationModel": "executable-sidecar",
         "contract": "gamecult.eve.plugin_abi.v1",
-        "transports": ["cultmesh", "stdio"],
+        "transports": ["stdio"],
         "authority": ["renderer-independent", "no-provider-state-mutation", "provider-accepts-or-denies-commands"],
         "sidecar": {
           "processKind": "long-running-daemon",
-          "protocol": "cultmesh-rpc-with-stdio-dev-transport",
+          "protocol": "stdio-ndjson",
           "requestSchema": "gamecult.eve.plugin_abi.request.v1",
           "responseSchema": "gamecult.eve.plugin_abi.response.v1",
           "commandEnvelope": "gamecult.eve.command_invocation.v1",
           "receiptSchema": "gamecult.eve.command_receipt.v1",
-          "stateAuthority": "proposes-plugin-state-only-provider-accepts"
+          "stateAuthority": "sai-sidecar-owns-story-session-provider-owns-command-acceptance"
         }
       },
       "requiredFixtures": ["sai-vn"],
       "schemaPath": "schemas/gamecult.eve.plugin.v1.schema.json",
-      "manifestPath": "plugins/incubating/sai-vn.plugin.json",
-      "abiFixturePath": "plugins/incubating/sai-vn.plugin-abi-fixture.json",
-      "handoffPath": "plugins/incubating/sai-vn.plugin-handoff.json",
+      "manifestPath": "../Sai/plugins/sai-vn.plugin.json",
+      "abiFixturePath": "../Sai/plugins/sai-vn.plugin-abi-fixture.json",
       "advertisementSchemaPath": "schemas/gamecult.eve.plugin_advertisement.v1.schema.json",
-      "advertisementPath": "plugins/incubating/sai-vn.plugin-advertisement.json",
+      "advertisementPath": "../Sai/plugins/sai-vn.plugin-advertisement.json",
       "expectedPaths": [
-        "plugins/incubating/sai-vn.plugin.json",
-        "plugins/incubating/sai-vn.plugin-abi-fixture.json",
-        "plugins/incubating/sai-vn.plugin-advertisement.json",
-        "plugins/incubating/sai-vn.plugin-handoff.json",
-        "scripts/run-plugin-handoff-smoke.ps1"
+        "../Sai/plugins/sai-vn.plugin.json",
+        "../Sai/plugins/sai-vn.plugin-abi-fixture.json",
+        "../Sai/plugins/sai-vn.plugin-advertisement.json",
+        "../Sai/src/eve-sidecar.cjs"
       ]
     },
     {

@@ -44,20 +44,16 @@ node $consumerScript $consumerExport `
   --expect-plugin sai.vn `
   --expect-plugin norn.graph `
   --expect-plugin tex.math `
-  --expect-plugin-handoff sai.vn `
   --expect-plugin-handoff tex.math `
-  --expect-plugin-handoff-move sai.vn:plugin-manifest:current:exists:sai-vn.plugin.json `
-  --expect-plugin-handoff-move sai.vn:abi-conformance:current:exists:sai-vn.plugin-abi-fixture.json `
   --expect-plugin-handoff-move tex.math:plugin-manifest:current:exists:tex-math.plugin.json `
   --expect-plugin-handoff-move tex.math:abi-conformance:current:exists:tex-math.plugin-abi-fixture.json `
   --expect-plugin-operation sai.vn:describe `
   --expect-plugin-operation sai.vn:validate `
   --expect-plugin-operation sai.vn:project `
-  --expect-plugin-operation sai.vn:lower `
-  --expect-plugin-operation sai.vn:measure `
   --expect-plugin-operation sai.vn:apply `
+  --expect-plugin-operation sai.vn:open `
+  --expect-plugin-operation sai.vn:jump `
   --expect-plugin-abi-operation-coverage sai.vn:describe:contracted:Sai `
-  --expect-plugin-abi-operation-coverage sai.vn:lower:contracted:Sai `
   --expect-plugin-abi-operation-coverage sai.vn:apply:contracted:Sai `
   --expect-provider-plugin-requirement gamecult.home.vn:sai.visual_novel.surface:sai.vn:satisfied:Sai:required `
   --expect-plugin-operation norn.graph:describe `
@@ -79,14 +75,13 @@ node $consumerScript $consumerExport `
   --expect-plugin-capability tex.math:tex.inline `
   --expect-plugin-capability tex.math:tex.block `
   --expect-plugin-runtime sai.vn:executable-sidecar `
-  --expect-plugin-runtime-transport sai.vn:cultmesh `
+  --expect-plugin-runtime-transport sai.vn:stdio `
   --expect-plugin-runtime-authority sai.vn:no-provider-state-mutation `
   --expect-plugin-runtime-field sai.vn:sidecar.processKind:long-running-daemon `
-  --expect-plugin-runtime-field sai.vn:sidecar.protocol:cultmesh-rpc-with-stdio-dev-transport `
+  --expect-plugin-runtime-field sai.vn:sidecar.protocol:stdio-ndjson `
   --expect-plugin-runtime-field sai.vn:sidecar.requestSchema:gamecult.eve.plugin_abi.request.v1 `
   --expect-plugin-runtime-field sai.vn:sidecar.responseSchema:gamecult.eve.plugin_abi.response.v1 `
-  --expect-plugin-runtime-field sai.vn:sidecar.stateAuthority:proposes-plugin-state-only-provider-accepts `
-  --expect-plugin-abi-field sai.vn:lower:expect.commandEnvelope:gamecult.eve.command_invocation.v1 `
+  --expect-plugin-runtime-field sai.vn:sidecar.stateAuthority:sai-sidecar-owns-story-session-provider-owns-command-acceptance `
   --expect-plugin-abi-field sai.vn:apply:expect.receiptSchema:gamecult.eve.command_receipt.v1 `
   --expect-plugin-runtime norn.graph:executable-sidecar `
   --expect-plugin-runtime-transport norn.graph:stdio `

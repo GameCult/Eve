@@ -287,10 +287,17 @@ Exit criteria:
 
 1. Graduate the generic Electron host/preload contract into EveElectron so
    Aetheria retains only daemon lifecycle and provider transport configuration.
-2. Build Sai's owner-side playback daemon and live sidecar witness without
-   absorbing Norn or TeX semantics into the Sai process.
 
 Recently cut:
+
+- Sai now owns a live runtime-independent Ink playback sidecar. One retained
+  `stdio-ndjson` process opens a compiled story, applies a branch choice,
+  projects the resulting `gamecult.eve.surface.v1`, and jumps to another knot.
+  Its owner pack declares Norn and TeX only as optional nested plugins; the Sai
+  process imports neither implementation. Eve parity consumes Sai's manifest,
+  advertisement, ABI fixture, and executable from `../Sai`, and the obsolete
+  incubating copies and handoff document have been deleted from Eve. The Sai
+  and Norn witnesses both survive conformance export and consumer validation.
 
 - CultLib now owns `CultMeshSnapshotSession`, a retained endpoint connection
   for ordered bulk snapshot transfer. RUDP ACK packets are sequence-neutral,
