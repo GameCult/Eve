@@ -49,6 +49,11 @@ advertisements and typed command/receipt documents are the boundary.
 - The generic EveUnity playable-world client lowers the separately running
   Aetheria daemon's 3D ARPG world, resolves provider-owned assets, and exercises
   movement, targeting, and fire command receipts.
+- EveUnity's clean `TestProject` owns generic scene and UI Toolkit package
+  verification; ordinary runtime tests no longer open or mutate Aetheria.
+- CultLib emits a verified NuGet dependency closure for `GameCult.Mesh` and a
+  clean package-reference consumer, while Unity consumes the corresponding
+  `org.gamecult.cultlib` UPM assembly closure.
 - EveElectron owns its shell, security lifecycle, captures, and runtime witness.
 - EveFlutter owns the generic Flutter clients and platform lifecycle.
 - Sai and Norn publish independent sidecar plugins. A Sai surface may request
@@ -86,8 +91,8 @@ advertisements and typed command/receipt documents are the boundary.
 
 ### Plugin Architecture
 
-- Package CultLib for NuGet and use its typed CultCache/CultNet/CultMesh APIs in
-  C# runtimes.
+- Publish the verified CultLib NuGet and Unity package artifacts from tagged
+  releases and consume released versions in runtime CI.
 - Replace development `stdio-ndjson` transport where appropriate with the
   published CultNet/CultMesh sidecar transport while preserving the same plugin
   ABI operations.

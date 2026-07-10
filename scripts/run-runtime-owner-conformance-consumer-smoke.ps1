@@ -238,7 +238,6 @@ node $consumerScript $consumerExport `
   --expect-runtime-lifecycle-status unity-scene:test:unity-scene-editmode-batchmode `
   --expect-runtime-lifecycle-status unity-scene:capture:partial-world-smoke-playmode-capture `
   --expect-runtime-lifecycle-pending "unity-scene:release:Cut and publish the first tagged EveUnity package release" `
-  --expect-runtime-lifecycle-pending "unity-scene:test:Move the Aetheria consumer scenario into a provider-owned conformance pack" `
   --expect-runtime-lifecycle-pending "unity-scene:capture:Attach the Aetheria daemon PlayMode PNG" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.packageName:org.gamecult.eve.unity-scene" `
   --expect-runtime-lifecycle-field "unity-scene:release:releaseContract.artifactKind:upm-package" `
