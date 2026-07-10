@@ -6,9 +6,133 @@ const FIELD_SCHEMAS = new Set([
 export const fieldsBrowserAdapter = {
     pluginId: "fields.surface",
     capabilities: ["field.surface2d", "gravity.surface", "field.scalar", "field.vector", "field.objects"],
+    componentKinds: ["field.surface2d", "gravity.surface"],
     schemas: [...FIELD_SCHEMAS],
     normalizeDocument: normalizeFieldsDocument,
+    renderComponent: renderFieldsComponent,
 };
+function renderFieldsComponent(component, props, layout, style, options, context) {
+    const canvas = document.createElement("canvas");
+    canvas.className = "cultui-gravity-surface";
+    if (component.id)
+        canvas.id = component.id;
+    canvas.setAttribute("role", "img");
+    canvas.setAttribute("aria-label", stringValue(props.label, "gravity surface"));
+    canvas.style.display = "block";
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.pointerEvents = "none";
+    context.applyGeneratedLayout(canvas, layout, style);
+    let drawQueued = false;
+    const state = {};
+    const draw = () => context.drawSurface(canvas, props, state);
+    const scheduleDraw = () => {
+        if (!canvas.isConnected || drawQueued)
+            return;
+        drawQueued = true;
+        requestAnimationFrame(() => {
+            drawQueued = false;
+            if (canvas.isConnected)
+                draw();
+        });
+    };
+    canvas.addEventListener("cultui:asset-loaded", scheduleDraw);
+    let refreshTimer = 0;
+    let observer;
+    const cleanup = () => {
+        if (refreshTimer)
+            window.clearInterval(refreshTimer);
+        observer?.disconnect();
+        canvas.removeEventListener("cultui:asset-loaded", scheduleDraw);
+    };
+    const refreshDocuments = () => {
+        if (!canvas.isConnected) {
+            cleanup();
+            return;
+        }
+        void resolveFieldsDocuments(component, props, options, context.providerId, state)
+            .then(changed => {
+            if (changed && canvas.isConnected)
+                scheduleDraw();
+        })
+            .catch(error => {
+            state.lastError = error instanceof Error ? error.message : String(error);
+        });
+    };
+    if (typeof ResizeObserver !== "undefined") {
+        observer = new ResizeObserver(scheduleDraw);
+        observer.observe(canvas);
+    }
+    scheduleDraw();
+    const refreshMs = Math.max(33, Math.min(1000, positiveInteger(props.stateRefreshMs, 100)));
+    refreshTimer = window.setInterval(refreshDocuments, refreshMs);
+    queueMicrotask(refreshDocuments);
+    window.setTimeout(scheduleDraw, 300);
+    window.setTimeout(scheduleDraw, 1000);
+    return canvas;
+}
+async function resolveFieldsDocuments(component, props, options, providerId, state) {
+    if (state.loading)
+        return false;
+    const requests = [
+        fieldDocumentRequest(component, props, "renderSplats", "renderSplatsDocumentId", "renderSplatsSchemaId"),
+        fieldDocumentRequest(component, props, "gravity", "gravityDocumentId", "gravitySchemaId"),
+        fieldDocumentRequest(component, props, "objects", "objectsDocumentId", "objectsSchemaId"),
+    ].filter((request) => Boolean(request?.documentId));
+    if (requests.length === 0)
+        return false;
+    state.loading = true;
+    try {
+        let changed = false;
+        for (const request of requests) {
+            const resolved = await options.documentResolver?.(request, component);
+            let document = record(normalizeFieldsDocument(resolved?.schemaId || request.schemaId, resolved?.document));
+            if (Object.keys(document).length === 0) {
+                document = record(normalizeFieldsDocument(request.schemaId, await fetchFieldsDocument(request, providerId || options.provider?.providerId)));
+            }
+            if (Object.keys(document).length === 0)
+                continue;
+            const key = request.slotId === "renderSplats" ? "renderSplats" : request.slotId === "gravity" ? "gravity" : "objects";
+            const previousFrame = numberValue(state[key]?.frameId, -1);
+            const nextFrame = numberValue(document.frameId, previousFrame);
+            state[key] = document;
+            changed ||= nextFrame !== previousFrame;
+        }
+        state.lastLoadedAt = Date.now();
+        return changed;
+    }
+    finally {
+        state.loading = false;
+    }
+}
+async function fetchFieldsDocument(request, providerId) {
+    if (typeof fetch !== "function" || typeof window === "undefined" || !providerId)
+        return undefined;
+    const params = new URLSearchParams({ documentId: request.documentId });
+    if (request.schemaId)
+        params.set("schemaId", request.schemaId);
+    if (request.slotId)
+        params.set("slotId", request.slotId);
+    const response = await fetch(`/eir/document/${encodeURIComponent(providerId)}?${params.toString()}`, {
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+    });
+    if (!response.ok)
+        return undefined;
+    return record(await response.json()).document;
+}
+function fieldDocumentRequest(component, props, slotId, documentIdProp, schemaIdProp) {
+    const slot = (component.embeddedDocuments || []).find(candidate => String(candidate?.slotId || "") === slotId);
+    const documentId = firstString(props[documentIdProp], slot?.documentId);
+    if (!documentId)
+        return undefined;
+    return {
+        documentId,
+        schemaId: firstString(props[schemaIdProp], slot?.schemaId),
+        presentationKind: firstString(slot?.presentationKind) || "data",
+        slotId,
+    };
+}
 export function normalizeFieldsDocument(schemaId, value) {
     const tuple = Array.isArray(value) ? value : undefined;
     const documentSchema = tuple ? tuple[0] : value?.schema;
@@ -121,4 +245,24 @@ function normalizeAsset(value) {
 }
 function array(value) {
     return Array.isArray(value) ? value : [];
+}
+function record(value) {
+    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+function firstString(...values) {
+    for (const value of values)
+        if (typeof value === "string" && value.trim())
+            return value.trim();
+    return "";
+}
+function stringValue(value, fallback) {
+    return typeof value === "string" && value ? value : fallback;
+}
+function positiveInteger(value, fallback) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : fallback;
+}
+function numberValue(value, fallback) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
 }

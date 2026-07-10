@@ -1,4 +1,4 @@
-import { fieldsBrowserAdapter, type EveBrowserPluginAdapter } from "./fields-browser-adapter.js";
+import { fieldsBrowserAdapter, type EveBrowserPluginAdapter, type FieldsSurfaceDataState } from "./fields-browser-adapter.js";
 
 export { fieldsBrowserAdapter, normalizeFieldsDocument, type EveBrowserPluginAdapter } from "./fields-browser-adapter.js";
 
@@ -382,7 +382,16 @@ export function renderEveComponent(
   }
 
   if (kind === "field.surface2d" || kind === "gravity.surface") {
-    return renderGravitySurface(node, props, layout, style, options);
+    const adapter = (options.pluginAdapters || defaultBrowserPluginAdapters)
+      .find(candidate => candidate.componentKinds.includes(kind));
+    if (!adapter?.renderComponent) {
+      throw new Error(`No browser plugin adapter can lower ${kind}.`);
+    }
+    return adapter.renderComponent(node, props, layout, style, options, {
+      applyGeneratedLayout,
+      drawSurface: drawGravitySurface,
+      providerId: currentSurfaceDocument?.providerId || options.provider?.providerId,
+    });
   }
 
   if (kind === "world.scene3d") {
@@ -797,84 +806,6 @@ type GravitySurfaceObject = {
   icon: string;
 };
 
-type GravitySurfaceDataState = {
-  renderSplats?: Record<string, unknown>;
-  gravity?: Record<string, unknown>;
-  objects?: Record<string, unknown>;
-  loading?: boolean;
-  lastError?: string;
-  lastLoadedAt?: number;
-};
-
-const gravitySurfaceDataStates = new WeakMap<HTMLCanvasElement, GravitySurfaceDataState>();
-
-function renderGravitySurface(
-  node: EveSurfaceComponent,
-  props: Record<string, unknown>,
-  layout: Record<string, unknown>,
-  style: Record<string, unknown>,
-  options: EveBrowserLoweringOptions,
-): HTMLElement {
-  const canvas = el("canvas", "cultui-gravity-surface") as HTMLCanvasElement;
-  assignId(canvas, node);
-  canvas.setAttribute("role", "img");
-  canvas.setAttribute("aria-label", stringProp(props.label, "gravity surface"));
-  canvas.style.display = "block";
-  canvas.style.width = "100%";
-  canvas.style.height = "100%";
-  canvas.style.pointerEvents = "none";
-  applyGeneratedLayout(canvas, layout, style);
-
-  let drawQueued = false;
-  const state: GravitySurfaceDataState = {};
-  gravitySurfaceDataStates.set(canvas, state);
-  const draw = () => drawGravitySurface(canvas, props, state);
-  const scheduleDraw = () => {
-    if (!canvas.isConnected || drawQueued) return;
-    drawQueued = true;
-    requestAnimationFrame(() => {
-      if (!canvas.isConnected) {
-        drawQueued = false;
-        return;
-      }
-      drawQueued = false;
-      draw();
-    });
-  };
-  canvas.addEventListener("cultui:asset-loaded", scheduleDraw);
-  let refreshTimer = 0;
-  let observer: ResizeObserver | undefined;
-  const cleanup = () => {
-    if (refreshTimer) window.clearInterval(refreshTimer);
-    observer?.disconnect();
-    canvas.removeEventListener("cultui:asset-loaded", scheduleDraw);
-  };
-  const refreshDocuments = () => {
-    if (!canvas.isConnected) {
-      cleanup();
-      return;
-    }
-    void resolveGravitySurfaceDocuments(node, props, options, state)
-      .then((changed) => {
-        if (changed && canvas.isConnected) scheduleDraw();
-      })
-      .catch((error) => {
-        state.lastError = error instanceof Error ? error.message : String(error);
-      });
-  };
-  if (typeof ResizeObserver !== "undefined") {
-    observer = new ResizeObserver(scheduleDraw);
-    observer.observe(canvas);
-  }
-  scheduleDraw();
-  const refreshMs = Math.max(33, Math.min(1000, positiveInt(props.stateRefreshMs, 100)));
-  refreshTimer = window.setInterval(refreshDocuments, refreshMs);
-  queueMicrotask(refreshDocuments);
-  window.setTimeout(scheduleDraw, 300);
-  window.setTimeout(scheduleDraw, 1000);
-  return canvas;
-}
-
 export function projectWorldScene(node: EveSurfaceComponent): EveProjectedWorldEntity[] {
   const entities = (node.children || []).filter(child => child.kind === "world.entity3d");
   const positions = entities.map(entity => vector3Prop(objectProps(entity.props).position, [0, 0, 0]));
@@ -1017,95 +948,7 @@ function cssIdentifier(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9_-]+/g, "-");
 }
 
-async function resolveGravitySurfaceDocuments(
-  node: EveSurfaceComponent,
-  props: Record<string, unknown>,
-  options: EveBrowserLoweringOptions,
-  state: GravitySurfaceDataState,
-): Promise<boolean> {
-  if (!options.documentResolver || state.loading) return false;
-  const requests = [
-    gravityDocumentRequest(node, props, "renderSplats", "renderSplatsDocumentId", "renderSplatsSchemaId"),
-    gravityDocumentRequest(node, props, "gravity", "gravityDocumentId", "gravitySchemaId"),
-    gravityDocumentRequest(node, props, "objects", "objectsDocumentId", "objectsSchemaId"),
-  ].filter((request): request is EveEmbeddedDocumentRequest => Boolean(request?.documentId));
-  if (requests.length === 0) return false;
-  state.loading = true;
-  try {
-    let changed = false;
-    for (const request of requests) {
-      const resolved = await options.documentResolver(request, node) as EveResolvedDocument | undefined;
-      let document = objectProps(normalizePluginDocument(resolved?.schemaId || request.schemaId, resolved?.document, options));
-      if (Object.keys(document).length === 0) {
-        document = objectProps(normalizePluginDocument(request.schemaId, await fetchGravitySurfaceDocument(request, options), options));
-      }
-      if (!document || Object.keys(document).length === 0) continue;
-      const key = request.slotId === "renderSplats"
-        ? "renderSplats"
-        : request.slotId === "gravity"
-          ? "gravity"
-          : "objects";
-      const previousFrame = numberProp((state[key] as Record<string, unknown> | undefined)?.frameId, -1);
-      const nextFrame = numberProp(document.frameId, previousFrame);
-      state[key] = document;
-      changed ||= nextFrame !== previousFrame;
-    }
-    state.lastLoadedAt = Date.now();
-    return changed;
-  } finally {
-    state.loading = false;
-  }
-}
-
-function normalizePluginDocument(
-  schemaId: string | undefined,
-  value: unknown,
-  options: EveBrowserLoweringOptions,
-): unknown {
-  const adapters = options.pluginAdapters || defaultBrowserPluginAdapters;
-  const adapter = adapters.find(candidate => !schemaId || candidate.schemas.includes(schemaId));
-  return adapter ? adapter.normalizeDocument(schemaId, value) : value;
-}
-
-async function fetchGravitySurfaceDocument(
-  request: EveEmbeddedDocumentRequest,
-  options: EveBrowserLoweringOptions,
-): Promise<unknown> {
-  if (typeof fetch !== "function" || typeof window === "undefined") return undefined;
-  const providerId = currentSurfaceDocument?.providerId || options.provider?.providerId || "";
-  if (!providerId) return undefined;
-  const params = new URLSearchParams();
-  params.set("documentId", request.documentId);
-  if (request.schemaId) params.set("schemaId", request.schemaId);
-  if (request.slotId) params.set("slotId", request.slotId);
-  const response = await fetch(`/eir/document/${encodeURIComponent(providerId)}?${params.toString()}`, {
-    cache: "no-store",
-    headers: { Accept: "application/json" },
-  });
-  if (!response.ok) return undefined;
-  const payload = await response.json();
-  return objectProps(payload).document;
-}
-
-function gravityDocumentRequest(
-  component: EveSurfaceComponent,
-  props: Record<string, unknown>,
-  slotId: string,
-  propDocumentId: string,
-  propSchemaId: string,
-): EveEmbeddedDocumentRequest | undefined {
-  const slot = (component.embeddedDocuments || []).find((candidate) => String(candidate?.slotId || "") === slotId);
-  const documentId = firstString(props[propDocumentId], slot?.documentId, "");
-  if (!documentId) return undefined;
-  return {
-    documentId,
-    schemaId: firstString(props[propSchemaId], slot?.schemaId, ""),
-    presentationKind: firstString(slot?.presentationKind, "data"),
-    slotId,
-  };
-}
-
-function drawGravitySurface(canvas: HTMLCanvasElement, props: Record<string, unknown>, state?: GravitySurfaceDataState): void {
+function drawGravitySurface(canvas: HTMLCanvasElement, props: Record<string, unknown>, state?: FieldsSurfaceDataState): void {
   const rect = canvas.getBoundingClientRect();
   const width = Math.max(1, Math.floor(rect.width || canvas.clientWidth || 1));
   const height = Math.max(1, Math.floor(rect.height || canvas.clientHeight || 1));

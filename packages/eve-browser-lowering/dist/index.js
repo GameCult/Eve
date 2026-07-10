@@ -223,7 +223,16 @@ export function renderEveComponent(node, options = currentOptions) {
         return renderInventoryItem(node, props, layout, style);
     }
     if (kind === "field.surface2d" || kind === "gravity.surface") {
-        return renderGravitySurface(node, props, layout, style, options);
+        const adapter = (options.pluginAdapters || defaultBrowserPluginAdapters)
+            .find(candidate => candidate.componentKinds.includes(kind));
+        if (!adapter?.renderComponent) {
+            throw new Error(`No browser plugin adapter can lower ${kind}.`);
+        }
+        return adapter.renderComponent(node, props, layout, style, options, {
+            applyGeneratedLayout,
+            drawSurface: drawGravitySurface,
+            providerId: currentSurfaceDocument?.providerId || options.provider?.providerId,
+        });
     }
     if (kind === "world.scene3d") {
         return renderWorldScene(node, props, layout, style, options);
@@ -631,69 +640,6 @@ function prefixedProps(props, prefix) {
     }
     return result;
 }
-const gravitySurfaceDataStates = new WeakMap();
-function renderGravitySurface(node, props, layout, style, options) {
-    const canvas = el("canvas", "cultui-gravity-surface");
-    assignId(canvas, node);
-    canvas.setAttribute("role", "img");
-    canvas.setAttribute("aria-label", stringProp(props.label, "gravity surface"));
-    canvas.style.display = "block";
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
-    canvas.style.pointerEvents = "none";
-    applyGeneratedLayout(canvas, layout, style);
-    let drawQueued = false;
-    const state = {};
-    gravitySurfaceDataStates.set(canvas, state);
-    const draw = () => drawGravitySurface(canvas, props, state);
-    const scheduleDraw = () => {
-        if (!canvas.isConnected || drawQueued)
-            return;
-        drawQueued = true;
-        requestAnimationFrame(() => {
-            if (!canvas.isConnected) {
-                drawQueued = false;
-                return;
-            }
-            drawQueued = false;
-            draw();
-        });
-    };
-    canvas.addEventListener("cultui:asset-loaded", scheduleDraw);
-    let refreshTimer = 0;
-    let observer;
-    const cleanup = () => {
-        if (refreshTimer)
-            window.clearInterval(refreshTimer);
-        observer?.disconnect();
-        canvas.removeEventListener("cultui:asset-loaded", scheduleDraw);
-    };
-    const refreshDocuments = () => {
-        if (!canvas.isConnected) {
-            cleanup();
-            return;
-        }
-        void resolveGravitySurfaceDocuments(node, props, options, state)
-            .then((changed) => {
-            if (changed && canvas.isConnected)
-                scheduleDraw();
-        })
-            .catch((error) => {
-            state.lastError = error instanceof Error ? error.message : String(error);
-        });
-    };
-    if (typeof ResizeObserver !== "undefined") {
-        observer = new ResizeObserver(scheduleDraw);
-        observer.observe(canvas);
-    }
-    scheduleDraw();
-    const refreshMs = Math.max(33, Math.min(1000, positiveInt(props.stateRefreshMs, 100)));
-    refreshTimer = window.setInterval(refreshDocuments, refreshMs);
-    queueMicrotask(refreshDocuments);
-    window.setTimeout(scheduleDraw, 300);
-    window.setTimeout(scheduleDraw, 1000);
-    return canvas;
-}
 export function projectWorldScene(node) {
     const entities = (node.children || []).filter(child => child.kind === "world.entity3d");
     const positions = entities.map(entity => vector3Prop(objectProps(entity.props).position, [0, 0, 0]));
@@ -818,82 +764,6 @@ function worldEntityGlyph(kind) {
 }
 function cssIdentifier(value) {
     return value.toLowerCase().replace(/[^a-z0-9_-]+/g, "-");
-}
-async function resolveGravitySurfaceDocuments(node, props, options, state) {
-    if (!options.documentResolver || state.loading)
-        return false;
-    const requests = [
-        gravityDocumentRequest(node, props, "renderSplats", "renderSplatsDocumentId", "renderSplatsSchemaId"),
-        gravityDocumentRequest(node, props, "gravity", "gravityDocumentId", "gravitySchemaId"),
-        gravityDocumentRequest(node, props, "objects", "objectsDocumentId", "objectsSchemaId"),
-    ].filter((request) => Boolean(request?.documentId));
-    if (requests.length === 0)
-        return false;
-    state.loading = true;
-    try {
-        let changed = false;
-        for (const request of requests) {
-            const resolved = await options.documentResolver(request, node);
-            let document = objectProps(normalizePluginDocument(resolved?.schemaId || request.schemaId, resolved?.document, options));
-            if (Object.keys(document).length === 0) {
-                document = objectProps(normalizePluginDocument(request.schemaId, await fetchGravitySurfaceDocument(request, options), options));
-            }
-            if (!document || Object.keys(document).length === 0)
-                continue;
-            const key = request.slotId === "renderSplats"
-                ? "renderSplats"
-                : request.slotId === "gravity"
-                    ? "gravity"
-                    : "objects";
-            const previousFrame = numberProp(state[key]?.frameId, -1);
-            const nextFrame = numberProp(document.frameId, previousFrame);
-            state[key] = document;
-            changed ||= nextFrame !== previousFrame;
-        }
-        state.lastLoadedAt = Date.now();
-        return changed;
-    }
-    finally {
-        state.loading = false;
-    }
-}
-function normalizePluginDocument(schemaId, value, options) {
-    const adapters = options.pluginAdapters || defaultBrowserPluginAdapters;
-    const adapter = adapters.find(candidate => !schemaId || candidate.schemas.includes(schemaId));
-    return adapter ? adapter.normalizeDocument(schemaId, value) : value;
-}
-async function fetchGravitySurfaceDocument(request, options) {
-    if (typeof fetch !== "function" || typeof window === "undefined")
-        return undefined;
-    const providerId = currentSurfaceDocument?.providerId || options.provider?.providerId || "";
-    if (!providerId)
-        return undefined;
-    const params = new URLSearchParams();
-    params.set("documentId", request.documentId);
-    if (request.schemaId)
-        params.set("schemaId", request.schemaId);
-    if (request.slotId)
-        params.set("slotId", request.slotId);
-    const response = await fetch(`/eir/document/${encodeURIComponent(providerId)}?${params.toString()}`, {
-        cache: "no-store",
-        headers: { Accept: "application/json" },
-    });
-    if (!response.ok)
-        return undefined;
-    const payload = await response.json();
-    return objectProps(payload).document;
-}
-function gravityDocumentRequest(component, props, slotId, propDocumentId, propSchemaId) {
-    const slot = (component.embeddedDocuments || []).find((candidate) => String(candidate?.slotId || "") === slotId);
-    const documentId = firstString(props[propDocumentId], slot?.documentId, "");
-    if (!documentId)
-        return undefined;
-    return {
-        documentId,
-        schemaId: firstString(props[propSchemaId], slot?.schemaId, ""),
-        presentationKind: firstString(slot?.presentationKind, "data"),
-        slotId,
-    };
 }
 function drawGravitySurface(canvas, props, state) {
     const rect = canvas.getBoundingClientRect();

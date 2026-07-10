@@ -115,6 +115,9 @@ advertisements and typed command/receipt documents are the boundary.
   `gamecult.fields.*` documents and advertises `fields.surface` on graphical
   surfaces that use them. Hermodr carries decoded MessagePack values without
   interpreting field tuples; the browser fields adapter owns that conversion.
+- The browser fields adapter owns field component matching, canvas lifecycle,
+  provider-document polling, tuple conversion, and capability-gap reporting.
+  The general CultUI lowerer supplies one temporary native drawing port.
 - The TeX owner sidecar serves its Eve ABI over CultNet RUDP operation
   envelopes; its stdio protocol is retained only as a local debug adapter.
 - Aetheria owns its provider advertisement, world surface, scenario, asset
@@ -159,10 +162,10 @@ advertisements and typed command/receipt documents are the boundary.
   is its semantic owner. Sai already owns VN/Ink execution and its live witness.
 - Keep nested plugin availability explicit and non-transitive: Sai does not own
   Norn or TeX.
-- Move the remaining browser WebGL field projection body from the general
-  component lowerer into the `fields.surface` runtime adapter. The browser now
-  resolves required adapter capabilities from provider advertisements and owns
-  field tuple conversion outside Hermodr.
+- Move the remaining browser Canvas/WebGL drawing body through the adapter's
+  native drawing port, then delete that port from the general component lowerer.
+  The browser already resolves required adapter capabilities from provider
+  advertisements and owns field tuple conversion outside Hermodr.
 
 ### Conformance
 
