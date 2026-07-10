@@ -12,7 +12,8 @@ $windowPath = Join-Path $EveElectronRoot "src\window-host.mjs"
 $preloadPath = Join-Path $EveElectronRoot "src\eve-provider-preload.cjs"
 $preloadEntryPath = Join-Path $EveElectronRoot "src\eve-provider-preload-entry.cjs"
 $rendererRuntimePath = Join-Path $EveElectronRoot "src\eve-electron-renderer.mjs"
-foreach ($path in @($manifestPath, $packagePath, $shellPath, $windowPath, $preloadPath, $preloadEntryPath, $rendererRuntimePath)) {
+$liveHostPath = Join-Path $EveElectronRoot "src\live-provider-host.mjs"
+foreach ($path in @($manifestPath, $packagePath, $shellPath, $windowPath, $preloadPath, $preloadEntryPath, $rendererRuntimePath, $liveHostPath)) {
   if (-not (Test-Path -LiteralPath $path)) { throw "EveElectron owner path missing: $path" }
 }
 
@@ -28,10 +29,14 @@ $main = Get-Content -LiteralPath (Join-Path $AetheriaRoot "Aetheria.Rts.Web\Elec
 $renderer = Get-Content -LiteralPath (Join-Path $AetheriaRoot "Aetheria.Rts.Web\Client\app.ts") -Raw
 $preloadEntry = Get-Content -LiteralPath $preloadEntryPath -Raw
 $rendererRuntime = Get-Content -LiteralPath $rendererRuntimePath -Raw
-foreach ($symbol in @("createEveElectronWindow", "registerEveWindowControls", "@gamecult/eve-electron")) {
+$liveHost = Get-Content -LiteralPath $liveHostPath -Raw
+foreach ($symbol in @("startEveElectronProviderHost", "@gamecult/eve-electron/live-provider-host")) {
   if (-not $main.Contains($symbol)) { throw "Aetheria Electron host does not consume owner symbol: $symbol" }
 }
-if (-not $main.Contains("eve-provider-preload-entry.cjs") -or -not $preloadEntry.Contains("installEveProviderBridge")) {
+if (-not $liveHost.Contains("eve-provider-preload-entry.cjs") -or
+    -not $liveHost.Contains("registerEveProviderIpc") -or
+    -not $liveHost.Contains("createEveElectronWindow") -or
+    -not $preloadEntry.Contains("installEveProviderBridge")) {
   throw "Aetheria host does not consume EveElectron's standalone provider preload."
 }
 if (Test-Path -LiteralPath (Join-Path $AetheriaRoot "Aetheria.Rts.Web\Electron\preload.cjs")) {

@@ -89,6 +89,11 @@ advertisements and typed command/receipt documents are the boundary.
   renderer API contract, product preload, preload copy script, and product IPC
   registration are deleted. The Aetheria renderer entry now supplies only its
   provider asset-URL boundary before mounting the generic runtime.
+- EveElectron owns the live main-process provider host: secure window creation,
+  provider client construction, Eve IPC and receipt handling, provider readiness,
+  renderer loading, and cleanup. Aetheria delegates that lifecycle and retains
+  only daemon development launch, provider target configuration, its live smoke
+  scenario, and the asset protocol implementation.
 - EveFlutter owns the generic Flutter clients and platform lifecycle.
 - Sai and Norn publish independent sidecar plugins. Sai serves retained Ink
   sessions and Norn serves graph projection and measurement through CultNet
@@ -118,11 +123,9 @@ advertisements and typed command/receipt documents are the boundary.
 - Route browser and remaining runtimes through Odin's aggregated provider
   discovery rather than local catalogs or sibling paths; Unity's direct
   CultMesh Verse discovery is the working reference.
-- Move the remaining Electron host lifecycle and generic CultMesh client
-  construction out of `Aetheria.Rts.Web/Electron/main.ts` into EveElectron.
-  Aetheria should retain only provider daemon launch/development configuration
-  and its asset protocol implementation until those become separately
-  advertised provider capabilities.
+- Advertise browser/Electron asset resolution as a provider capability and move
+  the remaining Aetheria asset protocol reader behind EveElectron's generic
+  provider client. Keep daemon development launch configuration in Aetheria.
 - Expand world lowering only through generic surface contracts: entities,
   transforms, animation state, collision/navigation intent, cameras, effects,
   interaction prompts, and command boundaries.
