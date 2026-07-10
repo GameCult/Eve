@@ -7,6 +7,7 @@
     "schema",
     "generatedAt",
     "sourceManifest",
+    "evidenceLock",
     "packs",
     "plugins",
     "providers",
@@ -39,6 +40,29 @@
     "sourceManifest": {
       "type": "string",
       "minLength": 1
+    },
+    "evidenceLock": {
+      "type": "object",
+      "required": ["schema", "sha256", "repositories"],
+      "properties": {
+        "schema": { "const": "gamecult.eve.conformance_workspace_lock.v1" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "repositories": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name", "url", "commit"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "url": { "type": "string", "format": "uri" },
+              "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
     },
     "boundaryRule": {
       "type": "string"
