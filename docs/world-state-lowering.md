@@ -122,9 +122,10 @@ Aetheria is the current pressure case for this contract.
 
 The Aetheria daemon should publish the game state, rules, generated level,
 assets, operations, scalar/vector fields, object rows, and Eve surfaces needed
-to render both Starbridge RTS and ARPG views. Hermodr should reconstruct the RTS
-surface as an unspecialized browser/Eve lowerer. Electron should render the same
-surface as the player-facing Starbridge shell. Unity should become an ARPG
+to render both Starbridge RTS and ARPG views. Hermodr should carry provider
+documents without interpreting plugin semantics; the browser fields adapter
+should reconstruct the RTS view as part of the unspecialized Eve lowerer.
+Electron should render the same surface as the player-facing Starbridge shell. Unity should become an ARPG
 lowerer over the same kind of daemon-authored surface, and Godot should become
 the equivalent non-Unity ARPG conformance target.
 

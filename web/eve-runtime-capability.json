@@ -21,6 +21,17 @@
   ],
   "supportedPlugins": [
     {
+      "pluginId": "fields.surface",
+      "capabilities": [
+        "field.surface2d",
+        "gravity.surface",
+        "field.scalar",
+        "field.vector",
+        "field.objects"
+      ],
+      "projection": "packages/eve-browser-lowering/src/fields-browser-adapter.ts"
+    },
+    {
       "pluginId": "sai.vn",
       "capabilities": [
         "vn.stage",

@@ -1,3 +1,5 @@
+import { type EveBrowserPluginAdapter } from "./fields-browser-adapter.js";
+export { fieldsBrowserAdapter, normalizeFieldsDocument, type EveBrowserPluginAdapter } from "./fields-browser-adapter.js";
 export interface EveSurfaceComponent {
     id?: string;
     kind?: string;
@@ -55,6 +57,14 @@ export interface EveProviderSurfaceAdvertisement {
     status?: string;
     transport?: string;
     worldInteraction?: EveSurfaceWorldInteraction;
+    requiresPlugins?: EvePluginRequirement[];
+}
+export interface EvePluginRequirement {
+    pluginId: string;
+    versionRange?: string;
+    availability?: "required" | "optional" | "optional-nested";
+    requiredCapabilities?: string[];
+    optionalCapabilities?: string[];
 }
 export interface EveProviderAdvertisement {
     providerId?: string;
@@ -72,6 +82,7 @@ export interface EveBrowserLoweringOptions {
     commandSink?: (intent: EveCommandIntent, component: EveSurfaceComponent) => void | Promise<void>;
     documentResolver?: (request: EveEmbeddedDocumentRequest, component: EveSurfaceComponent) => Promise<EveResolvedDocument | EveSurfaceDocument | EveSurfaceDocument["surface"] | undefined>;
     provider?: EveProviderAdvertisement;
+    pluginAdapters?: readonly EveBrowserPluginAdapter[];
     source?: string;
     statusElement?: HTMLElement;
 }
@@ -89,7 +100,10 @@ export interface EveBrowserProviderHostOptions {
     requestedSurfaceId?: string;
     source?: string;
     statusElement?: HTMLElement;
+    pluginAdapters?: readonly EveBrowserPluginAdapter[];
 }
+export declare const defaultBrowserPluginAdapters: readonly EveBrowserPluginAdapter[];
+export declare function resolveRequiredPluginAdapters(surface: EveProviderSurfaceAdvertisement, available?: readonly EveBrowserPluginAdapter[]): readonly EveBrowserPluginAdapter[];
 export declare function selectAdvertisedSurface(provider: EveProviderAdvertisement, requestedSurfaceId?: string): EveProviderSurfaceAdvertisement;
 export declare class EveBrowserProviderHost {
     private readonly host;
@@ -100,6 +114,7 @@ export declare class EveBrowserProviderHost {
     private pollHandle;
     private provider;
     private selected;
+    private pluginAdapters;
     constructor(host: HTMLElement, transport: EveBrowserProviderTransport, options?: EveBrowserProviderHostOptions);
     start(): Promise<void>;
     stop(): void;

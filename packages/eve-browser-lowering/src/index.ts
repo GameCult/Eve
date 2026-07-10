@@ -1,3 +1,7 @@
+import { fieldsBrowserAdapter, type EveBrowserPluginAdapter } from "./fields-browser-adapter.js";
+
+export { fieldsBrowserAdapter, normalizeFieldsDocument, type EveBrowserPluginAdapter } from "./fields-browser-adapter.js";
+
 export interface EveSurfaceComponent {
   id?: string;
   kind?: string;
@@ -55,6 +59,15 @@ export interface EveProviderSurfaceAdvertisement {
   status?: string;
   transport?: string;
   worldInteraction?: EveSurfaceWorldInteraction;
+  requiresPlugins?: EvePluginRequirement[];
+}
+
+export interface EvePluginRequirement {
+  pluginId: string;
+  versionRange?: string;
+  availability?: "required" | "optional" | "optional-nested";
+  requiredCapabilities?: string[];
+  optionalCapabilities?: string[];
 }
 
 export interface EveProviderAdvertisement {
@@ -74,6 +87,7 @@ export interface EveBrowserLoweringOptions {
   commandSink?: (intent: EveCommandIntent, component: EveSurfaceComponent) => void | Promise<void>;
   documentResolver?: (request: EveEmbeddedDocumentRequest, component: EveSurfaceComponent) => Promise<EveResolvedDocument | EveSurfaceDocument | EveSurfaceDocument["surface"] | undefined>;
   provider?: EveProviderAdvertisement;
+  pluginAdapters?: readonly EveBrowserPluginAdapter[];
   source?: string;
   statusElement?: HTMLElement;
 }
@@ -93,6 +107,31 @@ export interface EveBrowserProviderHostOptions {
   requestedSurfaceId?: string;
   source?: string;
   statusElement?: HTMLElement;
+  pluginAdapters?: readonly EveBrowserPluginAdapter[];
+}
+
+export const defaultBrowserPluginAdapters: readonly EveBrowserPluginAdapter[] = [fieldsBrowserAdapter];
+
+export function resolveRequiredPluginAdapters(
+  surface: EveProviderSurfaceAdvertisement,
+  available: readonly EveBrowserPluginAdapter[] = defaultBrowserPluginAdapters,
+): readonly EveBrowserPluginAdapter[] {
+  const resolved: EveBrowserPluginAdapter[] = [];
+  for (const requirement of surface.requiresPlugins || []) {
+    const adapter = available.find(candidate => candidate.pluginId === requirement.pluginId);
+    if (!adapter) {
+      if ((requirement.availability || "required") === "required") {
+        throw new Error(`Missing required Eve plugin adapter ${requirement.pluginId}.`);
+      }
+      continue;
+    }
+    const missing = (requirement.requiredCapabilities || []).filter(capability => !adapter.capabilities.includes(capability));
+    if (missing.length > 0) {
+      throw new Error(`Eve plugin adapter ${requirement.pluginId} lacks required capabilities: ${missing.join(", ")}.`);
+    }
+    resolved.push(adapter);
+  }
+  return resolved;
 }
 
 export function selectAdvertisedSurface(
@@ -115,6 +154,7 @@ export class EveBrowserProviderHost {
   private pollHandle: number | undefined;
   private provider: EveProviderAdvertisement | undefined;
   private selected: EveProviderSurfaceAdvertisement | undefined;
+  private pluginAdapters: readonly EveBrowserPluginAdapter[] = [];
 
   constructor(
     private readonly host: HTMLElement,
@@ -125,6 +165,10 @@ export class EveBrowserProviderHost {
   async start(): Promise<void> {
     this.provider = await this.transport.providerAdvertisement();
     this.selected = selectAdvertisedSurface(this.provider, this.options.requestedSurfaceId);
+    this.pluginAdapters = resolveRequiredPluginAdapters(
+      this.selected,
+      this.options.pluginAdapters || defaultBrowserPluginAdapters,
+    );
     this.active = true;
     await this.refresh();
     const pollMs = Math.max(0, this.options.pollMs ?? 250);
@@ -154,6 +198,7 @@ export class EveBrowserProviderHost {
         commandSink: intent => this.submit(intent),
         documentResolver: this.transport.resolveDocument,
         provider: this.provider,
+        pluginAdapters: this.pluginAdapters,
         source: this.options.source,
         statusElement: this.options.statusElement,
       });
@@ -989,10 +1034,10 @@ async function resolveGravitySurfaceDocuments(
   try {
     let changed = false;
     for (const request of requests) {
-      const resolved = await options.documentResolver(request, node);
-      let document = objectProps((resolved as EveResolvedDocument | undefined)?.document);
+      const resolved = await options.documentResolver(request, node) as EveResolvedDocument | undefined;
+      let document = objectProps(normalizePluginDocument(resolved?.schemaId || request.schemaId, resolved?.document, options));
       if (Object.keys(document).length === 0) {
-        document = objectProps(await fetchGravitySurfaceDocument(request, options));
+        document = objectProps(normalizePluginDocument(request.schemaId, await fetchGravitySurfaceDocument(request, options), options));
       }
       if (!document || Object.keys(document).length === 0) continue;
       const key = request.slotId === "renderSplats"
@@ -1010,6 +1055,16 @@ async function resolveGravitySurfaceDocuments(
   } finally {
     state.loading = false;
   }
+}
+
+function normalizePluginDocument(
+  schemaId: string | undefined,
+  value: unknown,
+  options: EveBrowserLoweringOptions,
+): unknown {
+  const adapters = options.pluginAdapters || defaultBrowserPluginAdapters;
+  const adapter = adapters.find(candidate => !schemaId || candidate.schemas.includes(schemaId));
+  return adapter ? adapter.normalizeDocument(schemaId, value) : value;
 }
 
 async function fetchGravitySurfaceDocument(

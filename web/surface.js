@@ -2,6 +2,7 @@ import {
   createEveCommandIntent,
   emptyState,
   renderEveSurface,
+  resolveRequiredPluginAdapters,
 } from "../packages/eve-browser-lowering/dist/index.js";
 import { compileEveDsl } from "./eve-dsl.js";
 import { mergeProviderAdvertisement } from "./provider-advertisements.mjs";
@@ -145,6 +146,10 @@ function renderSurface(state, source) {
   surfaceId.textContent = state.providerId || "surface unknown";
   surfaceVersion.textContent = `v${state.version ?? "?"}`;
   const providerId = state.providerId || currentProvider?.providerId || "";
+  const advertisedSurface = currentProvider?.surfaces?.find(candidate => candidate.surfaceId === state.surface?.id)
+    || currentProvider?.surfaces?.[0]
+    || {};
+  const pluginAdapters = resolveRequiredPluginAdapters(advertisedSurface);
   renderEveSurface(state, app, {
     activeSurfaceId: state.surface?.id,
     body: document.body,
@@ -153,6 +158,7 @@ function renderSurface(state, source) {
     documentResolver: liveHermodr ? createHermodrDocumentResolver(providerId) : undefined,
     assetUrlResolver: liveHermodr ? resolveHermodrAssetUrl : undefined,
     provider: currentProvider,
+    pluginAdapters,
     source,
     statusElement: statusEl,
   });

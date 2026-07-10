@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createEveCommandIntent, createWorldActionIntent, projectWorldScene, selectAdvertisedSurface } from "../dist/index.js";
+import { createEveCommandIntent, createWorldActionIntent, normalizeFieldsDocument, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
 
 test("selects the requested surface from provider authority", () => {
   const provider = {
@@ -93,4 +93,45 @@ test("command intents use the active surface advertisement boundary", () => {
   assert.equal(intent.surfaceId, "aetheria.daemon.editor");
   assert.equal(intent.commandBoundary, "aetheria.daemon.editor.commands");
   assert.equal(intent.receiptSchema, "aetheria.editor_receipt.v1");
+});
+
+test("the browser fields adapter decodes plugin wire tuples", () => {
+  const gravity = normalizeFieldsDocument("gamecult.fields.gravity.v1", [
+    "gamecult.fields.gravity.v1", 17, "now", 4.2, "run", 3, "zone", [-10, -20, 30, 40],
+    [["body", "orbit", "planet", 1, 2, 3, 4, 5, 6, 7, 8]],
+    [["body", "orbit", "World", "planet", 1, 2, 3, false, {}, ["icon", "image", "cultmesh://asset", "cultmesh", "hash", "image/png", {}]]],
+    90, 12, 2, 0.5,
+  ]);
+
+  assert.equal(gravity.frameId, 17);
+  assert.deepEqual(gravity.viewport, { minX: -10, minY: -20, maxX: 30, maxY: 40 });
+  assert.equal(gravity.gravityInfluences[0].waveSpeed, 8);
+  assert.equal(gravity.bodies[0].iconAsset.uri, "cultmesh://asset");
+});
+
+test("the browser fields adapter leaves unrelated provider documents untouched", () => {
+  const document = ["provider.schema.v1", 1, 2];
+  assert.equal(normalizeFieldsDocument("provider.schema.v1", document), document);
+});
+
+test("required plugin advertisements resolve runtime adapters and report capability gaps", () => {
+  const surface = {
+    surfaceId: "world",
+    requiresPlugins: [{
+      pluginId: "fields.surface",
+      availability: "required",
+      requiredCapabilities: ["field.surface2d", "gravity.surface"],
+    }],
+  };
+  assert.equal(resolveRequiredPluginAdapters(surface)[0].pluginId, "fields.surface");
+  assert.throws(
+    () => resolveRequiredPluginAdapters(surface, []),
+    /Missing required Eve plugin adapter fields\.surface/,
+  );
+  assert.throws(
+    () => resolveRequiredPluginAdapters(surface, [{
+      pluginId: "fields.surface", capabilities: ["field.surface2d"], schemas: [], normalizeDocument: (_, value) => value,
+    }]),
+    /lacks required capabilities: gravity\.surface/,
+  );
 });

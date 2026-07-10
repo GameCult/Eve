@@ -1,3 +1,24 @@
+import { fieldsBrowserAdapter } from "./fields-browser-adapter.js";
+export { fieldsBrowserAdapter, normalizeFieldsDocument } from "./fields-browser-adapter.js";
+export const defaultBrowserPluginAdapters = [fieldsBrowserAdapter];
+export function resolveRequiredPluginAdapters(surface, available = defaultBrowserPluginAdapters) {
+    const resolved = [];
+    for (const requirement of surface.requiresPlugins || []) {
+        const adapter = available.find(candidate => candidate.pluginId === requirement.pluginId);
+        if (!adapter) {
+            if ((requirement.availability || "required") === "required") {
+                throw new Error(`Missing required Eve plugin adapter ${requirement.pluginId}.`);
+            }
+            continue;
+        }
+        const missing = (requirement.requiredCapabilities || []).filter(capability => !adapter.capabilities.includes(capability));
+        if (missing.length > 0) {
+            throw new Error(`Eve plugin adapter ${requirement.pluginId} lacks required capabilities: ${missing.join(", ")}.`);
+        }
+        resolved.push(adapter);
+    }
+    return resolved;
+}
 export function selectAdvertisedSurface(provider, requestedSurfaceId = "") {
     const surfaces = provider.surfaces || provider.localAdvertisement?.surfaces || [];
     const selected = requestedSurfaceId
@@ -17,6 +38,7 @@ export class EveBrowserProviderHost {
     pollHandle;
     provider;
     selected;
+    pluginAdapters = [];
     constructor(host, transport, options = {}) {
         this.host = host;
         this.transport = transport;
@@ -25,6 +47,7 @@ export class EveBrowserProviderHost {
     async start() {
         this.provider = await this.transport.providerAdvertisement();
         this.selected = selectAdvertisedSurface(this.provider, this.options.requestedSurfaceId);
+        this.pluginAdapters = resolveRequiredPluginAdapters(this.selected, this.options.pluginAdapters || defaultBrowserPluginAdapters);
         this.active = true;
         await this.refresh();
         const pollMs = Math.max(0, this.options.pollMs ?? 250);
@@ -55,6 +78,7 @@ export class EveBrowserProviderHost {
                 commandSink: intent => this.submit(intent),
                 documentResolver: this.transport.resolveDocument,
                 provider: this.provider,
+                pluginAdapters: this.pluginAdapters,
                 source: this.options.source,
                 statusElement: this.options.statusElement,
             });
@@ -810,9 +834,9 @@ async function resolveGravitySurfaceDocuments(node, props, options, state) {
         let changed = false;
         for (const request of requests) {
             const resolved = await options.documentResolver(request, node);
-            let document = objectProps(resolved?.document);
+            let document = objectProps(normalizePluginDocument(resolved?.schemaId || request.schemaId, resolved?.document, options));
             if (Object.keys(document).length === 0) {
-                document = objectProps(await fetchGravitySurfaceDocument(request, options));
+                document = objectProps(normalizePluginDocument(request.schemaId, await fetchGravitySurfaceDocument(request, options), options));
             }
             if (!document || Object.keys(document).length === 0)
                 continue;
@@ -832,6 +856,11 @@ async function resolveGravitySurfaceDocuments(node, props, options, state) {
     finally {
         state.loading = false;
     }
+}
+function normalizePluginDocument(schemaId, value, options) {
+    const adapters = options.pluginAdapters || defaultBrowserPluginAdapters;
+    const adapter = adapters.find(candidate => !schemaId || candidate.schemas.includes(schemaId));
+    return adapter ? adapter.normalizeDocument(schemaId, value) : value;
 }
 async function fetchGravitySurfaceDocument(request, options) {
     if (typeof fetch !== "function" || typeof window === "undefined")
