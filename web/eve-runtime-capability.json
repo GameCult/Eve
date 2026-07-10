@@ -101,7 +101,6 @@
         "web/provider-advertisements.test.mjs",
         "web/hermodr-provider-catalog.test.mjs",
         "packages/eve-browser-lowering/test/browser-lowering.test.mjs",
-        "../EveConformance/tools/parity/parity-manifest.json",
         "scripts/run-parity-harness.ps1"
       ],
       "pendingProofs": []
