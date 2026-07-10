@@ -5,6 +5,10 @@ import {
 } from "../packages/eve-browser-lowering/dist/index.js";
 import { compileEveDsl } from "./eve-dsl.js";
 import { mergeProviderAdvertisement } from "./provider-advertisements.mjs";
+import {
+  createHermodrProviderTargets,
+  selectInitialProviderTarget,
+} from "./hermodr-provider-catalog.mjs";
 
 const statusEl = document.querySelector("#status");
 const app = document.querySelector("#app");
@@ -19,7 +23,7 @@ let liveHermodr = false;
 let openProviderGeneration = 0;
 
 providerSelect.addEventListener("change", () => {
-  const provider = providers.find(candidate => candidate.providerId === providerSelect.value);
+  const provider = providers.find(candidate => (candidate.targetId || candidate.providerId) === providerSelect.value);
   if (provider) void openProvider(provider);
 });
 
@@ -34,18 +38,16 @@ async function bootProviders() {
   }
   providerSelect.replaceChildren(...providers.map(provider => {
     const option = document.createElement("option");
-    option.value = provider.providerId;
+    option.value = provider.targetId || provider.providerId;
     option.textContent = provider.title || provider.providerId;
     return option;
   }));
-  const requestedProviderId = new URLSearchParams(location.search).get("provider");
-  const firstProduct = providers.find(provider => provider.providerId === requestedProviderId || provider.aliases?.includes(requestedProviderId))
-    || providers.find(provider => provider.providerId === "aetheria")
-    || providers.find(provider => provider.providerId === "aetheria.main_menu.root")
-    || providers.find(provider => provider.providerId === "aetheria.inventory.panel")
-    || providers.find(provider => provider.providerId === "repixelizer")
-    || providers[0];
-  providerSelect.value = firstProduct.providerId;
+  const params = new URLSearchParams(location.search);
+  const requestedProviderId = params.get("surface") || params.get("provider") || "";
+  const firstProduct = liveHermodr
+    ? selectInitialProviderTarget(providers, requestedProviderId)
+    : providers.find(provider => provider.providerId === requestedProviderId || provider.aliases?.includes(requestedProviderId)) || providers[0];
+  providerSelect.value = firstProduct.targetId || firstProduct.providerId;
   await openProvider(firstProduct);
 }
 
@@ -60,27 +62,7 @@ async function loadHermodrProviders() {
     const response = await fetch("/hermodr/verse/catalog", { cache: "no-store" });
     if (!response.ok) return [];
     const catalog = await response.json();
-    const advertised = new Map();
-    for (const provider of catalog.providers || []) {
-      advertised.set(provider.id || provider.providerId, provider);
-    }
-    return (catalog.surfaces || [])
-      .filter(surface => surface?.providerId && surface?.surface)
-      .map(surface => {
-        const provider = advertised.get(surface.providerId) || {};
-        return {
-          ...provider,
-          providerId: surface.providerId,
-          title: surface.title || provider.title || surface.providerId,
-          kind: provider.kind || "eve.surface",
-          freshness: { state: "odin-visible-cultmesh" },
-          surfaces: [{
-            transport: "hermodr-surface",
-            surfaceId: surface.providerId,
-            url: `/hermodr/surface/${encodeURIComponent(surface.providerId)}`,
-          }],
-        };
-      });
+    return createHermodrProviderTargets(catalog);
   } catch {
     return [];
   }

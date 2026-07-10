@@ -12,6 +12,9 @@
   "supportedFeatures": [
     "embeddedDocuments",
     "providerAdvertisements",
+    "odinProviderDiscovery",
+    "genericWorldDiscovery",
+    "providerAssets",
     "stateBindings",
     "styleTokens",
     "authorityWitnesses"
@@ -57,6 +60,8 @@
       "ownership": "runtime-lowers-provider-world-surface-without-owning-world-state",
       "evidencePaths": [
         "web/surface.js",
+        "web/hermodr-provider-catalog.mjs",
+        "scripts/start-browser-reference.ps1",
         "packages/eve-browser-lowering/src/index.ts",
         "web/fixtures/eve-world-smoke.provider-advertisement.json"
       ]
@@ -79,10 +84,11 @@
     "test": {
       "ownerRepo": "Eve",
       "status": "node-tests-and-parity-harness",
-      "command": "node --test web/eve-dsl.test.mjs && npm --prefix packages/eve-browser-lowering test && powershell -ExecutionPolicy Bypass -File .\\scripts\\run-parity-harness.ps1",
+      "command": "node --test web/*.test.mjs && npm --prefix packages/eve-browser-lowering test && powershell -ExecutionPolicy Bypass -File .\\scripts\\run-parity-harness.ps1",
       "evidencePaths": [
         "web/eve-dsl.test.mjs",
         "web/provider-advertisements.test.mjs",
+        "web/hermodr-provider-catalog.test.mjs",
         "packages/eve-browser-lowering/test/browser-lowering.test.mjs",
         "../EveConformance/tools/parity/parity-manifest.json",
         "scripts/run-parity-harness.ps1"

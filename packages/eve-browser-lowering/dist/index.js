@@ -836,7 +836,9 @@ async function resolveGravitySurfaceDocuments(node, props, options, state) {
 async function fetchGravitySurfaceDocument(request, options) {
     if (typeof fetch !== "function" || typeof window === "undefined")
         return undefined;
-    const providerId = currentSurfaceDocument?.providerId || options.provider?.providerId || "aetheria";
+    const providerId = currentSurfaceDocument?.providerId || options.provider?.providerId || "";
+    if (!providerId)
+        return undefined;
     const params = new URLSearchParams();
     params.set("documentId", request.documentId);
     if (request.schemaId)
@@ -1525,7 +1527,7 @@ function gravityBodiesFromDocument(document) {
             waveSpeed: numberProp(body.waveSpeed, 0),
             icon: assetUriFromRef(body.iconAsset) || assetUriFromRef(displayBody?.iconAsset),
             iconSize: numberProp(displayBody?.iconSize, numberProp(body.iconSize, 0)),
-            tint: "cultmesh://aetheria/assets/textures/tint_splat",
+            tint: "",
         };
     });
 }
@@ -2224,10 +2226,6 @@ function textClassName(kind, props, node) {
         classes.push("detail", "mono");
     if (classes.length === 0)
         classes.push("detail", "eve-text");
-    if (node.id === "aetheria.main_menu.root.title")
-        classes.push("eve-root-title");
-    if (node.id === "aetheria.main_menu.root.subtitle")
-        classes.push("eve-root-subtitle");
     return classes.join(" ");
 }
 function applyControlBoxProps(element, props) {

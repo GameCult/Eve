@@ -115,6 +115,10 @@ advertisements and typed command/receipt documents are the boundary.
   attachment, export consumer, and report artifacts.
 - Eve retains the browser reference as the behavior oracle and a minimal generic
   interactive-world fixture.
+- The browser reference starts through Odin-owned Hermodr, preserves advertised
+  provider and surface identity, selects `interactive-world` by capability, and
+  resolves assets through provider-advertised CDN routes. Its live startup path
+  contains no Aetheria identifiers; local catalogs remain offline oracle data.
 
 ## Remaining Work
 
@@ -127,9 +131,9 @@ advertisements and typed command/receipt documents are the boundary.
 
 ### Generic Game Lowering
 
-- Route browser and remaining runtimes through Odin's aggregated provider
-  discovery rather than local catalogs or sibling paths; Unity's direct
-  CultMesh Verse discovery is the working reference.
+- Route remaining runtimes through Odin's aggregated provider discovery rather
+  than local catalogs or sibling paths; browser/Hermodr and Unity direct Verse
+  discovery are the working references.
 - Expand world lowering only through generic surface contracts: entities,
   transforms, animation state, collision/navigation intent, cameras, effects,
   interaction prompts, and command boundaries.

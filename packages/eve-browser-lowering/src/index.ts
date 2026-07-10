@@ -1017,7 +1017,8 @@ async function fetchGravitySurfaceDocument(
   options: EveBrowserLoweringOptions,
 ): Promise<unknown> {
   if (typeof fetch !== "function" || typeof window === "undefined") return undefined;
-  const providerId = currentSurfaceDocument?.providerId || options.provider?.providerId || "aetheria";
+  const providerId = currentSurfaceDocument?.providerId || options.provider?.providerId || "";
+  if (!providerId) return undefined;
   const params = new URLSearchParams();
   params.set("documentId", request.documentId);
   if (request.schemaId) params.set("schemaId", request.schemaId);
@@ -1864,7 +1865,7 @@ function gravityBodiesFromDocument(document: Record<string, unknown> | undefined
       waveSpeed: numberProp(body.waveSpeed, 0),
       icon: assetUriFromRef((body as Record<string, unknown>).iconAsset) || assetUriFromRef(displayBody?.iconAsset),
       iconSize: numberProp(displayBody?.iconSize, numberProp((body as Record<string, unknown>).iconSize, 0)),
-      tint: "cultmesh://aetheria/assets/textures/tint_splat",
+      tint: "",
     };
   });
 }
@@ -2642,8 +2643,6 @@ function textClassName(kind: string, props: Record<string, unknown>, node: EveSu
   if (kind === "label") classes.push("cultui-label");
   if (props.role === "mono") classes.push("detail", "mono");
   if (classes.length === 0) classes.push("detail", "eve-text");
-  if (node.id === "aetheria.main_menu.root.title") classes.push("eve-root-title");
-  if (node.id === "aetheria.main_menu.root.subtitle") classes.push("eve-root-subtitle");
   return classes.join(" ");
 }
 

@@ -182,8 +182,10 @@ Start the browser reference surface runner:
 powershell -ExecutionPolicy Bypass -File .\scripts\start-browser-reference.ps1
 ```
 
-Open `http://127.0.0.1:8891/`. The page can render local fixture and
-advertisement surfaces:
+Open `http://127.0.0.1:8798/`. Odin-owned Hermodr serves the browser reference
+and lowers Odin-visible provider advertisements and surfaces. Local fixtures
+remain an offline oracle when the live catalog is unavailable. The page can
+render:
 
 - `Fensalir Direct2D`, a fixture surface for the planned
   CultMesh-to-`AquariumUiDocument` lowering.
