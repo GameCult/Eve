@@ -73,6 +73,10 @@ advertisements and typed command/receipt documents are the boundary.
 - EveElectron owns its Electron test dependency and consumes Aetheria capture
   inputs from Aetheria's provider pack; it no longer borrows Aetheria's
   `node_modules` or Eve-local copies of product fixtures.
+- EveElectron owns `EveCultMeshProviderClient`, the generic live RUDP provider
+  transport. It starts from an Odin-resolved peer and advertisement record,
+  follows provider-advertised surface/command/receipt/document references, and
+  does not compile provider IDs, schemas, or record keys into the runtime.
 - EveFlutter owns the generic Flutter clients and platform lifecycle.
 - Sai and Norn publish independent sidecar plugins. Sai serves retained Ink
   sessions and Norn serves graph projection and measurement through CultNet
@@ -102,6 +106,12 @@ advertisements and typed command/receipt documents are the boundary.
 - Route browser and remaining runtimes through Odin's aggregated provider
   discovery rather than local catalogs or sibling paths; Unity's direct
   CultMesh Verse discovery is the working reference.
+- Replace the Eve IPC path in `Aetheria.Rts.Web` with EveElectron's generic live
+  provider client, then delete the Aetheria-owned Electron preload, generated
+  Eve bindings, transport-derived surface keys, and renderer shell. Keep only
+  provider-owned daemon launch/development tooling until a generic launcher
+  owns that lifecycle. This cut is not complete while
+  `AetheriaCultMeshClient` still answers Eve surface IPC.
 - Expand world lowering only through generic surface contracts: entities,
   transforms, animation state, collision/navigation intent, cameras, effects,
   interaction prompts, and command boundaries.
