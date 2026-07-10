@@ -158,6 +158,9 @@ advertisements and typed command/receipt documents are the boundary.
 - EveTui owns the terminal lowerer, command-intent projection, package and test
   lifecycle, and durable Aetheria/generic-world grid captures. Its `0.1.1`
   package is built from the owner repo; Eve no longer contains a TUI runtime.
+- EveFlutter owns its platform clients, lifecycle, responsive Windows goldens,
+  native capture runners, and Linux CI captures. The tagged `1.0.2` owner build
+  analyzes, tests, regenerates platform captures, and publishes them from CI.
 
 ## Remaining Work
 
@@ -165,7 +168,6 @@ advertisements and typed command/receipt documents are the boundary.
 
 - Move Android Kotlin and iOS UIKit lowerers into runtime owner repos or retire
   them when Flutter is the intended native owner.
-- Tag EveFlutter releases and remove remaining incubation claims.
 
 ### Generic Game Lowering
 
