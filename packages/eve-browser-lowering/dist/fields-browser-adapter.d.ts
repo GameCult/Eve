@@ -44,7 +44,7 @@ export interface FieldsSurfaceDataState {
 }
 export interface FieldsRuntimeContext {
     applyGeneratedLayout(element: HTMLElement, layout: Record<string, unknown>, style: Record<string, unknown>): void;
-    drawSurface(canvas: HTMLCanvasElement, props: Record<string, unknown>, state: FieldsSurfaceDataState): void;
     providerId?: string;
+    resolveAssetUrl(uri: string): string;
 }
 export declare function normalizeFieldsDocument(schemaId: string | undefined, value: unknown): unknown;

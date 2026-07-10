@@ -116,8 +116,9 @@ advertisements and typed command/receipt documents are the boundary.
   surfaces that use them. Hermodr carries decoded MessagePack values without
   interpreting field tuples; the browser fields adapter owns that conversion.
 - The browser fields adapter owns field component matching, canvas lifecycle,
-  provider-document polling, tuple conversion, and capability-gap reporting.
-  The general CultUI lowerer supplies one temporary native drawing port.
+  provider-document polling, tuple conversion, Canvas/WebGL projection, GPU
+  resources, asset overlays, and capability-gap reporting. The general CultUI
+  lowerer dispatches plugin component kinds without field-specific branches.
 - The TeX owner sidecar serves its Eve ABI over CultNet RUDP operation
   envelopes; its stdio protocol is retained only as a local debug adapter.
 - Aetheria owns its provider advertisement, world surface, scenario, asset
@@ -162,10 +163,9 @@ advertisements and typed command/receipt documents are the boundary.
   is its semantic owner. Sai already owns VN/Ink execution and its live witness.
 - Keep nested plugin availability explicit and non-transitive: Sai does not own
   Norn or TeX.
-- Move the remaining browser Canvas/WebGL drawing body through the adapter's
-  native drawing port, then delete that port from the general component lowerer.
-  The browser already resolves required adapter capabilities from provider
-  advertisements and owns field tuple conversion outside Hermodr.
+- Add a second independent `fields.surface` runtime adapter and conformance
+  capture before graduating the plugin from incubation. Keep projection native
+  to each runtime; do not move Canvas/WebGL implementation into plugin semantics.
 
 ### Conformance
 

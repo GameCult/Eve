@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { createEveCommandIntent, createWorldActionIntent, normalizeFieldsDocument, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
 
@@ -134,4 +135,9 @@ test("required plugin advertisements resolve runtime adapters and report capabil
     }]),
     /lacks required capabilities: gravity\.surface/,
   );
+});
+
+test("the generic component lowerer contains no fields plugin authority", () => {
+  const source = readFileSync(new URL("../src/index.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /gamecult\.fields|field\.surface2d|gravity\.surface|drawGravity|renderSplats/);
 });
