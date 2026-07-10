@@ -285,9 +285,10 @@ Exit criteria:
 
 ## Active Work Queue
 
-1. Replace Aetheria's specialized browser embedded-document methods with a
-   generic CultMesh document handle once the field/plugin document contract is
-   explicit; do not move Aetheria gravity or object schemas into Eve.
+1. Graduate the generic Electron host/preload contract into EveElectron so
+   Aetheria retains only daemon lifecycle and provider transport configuration.
+2. Replace incubating Sai/Norn projection declarations with one live sidecar
+   deployment witness per plugin, preserving their independent ownership.
 
 Recently cut:
 
@@ -344,6 +345,14 @@ Recently cut:
   Export consumption passed for both `eveunity.aetheria.game.warm` (68.27 s
   wall, 7.72 s test) and `eveunity.aetheria.game.cold` (138.90 s wall,
   111.52 s test), including all three reconciled command receipts.
+- Embedded document resolution is now provider-neutral in the Aetheria
+  renderer. The browser forwards only document/schema/slot identity plus
+  viewport presentation context through `eveDocument`; Aetheria's main-process
+  transport adapter owns its gravity, render-splat, object, and nested-surface
+  query routing. Static verification rejects those Aetheria schema ids in the
+  renderer bundle, while the live Electron witness still proves the resolved
+  field surface. Eve core documents this as the host/plugin decoding boundary,
+  not as an Aetheria-specific exception.
 
 - The clean EveUnity PlayMode client now consumes Aetheria's independently
   running daemon without importing Aetheria code. Aetheria builds its authored

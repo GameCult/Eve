@@ -144,6 +144,14 @@ Renderers lower normal `children` first, then resolve and mount
 cannot resolve a slot must preserve the slot identity in diagnostics or a
 placeholder; it must not invent a local substitute for the child document.
 
+The renderer-to-host request is provider-neutral. It carries `documentId`,
+`schemaId`, `slotId`, `presentationKind`, and optional presentation context such
+as the current viewport. The host returns a resolved envelope containing the
+same document/schema identity and either an opaque typed document or a nested
+Eve surface. Provider adapters or advertised plugins own schema-specific query
+selection and decoding. Renderer code must not switch on provider schema ids or
+call provider-specific query methods to resolve a slot.
+
 ## Embedded Knowledge Surfaces
 
 Eve must be able to place rich interactive surfaces inside another surface.
