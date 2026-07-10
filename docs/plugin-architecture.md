@@ -136,6 +136,14 @@ provider or renderer to bypass the contract because the plugin happens to be in
 the same language today. The standard shape is an executable plugin runtime with
 a typed request/response ABI.
 
+CultNet carries that ABI through the generic service envelopes
+`cultnet.operation_request.v0` and `cultnet.operation_response.v0`. The outer
+message owns service routing, operation name, correlation, runtime identity,
+status, and transport diagnostics. Its `payloadSchema` names the Eve plugin ABI
+request or response, and `payload` carries that document as base64 MessagePack.
+CultLib owns this transport envelope; Eve owns the inner plugin ABI; each plugin
+owns its handler and semantic state.
+
 Allowed implementation forms:
 
 - process sidecar;
@@ -183,7 +191,7 @@ Example ABI request:
 
 ```json
 {
-  "schema": "gamecult.eve.plugin_invocation.v1",
+  "schema": "gamecult.eve.plugin_abi.request.v1",
   "pluginId": "sai.vn",
   "operation": "apply",
   "requestId": "cmd-123",
@@ -203,7 +211,7 @@ Example ABI response:
 
 ```json
 {
-  "schema": "gamecult.eve.plugin_result.v1",
+  "schema": "gamecult.eve.plugin_abi.response.v1",
   "pluginId": "sai.vn",
   "operation": "apply",
   "requestId": "cmd-123",
@@ -459,11 +467,11 @@ Sai surface deploys with nested Norn or TeX, Sai composes the slots and keeps VN
 stage authority; Norn and TeX still publish and validate their own semantic
 contracts. Each plugin advertises only the ABI operations it actually owns.
 
-The carrier does not define the plugin. The first executable Norn proof uses
-UTF-8 NDJSON over stdio: one request document per line, one response per
-request in order, blank lines ignored, diagnostics on stderr. A future
-CultMesh daemon transport must carry the same typed request and response
-documents; it must not create a second semantic API.
+The carrier does not define the plugin. UTF-8 NDJSON over stdio remains a local
+debug adapter: one request document per line, one response per request in
+order, blank lines ignored, diagnostics on stderr. The production sidecar path
+uses CultNet operation envelopes carrying the same typed request and response
+documents; it does not create a second semantic API.
 
 Nested availability is a composition fact, not a Sai dependency story. A Sai
 surface can be deployed with a nested Norn or TeX surface only when that other

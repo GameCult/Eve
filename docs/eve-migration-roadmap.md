@@ -58,6 +58,9 @@ advertisements and typed command/receipt documents are the boundary.
 - CultLib emits a verified NuGet dependency closure for `GameCult.Mesh` and a
   clean package-reference consumer, while Unity consumes the corresponding
   `org.gamecult.cultlib` UPM assembly closure.
+- CultLib publishes transport-neutral `cultnet.operation_request.v0` and
+  `cultnet.operation_response.v0` envelopes in TypeScript, C#, and Rust. These
+  carry Eve plugin ABI documents without moving plugin semantics into CultLib.
 - EveElectron owns its shell, security lifecycle, captures, and runtime witness.
 - EveFlutter owns the generic Flutter clients and platform lifecycle.
 - Sai and Norn publish independent sidecar plugins. A Sai surface may request
@@ -98,9 +101,10 @@ advertisements and typed command/receipt documents are the boundary.
 
 - Publish the verified CultLib NuGet and Unity package artifacts from tagged
   releases and consume released versions in runtime CI.
-- Replace development `stdio-ndjson` transport where appropriate with the
-  published CultNet/CultMesh sidecar transport while preserving the same plugin
-  ABI operations.
+- Replace development `stdio-ndjson` transport with the published CultNet
+  operation sidecar transport while preserving the same plugin ABI operations.
+  CultNet TS still needs an owner-grade RUDP service host; CultNet Rust
+  verification must first integrate its current RUDP reset work.
 - Graduate graph semantics fully to Norn and VN/Ink semantics fully to Sai once
   no Eve fixture is their semantic owner.
 - Keep nested plugin availability explicit and non-transitive: Sai does not own
