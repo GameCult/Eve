@@ -1272,6 +1272,33 @@ Recently cut:
 - Aetheria has a minimal provider-owned interactive world fixture in Eve so the
   browser oracle can prove the surface path without owning Aetheria truth.
 
+## Live Unity Gameplay Gate
+
+The extracted EveUnity package currently proves provider-agnostic lowering in
+EditMode and inside Aetheria's Unity consumer project. It does not yet prove a
+standalone generic Unity client connected to the running Aetheria daemon. The
+existing `AetheriaEveUnitySceneProviderBridge` reads a local CultCache replica
+and previously emitted immediate submission acknowledgements; neither is a
+remote subscription or an authoritative daemon receipt.
+
+Completion requires one EveUnity-owned PlayMode client and one separately
+running Aetheria daemon to prove the whole path:
+
+1. Discover or configure the daemon CultMesh endpoint from provider data.
+2. Subscribe to the provider advertisement, `aetheria.daemon.game`, asset
+   manifest, and receipt records without importing Aetheria code into EveUnity.
+3. Render the initial world in a minimal EveUnity-owned Unity project.
+4. Submit movement and action intents through `gamecult.eve.command.v1`.
+5. Observe a separately published provider receipt and a later surface version.
+6. Reconcile the Unity scene to that version without local simulation authority.
+7. Capture PNG evidence for both Aetheria and the generic world-smoke provider.
+
+The first transport foundation now lives in Aetheria's typed Unity state client:
+`AetheriaRuntimeVerseClient.OpenRemoteAsync` creates a non-authoritative local
+replica, synchronizes snapshots through CultMesh, and routes writes to the
+daemon's primary shard. The local-file scene adapter is explicitly labeled
+`aetheria-local-cultmesh-replica`; it must not satisfy the live gameplay gate.
+
 ## Stop Conditions
 
 Stop adding features and update the map when:
