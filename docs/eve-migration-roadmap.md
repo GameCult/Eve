@@ -1298,6 +1298,11 @@ The first transport foundation now lives in Aetheria's typed Unity state client:
 replica, synchronizes snapshots through CultMesh, and routes writes to the
 daemon's primary shard. The local-file scene adapter is explicitly labeled
 `aetheria-local-cultmesh-replica`; it must not satisfy the live gameplay gate.
+Remote command reconciliation now consumes Aetheria's provider-owned
+`gamecult.aetheria.committed_command_fact.v1` records. A command becomes
+terminal only when a fact with the same command ID exists and the synchronized
+game surface version is at least the fact's source frame. Submission
+acknowledgements and aggregate status documents are not receipts.
 
 ## Stop Conditions
 
