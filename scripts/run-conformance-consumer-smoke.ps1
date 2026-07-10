@@ -6,6 +6,8 @@ param(
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
+$conformanceRoot = if ($env:EVE_CONFORMANCE_ROOT) { $env:EVE_CONFORMANCE_ROOT } else { "E:\Projects\EveConformance" }
+$consumerScript = Join-Path $conformanceRoot "tools\conformance\consume-export.mjs"
 $sourceExport = if ([System.IO.Path]::IsPathRooted($ExportDirectory)) {
   $ExportDirectory
 } else {
@@ -30,10 +32,9 @@ Copy-Item -LiteralPath $sourceExport -Destination $consumerExport -Recurse
 
 Push-Location $projectRoot
 try {
-  node .\tools\conformance\consume-export.mjs $consumerExport `
+  node $consumerScript $consumerExport `
     --expect-capability-matrix `
     --expect-schema gamecult.eve.conformance_export.v1 `
-    --expect-schema gamecult.eve.conformance_handoff.v1 `
     --expect-schema gamecult.eve.capability_matrix.v1 `
     --expect-schema gamecult.eve.command_receipt.v1 `
     --expect-schema gamecult.eve.plugin_receipt.v1 `
@@ -104,8 +105,7 @@ try {
     --expect-runtime-witness electron-shell:eve.world-smoke:eve.world-smoke.surface:cold:pass `
     --expect-runtime-witness electron-shell:aetheria:aetheria.daemon.game:cold:pass `
     --expect-runtime-capture-probe tui:contract-artifact-present:json-grid:EveTui `
-    --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release" `
-    --expect-conformance-handoff
+    --expect-capability-gap "split-target:EveUnity:EveUnity:proof:Tagged UPM release"
   if ($LASTEXITCODE -ne 0) {
     throw "Conformance consumer smoke failed with exit code $LASTEXITCODE"
   }

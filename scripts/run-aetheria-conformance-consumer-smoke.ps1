@@ -32,7 +32,8 @@ if (Test-Path $consumerExport) {
 New-Item -ItemType Directory -Force -Path $consumerRoot | Out-Null
 Copy-Item -LiteralPath $sourceExport -Destination $consumerExport -Recurse
 
-$consumerScript = Join-Path $projectRoot "tools\conformance\consume-export.mjs"
+$conformanceRoot = if ($env:EVE_CONFORMANCE_ROOT) { $env:EVE_CONFORMANCE_ROOT } else { "E:\Projects\EveConformance" }
+$consumerScript = Join-Path $conformanceRoot "tools\conformance\consume-export.mjs"
 
 Push-Location $AetheriaRoot
 try {
@@ -93,8 +94,7 @@ try {
     --expect-provider-command aetheria:aetheria.daemon.commands `
     --expect-provider-receipt-state aetheria:accepted `
     --expect-provider-receipt-state aetheria:pending `
-    --expect-provider-receipt-state aetheria:reconciled `
-    --expect-provider-handoff-move aetheria:provider-scenario:current:exists:run-aetheria-conformance-consumer-smoke.ps1
+    --expect-provider-receipt-state aetheria:reconciled
   if ($LASTEXITCODE -ne 0) {
     throw "Aetheria conformance consumer smoke failed with exit code $LASTEXITCODE"
   }

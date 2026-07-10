@@ -5,6 +5,10 @@ param(
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
+$conformanceRoot = if ($env:EVE_CONFORMANCE_ROOT) { $env:EVE_CONFORMANCE_ROOT } else { "E:\Projects\EveConformance" }
+if (-not (Test-Path (Join-Path $conformanceRoot "tools\parity\run-parity.mjs"))) {
+  throw "EveConformance checkout not found: $conformanceRoot"
+}
 $env:EVE_PARITY_OUTPUT = if ([System.IO.Path]::IsPathRooted($OutputDirectory)) {
   $OutputDirectory
 } else {
@@ -39,17 +43,18 @@ try {
     -ExpectedSurfaceId "eve.world-smoke.surface" `
     -ExpectedCommandBoundary "eve.world-smoke.commands" `
     -ExpectedReceiptSchema "eve.world_smoke.command_receipt.v1"
-  node .\tools\parity\run-parity.mjs
-  node .\tools\conformance\attach-runtime-witness.mjs `
+  $env:EVE_KERNEL_ROOT = $projectRoot
+  $env:EVE_CONFORMANCE_OUTPUT = Join-Path $projectRoot "artifacts\conformance"
+  node (Join-Path $conformanceRoot "tools\parity\run-parity.mjs")
+  node (Join-Path $conformanceRoot "tools\conformance\attach-runtime-witness.mjs") `
     "E:\Projects\EveElectron\artifacts\capture\generic-world\runtime-witness.json" `
     ".\artifacts\conformance\latest"
-  node .\tools\conformance\attach-runtime-witness.mjs `
+  node (Join-Path $conformanceRoot "tools\conformance\attach-runtime-witness.mjs") `
     "E:\Projects\EveElectron\artifacts\capture\aetheria-world\runtime-witness.json" `
     ".\artifacts\conformance\latest"
-  node .\tools\conformance\attach-plugin-witness.mjs `
+  node (Join-Path $conformanceRoot "tools\conformance\attach-plugin-witness.mjs") `
     "E:\Projects\EvePlugins\artifacts\tex-math\runtime-witness.json" `
     ".\artifacts\conformance\latest"
-  & (Join-Path $PSScriptRoot "run-eveconformance-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-eveelectron-owner-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-split-handoff-smoke.ps1")
   & (Join-Path $PSScriptRoot "run-evetui-lifecycle-smoke.ps1")

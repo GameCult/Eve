@@ -6,6 +6,8 @@ param(
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
+$conformanceRoot = if ($env:EVE_CONFORMANCE_ROOT) { $env:EVE_CONFORMANCE_ROOT } else { "E:\Projects\EveConformance" }
+$consumerScript = Join-Path $conformanceRoot "tools\conformance\consume-export.mjs"
 $sourcePath = if ([System.IO.Path]::IsPathRooted($SourceDirectory)) {
   $SourceDirectory
 } else {
@@ -30,7 +32,7 @@ Copy-Item -LiteralPath $sourcePath -Destination $exportPath -Recurse
 
 Push-Location $projectRoot
 try {
-  node .\tools\conformance\consume-export.mjs $exportPath `
+  node $consumerScript $exportPath `
     --expect-split-target EveFlutter `
     --expect-split-target-status EveFlutter:incubating `
     --expect-split-target-proof "EveFlutter:Provider picker consumes provider advertisements" `

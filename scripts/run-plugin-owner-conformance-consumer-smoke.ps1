@@ -28,7 +28,8 @@ if (Test-Path $consumerExport) {
 New-Item -ItemType Directory -Force -Path $consumerRoot | Out-Null
 Copy-Item -LiteralPath $sourceExport -Destination $consumerExport -Recurse
 
-$consumerScript = Join-Path $projectRoot "tools\conformance\consume-export.mjs"
+$conformanceRoot = if ($env:EVE_CONFORMANCE_ROOT) { $env:EVE_CONFORMANCE_ROOT } else { "E:\Projects\EveConformance" }
+$consumerScript = Join-Path $conformanceRoot "tools\conformance\consume-export.mjs"
 
 node $consumerScript $consumerExport `
   --expect-pack plugin `

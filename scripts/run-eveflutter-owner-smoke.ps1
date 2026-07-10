@@ -25,7 +25,9 @@ if ($runtimeSources -match "aetheria|repixelizer|gamecult\.home") {
 }
 
 New-Item -ItemType Directory -Force -Path $fontDirectory | Out-Null
-node (Join-Path (Split-Path -Parent $PSScriptRoot) "tools\parity\export-fixture.mjs") cultui-inspector $surfacePath
+$conformanceRoot = if ($env:EVE_CONFORMANCE_ROOT) { $env:EVE_CONFORMANCE_ROOT } else { "E:\Projects\EveConformance" }
+$env:EVE_KERNEL_ROOT = Split-Path -Parent $PSScriptRoot
+node (Join-Path $conformanceRoot "tools\parity\export-fixture.mjs") cultui-inspector $surfacePath
 if ($LASTEXITCODE -ne 0) { throw "Eve fixture export for EveFlutter failed." }
 Copy-Item -LiteralPath (Join-Path $FlutterRoot "bin\cache\artifacts\material_fonts\roboto-regular.ttf") -Destination (Join-Path $fontDirectory "Roboto-Regular.ttf") -Force
 Copy-Item -LiteralPath (Join-Path $FlutterRoot "bin\cache\artifacts\material_fonts\roboto-bold.ttf") -Destination (Join-Path $fontDirectory "Roboto-Bold.ttf") -Force

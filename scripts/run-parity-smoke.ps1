@@ -11,7 +11,9 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $runRoot = Join-Path $projectRoot (Join-Path $OutputDirectory $stamp)
 New-Item -ItemType Directory -Force $runRoot | Out-Null
-$manifest = Get-Content (Join-Path $projectRoot "tools\parity\parity-manifest.json") | ConvertFrom-Json
+$conformanceRoot = if ($env:EVE_CONFORMANCE_ROOT) { $env:EVE_CONFORMANCE_ROOT } else { "E:\Projects\EveConformance" }
+$manifest = Get-Content (Join-Path $conformanceRoot "tools\parity\parity-manifest.json") | ConvertFrom-Json
+$env:EVE_KERNEL_ROOT = $projectRoot
 $responsiveCases = @($manifest.responsiveCases)
 $androidDeviceCases = @($manifest.androidDeviceCases)
 
@@ -82,7 +84,7 @@ try {
     throw "Semantic parity harness failed with exit code $LASTEXITCODE"
   }
   $flutterSurface = Join-Path $runRoot "flutter-current-surface.json"
-  node .\tools\parity\export-fixture.mjs $ProviderId $flutterSurface | Out-Host
+  node (Join-Path $conformanceRoot "tools\parity\export-fixture.mjs") $ProviderId $flutterSurface | Out-Host
   if ($LASTEXITCODE -ne 0) { throw "Flutter fixture export failed with exit code $LASTEXITCODE" }
 
   foreach ($case in $responsiveCases) {
@@ -97,7 +99,7 @@ try {
 
   Invoke-Capture "ios" {
     $iosFixture = Join-Path $runRoot "ios-current-surface.json"
-    node .\tools\parity\export-fixture.mjs $ProviderId $iosFixture | Out-Host
+    node (Join-Path $conformanceRoot "tools\parity\export-fixture.mjs") $ProviderId $iosFixture | Out-Host
     powershell -ExecutionPolicy Bypass -File .\scripts\capture-eve-screenshot.ps1 `
       -Target $IosSshTarget `
       -OutputDirectory $runRoot `
