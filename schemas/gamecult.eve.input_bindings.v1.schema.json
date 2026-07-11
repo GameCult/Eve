@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.input_bindings.v1",
+  "title": "Eve User Input Bindings",
+  "type": "object",
+  "required": ["schema", "providerId", "capabilityId", "bindings", "actionBarControls"],
+  "properties": {
+    "schema": { "const": "gamecult.eve.input_bindings.v1" },
+    "providerId": { "type": "string", "minLength": 1 },
+    "capabilityId": { "type": "string", "minLength": 1 },
+    "bindings": { "type": "array", "items": { "$ref": "gamecult.eve.input_capability.v1#/$defs/binding" } },
+    "actionBarControls": { "type": "array", "items": { "$ref": "gamecult.eve.input_capability.v1#/$defs/gesture" } },
+    "updatedAtUtc": { "type": "string" }
+  },
+  "additionalProperties": false
+}

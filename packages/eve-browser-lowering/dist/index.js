@@ -231,7 +231,7 @@ export function renderEveComponent(node, options = currentOptions) {
             resolveAssetUrl,
         });
     }
-    if (kind === "world.scene3d") {
+    if (kind === "world.scene3d" || kind === "world.scene2d") {
         return renderWorldScene(node, props, layout, style, options);
     }
     if (kind === "image.background") {
@@ -1541,3 +1541,4 @@ function el(tag, className = "", text = "") {
         element.textContent = text;
     return element;
 }
+export * from "./input-gestures.js";

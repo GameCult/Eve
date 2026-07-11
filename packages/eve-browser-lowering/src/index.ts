@@ -1731,3 +1731,4 @@ function el(tag: string, className = "", text = ""): HTMLElement {
   if (text) element.textContent = text;
   return element;
 }
+export * from "./input-gestures.js";
