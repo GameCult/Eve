@@ -47,6 +47,12 @@ export interface EveCommandIntent {
     issuedAt: string;
     clientId: string;
 }
+export interface EveSemanticListItem {
+    label: string;
+    status: string;
+    detail: string;
+    badges: string[];
+}
 export interface EveSurfaceWorldInteraction {
     commandBoundary?: string;
     receiptSchema?: string;
@@ -145,6 +151,7 @@ export interface EveProjectedWorldEntity {
 }
 export declare function renderEveSurface(surface: EveSurfaceDocument, host: HTMLElement, options?: EveBrowserLoweringOptions): HTMLElement;
 export declare function renderEveComponent(node: EveSurfaceComponent, options?: EveBrowserLoweringOptions): HTMLElement;
+export declare function projectSemanticListItem(node: EveSurfaceComponent): EveSemanticListItem;
 export declare function projectWorldScene(node: EveSurfaceComponent): EveProjectedWorldEntity[];
 export declare function createWorldActionIntent(command: string, action: Record<string, unknown>, options?: EveBrowserLoweringOptions): EveCommandIntent;
 export declare function applyEveSurfaceStyles(styles: EveSurfaceStyles | undefined, body?: HTMLElement): void;

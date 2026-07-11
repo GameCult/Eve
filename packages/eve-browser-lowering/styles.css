@@ -518,6 +518,45 @@ body[data-pixel-art="true"] .cultui-background {
   text-transform: uppercase;
 }
 
+.cultui-list-item {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+}
+
+.cultui-list-item-heading,
+.cultui-list-item-badges {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.cultui-list-item-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.cultui-list-item-status,
+.cultui-list-item-badge {
+  padding: 2px 5px;
+  border: 1px solid var(--line-hot);
+  border-radius: 4px;
+  color: var(--quiet);
+  font: 600 10px var(--font-mono);
+}
+
+.cultui-list-item-detail {
+  color: var(--quiet);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
 .cultui-avatar-card {
   flex: 0 0 104px;
   display: grid;

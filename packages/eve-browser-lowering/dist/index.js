@@ -294,15 +294,38 @@ export function renderEveComponent(node, options = currentOptions) {
             pane.append(renderEveComponent(child, options));
         return pane;
     }
-    if (kind === "list") {
+    if (kind === "list" || kind.endsWith(".roster")) {
         const list = el("section", "cultui-list");
         assignId(list, node);
+        list.dataset.componentKind = kind;
         const title = stringProp(props.title, "");
         if (title)
             list.append(el("h3", "cultui-list-title", title));
         for (const child of children)
             list.append(renderEveComponent(child, options));
         return list;
+    }
+    if (kind === "list.item" || kind.endsWith(".item")) {
+        const semantic = projectSemanticListItem(node);
+        const item = el("article", "cultui-list-item");
+        assignId(item, node);
+        item.dataset.componentKind = kind;
+        const heading = el("div", "cultui-list-item-heading");
+        heading.append(el("strong", "cultui-list-item-label", semantic.label));
+        if (semantic.status)
+            heading.append(el("span", "cultui-list-item-status", semantic.status));
+        item.append(heading);
+        if (semantic.detail)
+            item.append(el("div", "cultui-list-item-detail", semantic.detail));
+        if (semantic.badges.length) {
+            const badgeRow = el("div", "cultui-list-item-badges");
+            for (const badge of semantic.badges)
+                badgeRow.append(el("span", "cultui-list-item-badge", badge));
+            item.append(badgeRow);
+        }
+        for (const child of children)
+            item.append(renderEveComponent(child, options));
+        return item;
     }
     if (kind === "bar") {
         const bar = el("div", "cultui-meter");
@@ -520,6 +543,15 @@ export function renderEveComponent(node, options = currentOptions) {
     for (const child of children)
         fallback.append(renderEveComponent(child, options));
     return fallback;
+}
+export function projectSemanticListItem(node) {
+    const props = objectProps(node.props);
+    return {
+        label: firstString(props.label, props.title, node.text, node.kind, "item"),
+        status: firstString(props.status, ""),
+        detail: firstString(props.detail, props.phase, ""),
+        badges: firstString(props.badges, "").split(",").map(value => value.trim()).filter(Boolean),
+    };
 }
 function applyGeneratedLayout(element, layout, style = {}) {
     const display = firstString(layout.display, "");

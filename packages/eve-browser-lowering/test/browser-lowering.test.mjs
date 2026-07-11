@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { createEveCommandIntent, createWorldActionIntent, normalizeFieldsDocument, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
+import { createEveCommandIntent, createWorldActionIntent, normalizeFieldsDocument, projectSemanticListItem, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
 
 test("selects the requested surface from provider authority", () => {
   const provider = {
@@ -58,6 +58,27 @@ test("projects provider world entities into a normalized tactical plane", () => 
   assert.equal(entities[1].faction, "hostile");
   assert.ok(entities.every(entity => entity.xPercent >= 6 && entity.xPercent <= 94));
   assert.ok(entities.every(entity => entity.yPercent >= 6 && entity.yPercent <= 94));
+});
+
+test("projects unknown semantic items through the generic list contract", () => {
+  const item = projectSemanticListItem({
+    id: "worker.one",
+    kind: "agent.item",
+    props: {
+      label: "Foundry Tug",
+      status: "working",
+      detail: "Hauling ore",
+      badges: "haul, tow, explore",
+      providerSpecificState: "remains provider-owned",
+    },
+  });
+
+  assert.deepEqual(item, {
+    label: "Foundry Tug",
+    status: "working",
+    detail: "Hauling ore",
+    badges: ["haul", "tow", "explore"],
+  });
 });
 
 test("command intents use the active surface advertisement boundary", () => {
