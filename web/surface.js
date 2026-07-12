@@ -22,6 +22,7 @@ let providers = [];
 let currentProvider;
 let liveHermodr = false;
 let openProviderGeneration = 0;
+let providerRetryTimer;
 
 providerSelect.addEventListener("change", () => {
   const provider = providers.find(candidate => (candidate.targetId || candidate.providerId) === providerSelect.value);
@@ -31,12 +32,32 @@ providerSelect.addEventListener("change", () => {
 void bootProviders();
 
 async function bootProviders() {
-  providers = await loadHermodrProviders();
-  if (providers.length) {
-    liveHermodr = true;
-  } else {
-    providers = await Promise.all((await loadLocalProviderCatalog()).map(loadProviderAdvertisement));
+  clearTimeout(providerRetryTimer);
+  let liveProviders = [];
+  try {
+    liveProviders = await loadHermodrProviders();
+  } catch {
+    // The fallback below is deliberately visible; a failed live catalog must not strand the renderer at boot.
   }
+
+  liveHermodr = liveProviders.length > 0;
+  try {
+    providers = liveHermodr
+      ? liveProviders
+      : await Promise.all((await loadLocalProviderCatalog()).map(loadProviderAdvertisement));
+  } catch (error) {
+    showProviderLoadFailure(error);
+    providerRetryTimer = setTimeout(() => void bootProviders(), 3_000);
+    return;
+  }
+
+  if (!providers.length) {
+    showProviderLoadFailure(new Error("No provider targets are currently visible."));
+    providerRetryTimer = setTimeout(() => void bootProviders(), 3_000);
+    return;
+  }
+
+  providerSelect.disabled = false;
   providerSelect.replaceChildren(...providers.map(provider => {
     const option = document.createElement("option");
     option.value = provider.targetId || provider.providerId;
@@ -50,6 +71,21 @@ async function bootProviders() {
     : providers.find(provider => provider.providerId === requestedProviderId || provider.aliases?.includes(requestedProviderId)) || providers[0];
   providerSelect.value = firstProduct.targetId || firstProduct.providerId;
   await openProvider(firstProduct);
+
+  if (!liveHermodr) {
+    providerRetryTimer = setTimeout(() => void bootProviders(), 3_000);
+  }
+}
+
+function showProviderLoadFailure(error) {
+  const detail = error instanceof Error ? error.message : String(error);
+  providerSelect.replaceChildren();
+  providerSelect.disabled = true;
+  providerMeta.textContent = "provider catalog unavailable; retrying";
+  statusEl.textContent = "provider catalog unavailable";
+  surfaceId.textContent = "surface none";
+  surfaceVersion.textContent = "retrying";
+  app.replaceChildren(emptyState(detail));
 }
 
 async function loadLocalProviderCatalog() {
