@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.entity_soa_view.v1",
+  "title": "Eve Entity SoA View",
+  "type": "object",
+  "required": ["schema", "providerId", "viewId", "frameId", "generation", "backend", "synchronizationMode", "buffers", "columns", "dirtyRanges", "renderGroups"],
+  "properties": {
+    "schema": { "const": "gamecult.eve.entity_soa_view.v1" },
+    "providerId": { "type": "string", "minLength": 1 },
+    "viewId": { "type": "string", "minLength": 1 },
+    "frameId": { "type": "integer", "minimum": 0 },
+    "generation": { "type": "integer", "minimum": 0 },
+    "publishedAtUtc": { "type": "string" },
+    "backend": { "type": "string", "minLength": 1 },
+    "synchronizationMode": { "type": "string", "minLength": 1 },
+    "buffers": { "type": "array", "items": { "$ref": "#/$defs/buffer" } },
+    "columns": { "type": "array", "items": { "$ref": "#/$defs/column" } },
+    "dirtyRanges": { "type": "array", "items": { "$ref": "#/$defs/dirtyRange" } },
+    "renderGroups": { "type": "array", "items": { "$ref": "#/$defs/renderGroup" } }
+  },
+  "$defs": {
+    "buffer": {
+      "type": "object",
+      "required": ["bufferId", "backend", "location", "byteOffset", "byteLength", "generation"],
+      "properties": {
+        "bufferId": { "type": "string", "minLength": 1 },
+        "backend": { "type": "string", "minLength": 1 },
+        "location": { "type": "string", "minLength": 1 },
+        "byteOffset": { "type": "integer", "minimum": 0 },
+        "byteLength": { "type": "integer", "minimum": 0 },
+        "generation": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "column": {
+      "type": "object",
+      "required": ["columnId", "semantic", "bufferId", "scalarType", "byteOffset", "elementStride", "elementCount"],
+      "properties": {
+        "columnId": { "type": "string", "minLength": 1 },
+        "semantic": { "type": "string", "minLength": 1 },
+        "bufferId": { "type": "string", "minLength": 1 },
+        "scalarType": { "type": "string", "minLength": 1 },
+        "byteOffset": { "type": "integer", "minimum": 0 },
+        "elementStride": { "type": "integer", "minimum": 1 },
+        "elementCount": { "type": "integer", "minimum": 0 },
+        "unit": { "type": "string" },
+        "coordinateSpace": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "dirtyRange": {
+      "type": "object",
+      "required": ["columnId", "startIndex", "count", "generation"],
+      "properties": {
+        "columnId": { "type": "string", "minLength": 1 },
+        "startIndex": { "type": "integer", "minimum": 0 },
+        "count": { "type": "integer", "minimum": 0 },
+        "generation": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "renderGroup": {
+      "type": "object",
+      "required": ["groupId", "meshAssetRef", "materialAssetRef", "instanceCount", "defaultScale"],
+      "properties": {
+        "groupId": { "type": "integer", "minimum": 0 },
+        "meshAssetRef": { "type": "string" },
+        "materialAssetRef": { "type": "string" },
+        "subMeshIndex": { "type": "integer", "minimum": 0 },
+        "layer": { "type": "integer" },
+        "instanceCount": { "type": "integer", "minimum": 0 },
+        "defaultScale": { "type": "number" },
+        "boundsCenterX": { "type": "number" },
+        "boundsCenterY": { "type": "number" },
+        "boundsCenterZ": { "type": "number" },
+        "boundsSizeX": { "type": "number", "minimum": 0 },
+        "boundsSizeY": { "type": "number", "minimum": 0 },
+        "boundsSizeZ": { "type": "number", "minimum": 0 },
+        "shadowMode": { "type": "string" },
+        "receiveShadows": { "type": "boolean" },
+        "lod": { "type": "integer" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

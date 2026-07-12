@@ -76,6 +76,25 @@ World surfaces should be able to describe:
 The renderer chooses the best native projection it can support. It must not
 invent provider semantics to compensate for missing contract information.
 
+### Entity SoA Views
+
+`gamecult.eve.entity_soa_view.v1` is the portable descriptor for hot entity
+presentation state. A `world.scene2d` or `world.scene3d` component points to it
+with `entityViewPointerId`; `entityViewSchema` names the schema. The surface
+does not duplicate entity transforms as retained child components.
+
+The descriptor carries buffer locations, semantic columns, dirty ranges, and
+render groups. CultMesh selects the buffer route: shared memory for co-located
+runtimes, a native stream for remote runtimes, or another advertised backend.
+Replacing the reactive descriptor publishes a new generation and lowerers apply
+only its dirty ranges. A backend location is transport data, not provider
+authority.
+
+Stable composition, commands, and binding declarations may arrive in a
+bootstrap snapshot. Live entity generations do not. UI values bind to reactive
+typed documents named by state pointers. Versioned asset manifests are
+bootstrap state and their content-addressed artifacts are cached.
+
 Provider advertisements attach the reusable boundary to world surfaces through
 `surfaces[].worldInteraction`. That block names:
 
