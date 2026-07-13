@@ -169,6 +169,18 @@
           "type": "string",
           "minLength": 1
         },
+        "cameraTargetEntityId": {
+          "type": "string"
+        },
+        "subjectVisible": {
+          "type": "boolean"
+        },
+        "movementEnabled": {
+          "type": "boolean"
+        },
+        "presentationMode": {
+          "type": "string"
+        },
         "playerEntityId": {
           "type": "string",
           "minLength": 1

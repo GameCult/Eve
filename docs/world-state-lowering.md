@@ -83,6 +83,22 @@ presentation state. A `world.scene2d` or `world.scene3d` component points to it
 with `entityViewPointerId`; `entityViewSchema` names the schema. The surface
 does not duplicate entity transforms as retained child components.
 
+World scenes may also publish generic presentation intent derived from provider
+state:
+
+- `cameraTargetEntityId` names the entity the active camera rig should frame;
+- `subjectVisible` controls presentation of `playerEntityId` without deleting
+  that authoritative entity from the world view;
+- `movementEnabled` controls whether the runtime emits movement intents;
+- `presentationMode` names a portable state such as `world` or `docked` for
+  runtime-quality choices that do not alter provider truth.
+
+These values are presentation instructions, not gameplay state. A provider may
+derive them from docking, possession, spectating, incapacitation, cutscenes, or
+another domain rule. A lowerer must not import the provider's private document
+types to reconstruct them, and it must not treat hiding or camera retargeting as
+removal of the underlying entity.
+
 The descriptor carries buffer locations, semantic columns, dirty ranges, and
 render groups. CultMesh selects the buffer route: shared memory for co-located
 runtimes, a native stream for remote runtimes, or another advertised backend.
