@@ -1,0 +1,37 @@
+{
+  "name": "@gamecult/eve-contracts",
+  "version": "0.1.0",
+  "description": "Canonical TypeScript types and runtime validators for Eve provider contracts.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./schemas": {
+      "types": "./dist/generated/schemas.d.ts",
+      "import": "./dist/generated/schemas.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "generate": "C:\\Progra~1\\nodejs\\node.exe scripts/generate-contracts.mjs",
+    "generate:check": "C:\\Progra~1\\nodejs\\node.exe scripts/generate-contracts.mjs --check",
+    "build": "C:\\Progra~1\\nodejs\\node.exe scripts/generate-contracts.mjs --check && C:\\Progra~1\\nodejs\\node.exe ./node_modules/typescript/bin/tsc -p tsconfig.json",
+    "test": "C:\\Progra~1\\nodejs\\node.exe scripts/generate-contracts.mjs --check && C:\\Progra~1\\nodejs\\node.exe ./node_modules/typescript/bin/tsc -p tsconfig.json && C:\\Progra~1\\nodejs\\node.exe --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "json-schema-to-typescript": "^15.0.4",
+    "typescript": "^5.9.0"
+  },
+  "license": "MIT"
+}

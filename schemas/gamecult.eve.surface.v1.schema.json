@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.surface.v1",
+  "title": "Eve Surface Document",
+  "type": "object",
+  "required": [
+    "type",
+    "schema",
+    "providerId",
+    "providerKind",
+    "title",
+    "version",
+    "surface",
+    "commands"
+  ],
+  "properties": {
+    "type": { "const": "surface-state" },
+    "schema": { "const": "gamecult.eve.surface.v1" },
+    "providerId": { "type": "string", "minLength": 1 },
+    "providerKind": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "version": { "type": "integer", "minimum": 0 },
+    "updatedAt": { "type": "string", "minLength": 1 },
+    "updatedAtUtc": { "type": "string", "minLength": 1 },
+    "surface": {
+      "type": "object",
+      "required": ["root", "styles"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "root": { "$ref": "#/$defs/component" },
+        "styles": { "type": ["object", "array"] }
+      },
+      "additionalProperties": true
+    },
+    "commands": {
+      "type": "array",
+      "items": { "$ref": "gamecult.eve.command.v1" }
+    },
+    "nodes": { "type": "array", "items": { "type": "object" } },
+    "selectedNodeId": { "type": "string" }
+  },
+  "$defs": {
+    "component": {
+      "type": "object",
+      "required": ["id", "kind", "props", "children"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "minLength": 1 },
+        "props": { "type": "object" },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/component" }
+        },
+        "stateBindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["targetProp", "pointerId", "sourceId", "schemaId", "routeKind"],
+            "properties": {
+              "targetProp": { "type": "string", "minLength": 1 },
+              "pointerId": { "type": "string", "minLength": 1 },
+              "sourceId": { "type": "string", "minLength": 1 },
+              "schemaId": { "type": "string", "minLength": 1 },
+              "routeKind": { "type": "string", "minLength": 1 },
+              "routeDescription": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "embeddedDocuments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["slotId", "documentId", "schemaId", "presentationKind"],
+            "properties": {
+              "slotId": { "type": "string", "minLength": 1 },
+              "documentId": { "type": "string", "minLength": 1 },
+              "schemaId": { "type": "string", "minLength": 1 },
+              "presentationKind": { "type": "string", "minLength": 1 },
+              "routeHint": { "type": ["string", "object"] }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "anyOf": [
+    { "required": ["updatedAt"] },
+    { "required": ["updatedAtUtc"] }
+  ],
+  "additionalProperties": true
+}

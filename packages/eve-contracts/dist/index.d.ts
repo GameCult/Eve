@@ -1,0 +1,42 @@
+import { type ErrorObject } from "ajv/dist/2020.js";
+import type { EveCommandDescriptor } from "./generated/command-descriptor.js";
+import type { EveCommandInvocation } from "./generated/command-invocation.js";
+import type { EveCommandReceipt } from "./generated/command-receipt.js";
+import type { EveProviderAdvertisement } from "./generated/provider-advertisement.js";
+import type { EveSurfaceDocument } from "./generated/surface.js";
+import { type EveContractSchemaName } from "./generated/schemas.js";
+export type { EveCommandDescriptor } from "./generated/command-descriptor.js";
+export type { EveCommandInvocation } from "./generated/command-invocation.js";
+export type { EveCommandReceipt } from "./generated/command-receipt.js";
+export type { EveProviderAdvertisement } from "./generated/provider-advertisement.js";
+export type { EveSurfaceDocument } from "./generated/surface.js";
+export { eveContractSchemas, type EveContractSchemaName } from "./generated/schemas.js";
+export declare const EVE_PROVIDER_ADVERTISEMENT_SCHEMA: "gamecult.eve.provider_advertisement.v1";
+export declare const EVE_SURFACE_SCHEMA: "gamecult.eve.surface.v1";
+export declare const EVE_COMMAND_DESCRIPTOR_SCHEMA: "gamecult.eve.command.v1";
+export declare const EVE_COMMAND_INVOCATION_SCHEMA: "gamecult.eve.command_invocation.v1";
+export declare const EVE_COMMAND_RECEIPT_SCHEMA: "gamecult.eve.command_receipt.v1";
+type ContractTypes = {
+    providerAdvertisement: EveProviderAdvertisement;
+    surface: EveSurfaceDocument;
+    commandDescriptor: EveCommandDescriptor;
+    commandInvocation: EveCommandInvocation;
+    commandReceipt: EveCommandReceipt;
+};
+export declare class EveContractValidationError extends TypeError {
+    readonly contract: EveContractSchemaName;
+    readonly errors: readonly ErrorObject[];
+    constructor(contract: EveContractSchemaName, errors: readonly ErrorObject[]);
+}
+export declare function isEveContract<K extends EveContractSchemaName>(contract: K, value: unknown): value is ContractTypes[K];
+export declare function parseEveContract<K extends EveContractSchemaName>(contract: K, value: unknown): ContractTypes[K];
+export declare const isEveProviderAdvertisement: (value: unknown) => value is EveProviderAdvertisement;
+export declare const isEveSurfaceDocument: (value: unknown) => value is EveSurfaceDocument;
+export declare const isEveCommandDescriptor: (value: unknown) => value is EveCommandDescriptor;
+export declare const isEveCommandInvocation: (value: unknown) => value is EveCommandInvocation;
+export declare const isEveCommandReceipt: (value: unknown) => value is EveCommandReceipt;
+export declare const parseEveProviderAdvertisement: (value: unknown) => EveProviderAdvertisement;
+export declare const parseEveSurfaceDocument: (value: unknown) => EveSurfaceDocument;
+export declare const parseEveCommandDescriptor: (value: unknown) => EveCommandDescriptor;
+export declare const parseEveCommandInvocation: (value: unknown) => EveCommandInvocation;
+export declare const parseEveCommandReceipt: (value: unknown) => EveCommandReceipt;
