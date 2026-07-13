@@ -1570,6 +1570,10 @@ function renderSlider(
   input.addEventListener("input", () => {
     const intent = createEveCommandIntent(stringProp(props.command, "control.slider.input"), {
       ...props,
+      action: {
+        ...objectProps(props.action),
+        value: Number(input.value),
+      },
       value: Number(input.value),
     }, options);
     void options.commandSink?.(intent, { kind: "control.slider", props });
