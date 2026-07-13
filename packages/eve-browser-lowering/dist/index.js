@@ -1307,6 +1307,7 @@ function renderSlider(props, children, options) {
     const max = Number(props.max ?? 1);
     const slider = el("div", "cultui-slider");
     slider.dataset.skin = stringProp(props.skin, "default");
+    slider.dataset.bind = stringProp(props.bind, "");
     applyControlBoxProps(slider, box);
     const visual = el("div", "cultui-slider-visual");
     const input = el("input", "cultui-slider-input");

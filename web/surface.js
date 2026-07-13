@@ -244,6 +244,35 @@ async function publishCommandIntent(intent, component) {
     console.error("Eve command failed", receipt);
     return;
   }
-  statusEl.textContent = `command accepted ${command.command}`;
+  if (
+    receipt.schema !== "gamecult.eve.command_receipt.v1" ||
+    !receipt.commandId ||
+    receipt.command !== command.command ||
+    receipt.state !== "reconciled"
+  ) {
+    statusEl.textContent = `command failed ${command.command}`;
+    console.error("Eve command returned no correlated provider receipt", receipt);
+    return;
+  }
+  applyCommandReceipt(receipt);
+  statusEl.textContent = `command ${receipt.state} ${command.command}`;
   console.info("Eve command receipt", receipt);
+}
+
+function applyCommandReceipt(receipt) {
+  for (const diagnostic of receipt.diagnostics || []) {
+    if (!diagnostic?.binding || diagnostic.value === undefined) continue;
+    for (const control of document.querySelectorAll(`[data-bind="${CSS.escape(diagnostic.binding)}"]`)) {
+      const input = control.querySelector("input[type=range]");
+      if (input) {
+        input.value = String(diagnostic.value);
+        const min = Number(input.min || 0);
+        const max = Number(input.max || 1);
+        const value = Number(diagnostic.value);
+        const percent = max === min ? 0 : ((value - min) / (max - min)) * 100;
+        control.style.setProperty("--cultui-slider-value", `${Math.max(0, Math.min(100, percent))}%`);
+      }
+      control.dataset.value = String(diagnostic.value);
+    }
+  }
 }
