@@ -86,7 +86,19 @@ does not duplicate entity transforms as retained child components.
 World scenes may also publish generic presentation intent derived from provider
 state:
 
-- `cameraTargetEntityId` names the entity the active camera rig should frame;
+- `cameraRig` names the portable composition algorithm. For
+  `planar.top-down-follow.v1`, the play plane is XZ and the perspective camera
+  looks along negative Y;
+- `cameraTargetEntityId` is the sole entity the active camera rig frames. A
+  lowerer must not add combat selection, renderer bounds, or another implicit
+  subject to that framing set;
+- `cameraDistance`, `cameraVerticalFieldOfViewDegrees`,
+  `cameraTargetScreenX`, `cameraTargetScreenY`, and `cameraPositionDamping`
+  define the provider-owned lens and composition. Screen coordinates are
+  normalized viewport coordinates with a bottom-left origin; damping uses the
+  exponential response `1-exp(-damping*deltaTime)`;
+- `ambientLightColor` and `ambientLightIntensity` define portable flat ambient
+  illumination when the selected camera rig supports it;
 - `subjectVisible` controls presentation of `playerEntityId` without deleting
   that authoritative entity from the world view;
 - `movementEnabled` controls whether the runtime emits movement intents;

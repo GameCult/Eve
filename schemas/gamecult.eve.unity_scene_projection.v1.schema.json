@@ -172,6 +172,42 @@
         "cameraTargetEntityId": {
           "type": "string"
         },
+        "cameraDistance": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "cameraVerticalFieldOfViewDegrees": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 180
+        },
+        "cameraTargetScreenX": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "cameraTargetScreenY": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "cameraPositionDamping": {
+          "type": "number",
+          "minimum": 0
+        },
+        "ambientLightColor": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "ambientLightIntensity": {
+          "type": "number",
+          "minimum": 0
+        },
         "subjectVisible": {
           "type": "boolean"
         },
