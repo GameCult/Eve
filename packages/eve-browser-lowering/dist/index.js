@@ -627,9 +627,9 @@ export function renderEveComponent(node, options = currentOptions) {
 export function projectSemanticListItem(node) {
     const props = objectProps(node.props);
     return {
-        label: firstString(props.label, props.title, node.text, node.kind, "item"),
-        status: firstString(props.status, ""),
-        detail: firstString(props.detail, props.phase, ""),
+        label: firstString(props.label, props.title, props.displayName, node.text, node.kind, "item"),
+        status: firstString(props.status, props.state, ""),
+        detail: firstString(props.detail, props.phase, props.repoName, ""),
         badges: Array.isArray(props.badges)
             ? props.badges.map(value => String(value).trim()).filter(Boolean)
             : firstString(props.badges, "").split(",").map(value => value.trim()).filter(Boolean),

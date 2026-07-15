@@ -96,10 +96,10 @@ test("projects unknown semantic items through the generic list contract", () => 
 test("projects provider-owned list data through the same semantic item contract", () => {
   assert.deepEqual(projectSemanticListItems([
     { label: "Face One", status: "working", detail: "Current turn", badges: ["repo", "live"] },
-    { label: "Face Two", status: "ready" },
+    { displayName: "Face Two", state: "ready", repoName: "VoidBot" },
   ]), [
     { label: "Face One", status: "working", detail: "Current turn", badges: ["repo", "live"] },
-    { label: "Face Two", status: "ready", detail: "", badges: [] },
+    { label: "Face Two", status: "ready", detail: "VoidBot", badges: [] },
   ]);
 });
 
