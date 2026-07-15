@@ -100,8 +100,18 @@ state:
 - `cameraNearClipPlane` and `cameraFarClipPlane` complete the perspective lens
   contract. A lowerer must not substitute engine defaults that cull advertised
   world content;
-- `ambientLightColor` and `ambientLightIntensity` define portable flat ambient
+- `ambientLightColor` and `ambientLightIntensity` define portable ambient
   illumination when the selected camera rig supports it;
+- `skyboxAssetRef` optionally selects a provider-advertised material and
+  `reflectionAssetRef` optionally selects a provider-advertised cubemap.
+  Native Unity variants must resolve those exact references as `Material` and
+  `Cubemap` respectively; an omitted reference requests no override for that
+  part of the environment. `reflectionIntensity` scales the latter. Negative
+  intensities clamp to zero; non-finite environment values invalidate the
+  presentation contract. The active camera rig owns one
+  reversible environment lease over the runtime's global lighting state and
+  camera clear policy. A lowerer must reject a missing, incompatible, or
+  unsupported advertised asset instead of substituting product-specific art;
 - `lookCommand` accepts a controlled entity id and a unit `directionX`,
   `directionY`, `directionZ` vector. The provider remains the owner of the
   accepted look direction; runtimes only lower local pointing input into this
