@@ -192,6 +192,7 @@ function renderSurface(state, source) {
     clientId: liveHermodr ? "hermodr.browser" : "browser.reference",
     commandSink: publishCommandIntent,
     documentResolver: liveHermodr ? createHermodrDocumentResolver(providerId) : undefined,
+    stateBindingResolver: liveHermodr ? createHermodrStateBindingResolver(providerId) : undefined,
     assetUrlResolver: liveHermodr ? resolveHermodrAssetUrl : undefined,
     provider: currentProvider,
     pluginAdapters,
@@ -210,6 +211,52 @@ function createHermodrDocumentResolver(providerId) {
     const response = await fetch(`/hermodr/document/${encodeURIComponent(providerId)}?${params.toString()}`, { cache: "no-store" });
     if (!response.ok) throw new Error(await response.text());
     return response.json();
+  };
+}
+
+function createHermodrStateBindingResolver(providerId) {
+  const sources = new Map();
+  return async function resolveHermodrStateBinding(binding) {
+    const sourceKey = `${binding.schemaId}:${binding.sourceId}`;
+    let source = sources.get(sourceKey);
+    if (!source) {
+      const params = new URLSearchParams({ sourceId: binding.sourceId, schemaId: binding.schemaId });
+      const stream = new EventSource(`/hermodr/state/${encodeURIComponent(providerId)}?${params}`);
+      source = { stream, value: undefined, ready: [], watchers: new Set(), references: 0 };
+      sources.set(sourceKey, source);
+      stream.addEventListener("state", event => {
+        const update = JSON.parse(event.data);
+        if (update?.state === "stale" || update?.value === undefined) return;
+        source.value = update.value;
+        for (const resolve of source.ready.splice(0)) resolve(update.value);
+        for (const callback of source.watchers) callback(update.value);
+      });
+      stream.addEventListener("stale", event => {
+        const detail = JSON.parse(event.data || "{}");
+        statusEl.textContent = detail.message || `${providerId} state is stale`;
+      });
+    }
+    source.references += 1;
+    const select = document => binding.pointerId.split(".").filter(Boolean)
+      .reduce((value, segment) => value == null ? undefined : value[segment], document);
+    return {
+      latest() {
+        if (source.value !== undefined) return Promise.resolve(select(source.value));
+        return new Promise(resolve => source.ready.push(value => resolve(select(value))));
+      },
+      watch(callback) {
+        const project = value => callback(select(value));
+        source.watchers.add(project);
+        return () => {
+          source.watchers.delete(project);
+          source.references -= 1;
+          if (source.references <= 0) {
+            source.stream.close();
+            sources.delete(sourceKey);
+          }
+        };
+      },
+    };
   };
 }
 
@@ -254,25 +301,6 @@ async function publishCommandIntent(intent, component) {
     console.error("Eve command returned no correlated provider receipt", receipt);
     return;
   }
-  applyCommandReceipt(receipt);
   statusEl.textContent = `command ${receipt.state} ${command.command}`;
   console.info("Eve command receipt", receipt);
-}
-
-function applyCommandReceipt(receipt) {
-  for (const diagnostic of receipt.diagnostics || []) {
-    if (!diagnostic?.binding || diagnostic.value === undefined) continue;
-    for (const control of document.querySelectorAll(`[data-bind="${CSS.escape(diagnostic.binding)}"]`)) {
-      const input = control.querySelector("input[type=range]");
-      if (input) {
-        input.value = String(diagnostic.value);
-        const min = Number(input.min || 0);
-        const max = Number(input.max || 1);
-        const value = Number(diagnostic.value);
-        const percent = max === min ? 0 : ((value - min) / (max - min)) * 100;
-        control.style.setProperty("--cultui-slider-value", `${Math.max(0, Math.min(100, percent))}%`);
-      }
-      control.dataset.value = String(diagnostic.value);
-    }
-  }
 }

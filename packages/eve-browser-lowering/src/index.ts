@@ -11,8 +11,28 @@ export interface EveSurfaceComponent {
   layout?: Record<string, unknown>;
   style?: Record<string, unknown>;
   children?: EveSurfaceComponent[];
+  stateBindings?: EveStateBindingDescriptor[];
   embeddedDocuments?: Array<Record<string, unknown>>;
 }
+
+export interface EveStateBindingDescriptor {
+  targetProp: string;
+  pointerId: string;
+  sourceId: string;
+  schemaId: string;
+  routeKind: string;
+  routeDescription?: string;
+}
+
+export interface EveStateBindingHandle {
+  latest(): Promise<unknown>;
+  watch(callback: (value: unknown) => void): () => void;
+}
+
+export type EveStateBindingResolver = (
+  binding: EveStateBindingDescriptor,
+  component: EveSurfaceComponent,
+) => Promise<EveStateBindingHandle | undefined>;
 
 export interface EveSurfaceDocument {
   providerId?: string;
@@ -95,6 +115,7 @@ export interface EveBrowserLoweringOptions {
   documentResolver?: (request: EveEmbeddedDocumentRequest, component: EveSurfaceComponent) => Promise<EveResolvedDocument | EveSurfaceDocument | EveSurfaceDocument["surface"] | undefined>;
   provider?: EveProviderAdvertisement;
   pluginAdapters?: readonly EveBrowserPluginAdapter[];
+  stateBindingResolver?: EveStateBindingResolver;
   source?: string;
   statusElement?: HTMLElement;
 }
@@ -280,6 +301,7 @@ let activeFontStylesheet: HTMLLinkElement | undefined;
 let currentSurfaceStyles: NormalizedStyles = normalizeSurfaceStyles(undefined);
 let currentSurfaceDocument: EveSurfaceDocument | undefined;
 let currentOptions: EveBrowserLoweringOptions = {};
+const activeSurfaceBindings = new WeakMap<HTMLElement, EveSurfaceBindingController>();
 
 interface NormalizedStyles {
   tokens: Record<string, unknown>;
@@ -292,6 +314,7 @@ export function renderEveSurface(
   host: HTMLElement,
   options: EveBrowserLoweringOptions = {},
 ): HTMLElement {
+  activeSurfaceBindings.get(host)?.dispose();
   currentSurfaceDocument = surface;
   currentOptions = options;
   currentSurfaceStyles = normalizeSurfaceStyles(surface.surface?.styles);
@@ -305,10 +328,79 @@ export function renderEveSurface(
   }
   if (surface.surface?.root) {
     host.replaceChildren(renderEveComponent(surface.surface.root, options));
+    if (options.stateBindingResolver) {
+      const controller = new EveSurfaceBindingController(surface, host, options);
+      activeSurfaceBindings.set(host, controller);
+      void controller.start();
+    }
   } else {
     host.replaceChildren(emptyState("No surface root"));
   }
   return host;
+}
+
+export function applyEveStateBindingValue(
+  component: EveSurfaceComponent,
+  binding: EveStateBindingDescriptor,
+  value: unknown,
+): void {
+  const path = binding.targetProp.split(".").filter(Boolean);
+  if (path.length === 0) throw new Error("Eve state binding targetProp must not be empty.");
+  component.props ||= {};
+  let owner: Record<string, unknown> = component.props;
+  for (const segment of path.slice(0, -1)) {
+    const current = owner[segment];
+    if (!current || typeof current !== "object" || Array.isArray(current)) owner[segment] = {};
+    owner = owner[segment] as Record<string, unknown>;
+  }
+  owner[path[path.length - 1]] = value;
+}
+
+class EveSurfaceBindingController {
+  private disposed = false;
+  private readonly unsubscribers: Array<() => void> = [];
+
+  constructor(
+    private readonly surface: EveSurfaceDocument,
+    private readonly host: HTMLElement,
+    private readonly options: EveBrowserLoweringOptions,
+  ) {}
+
+  async start(): Promise<void> {
+    const resolver = this.options.stateBindingResolver;
+    const root = this.surface.surface?.root;
+    if (!resolver || !root) return;
+    for (const component of walkEveComponents(root)) {
+      for (const binding of component.stateBindings || []) {
+        if (this.disposed) return;
+        const handle = await resolver(binding, component);
+        if (!handle || this.disposed) continue;
+        const apply = (value: unknown) => {
+          if (this.disposed) return;
+          applyEveStateBindingValue(component, binding, value);
+          this.renderCanonicalProjection();
+        };
+        apply(await handle.latest());
+        if (this.disposed) return;
+        this.unsubscribers.push(handle.watch(apply));
+      }
+    }
+  }
+
+  dispose(): void {
+    this.disposed = true;
+    for (const unsubscribe of this.unsubscribers.splice(0)) unsubscribe();
+  }
+
+  private renderCanonicalProjection(): void {
+    const root = this.surface.surface?.root;
+    if (root) this.host.replaceChildren(renderEveComponent(root, this.options));
+  }
+}
+
+function* walkEveComponents(root: EveSurfaceComponent): Generator<EveSurfaceComponent> {
+  yield root;
+  for (const child of root.children || []) yield* walkEveComponents(child);
 }
 
 export function renderEveComponent(

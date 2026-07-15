@@ -1,7 +1,19 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { createEveCommandIntent, createWorldActionIntent, normalizeFieldsDocument, projectSemanticListItem, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
+import { applyEveStateBindingValue, createEveCommandIntent, createWorldActionIntent, normalizeFieldsDocument, projectSemanticListItem, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
+
+test("applies provider state bindings to component props instead of receipt diagnostics", () => {
+  const component = { props: { value: 1.2 } };
+  applyEveStateBindingValue(component, {
+    targetProp: "value",
+    pointerId: "voidbot.swarm.globalHeat",
+    sourceId: "voidbot.swarm_state_snapshot:voidbot-swarm",
+    schemaId: "voidbot.swarm_state_snapshot.v1",
+    routeKind: "cultmesh-rudp",
+  }, 0.35);
+  assert.equal(component.props.value, 0.35);
+});
 
 test("selects the requested surface from provider authority", () => {
   const provider = {

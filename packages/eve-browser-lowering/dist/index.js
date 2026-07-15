@@ -126,7 +126,9 @@ let activeFontStylesheet;
 let currentSurfaceStyles = normalizeSurfaceStyles(undefined);
 let currentSurfaceDocument;
 let currentOptions = {};
+const activeSurfaceBindings = new WeakMap();
 export function renderEveSurface(surface, host, options = {}) {
+    activeSurfaceBindings.get(host)?.dispose();
     currentSurfaceDocument = surface;
     currentOptions = options;
     currentSurfaceStyles = normalizeSurfaceStyles(surface.surface?.styles);
@@ -140,11 +142,82 @@ export function renderEveSurface(surface, host, options = {}) {
     }
     if (surface.surface?.root) {
         host.replaceChildren(renderEveComponent(surface.surface.root, options));
+        if (options.stateBindingResolver) {
+            const controller = new EveSurfaceBindingController(surface, host, options);
+            activeSurfaceBindings.set(host, controller);
+            void controller.start();
+        }
     }
     else {
         host.replaceChildren(emptyState("No surface root"));
     }
     return host;
+}
+export function applyEveStateBindingValue(component, binding, value) {
+    const path = binding.targetProp.split(".").filter(Boolean);
+    if (path.length === 0)
+        throw new Error("Eve state binding targetProp must not be empty.");
+    component.props ||= {};
+    let owner = component.props;
+    for (const segment of path.slice(0, -1)) {
+        const current = owner[segment];
+        if (!current || typeof current !== "object" || Array.isArray(current))
+            owner[segment] = {};
+        owner = owner[segment];
+    }
+    owner[path[path.length - 1]] = value;
+}
+class EveSurfaceBindingController {
+    surface;
+    host;
+    options;
+    disposed = false;
+    unsubscribers = [];
+    constructor(surface, host, options) {
+        this.surface = surface;
+        this.host = host;
+        this.options = options;
+    }
+    async start() {
+        const resolver = this.options.stateBindingResolver;
+        const root = this.surface.surface?.root;
+        if (!resolver || !root)
+            return;
+        for (const component of walkEveComponents(root)) {
+            for (const binding of component.stateBindings || []) {
+                if (this.disposed)
+                    return;
+                const handle = await resolver(binding, component);
+                if (!handle || this.disposed)
+                    continue;
+                const apply = (value) => {
+                    if (this.disposed)
+                        return;
+                    applyEveStateBindingValue(component, binding, value);
+                    this.renderCanonicalProjection();
+                };
+                apply(await handle.latest());
+                if (this.disposed)
+                    return;
+                this.unsubscribers.push(handle.watch(apply));
+            }
+        }
+    }
+    dispose() {
+        this.disposed = true;
+        for (const unsubscribe of this.unsubscribers.splice(0))
+            unsubscribe();
+    }
+    renderCanonicalProjection() {
+        const root = this.surface.surface?.root;
+        if (root)
+            this.host.replaceChildren(renderEveComponent(root, this.options));
+    }
+}
+function* walkEveComponents(root) {
+    yield root;
+    for (const child of root.children || [])
+        yield* walkEveComponents(child);
 }
 export function renderEveComponent(node, options = currentOptions) {
     const kind = node.kind || "panel";

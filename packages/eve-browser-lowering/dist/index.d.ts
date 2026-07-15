@@ -9,8 +9,22 @@ export interface EveSurfaceComponent {
     layout?: Record<string, unknown>;
     style?: Record<string, unknown>;
     children?: EveSurfaceComponent[];
+    stateBindings?: EveStateBindingDescriptor[];
     embeddedDocuments?: Array<Record<string, unknown>>;
 }
+export interface EveStateBindingDescriptor {
+    targetProp: string;
+    pointerId: string;
+    sourceId: string;
+    schemaId: string;
+    routeKind: string;
+    routeDescription?: string;
+}
+export interface EveStateBindingHandle {
+    latest(): Promise<unknown>;
+    watch(callback: (value: unknown) => void): () => void;
+}
+export type EveStateBindingResolver = (binding: EveStateBindingDescriptor, component: EveSurfaceComponent) => Promise<EveStateBindingHandle | undefined>;
 export interface EveSurfaceDocument {
     providerId?: string;
     title?: string;
@@ -89,6 +103,7 @@ export interface EveBrowserLoweringOptions {
     documentResolver?: (request: EveEmbeddedDocumentRequest, component: EveSurfaceComponent) => Promise<EveResolvedDocument | EveSurfaceDocument | EveSurfaceDocument["surface"] | undefined>;
     provider?: EveProviderAdvertisement;
     pluginAdapters?: readonly EveBrowserPluginAdapter[];
+    stateBindingResolver?: EveStateBindingResolver;
     source?: string;
     statusElement?: HTMLElement;
 }
@@ -150,6 +165,7 @@ export interface EveProjectedWorldEntity {
     source: EveSurfaceComponent;
 }
 export declare function renderEveSurface(surface: EveSurfaceDocument, host: HTMLElement, options?: EveBrowserLoweringOptions): HTMLElement;
+export declare function applyEveStateBindingValue(component: EveSurfaceComponent, binding: EveStateBindingDescriptor, value: unknown): void;
 export declare function renderEveComponent(node: EveSurfaceComponent, options?: EveBrowserLoweringOptions): HTMLElement;
 export declare function projectSemanticListItem(node: EveSurfaceComponent): EveSemanticListItem;
 export declare function projectWorldScene(node: EveSurfaceComponent): EveProjectedWorldEntity[];
