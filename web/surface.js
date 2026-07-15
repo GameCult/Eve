@@ -224,13 +224,16 @@ function createHermodrStateBindingResolver(providerId) {
       const stream = new EventSource(`/hermodr/state/${encodeURIComponent(providerId)}?${params}`);
       source = { stream, value: undefined, ready: [], watchers: new Set(), references: 0 };
       sources.set(sourceKey, source);
-      stream.addEventListener("state", event => {
+      const acceptState = event => {
         const update = JSON.parse(event.data);
         if (update?.state === "stale" || update?.value === undefined) return;
         source.value = update.value;
         for (const resolve of source.ready.splice(0)) resolve(update.value);
         for (const callback of source.watchers) callback(update.value);
-      });
+      };
+      stream.addEventListener("snapshot", acceptState);
+      stream.addEventListener("update", acceptState);
+      stream.addEventListener("reconnected", acceptState);
       stream.addEventListener("stale", event => {
         const detail = JSON.parse(event.data || "{}");
         statusEl.textContent = detail.message || `${providerId} state is stale`;
