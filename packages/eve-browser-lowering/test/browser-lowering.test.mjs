@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { applyEveStateBindingValue, createEveCommandIntent, createWorldActionIntent, normalizeFieldsDocument, projectSemanticListItem, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
+import { applyEveStateBindingValue, createEveCommandIntent, createWorldActionIntent, normalizeFieldsDocument, projectSemanticListItem, projectSemanticListItems, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
 
 test("applies provider state bindings to component props instead of receipt diagnostics", () => {
   const component = { props: { value: 1.2 } };
@@ -91,6 +91,16 @@ test("projects unknown semantic items through the generic list contract", () => 
     detail: "Hauling ore",
     badges: ["haul", "tow", "explore"],
   });
+});
+
+test("projects provider-owned list data through the same semantic item contract", () => {
+  assert.deepEqual(projectSemanticListItems([
+    { label: "Face One", status: "working", detail: "Current turn", badges: ["repo", "live"] },
+    { label: "Face Two", status: "ready" },
+  ]), [
+    { label: "Face One", status: "working", detail: "Current turn", badges: ["repo", "live"] },
+    { label: "Face Two", status: "ready", detail: "", badges: [] },
+  ]);
 });
 
 test("command intents use the active surface advertisement boundary", () => {

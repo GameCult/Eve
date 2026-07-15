@@ -374,6 +374,13 @@ export function renderEveComponent(node, options = currentOptions) {
         const title = stringProp(props.title, "");
         if (title)
             list.append(el("h3", "cultui-list-title", title));
+        for (const [index, item] of projectSemanticListItems(props.items).entries()) {
+            list.append(renderEveComponent({
+                id: `${node.id || "list"}-item-${index}`,
+                kind: "list.item",
+                props: { ...item },
+            }, options));
+        }
         for (const child of children)
             list.append(renderEveComponent(child, options));
         return list;
@@ -623,7 +630,9 @@ export function projectSemanticListItem(node) {
         label: firstString(props.label, props.title, node.text, node.kind, "item"),
         status: firstString(props.status, ""),
         detail: firstString(props.detail, props.phase, ""),
-        badges: firstString(props.badges, "").split(",").map(value => value.trim()).filter(Boolean),
+        badges: Array.isArray(props.badges)
+            ? props.badges.map(value => String(value).trim()).filter(Boolean)
+            : firstString(props.badges, "").split(",").map(value => value.trim()).filter(Boolean),
     };
 }
 function applyGeneratedLayout(element, layout, style = {}) {
@@ -1591,6 +1600,16 @@ function assignId(element, node) {
 }
 function objectProps(value) {
     return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+function arrayProp(value) {
+    return Array.isArray(value) ? value : [];
+}
+export function projectSemanticListItems(value) {
+    return arrayProp(value).map((item, index) => projectSemanticListItem({
+        id: `list-item-${index}`,
+        kind: "list.item",
+        props: objectProps(item),
+    }));
 }
 function stringProp(value, fallback) {
     return value === null || value === undefined ? fallback : String(value);

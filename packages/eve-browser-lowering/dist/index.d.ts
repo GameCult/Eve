@@ -173,4 +173,5 @@ export declare function createWorldActionIntent(command: string, action: Record<
 export declare function applyEveSurfaceStyles(styles: EveSurfaceStyles | undefined, body?: HTMLElement): void;
 export declare function createEveCommandIntent(commandId: string, props?: Record<string, unknown>, options?: EveBrowserLoweringOptions): EveCommandIntent;
 export declare function emptyState(message: string): HTMLElement;
+export declare function projectSemanticListItems(value: unknown): EveSemanticListItem[];
 export * from "./input-gestures.js";
