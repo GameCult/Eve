@@ -112,6 +112,14 @@ state:
   reversible environment lease over the runtime's global lighting state and
   camera clear policy. A lowerer must reject a missing, incompatible, or
   unsupported advertised asset instead of substituting product-specific art;
+- `postProcessProfileAssetRef` optionally selects a provider-advertised native
+  post-processing profile variant. The logical reference is portable; each
+  runtime resolves only its own compatible asset variant. A runtime that
+  supports the selected variant leases the profile for the active world camera
+  and restores its previous camera/post-processing state on disconnect or rig
+  replacement. Missing, incompatible, and unsupported variants fail closed.
+  Runtimes do not infer exposure, bloom, grading, or product identity from fog
+  colors or provider ids;
 - `lookCommand` accepts a controlled entity id and a unit `directionX`,
   `directionY`, `directionZ` vector. The provider remains the owner of the
   accepted look direction; runtimes only lower local pointing input into this
