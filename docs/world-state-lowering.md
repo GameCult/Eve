@@ -144,6 +144,29 @@ describe the portable marker. A lowerer must not steer weapons, tractors, or
 the body transform from the marker; it renders the direction committed by the
 provider's body publication.
 
+An optional `beam.presentation` child binds a continuous provider-authored
+effect to an entity in the current SoA generation. It carries:
+
+- `sourceEntityId`: the authoritative presented body that owns the effect;
+- `directionMode`: the portable orientation rule. `source-forward.v1` follows
+  the source body's published forward axis and never writes that transform;
+- `assetRole`: a semantic provider-manifest role used to resolve native art;
+- `power`: the provider-owned non-negative emission/intensity value;
+- `activationThreshold`: the value below which emission is zero while the
+  retained effect may finish its local particles;
+- `radius` and `maximumDistance`: portable shape facts for lowerers that do not
+  consume the provider's native effect asset;
+- `renderChannel`: the semantic presentation channel, such as
+  `world.effects`;
+- `activationActionId`: an optional action from the advertised input
+  capability that controls the effect. Generic clients may bind or invoke this
+  action without knowing the provider's operation name.
+
+Beam presentation is not a physics query. A lowerer must not raycast, apply
+force, infer a hit/contact, collect an item, or emit a gameplay receipt from
+the visual. Providers and their physics owner publish the state and contact
+facts; runtimes only reconcile the effect against the current SoA transform.
+
 The descriptor carries buffer locations, semantic columns, dirty ranges, and
 render groups. CultMesh selects the buffer route: shared memory for co-located
 runtimes, a native stream for remote runtimes, or another advertised backend.
