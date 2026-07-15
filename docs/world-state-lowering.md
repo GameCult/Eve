@@ -105,7 +105,8 @@ state:
 - `lookCommand` accepts a controlled entity id and a unit `directionX`,
   `directionY`, `directionZ` vector. The provider remains the owner of the
   accepted look direction; runtimes only lower local pointing input into this
-  intent. `lookSensitivityRadians` optionally maps one native pointer-delta
+  intent. `lookModel` names the portable input geometry; `planar-yaw.v1`
+  rotates on the XZ play plane. `lookSensitivityRadians` optionally maps one native pointer-delta
   unit to yaw radians, including the provider-authored axis sign;
 - `subjectVisible` controls presentation of `playerEntityId` without deleting
   that authoritative entity from the world view;
