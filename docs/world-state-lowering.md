@@ -102,6 +102,11 @@ state:
   world content;
 - `ambientLightColor` and `ambientLightIntensity` define portable flat ambient
   illumination when the selected camera rig supports it;
+- `lookCommand` accepts a controlled entity id and a unit `directionX`,
+  `directionY`, `directionZ` vector. The provider remains the owner of the
+  accepted look direction; runtimes only lower local pointing input into this
+  intent. `lookSensitivityRadians` optionally maps one native pointer-delta
+  unit to yaw radians, including the provider-authored axis sign;
 - `subjectVisible` controls presentation of `playerEntityId` without deleting
   that authoritative entity from the world view;
 - `movementEnabled` controls whether the runtime emits movement intents;
@@ -118,6 +123,15 @@ A Unity scene has one active world environment owner. A lowerer that mutates
 scene-global render settings must restore the previous environment when its
 world disconnects, its rig changes, or the lowering component is disabled or
 destroyed.
+
+An optional `aim.presentation` child binds presentation to that authoritative
+body direction without duplicating it. `controlledEntityId` identifies the
+body, `convergenceTargetEntityId` optionally names the selected body whose
+distance sets convergence, and `minimumConvergenceDistance` supplies the lower
+bound when there is no farther target. `viewDotRole` and `viewDotRadius`
+describe the portable marker. A lowerer must not steer weapons, tractors, or
+the body transform from the marker; it renders the direction committed by the
+provider's body publication.
 
 The descriptor carries buffer locations, semantic columns, dirty ranges, and
 render groups. CultMesh selects the buffer route: shared memory for co-located
