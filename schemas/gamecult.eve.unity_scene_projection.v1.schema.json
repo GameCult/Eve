@@ -195,6 +195,14 @@
           "type": "number",
           "minimum": 0
         },
+        "cameraNearClipPlane": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "cameraFarClipPlane": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
         "ambientLightColor": {
           "type": "array",
           "minItems": 3,

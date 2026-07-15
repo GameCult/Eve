@@ -97,6 +97,9 @@ state:
   define the provider-owned lens and composition. Screen coordinates are
   normalized viewport coordinates with a bottom-left origin; damping uses the
   exponential response `1-exp(-damping*deltaTime)`;
+- `cameraNearClipPlane` and `cameraFarClipPlane` complete the perspective lens
+  contract. A lowerer must not substitute engine defaults that cull advertised
+  world content;
 - `ambientLightColor` and `ambientLightIntensity` define portable flat ambient
   illumination when the selected camera rig supports it;
 - `subjectVisible` controls presentation of `playerEntityId` without deleting
@@ -110,6 +113,11 @@ derive them from docking, possession, spectating, incapacitation, cutscenes, or
 another domain rule. A lowerer must not import the provider's private document
 types to reconstruct them, and it must not treat hiding or camera retargeting as
 removal of the underlying entity.
+
+A Unity scene has one active world environment owner. A lowerer that mutates
+scene-global render settings must restore the previous environment when its
+world disconnects, its rig changes, or the lowering component is disabled or
+destroyed.
 
 The descriptor carries buffer locations, semantic columns, dirty ranges, and
 render groups. CultMesh selects the buffer route: shared memory for co-located
