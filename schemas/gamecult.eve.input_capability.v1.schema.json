@@ -23,7 +23,8 @@
           "iconRef": { "type": "string" },
           "availability": { "enum": ["available", "dormant", "unavailable"] },
           "sourceRef": { "type": "string" },
-          "payload": { "type": "object", "additionalProperties": { "type": "string" } }
+          "payload": { "type": "object", "additionalProperties": { "type": "string" } },
+          "inputValue": { "$ref": "#/$defs/inputValue" }
         },
         "additionalProperties": false
       }
@@ -43,6 +44,15 @@
     }
   },
   "$defs": {
+    "inputValue": {
+      "type": "object",
+      "required": ["model", "payloadKey"],
+      "properties": {
+        "model": { "enum": ["button-hold.v1", "axis.v1"] },
+        "payloadKey": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
     "gesture": {
       "type": "object",
       "required": ["kind", "controls"],
