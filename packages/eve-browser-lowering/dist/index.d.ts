@@ -170,6 +170,7 @@ export declare function renderEveComponent(node: EveSurfaceComponent, options?: 
 export declare function projectSemanticListItem(node: EveSurfaceComponent): EveSemanticListItem;
 export declare function projectWorldScene(node: EveSurfaceComponent): EveProjectedWorldEntity[];
 export declare function createWorldActionIntent(command: string, action: Record<string, unknown>, options?: EveBrowserLoweringOptions): EveCommandIntent;
+export declare function createInventoryDropIntent(source: Record<string, unknown>, target: Record<string, unknown>, destinationX: number, destinationY: number, options?: EveBrowserLoweringOptions): EveCommandIntent | undefined;
 export declare function applyEveSurfaceStyles(styles: EveSurfaceStyles | undefined, body?: HTMLElement): void;
 export declare function createEveCommandIntent(commandId: string, props?: Record<string, unknown>, options?: EveBrowserLoweringOptions): EveCommandIntent;
 export declare function emptyState(message: string): HTMLElement;

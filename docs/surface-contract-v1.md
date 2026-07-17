@@ -288,6 +288,33 @@ read scalar fields through the shared payload primitive. Renderer code should
 construct requests from `CultMeshOperationInvocationDescriptor` and
 `CultMeshOperationPayload`, not from command strings plus raw dictionaries.
 
+### Inventory manipulation
+
+`inventory.grid`, `inventory.item`, and `inventory.drag_session` are standard
+Eve component kinds. They describe a spatial inventory without making the
+renderer an inventory authority.
+
+An `inventory.item` that can be moved carries `sourceKind`,
+`sourceEntityKey`, `sourceIndex`, `itemKey`, `quantity`, `x`, `y`, optional
+`rotation`, and `draggable`. An accepting `inventory.grid` carries
+`targetKind`, `targetEntityKey`, `targetIndex`, its spatial dimensions, and
+either `dropCommand` or source-specific `dropCommand.<sourceKind>` entries.
+
+The lowerer owns only the transient pointer or keyboard gesture. On drop it
+combines source identity with the selected target cell and emits the advertised
+operation. The portable payload includes `sourceKind`, `originEntityKey`,
+`originIndex`, `originCargoIndex`, `itemKey`, `quantity`, `sourceX`, `sourceY`,
+`destinationKind`, `destinationEntityKey`, `destinationIndex`,
+`destinationCargoIndex`, `destinationX`, `destinationY`, and
+`hasDestinationPosition`. Providers ignore aliases their typed operation does
+not consume.
+
+Fit, rotation constraints, stack limits, access, mutation, and receipts remain
+provider authority. A lowerer may preview a footprint, but it must not suppress
+an advertised command from a locally reconstructed acceptance opinion.
+Click-to-pick/click-to-place and pointer dragging emit the same operation
+payload.
+
 ## Synchronized Style
 
 `surface.styles.tokens` is provider-owned appearance state. Renderers project

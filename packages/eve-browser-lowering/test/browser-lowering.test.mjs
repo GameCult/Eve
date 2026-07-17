@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { applyEveStateBindingValue, createEveCommandIntent, createWorldActionIntent, normalizeFieldsDocument, projectSemanticListItem, projectSemanticListItems, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
+import { applyEveStateBindingValue, createEveCommandIntent, createInventoryDropIntent, createWorldActionIntent, normalizeFieldsDocument, projectSemanticListItem, projectSemanticListItems, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
 
 test("applies provider state bindings to component props instead of receipt diagnostics", () => {
   const component = { props: { value: 1.2 } };
@@ -54,6 +54,44 @@ test("world interactions emit provider-routed command intents without local auth
   assert.equal(intent.receiptSchema, "example.receipt.v1");
   assert.equal(intent.payload.actorEntityId, "entity.player");
   assert.equal(intent.payload.directionX, 1);
+});
+
+test("inventory drops select the provider-advertised operation and preserve spatial identity", () => {
+  const intent = createInventoryDropIntent({
+    sourceKind: "cargo",
+    sourceEntityKey: "zone.0.entity.1",
+    sourceIndex: 2,
+    itemKey: "ore",
+    quantity: 4,
+    x: 3,
+    y: 5,
+  }, {
+    targetKind: "equipment",
+    targetEntityKey: "zone.0.entity.1",
+    targetIndex: -1,
+    "dropCommand.cargo": "aetheria.daemon.commands.EquipItem",
+  }, 7, 9, {
+    activeSurfaceId: "aetheria.refit",
+    clientId: "browser.inventory-test",
+    provider: { providerId: "aetheria", surfaces: [{ surfaceId: "aetheria.refit" }] },
+  });
+
+  assert.equal(intent.command, "aetheria.daemon.commands.EquipItem");
+  assert.equal(intent.payload.originEntityKey, "zone.0.entity.1");
+  assert.equal(intent.payload.originCargoIndex, 2);
+  assert.equal(intent.payload.destinationEntityKey, "zone.0.entity.1");
+  assert.equal(intent.payload.destinationX, 7);
+  assert.equal(intent.payload.destinationY, 9);
+  assert.equal(intent.payload.hasDestinationPosition, true);
+});
+
+test("inventory drops fail closed without an operation for the source kind", () => {
+  assert.equal(createInventoryDropIntent(
+    { sourceKind: "docking-bay", itemKey: "hangar" },
+    { targetKind: "equipment", "dropCommand.cargo": "equip" },
+    0,
+    0,
+  ), undefined);
 });
 
 test("projects provider world entities into a normalized tactical plane", () => {

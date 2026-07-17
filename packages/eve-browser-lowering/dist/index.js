@@ -293,7 +293,7 @@ export function renderEveComponent(node, options = currentOptions) {
         return renderInventoryGrid(node, props, layout, style, options);
     }
     if (kind === "inventory.item") {
-        return renderInventoryItem(node, props, layout, style);
+        return renderInventoryItem(node, props, layout, style, options);
     }
     const adapter = (options.pluginAdapters || defaultBrowserPluginAdapters)
         .find(candidate => candidate.componentKinds.includes(kind));
@@ -951,6 +951,36 @@ function renderInventoryGrid(node, props, layout, style, options) {
     board.style.overflow = firstString(props.boardOverflow, "auto");
     board.style.padding = cssSize(firstString(props.boardPadding, "4"));
     applyGeneratedLayout(board, prefixedProps(layout, "board."), prefixedProps(style, "board."));
+    board.addEventListener("dragover", event => {
+        if (!hasInventoryDropCommand(props))
+            return;
+        event.preventDefault();
+        if (event.dataTransfer)
+            event.dataTransfer.dropEffect = "move";
+    });
+    board.addEventListener("drop", event => {
+        const encoded = event.dataTransfer?.getData("application/vnd.gamecult.eve.inventory-item+json") || "";
+        if (!encoded)
+            return;
+        let source;
+        try {
+            source = JSON.parse(encoded);
+        }
+        catch {
+            return;
+        }
+        const rect = board.getBoundingClientRect();
+        const cellSize = Math.max(1, numberProp(props.cellSize, 72));
+        const cellGap = Math.max(0, numberProp(props.cellGap, 4));
+        const pitch = cellSize + cellGap;
+        const x = Math.max(0, Math.min(columns - 1, Math.floor((event.clientX - rect.left) / pitch)));
+        const y = Math.max(0, Math.min(rows - 1, Math.floor((event.clientY - rect.top) / pitch)));
+        const intent = createInventoryDropIntent(source, props, x, y, options);
+        if (!intent)
+            return;
+        event.preventDefault();
+        void options.commandSink?.(intent, node);
+    });
     const occupied = new Set();
     for (const child of node.children || []) {
         const childProps = objectProps(child.props);
@@ -978,7 +1008,7 @@ function renderInventoryGrid(node, props, layout, style, options) {
     grid.append(board);
     return grid;
 }
-function renderInventoryItem(node, props, layout, style) {
+function renderInventoryItem(node, props, layout, style, options) {
     const item = el("button", "cultui-inventory-item");
     assignId(item, node);
     item.type = "button";
@@ -987,6 +1017,14 @@ function renderInventoryItem(node, props, layout, style) {
     const y = positiveInt(props.y, 0);
     item.dataset.itemKey = firstString(props.itemKey, props.label, node.id, "item");
     item.dataset.source = firstString(props.source, "");
+    item.draggable = (props.draggable === undefined || boolProp(props.draggable)) &&
+        !!firstString(props.sourceKind, props.source, "");
+    item.addEventListener("dragstart", event => {
+        if (!item.draggable || !event.dataTransfer)
+            return;
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("application/vnd.gamecult.eve.inventory-item+json", JSON.stringify(props));
+    });
     item.style.gridColumn = String(x + 1);
     item.style.gridRow = String(y + 1);
     const icon = el("span", "cultui-inventory-item-icon");
@@ -1012,6 +1050,36 @@ function renderInventoryItem(node, props, layout, style) {
         firstString(props.durability, "") ? `durability ${props.durability}` : "",
     ].filter(Boolean).join(" | ");
     return item;
+}
+function hasInventoryDropCommand(target) {
+    return Object.entries(target).some(([key, value]) => (key === "dropCommand" || key.startsWith("dropCommand.")) && typeof value === "string" && value.length > 0);
+}
+export function createInventoryDropIntent(source, target, destinationX, destinationY, options = currentOptions) {
+    const sourceKind = firstString(source.sourceKind, source.source, "");
+    const command = firstString(target[`dropCommand.${sourceKind}`], target.dropCommand, "");
+    if (!sourceKind || !command)
+        return undefined;
+    const sourceIndex = numberProp(source.sourceIndex, -1);
+    const targetIndex = numberProp(target.targetIndex, -1);
+    const targetKind = firstString(target.targetKind, "");
+    const payload = {
+        sourceKind,
+        originEntityKey: firstString(source.sourceEntityKey, source.entityKey, ""),
+        originIndex: sourceIndex,
+        originCargoIndex: sourceKind === "cargo" ? sourceIndex : -1,
+        itemKey: firstString(source.itemKey, ""),
+        quantity: Math.max(1, numberProp(source.quantity, 1)),
+        sourceX: numberProp(source.x, -2147483648),
+        sourceY: numberProp(source.y, -2147483648),
+        destinationKind: targetKind,
+        destinationEntityKey: firstString(target.targetEntityKey, target.entityKey, ""),
+        destinationIndex: targetIndex,
+        destinationCargoIndex: targetKind === "cargo" ? targetIndex : -1,
+        destinationX: Math.trunc(destinationX),
+        destinationY: Math.trunc(destinationY),
+        hasDestinationPosition: true,
+    };
+    return createEveCommandIntent(command, { action: payload }, options);
 }
 function renderInputBindingMap(node, props, options) {
     const root = el("section", "cultui-binding-map");
