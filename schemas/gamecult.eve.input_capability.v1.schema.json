@@ -46,11 +46,24 @@
   "$defs": {
     "inputValue": {
       "type": "object",
-      "required": ["model", "payloadKey"],
+      "required": ["model"],
       "properties": {
-        "model": { "enum": ["button-hold.v1", "axis.v1"] },
-        "payloadKey": { "type": "string", "minLength": 1 }
+        "model": { "enum": ["button-hold.v1", "axis.v1", "view-direction.v1"] },
+        "payloadKey": { "type": "string", "minLength": 1 },
+        "payloadKeys": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "type": "string", "minLength": 1 }
+        }
       },
+      "allOf": [
+        {
+          "if": { "properties": { "model": { "const": "view-direction.v1" } }, "required": ["model"] },
+          "then": { "required": ["payloadKeys"] },
+          "else": { "required": ["payloadKey"] }
+        }
+      ],
       "additionalProperties": false
     },
     "gesture": {

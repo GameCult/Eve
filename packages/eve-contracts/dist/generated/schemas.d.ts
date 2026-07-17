@@ -625,5 +625,186 @@ export declare const eveContractSchemas: {
         };
         readonly additionalProperties: true;
     };
+    readonly inputCapability: {
+        readonly $schema: "https://json-schema.org/draft/2020-12/schema";
+        readonly $id: "gamecult.eve.input_capability.v1";
+        readonly title: "Eve Input Capability";
+        readonly type: "object";
+        readonly required: readonly ["schema", "providerId", "capabilityId", "actions", "defaultProfiles"];
+        readonly properties: {
+            readonly schema: {
+                readonly const: "gamecult.eve.input_capability.v1";
+            };
+            readonly providerId: {
+                readonly type: "string";
+                readonly minLength: 1;
+            };
+            readonly capabilityId: {
+                readonly type: "string";
+                readonly minLength: 1;
+            };
+            readonly version: {
+                readonly type: "integer";
+                readonly minimum: 0;
+            };
+            readonly actions: {
+                readonly type: "array";
+                readonly items: {
+                    readonly type: "object";
+                    readonly required: readonly ["actionId", "label", "operation", "availability"];
+                    readonly properties: {
+                        readonly actionId: {
+                            readonly type: "string";
+                            readonly minLength: 1;
+                        };
+                        readonly label: {
+                            readonly type: "string";
+                            readonly minLength: 1;
+                        };
+                        readonly operation: {
+                            readonly type: "string";
+                            readonly minLength: 1;
+                        };
+                        readonly context: {
+                            readonly type: "string";
+                        };
+                        readonly category: {
+                            readonly type: "string";
+                        };
+                        readonly iconRef: {
+                            readonly type: "string";
+                        };
+                        readonly availability: {
+                            readonly enum: readonly ["available", "dormant", "unavailable"];
+                        };
+                        readonly sourceRef: {
+                            readonly type: "string";
+                        };
+                        readonly payload: {
+                            readonly type: "object";
+                            readonly additionalProperties: {
+                                readonly type: "string";
+                            };
+                        };
+                        readonly inputValue: {
+                            readonly $ref: "#/$defs/inputValue";
+                        };
+                    };
+                    readonly additionalProperties: false;
+                };
+            };
+            readonly defaultProfiles: {
+                readonly type: "array";
+                readonly items: {
+                    readonly type: "object";
+                    readonly required: readonly ["profileId", "deviceClass", "bindings"];
+                    readonly properties: {
+                        readonly profileId: {
+                            readonly type: "string";
+                            readonly minLength: 1;
+                        };
+                        readonly deviceClass: {
+                            readonly enum: readonly ["keyboard-mouse", "gamepad"];
+                        };
+                        readonly bindings: {
+                            readonly type: "array";
+                            readonly items: {
+                                readonly $ref: "#/$defs/binding";
+                            };
+                        };
+                    };
+                    readonly additionalProperties: false;
+                };
+            };
+        };
+        readonly $defs: {
+            readonly inputValue: {
+                readonly type: "object";
+                readonly required: readonly ["model"];
+                readonly properties: {
+                    readonly model: {
+                        readonly enum: readonly ["button-hold.v1", "axis.v1", "view-direction.v1"];
+                    };
+                    readonly payloadKey: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly payloadKeys: {
+                        readonly type: "array";
+                        readonly minItems: 3;
+                        readonly maxItems: 3;
+                        readonly items: {
+                            readonly type: "string";
+                            readonly minLength: 1;
+                        };
+                    };
+                };
+                readonly allOf: readonly [{
+                    readonly if: {
+                        readonly properties: {
+                            readonly model: {
+                                readonly const: "view-direction.v1";
+                            };
+                        };
+                        readonly required: readonly ["model"];
+                    };
+                    readonly then: {
+                        readonly required: readonly ["payloadKeys"];
+                    };
+                    readonly else: {
+                        readonly required: readonly ["payloadKey"];
+                    };
+                }];
+                readonly additionalProperties: false;
+            };
+            readonly gesture: {
+                readonly type: "object";
+                readonly required: readonly ["kind", "controls"];
+                readonly properties: {
+                    readonly kind: {
+                        readonly enum: readonly ["direct", "chord", "sequence", "axis"];
+                    };
+                    readonly controls: {
+                        readonly type: "array";
+                        readonly minItems: 1;
+                        readonly items: {
+                            readonly type: "string";
+                            readonly minLength: 1;
+                        };
+                    };
+                    readonly maxStepIntervalMs: {
+                        readonly type: "integer";
+                        readonly minimum: 50;
+                    };
+                    readonly completionControl: {
+                        readonly type: "string";
+                    };
+                };
+                readonly additionalProperties: false;
+            };
+            readonly binding: {
+                readonly type: "object";
+                readonly required: readonly ["bindingId", "actionId", "gesture"];
+                readonly properties: {
+                    readonly bindingId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly actionId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly gesture: {
+                        readonly $ref: "#/$defs/gesture";
+                    };
+                    readonly actionBar: {
+                        readonly type: "boolean";
+                    };
+                };
+                readonly additionalProperties: false;
+            };
+        };
+        readonly additionalProperties: false;
+    };
 };
 export type EveContractSchemaName = keyof typeof eveContractSchemas;

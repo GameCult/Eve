@@ -6,6 +6,7 @@ export const EVE_SURFACE_SCHEMA = "gamecult.eve.surface.v1";
 export const EVE_COMMAND_DESCRIPTOR_SCHEMA = "gamecult.eve.command.v1";
 export const EVE_COMMAND_INVOCATION_SCHEMA = "gamecult.eve.command_invocation.v1";
 export const EVE_COMMAND_RECEIPT_SCHEMA = "gamecult.eve.command_receipt.v1";
+export const EVE_INPUT_CAPABILITY_SCHEMA = "gamecult.eve.input_capability.v1";
 const ajv = new Ajv2020({
     allErrors: true,
     allowUnionTypes: true,
@@ -40,11 +41,13 @@ export const isEveSurfaceDocument = (value) => isEveContract("surface", value);
 export const isEveCommandDescriptor = (value) => isEveContract("commandDescriptor", value);
 export const isEveCommandInvocation = (value) => isEveContract("commandInvocation", value);
 export const isEveCommandReceipt = (value) => isEveContract("commandReceipt", value);
+export const isEveInputCapability = (value) => isEveContract("inputCapability", value);
 export const parseEveProviderAdvertisement = (value) => parseEveContract("providerAdvertisement", value);
 export const parseEveSurfaceDocument = (value) => parseEveContract("surface", value);
 export const parseEveCommandDescriptor = (value) => parseEveContract("commandDescriptor", value);
 export const parseEveCommandInvocation = (value) => parseEveContract("commandInvocation", value);
 export const parseEveCommandReceipt = (value) => parseEveContract("commandReceipt", value);
+export const parseEveInputCapability = (value) => parseEveContract("inputCapability", value);
 function requiredValidator(schemaId) {
     const validator = ajv.getSchema(schemaId);
     if (!validator)

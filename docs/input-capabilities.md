@@ -20,3 +20,9 @@ release. The `axis.v1` model writes the current normalized axis value. Clients
 send changed values through the action's advertised operation; providers own
 interpretation, persistence, receipts, and simulation. A client must not infer
 decay or repair a missed release by mutating presented state.
+
+The `view-direction.v1` model is a one-shot value sampled when its gesture is
+performed. The client reads the active semantic view's normalized world-space
+forward direction and writes X, Y, and Z to the three advertised `payloadKeys`
+in that order. The provider decides what the ray means; clients do not select,
+filter, or rank gameplay targets.

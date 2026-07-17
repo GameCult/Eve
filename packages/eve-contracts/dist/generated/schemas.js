@@ -748,5 +748,234 @@ export const eveContractSchemas = {
             }
         },
         "additionalProperties": true
+    },
+    "inputCapability": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "gamecult.eve.input_capability.v1",
+        "title": "Eve Input Capability",
+        "type": "object",
+        "required": [
+            "schema",
+            "providerId",
+            "capabilityId",
+            "actions",
+            "defaultProfiles"
+        ],
+        "properties": {
+            "schema": {
+                "const": "gamecult.eve.input_capability.v1"
+            },
+            "providerId": {
+                "type": "string",
+                "minLength": 1
+            },
+            "capabilityId": {
+                "type": "string",
+                "minLength": 1
+            },
+            "version": {
+                "type": "integer",
+                "minimum": 0
+            },
+            "actions": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": [
+                        "actionId",
+                        "label",
+                        "operation",
+                        "availability"
+                    ],
+                    "properties": {
+                        "actionId": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "label": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "operation": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "context": {
+                            "type": "string"
+                        },
+                        "category": {
+                            "type": "string"
+                        },
+                        "iconRef": {
+                            "type": "string"
+                        },
+                        "availability": {
+                            "enum": [
+                                "available",
+                                "dormant",
+                                "unavailable"
+                            ]
+                        },
+                        "sourceRef": {
+                            "type": "string"
+                        },
+                        "payload": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        },
+                        "inputValue": {
+                            "$ref": "#/$defs/inputValue"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "defaultProfiles": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": [
+                        "profileId",
+                        "deviceClass",
+                        "bindings"
+                    ],
+                    "properties": {
+                        "profileId": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "deviceClass": {
+                            "enum": [
+                                "keyboard-mouse",
+                                "gamepad"
+                            ]
+                        },
+                        "bindings": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/$defs/binding"
+                            }
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            }
+        },
+        "$defs": {
+            "inputValue": {
+                "type": "object",
+                "required": [
+                    "model"
+                ],
+                "properties": {
+                    "model": {
+                        "enum": [
+                            "button-hold.v1",
+                            "axis.v1",
+                            "view-direction.v1"
+                        ]
+                    },
+                    "payloadKey": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "payloadKeys": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "items": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                },
+                "allOf": [
+                    {
+                        "if": {
+                            "properties": {
+                                "model": {
+                                    "const": "view-direction.v1"
+                                }
+                            },
+                            "required": [
+                                "model"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "payloadKeys"
+                            ]
+                        },
+                        "else": {
+                            "required": [
+                                "payloadKey"
+                            ]
+                        }
+                    }
+                ],
+                "additionalProperties": false
+            },
+            "gesture": {
+                "type": "object",
+                "required": [
+                    "kind",
+                    "controls"
+                ],
+                "properties": {
+                    "kind": {
+                        "enum": [
+                            "direct",
+                            "chord",
+                            "sequence",
+                            "axis"
+                        ]
+                    },
+                    "controls": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "maxStepIntervalMs": {
+                        "type": "integer",
+                        "minimum": 50
+                    },
+                    "completionControl": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "binding": {
+                "type": "object",
+                "required": [
+                    "bindingId",
+                    "actionId",
+                    "gesture"
+                ],
+                "properties": {
+                    "bindingId": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "actionId": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "gesture": {
+                        "$ref": "#/$defs/gesture"
+                    },
+                    "actionBar": {
+                        "type": "boolean"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "additionalProperties": false
     }
 };

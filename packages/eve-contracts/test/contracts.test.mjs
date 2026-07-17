@@ -7,6 +7,7 @@ import {
   isEveCommandDescriptor,
   parseEveCommandInvocation,
   parseEveCommandReceipt,
+  parseEveInputCapability,
   parseEveProviderAdvertisement,
   parseEveSurfaceDocument,
 } from "../dist/index.js";
@@ -84,6 +85,49 @@ test("rejects missing required fields with contract diagnostics", () => {
 test("published schema constants retain their authoritative ids", async () => {
   const schemas = JSON.parse(await readFile(resolve(import.meta.dirname, "..", "..", "..", "schemas", "gamecult.eve.surface.v1.schema.json"), "utf8"));
   assert.equal(schemas.$id, "gamecult.eve.surface.v1");
+});
+
+test("validates scalar and view-direction input value models", () => {
+  const base = {
+    schema: "gamecult.eve.input_capability.v1",
+    providerId: "flight.provider",
+    capabilityId: "pilot.input",
+    version: 1,
+    defaultProfiles: [],
+  };
+  assert.equal(parseEveInputCapability({
+    ...base,
+    actions: [{
+      actionId: "pilot.fire",
+      label: "Fire",
+      operation: "pilot.fire",
+      availability: "available",
+      inputValue: { model: "button-hold.v1", payloadKey: "active" },
+    }],
+  }).actions[0].inputValue.payloadKey, "active");
+  assert.deepEqual(parseEveInputCapability({
+    ...base,
+    actions: [{
+      actionId: "pilot.target-reticle",
+      label: "Target Reticle",
+      operation: "pilot.target-reticle",
+      availability: "available",
+      inputValue: {
+        model: "view-direction.v1",
+        payloadKeys: ["directionX", "directionY", "directionZ"],
+      },
+    }],
+  }).actions[0].inputValue.payloadKeys, ["directionX", "directionY", "directionZ"]);
+  assert.throws(() => parseEveInputCapability({
+    ...base,
+    actions: [{
+      actionId: "pilot.target-reticle",
+      label: "Target Reticle",
+      operation: "pilot.target-reticle",
+      availability: "available",
+      inputValue: { model: "view-direction.v1", payloadKey: "directionX" },
+    }],
+  }), EveContractValidationError);
 });
 
 test("validates an existing canonical Eve surface fixture", async () => {

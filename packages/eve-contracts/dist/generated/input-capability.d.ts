@@ -1,0 +1,51 @@
+export type InputValue = ({
+    [k: string]: any;
+} & {
+    model: ("button-hold.v1" | "axis.v1" | "view-direction.v1");
+    payloadKey?: string;
+    /**
+     * @minItems 3
+     * @maxItems 3
+     */
+    payloadKeys?: [string, string, string];
+});
+export interface EveInputCapability {
+    schema: "gamecult.eve.input_capability.v1";
+    providerId: string;
+    capabilityId: string;
+    version?: number;
+    actions: {
+        actionId: string;
+        label: string;
+        operation: string;
+        context?: string;
+        category?: string;
+        iconRef?: string;
+        availability: ("available" | "dormant" | "unavailable");
+        sourceRef?: string;
+        payload?: {
+            [k: string]: string;
+        };
+        inputValue?: InputValue;
+    }[];
+    defaultProfiles: {
+        profileId: string;
+        deviceClass: ("keyboard-mouse" | "gamepad");
+        bindings: Binding[];
+    }[];
+}
+export interface Binding {
+    bindingId: string;
+    actionId: string;
+    gesture: Gesture;
+    actionBar?: boolean;
+}
+export interface Gesture {
+    kind: ("direct" | "chord" | "sequence" | "axis");
+    /**
+     * @minItems 1
+     */
+    controls: [string, ...(string)[]];
+    maxStepIntervalMs?: number;
+    completionControl?: string;
+}

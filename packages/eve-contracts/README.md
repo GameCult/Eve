@@ -10,11 +10,13 @@ import {
   parseEveProviderAdvertisement,
   parseEveSurfaceDocument,
   parseEveCommandInvocation,
+  parseEveInputCapability,
 } from "@gamecult/eve-contracts";
 
 const provider = parseEveProviderAdvertisement(untrustedAdvertisement);
 const surface = parseEveSurfaceDocument(untrustedSurface);
 const command = parseEveCommandInvocation(untrustedCommand);
+const input = parseEveInputCapability(untrustedInputCapability);
 ```
 
 Providers own their state, surfaces, command acceptance, and receipts. This
