@@ -874,10 +874,28 @@ export const eveContractSchemas = {
                         "enum": [
                             "button-hold.v1",
                             "axis.v1",
+                            "scalar.v1",
                             "view-direction.v1"
                         ]
                     },
                     "payloadKey": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "currentValue": {
+                        "type": "number"
+                    },
+                    "minimumValue": {
+                        "type": "number"
+                    },
+                    "maximumValue": {
+                        "type": "number"
+                    },
+                    "stepValue": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
+                    },
+                    "unit": {
                         "type": "string",
                         "minLength": 1
                     },
@@ -912,6 +930,23 @@ export const eveContractSchemas = {
                         "else": {
                             "required": [
                                 "payloadKey"
+                            ]
+                        }
+                    },
+                    {
+                        "if": {
+                            "properties": {
+                                "model": {
+                                    "const": "scalar.v1"
+                                }
+                            },
+                            "required": [
+                                "model"
+                            ]
+                        },
+                        "then": {
+                            "required": [
+                                "currentValue"
                             ]
                         }
                     }

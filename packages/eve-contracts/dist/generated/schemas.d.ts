@@ -723,9 +723,26 @@ export declare const eveContractSchemas: {
                 readonly required: readonly ["model"];
                 readonly properties: {
                     readonly model: {
-                        readonly enum: readonly ["button-hold.v1", "axis.v1", "view-direction.v1"];
+                        readonly enum: readonly ["button-hold.v1", "axis.v1", "scalar.v1", "view-direction.v1"];
                     };
                     readonly payloadKey: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly currentValue: {
+                        readonly type: "number";
+                    };
+                    readonly minimumValue: {
+                        readonly type: "number";
+                    };
+                    readonly maximumValue: {
+                        readonly type: "number";
+                    };
+                    readonly stepValue: {
+                        readonly type: "number";
+                        readonly exclusiveMinimum: 0;
+                    };
+                    readonly unit: {
                         readonly type: "string";
                         readonly minLength: 1;
                     };
@@ -754,6 +771,18 @@ export declare const eveContractSchemas: {
                     };
                     readonly else: {
                         readonly required: readonly ["payloadKey"];
+                    };
+                }, {
+                    readonly if: {
+                        readonly properties: {
+                            readonly model: {
+                                readonly const: "scalar.v1";
+                            };
+                        };
+                        readonly required: readonly ["model"];
+                    };
+                    readonly then: {
+                        readonly required: readonly ["currentValue"];
                     };
                 }];
                 readonly additionalProperties: false;

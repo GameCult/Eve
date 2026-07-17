@@ -108,6 +108,30 @@ test("validates scalar and view-direction input value models", () => {
   assert.deepEqual(parseEveInputCapability({
     ...base,
     actions: [{
+      actionId: "equipment.0.temperature",
+      label: "Target Temperature",
+      operation: "equipment.set-temperature",
+      availability: "available",
+      inputValue: {
+        model: "scalar.v1",
+        payloadKey: "scalarValue",
+        currentValue: 300,
+        minimumValue: 0,
+        stepValue: 1,
+        unit: "kelvin",
+      },
+    }],
+  }).actions[0].inputValue, {
+    model: "scalar.v1",
+    payloadKey: "scalarValue",
+    currentValue: 300,
+    minimumValue: 0,
+    stepValue: 1,
+    unit: "kelvin",
+  });
+  assert.deepEqual(parseEveInputCapability({
+    ...base,
+    actions: [{
       actionId: "pilot.target-reticle",
       label: "Target Reticle",
       operation: "pilot.target-reticle",
@@ -126,6 +150,16 @@ test("validates scalar and view-direction input value models", () => {
       operation: "pilot.target-reticle",
       availability: "available",
       inputValue: { model: "view-direction.v1", payloadKey: "directionX" },
+    }],
+  }), EveContractValidationError);
+  assert.throws(() => parseEveInputCapability({
+    ...base,
+    actions: [{
+      actionId: "equipment.0.temperature",
+      label: "Target Temperature",
+      operation: "equipment.set-temperature",
+      availability: "available",
+      inputValue: { model: "scalar.v1", payloadKey: "scalarValue" },
     }],
   }), EveContractValidationError);
 });

@@ -3,8 +3,13 @@
 export type InputValue = ({
 [k: string]: any
 } & {
-model: ("button-hold.v1" | "axis.v1" | "view-direction.v1")
+model: ("button-hold.v1" | "axis.v1" | "scalar.v1" | "view-direction.v1")
 payloadKey?: string
+currentValue?: number
+minimumValue?: number
+maximumValue?: number
+stepValue?: number
+unit?: string
 /**
  * @minItems 3
  * @maxItems 3

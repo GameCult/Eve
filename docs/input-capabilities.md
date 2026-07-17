@@ -21,6 +21,14 @@ send changed values through the action's advertised operation; providers own
 interpretation, persistence, receipts, and simulation. A client must not infer
 decay or repair a missed release by mutating presented state.
 
+The `scalar.v1` model exposes an explicit finite numeric control rather than a
+sampled device axis. `currentValue` is provider-owned state. `minimumValue`,
+`maximumValue`, and `stepValue` are optional input constraints, and `unit` is an
+optional semantic label. A client submits the chosen value to `payloadKey`; it
+does not update `currentValue` optimistically or clamp values beyond the
+advertised constraints. Providers may leave the range open when the original
+control accepted arbitrary numeric input.
+
 The `view-direction.v1` model is a one-shot value sampled when its gesture is
 performed. The client reads the active semantic view's normalized world-space
 forward direction and writes X, Y, and Z to the three advertised `payloadKeys`
