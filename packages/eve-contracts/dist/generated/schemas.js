@@ -885,6 +885,7 @@ export const eveContractSchemas = {
                         "type": "array",
                         "minItems": 3,
                         "maxItems": 3,
+                        "uniqueItems": true,
                         "items": {
                             "type": "string",
                             "minLength": 1

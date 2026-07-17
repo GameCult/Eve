@@ -733,6 +733,7 @@ export declare const eveContractSchemas: {
                         readonly type: "array";
                         readonly minItems: 3;
                         readonly maxItems: 3;
+                        readonly uniqueItems: true;
                         readonly items: {
                             readonly type: "string";
                             readonly minLength: 1;
