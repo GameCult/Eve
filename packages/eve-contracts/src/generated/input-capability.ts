@@ -29,6 +29,7 @@ operation: string
 context?: string
 category?: string
 iconRef?: string
+actionBar?: boolean
 availability: ("available" | "dormant" | "unavailable")
 sourceRef?: string
 payload?: {

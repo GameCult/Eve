@@ -674,6 +674,9 @@ export declare const eveContractSchemas: {
                         readonly iconRef: {
                             readonly type: "string";
                         };
+                        readonly actionBar: {
+                            readonly type: "boolean";
+                        };
                         readonly availability: {
                             readonly enum: readonly ["available", "dormant", "unavailable"];
                         };

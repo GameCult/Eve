@@ -9,6 +9,11 @@ keyboard chords, axes, and ordered gamepad D-pad sequences are gesture kinds,
 not separate execution systems. The action bar is a compact editor over the
 same binding document; its controls are chosen by the player.
 
+An action may set `actionBar` to suggest that generic clients expose it in the
+initial action palette. This is not a binding or a gameplay decision. Client
+profiles and user overrides still own physical controls, slot order, and
+whether the suggested action remains visible.
+
 Actions may be derived from live state such as equipped modules, weapon groups,
 cargo consumables, role, docking state, or mode. A binding whose action is not
 currently available remains dormant so it can recover when that semantic action

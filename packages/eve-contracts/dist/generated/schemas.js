@@ -809,6 +809,9 @@ export const eveContractSchemas = {
                         "iconRef": {
                             "type": "string"
                         },
+                        "actionBar": {
+                            "type": "boolean"
+                        },
                         "availability": {
                             "enum": [
                                 "available",

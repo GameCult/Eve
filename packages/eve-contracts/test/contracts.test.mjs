@@ -112,6 +112,7 @@ test("validates scalar and view-direction input value models", () => {
       label: "Target Temperature",
       operation: "equipment.set-temperature",
       availability: "available",
+      actionBar: true,
       inputValue: {
         model: "scalar.v1",
         payloadKey: "scalarValue",

@@ -21,6 +21,7 @@
           "context": { "type": "string" },
           "category": { "type": "string" },
           "iconRef": { "type": "string" },
+          "actionBar": { "type": "boolean" },
           "availability": { "enum": ["available", "dormant", "unavailable"] },
           "sourceRef": { "type": "string" },
           "payload": { "type": "object", "additionalProperties": { "type": "string" } },
