@@ -1218,8 +1218,14 @@ function renderInventoryItem(
       JSON.stringify(props),
     );
   });
-  item.style.gridColumn = String(x + 1);
-  item.style.gridRow = String(y + 1);
+  let widthCells = positiveInt(props.shapeWidth, 1);
+  let heightCells = positiveInt(props.shapeHeight, 1);
+  const rotation = firstString(props.rotation, "").toLowerCase();
+  if (["clockwise", "counterclockwise", "right", "left", "rotate90", "rotate270"].includes(rotation)) {
+    [widthCells, heightCells] = [heightCells, widthCells];
+  }
+  item.style.gridColumn = `${x + 1} / span ${widthCells}`;
+  item.style.gridRow = `${y + 1} / span ${heightCells}`;
   const icon = el("span", "cultui-inventory-item-icon");
   applyGeneratedLayout(icon, prefixedProps(layout, "icon."), prefixedProps(style, "icon."));
   icon.textContent = inventoryItemGlyph(firstString(props.iconAssetUri, props.iconAssetKey, props.itemKey, props.label, ""));
