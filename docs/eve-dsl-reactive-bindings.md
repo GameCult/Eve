@@ -34,9 +34,11 @@ var program = node.Documents
 metric "Opacity" bind program.Field(x => x.Layers[1].Opacity)
 ```
 
-Today the lower substrate exposes reactive document changes through CultMesh /
-CultNet database watch streams. The field-level POCO binding handle is the
-next ergonomic cut. Eve documents now carry explicit
+The lower substrate exposes reactive document changes through CultMesh/CultNet
+database watch streams. `CultMeshDocumentHandle<T>.Field(...)` compiles a
+member/index selector once and exposes that field as a stable typed pointer;
+providers do not need to republish a surface tree when only the value changes.
+Eve documents carry explicit
 `CultMeshStateBindingDescriptor` values on each component so renderers do not
 have to infer provider state from string props:
 

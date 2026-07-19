@@ -80,8 +80,11 @@ invent provider semantics to compensate for missing contract information.
 
 `gamecult.eve.entity_soa_view.v1` is the portable descriptor for hot entity
 presentation state. A `world.scene2d` or `world.scene3d` component points to it
-with `entityViewPointerId`; `entityViewSchema` names the schema. The surface
-does not duplicate entity transforms as retained child components.
+with `entityViewPointerId`; `entityViewSchema` names the schema and
+`entityBodyId` names the stable logical hot body whose representations the
+client may demand. Body identity is provider-advertised contract state, not a
+provider-specific convention embedded in a lowerer. The surface does not
+duplicate entity transforms as retained child components.
 
 World scenes may also publish generic presentation intent derived from provider
 state:
@@ -186,6 +189,13 @@ Stable composition, commands, and binding declarations may arrive in a
 bootstrap snapshot. Live entity generations do not. UI values bind to reactive
 typed documents named by state pointers. Versioned asset manifests are
 bootstrap state and their content-addressed artifacts are cached.
+
+An exact entity subscription includes the view record, the logical body's
+stable latest-publication record, the supported body transports, and the
+consumer runtime identity. CultMesh combines actual peer locality with those
+capabilities to select shared memory for same-machine clients and a network
+body plane otherwise. No consumer fetches a second snapshot per generation,
+and a provider does not build an unrequested representation.
 
 Provider advertisements attach the reusable boundary to world surfaces through
 `surfaces[].worldInteraction`. That block names:
