@@ -162,7 +162,11 @@ effect to an entity in the current SoA generation. It carries:
 - `directionMode`: the portable orientation rule. `source-forward.v1` follows
   the source body's published forward axis and never writes that transform;
 - `assetRole`: a semantic provider-manifest role used to resolve native art;
-- `power`: the provider-owned non-negative emission/intensity value;
+- `power`: a provider-owned non-negative bootstrap/fallback intensity value;
+- `powerStateSemantic`: an optional float semantic in the source entity's hot
+  SoA row. When present it is the live authority for `power`; the retained
+  literal is bootstrap/fallback state only. This keeps continuous effects on
+  the same negotiated body plane as their transforms;
 - `activationThreshold`: the value below which emission is zero while the
   retained effect may finish its local particles;
 - `radius` and `maximumDistance`: portable shape facts for lowerers that do not
