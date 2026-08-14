@@ -1,0 +1,72 @@
+{
+  "schema": "gamecult.eve.provider_advertisement.v1",
+  "providerId": "epiphany.model-atlas",
+  "serviceId": "epiphany.modeling",
+  "verseId": "gamecult.swarm",
+  "rootVerse": "gamecult",
+  "canonicalService": "gamecult.epiphany.modeling",
+  "locatedService": "gamecult.swarm.epiphany.modeling",
+  "cultMeshAddress": "cultmesh://gamecult.swarm/epiphany/modeling",
+  "title": "Epiphany Model Atlas",
+  "kind": "modeling.projection",
+  "updatedAtUtc": "2026-08-14T00:00:00Z",
+  "freshness": {
+    "state": "fixture",
+    "lastSeenAtUtc": "2026-08-14T00:00:00Z",
+    "maxAgeMs": 15000
+  },
+  "schemas": [
+    "gamecult.model.entanglement_projection.v0",
+    "gamecult.eve.surface.v1",
+    "gamecult.eve.command.v1"
+  ],
+  "witnesses": [
+    {
+      "kind": "fixture",
+      "ref": "web/fixtures/epiphany-model-atlas-surface.json",
+      "summary": "Eve conformance witness for an Epiphany-owned cross-repo Modeling projection. The fixture is presentation, not entanglement authority."
+    }
+  ],
+  "surfaces": [
+    {
+      "schema": "gamecult.eve.surface.v1",
+      "surfaceId": "epiphany.model-atlas.surface",
+      "key": "epiphany:surface:model-atlas",
+      "transport": "cultmesh-record",
+      "status": "available",
+      "audience": "operator",
+      "mode": "interactive",
+      "surfaceKind": "model-atlas",
+      "interactionModel": "provider-presentation-commands",
+      "loweringTargets": [
+        "gui",
+        "tui"
+      ],
+      "stateSchemas": [
+        "gamecult.model.entanglement_projection.v0"
+      ],
+      "ownership": "epiphany-owns-entanglement-projection-eve-renders-one-retained-tree",
+      "summary": "Attention-first cross-repo Modeling view with drilldown and a secondary graph from one typed CultMesh projection."
+    }
+  ],
+  "commands": [
+    {
+      "command": "epiphany.model-atlas.presentation.select",
+      "schema": "gamecult.eve.command.v1",
+      "transport": "cultmesh-command",
+      "authority": "epiphany.model-atlas.presentation",
+      "presentationOnly": true,
+      "domainStateEffects": "none",
+      "summary": "Selects an entanglement for presentation without changing the modeled relationship."
+    },
+    {
+      "command": "epiphany.model-atlas.presentation.filter",
+      "schema": "gamecult.eve.command.v1",
+      "transport": "cultmesh-command",
+      "authority": "epiphany.model-atlas.presentation",
+      "presentationOnly": true,
+      "domainStateEffects": "none",
+      "summary": "Changes the attention view filter without changing the entanglement projection."
+    }
+  ]
+}

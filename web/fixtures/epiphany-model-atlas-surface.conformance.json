@@ -1,0 +1,27 @@
+{
+  "schema": "gamecult.eve.conformance_fixture.v1",
+  "fixtureId": "epiphany-model-atlas",
+  "title": "Epiphany Model Atlas",
+  "pack": "provider",
+  "ownerRepo": "EpiphanyAgent",
+  "surface": {
+    "transport": "local-json",
+    "path": "web/fixtures/epiphany-model-atlas-surface.json"
+  },
+  "purpose": "Proves an Epiphany-owned entanglement projection can publish one attention-first Eve surface for GUI and TUI lowering without moving modeled truth into a renderer.",
+  "exitCriteria": "Move live projection state and authored product scenarios to EpiphanyAgent; Eve retains only the minimal cross-runtime contract witness while this boundary is incubating.",
+  "asserts": [
+    "attention list is the default view",
+    "selected entanglement drilldown",
+    "secondary graph with linear fallback",
+    "CultMesh bindings use gamecult.model.entanglement_projection.v0",
+    "GUI and TUI consume one surface id",
+    "selection and filter commands are presentation-only",
+    "no dashboard compatibility state or renderer-owned domain truth"
+  ],
+  "loweringTargets": [
+    "gui",
+    "tui"
+  ],
+  "splitTarget": "EpiphanyAgent"
+}

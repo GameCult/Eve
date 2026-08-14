@@ -178,3 +178,18 @@ test("validates an existing canonical Eve surface fixture", async () => {
   const fixture = JSON.parse(await readFile(fixturePath, "utf8"));
   assert.equal(parseEveSurfaceDocument(fixture).providerId, "eve.world-smoke");
 });
+
+test("validates the Epiphany Model Atlas advertisement and canonical surface", async () => {
+  const fixtureRoot = resolve(import.meta.dirname, "..", "..", "..", "web", "fixtures");
+  const advertisement = JSON.parse(await readFile(
+    resolve(fixtureRoot, "epiphany-model-atlas.provider-advertisement.json"),
+    "utf8",
+  ));
+  const surfaceFixture = JSON.parse(await readFile(
+    resolve(fixtureRoot, "epiphany-model-atlas-surface.json"),
+    "utf8",
+  ));
+
+  assert.equal(parseEveProviderAdvertisement(advertisement).providerId, "epiphany.model-atlas");
+  assert.equal(parseEveSurfaceDocument(surfaceFixture).surface.id, "epiphany.model-atlas.surface");
+});

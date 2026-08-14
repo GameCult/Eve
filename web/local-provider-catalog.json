@@ -3,6 +3,19 @@
   "purpose": "Browser reference fallback catalog for local provider advertisements and fixture surfaces. This is not live discovery truth.",
   "providers": [
     {
+      "providerId": "epiphany.model-atlas",
+      "title": "Epiphany Model Atlas",
+      "kind": "modeling.projection",
+      "advertisement": "./fixtures/epiphany-model-atlas.provider-advertisement.json",
+      "surfaces": [
+        {
+          "transport": "local-json",
+          "surfaceId": "epiphany.model-atlas.surface",
+          "url": "./fixtures/epiphany-model-atlas-surface.json"
+        }
+      ]
+    },
+    {
       "providerId": "eve.world-smoke",
       "title": "Generic Interactive World Smoke",
       "kind": "contract.fixture",

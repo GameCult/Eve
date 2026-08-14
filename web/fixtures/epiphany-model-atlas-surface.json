@@ -1,0 +1,392 @@
+{
+  "type": "surface-state",
+  "schema": "gamecult.eve.surface.v1",
+  "providerId": "epiphany.model-atlas",
+  "providerKind": "modeling.projection",
+  "title": "Epiphany Model Atlas",
+  "version": 1,
+  "updatedAtUtc": "2026-08-14T00:00:00Z",
+  "surface": {
+    "id": "epiphany.model-atlas.surface",
+    "root": {
+      "id": "epiphany.model-atlas.root",
+      "kind": "surface",
+      "props": {
+        "defaultView": "attention",
+        "stateAuthority": "gamecult.model.entanglement_projection.v0",
+        "presentationState": "provider-owned-ephemeral",
+        "viewOrder": [
+          "attention",
+          "drilldown",
+          "graph"
+        ]
+      },
+      "children": [
+        {
+          "id": "epiphany.model-atlas.attention",
+          "kind": "panel",
+          "props": {
+            "title": "Attention",
+            "viewId": "attention",
+            "role": "primary",
+            "default": true
+          },
+          "children": [
+            {
+              "id": "epiphany.model-atlas.attention.controls",
+              "kind": "rail",
+              "props": {
+                "role": "presentation-controls"
+              },
+              "children": [
+                {
+                  "id": "epiphany.model-atlas.attention.filter",
+                  "kind": "control.select",
+                  "props": {
+                    "label": "Filter",
+                    "value": "needs-attention",
+                    "options": [
+                      "needs-attention",
+                      "degraded",
+                      "disputed",
+                      "stale",
+                      "all"
+                    ],
+                    "command": "epiphany.model-atlas.presentation.filter",
+                    "commandId": "epiphany.model-atlas.presentation.filter",
+                    "presentationOnly": true,
+                    "domainStateEffects": "none"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "epiphany.model-atlas.attention.select",
+                  "kind": "control.select",
+                  "props": {
+                    "label": "Selected entanglement",
+                    "value": "entanglement.epiphany-eve.surface",
+                    "options": [
+                      "entanglement.epiphany-eve.surface",
+                      "entanglement.epiphany-cultlib.state",
+                      "entanglement.odin-eve.discovery"
+                    ],
+                    "command": "epiphany.model-atlas.presentation.select",
+                    "commandId": "epiphany.model-atlas.presentation.select",
+                    "presentationOnly": true,
+                    "domainStateEffects": "none"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "epiphany.model-atlas.attention.items",
+              "kind": "list",
+              "props": {
+                "title": "Relationships requiring attention",
+                "items": [
+                  {
+                    "label": "EpiphanyAgent -> Eve",
+                    "status": "disputed",
+                    "detail": "Consumer requires Model Atlas parity; provider surface contract is awaiting conformance.",
+                    "badges": [
+                      "presentation",
+                      "cross-repo",
+                      "high"
+                    ]
+                  },
+                  {
+                    "label": "EpiphanyAgent -> CultLib",
+                    "status": "stale",
+                    "detail": "Typed projection witness has exceeded its declared freshness window.",
+                    "badges": [
+                      "state",
+                      "freshness"
+                    ]
+                  }
+                ]
+              },
+              "stateBindings": [
+                {
+                  "targetProp": "items",
+                  "pointerId": "epiphany.model-atlas.attention.items",
+                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#attention",
+                  "schemaId": "gamecult.model.entanglement_projection.v0",
+                  "routeKind": "network",
+                  "routeDescription": "CultMesh projection of entanglements currently requiring operator or owner attention."
+                }
+              ],
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "epiphany.model-atlas.drilldown",
+          "kind": "panel",
+          "props": {
+            "title": "Selected entanglement",
+            "viewId": "drilldown",
+            "role": "detail"
+          },
+          "stateBindings": [
+            {
+              "targetProp": "title",
+              "pointerId": "epiphany.model-atlas.selected.title",
+              "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#selected.title",
+              "schemaId": "gamecult.model.entanglement_projection.v0",
+              "routeKind": "network",
+              "routeDescription": "Provider-authored title for the selected entanglement."
+            }
+          ],
+          "children": [
+            {
+              "id": "epiphany.model-atlas.drilldown.summary",
+              "kind": "text",
+              "props": {
+                "text": "EpiphanyAgent consumes Eve's retained surface contract. The consumer claim and provider surface agree; GUI/TUI conformance remains the live proof."
+              },
+              "stateBindings": [
+                {
+                  "targetProp": "text",
+                  "pointerId": "epiphany.model-atlas.selected.summary",
+                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#selected.summary",
+                  "schemaId": "gamecult.model.entanglement_projection.v0",
+                  "routeKind": "network",
+                  "routeDescription": "Provider-authored relationship summary."
+                }
+              ],
+              "children": []
+            },
+            {
+              "id": "epiphany.model-atlas.drilldown.status",
+              "kind": "metric",
+              "props": {
+                "label": "State",
+                "value": "disputed"
+              },
+              "stateBindings": [
+                {
+                  "targetProp": "value",
+                  "pointerId": "epiphany.model-atlas.selected.state",
+                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#selected.state",
+                  "schemaId": "gamecult.model.entanglement_projection.v0",
+                  "routeKind": "network",
+                  "routeDescription": "Derived entanglement state owned by Epiphany Modeling."
+                }
+              ],
+              "children": []
+            },
+            {
+              "id": "epiphany.model-atlas.drilldown.claims",
+              "kind": "list",
+              "props": {
+                "title": "Owned claims",
+                "items": [
+                  {
+                    "label": "Consumer claim",
+                    "status": "declared",
+                    "detail": "EpiphanyAgent requires one retained tree consumable by GUI and TUI.",
+                    "badges": [
+                      "EpiphanyAgent"
+                    ]
+                  },
+                  {
+                    "label": "Provider claim",
+                    "status": "available",
+                    "detail": "Eve publishes gamecult.eve.surface.v1 and presentation-only command descriptors.",
+                    "badges": [
+                      "Eve"
+                    ]
+                  }
+                ]
+              },
+              "stateBindings": [
+                {
+                  "targetProp": "items",
+                  "pointerId": "epiphany.model-atlas.selected.claims",
+                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#selected.claims",
+                  "schemaId": "gamecult.model.entanglement_projection.v0",
+                  "routeKind": "network",
+                  "routeDescription": "Endpoint-owned claims retained without merging their authority."
+                }
+              ],
+              "children": []
+            },
+            {
+              "id": "epiphany.model-atlas.drilldown.evidence",
+              "kind": "list",
+              "props": {
+                "title": "Verification",
+                "items": [
+                  {
+                    "label": "Surface contract",
+                    "status": "verified",
+                    "detail": "Canonical gamecult.eve.surface.v1 retained tree validates.",
+                    "badges": [
+                      "Soul"
+                    ]
+                  },
+                  {
+                    "label": "Runtime parity",
+                    "status": "pending",
+                    "detail": "GUI and TUI owners must lower this same surface identity.",
+                    "badges": [
+                      "conformance"
+                    ]
+                  }
+                ]
+              },
+              "stateBindings": [
+                {
+                  "targetProp": "items",
+                  "pointerId": "epiphany.model-atlas.selected.evidence",
+                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#selected.evidence",
+                  "schemaId": "gamecult.model.entanglement_projection.v0",
+                  "routeKind": "network",
+                  "routeDescription": "Verification evidence projected by Epiphany Modeling."
+                }
+              ],
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "epiphany.model-atlas.graph",
+          "kind": "graph",
+          "props": {
+            "title": "Swarm topology",
+            "viewId": "graph",
+            "role": "secondary",
+            "presentationFallback": "children",
+            "nodes": [
+              {
+                "id": "repo.epiphany-agent",
+                "label": "EpiphanyAgent",
+                "owner": "EpiphanyAgent"
+              },
+              {
+                "id": "repo.eve",
+                "label": "Eve",
+                "owner": "Eve"
+              },
+              {
+                "id": "repo.cultlib",
+                "label": "CultLib",
+                "owner": "CultLib"
+              }
+            ],
+            "edges": [
+              {
+                "id": "entanglement.epiphany-eve.surface",
+                "from": "repo.epiphany-agent",
+                "to": "repo.eve",
+                "state": "disputed"
+              },
+              {
+                "id": "entanglement.epiphany-cultlib.state",
+                "from": "repo.epiphany-agent",
+                "to": "repo.cultlib",
+                "state": "stale"
+              }
+            ]
+          },
+          "stateBindings": [
+            {
+              "targetProp": "nodes",
+              "pointerId": "epiphany.model-atlas.graph.nodes",
+              "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#graph.nodes",
+              "schemaId": "gamecult.model.entanglement_projection.v0",
+              "routeKind": "network",
+              "routeDescription": "Derived repository nodes for graphical lowering."
+            },
+            {
+              "targetProp": "edges",
+              "pointerId": "epiphany.model-atlas.graph.edges",
+              "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#graph.edges",
+              "schemaId": "gamecult.model.entanglement_projection.v0",
+              "routeKind": "network",
+              "routeDescription": "Derived entanglement edges for graphical lowering."
+            }
+          ],
+          "children": [
+            {
+              "id": "epiphany.model-atlas.graph.linear",
+              "kind": "list",
+              "props": {
+                "title": "Topology",
+                "role": "linear-fallback",
+                "items": [
+                  {
+                    "label": "EpiphanyAgent -> Eve",
+                    "status": "disputed",
+                    "detail": "surface contract",
+                    "badges": [
+                      "consumer-to-provider"
+                    ]
+                  },
+                  {
+                    "label": "EpiphanyAgent -> CultLib",
+                    "status": "stale",
+                    "detail": "typed state projection",
+                    "badges": [
+                      "consumer-to-provider"
+                    ]
+                  }
+                ]
+              },
+              "stateBindings": [
+                {
+                  "targetProp": "items",
+                  "pointerId": "epiphany.model-atlas.graph.linear",
+                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#graph.linear",
+                  "schemaId": "gamecult.model.entanglement_projection.v0",
+                  "routeKind": "network",
+                  "routeDescription": "Linear projection of the same graph for compact and TUI lowerings."
+                }
+              ],
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    "styles": {
+      "tokens": {
+        "colorBackground": "#0A0E12",
+        "colorPanel": "#151C23",
+        "colorPanelAlt": "#202A33",
+        "colorText": "#F0F4F1",
+        "colorMuted": "#9DA9A2",
+        "colorAccent": "#78D6A3",
+        "colorWarning": "#D6B24A",
+        "colorDanger": "#C95D63",
+        "fontBody": "Ubuntu Sans, Ubuntu, sans-serif",
+        "fontTitle": "Montserrat, Zen Kaku Gothic New, Ubuntu Sans, sans-serif"
+      }
+    }
+  },
+  "commands": [
+    {
+      "schema": "gamecult.eve.command.v1",
+      "command": "epiphany.model-atlas.presentation.select",
+      "label": "Select entanglement",
+      "surfaceId": "epiphany.model-atlas.surface",
+      "transport": "cultmesh-command",
+      "authority": "epiphany.model-atlas.presentation",
+      "result": "surface-republished-or-denied",
+      "presentationOnly": true,
+      "domainStateEffects": "none"
+    },
+    {
+      "schema": "gamecult.eve.command.v1",
+      "command": "epiphany.model-atlas.presentation.filter",
+      "label": "Filter attention",
+      "surfaceId": "epiphany.model-atlas.surface",
+      "transport": "cultmesh-command",
+      "authority": "epiphany.model-atlas.presentation",
+      "result": "surface-republished-or-denied",
+      "presentationOnly": true,
+      "domainStateEffects": "none"
+    }
+  ]
+}
