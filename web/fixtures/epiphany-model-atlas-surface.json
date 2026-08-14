@@ -15,6 +15,7 @@
         "defaultView": "attention",
         "stateAuthority": "gamecult.model.entanglement_projection.v0",
         "presentationState": "provider-owned-ephemeral",
+        "domainMutationRoute": "gamecult://swarm/{swarm_id}/workspace/{workspace_id}/epiphany/modeling",
         "viewOrder": [
           "attention",
           "drilldown",
@@ -110,7 +111,7 @@
                 {
                   "targetProp": "items",
                   "pointerId": "epiphany.model-atlas.attention.items",
-                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#attention",
+                  "sourceId": "cultmesh://gamecult-local/asgard/starfire/epiphany/model-atlas/entanglements#attention",
                   "schemaId": "gamecult.model.entanglement_projection.v0",
                   "routeKind": "network",
                   "routeDescription": "CultMesh projection of entanglements currently requiring operator or owner attention."
@@ -132,7 +133,7 @@
             {
               "targetProp": "title",
               "pointerId": "epiphany.model-atlas.selected.title",
-              "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#selected.title",
+              "sourceId": "cultmesh://gamecult-local/asgard/starfire/epiphany/model-atlas/entanglements#selected.title",
               "schemaId": "gamecult.model.entanglement_projection.v0",
               "routeKind": "network",
               "routeDescription": "Provider-authored title for the selected entanglement."
@@ -149,7 +150,7 @@
                 {
                   "targetProp": "text",
                   "pointerId": "epiphany.model-atlas.selected.summary",
-                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#selected.summary",
+                  "sourceId": "cultmesh://gamecult-local/asgard/starfire/epiphany/model-atlas/entanglements#selected.summary",
                   "schemaId": "gamecult.model.entanglement_projection.v0",
                   "routeKind": "network",
                   "routeDescription": "Provider-authored relationship summary."
@@ -168,7 +169,7 @@
                 {
                   "targetProp": "value",
                   "pointerId": "epiphany.model-atlas.selected.state",
-                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#selected.state",
+                  "sourceId": "cultmesh://gamecult-local/asgard/starfire/epiphany/model-atlas/entanglements#selected.state",
                   "schemaId": "gamecult.model.entanglement_projection.v0",
                   "routeKind": "network",
                   "routeDescription": "Derived entanglement state owned by Epiphany Modeling."
@@ -204,7 +205,7 @@
                 {
                   "targetProp": "items",
                   "pointerId": "epiphany.model-atlas.selected.claims",
-                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#selected.claims",
+                  "sourceId": "cultmesh://gamecult-local/asgard/starfire/epiphany/model-atlas/entanglements#selected.claims",
                   "schemaId": "gamecult.model.entanglement_projection.v0",
                   "routeKind": "network",
                   "routeDescription": "Endpoint-owned claims retained without merging their authority."
@@ -240,7 +241,7 @@
                 {
                   "targetProp": "items",
                   "pointerId": "epiphany.model-atlas.selected.evidence",
-                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#selected.evidence",
+                  "sourceId": "cultmesh://gamecult-local/asgard/starfire/epiphany/model-atlas/entanglements#selected.evidence",
                   "schemaId": "gamecult.model.entanglement_projection.v0",
                   "routeKind": "network",
                   "routeDescription": "Verification evidence projected by Epiphany Modeling."
@@ -294,7 +295,7 @@
             {
               "targetProp": "nodes",
               "pointerId": "epiphany.model-atlas.graph.nodes",
-              "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#graph.nodes",
+              "sourceId": "cultmesh://gamecult-local/asgard/starfire/epiphany/model-atlas/entanglements#graph.nodes",
               "schemaId": "gamecult.model.entanglement_projection.v0",
               "routeKind": "network",
               "routeDescription": "Derived repository nodes for graphical lowering."
@@ -302,7 +303,7 @@
             {
               "targetProp": "edges",
               "pointerId": "epiphany.model-atlas.graph.edges",
-              "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#graph.edges",
+              "sourceId": "cultmesh://gamecult-local/asgard/starfire/epiphany/model-atlas/entanglements#graph.edges",
               "schemaId": "gamecult.model.entanglement_projection.v0",
               "routeKind": "network",
               "routeDescription": "Derived entanglement edges for graphical lowering."
@@ -338,7 +339,7 @@
                 {
                   "targetProp": "items",
                   "pointerId": "epiphany.model-atlas.graph.linear",
-                  "sourceId": "cultmesh://gamecult.swarm/epiphany/modeling/entanglements#graph.linear",
+                  "sourceId": "cultmesh://gamecult-local/asgard/starfire/epiphany/model-atlas/entanglements#graph.linear",
                   "schemaId": "gamecult.model.entanglement_projection.v0",
                   "routeKind": "network",
                   "routeDescription": "Linear projection of the same graph for compact and TUI lowerings."

@@ -1,12 +1,12 @@
 {
   "schema": "gamecult.eve.provider_advertisement.v1",
   "providerId": "epiphany.model-atlas",
-  "serviceId": "epiphany.modeling",
-  "verseId": "gamecult.swarm",
-  "rootVerse": "gamecult",
-  "canonicalService": "gamecult.epiphany.modeling",
-  "locatedService": "gamecult.swarm.epiphany.modeling",
-  "cultMeshAddress": "cultmesh://gamecult.swarm/epiphany/modeling",
+  "serviceId": "epiphany.model-entanglement-projector",
+  "verseId": "gamecult-local",
+  "rootVerse": "asgard",
+  "canonicalService": "asgard.epiphany.model-atlas",
+  "locatedService": "asgard.starfire.epiphany.model-atlas",
+  "cultMeshAddress": "cultmesh://gamecult-local/asgard/starfire/epiphany/model-atlas",
   "title": "Epiphany Model Atlas",
   "kind": "modeling.projection",
   "updatedAtUtc": "2026-08-14T00:00:00Z",
@@ -46,6 +46,7 @@
         "gamecult.model.entanglement_projection.v0"
       ],
       "ownership": "epiphany-owns-entanglement-projection-eve-renders-one-retained-tree",
+      "domainMutationRoute": "gamecult://swarm/{swarm_id}/workspace/{workspace_id}/epiphany/modeling",
       "summary": "Attention-first cross-repo Modeling view with drilldown and a secondary graph from one typed CultMesh projection."
     }
   ],
