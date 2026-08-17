@@ -10,6 +10,8 @@ packages/eve-contracts/node_modules/
 packages/eve-contracts/*.tgz
 !packages/org.gamecult.eve.surface/
 !packages/org.gamecult.eve.surface/**
+packages/org.gamecult.eve.surface/bin~/
+packages/org.gamecult.eve.surface/obj~/
 !packages/org.gamecult.eve.unity-uitoolkit/
 !packages/org.gamecult.eve.unity-uitoolkit/**
 obj/

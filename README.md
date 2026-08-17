@@ -95,6 +95,11 @@ effects; Eve owns projection, input capture, timestamped sensor publication,
 and renderer parity. If a pretty panel cannot say which fields are stale, denied,
 predicted, or authoritative, it is not done. It is flirting with the operator.
 
+The renderer-neutral C# contract lives at
+`packages/org.gamecult.eve.surface`. Provider daemons and lowerers consume that
+Eve-owned package; renderer repositories do not own copies of the surface
+schema or composition builders.
+
 ## Current Mechanism
 
 The current checked-in client is the iOS Theos app, still named `EveCanvas` at
