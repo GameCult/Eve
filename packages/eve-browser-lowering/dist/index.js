@@ -122,18 +122,27 @@ const defaultStyleTokens = {
     "--font-title": "\"Montserrat\", \"Zen Kaku Gothic New\", \"M PLUS 1\", \"Ubuntu Sans\", system-ui, sans-serif",
     "--font-mono": "\"Ubuntu Sans Mono\", \"M PLUS 1 Code\", \"Cascadia Mono\", Consolas, monospace",
 };
-let activeFontStylesheet;
-let currentSurfaceStyles = normalizeSurfaceStyles(undefined);
-let currentSurfaceDocument;
-let currentOptions = {};
+const loadedFontStylesheets = new Map();
 const activeSurfaceBindings = new WeakMap();
+const eveBrowserRenderContext = Symbol("eve.browser.render-context");
+function scopeEveBrowserOptions(surface, options) {
+    return {
+        ...options,
+        [eveBrowserRenderContext]: {
+            surface,
+            styles: normalizeSurfaceStyles(surface.surface?.styles),
+            elements: new WeakMap(),
+        },
+    };
+}
+function renderContext(options) {
+    return options[eveBrowserRenderContext];
+}
 export function renderEveSurface(surface, host, options = {}) {
     activeSurfaceBindings.get(host)?.dispose();
-    currentSurfaceDocument = surface;
-    currentOptions = options;
-    currentSurfaceStyles = normalizeSurfaceStyles(surface.surface?.styles);
-    globalThis.__eveCurrentMesh = surface.mesh;
-    applyEveSurfaceStyles(surface.surface?.styles, options.body ?? document.body);
+    const scopedOptions = scopeEveBrowserOptions(surface, options);
+    applyEveSurfaceStyles(surface.surface?.styles, options.body ?? host);
+    host.dataset.provider = surface.providerId || options.provider?.providerId || "";
     if (options.body) {
         options.body.dataset.provider = surface.providerId || options.provider?.providerId || "";
     }
@@ -141,9 +150,9 @@ export function renderEveSurface(surface, host, options = {}) {
         options.statusElement.textContent = `${surface.title || surface.surface?.title || "surface"}${options.source ? ` (${options.source})` : ""}`;
     }
     if (surface.surface?.root) {
-        host.replaceChildren(renderEveComponent(surface.surface.root, options));
+        host.replaceChildren(renderEveComponent(surface.surface.root, scopedOptions));
         if (options.stateBindingResolver) {
-            const controller = new EveSurfaceBindingController(surface, host, options);
+            const controller = new EveSurfaceBindingController(surface, host, scopedOptions);
             activeSurfaceBindings.set(host, controller);
             void controller.start();
         }
@@ -173,6 +182,8 @@ class EveSurfaceBindingController {
     options;
     disposed = false;
     unsubscribers = [];
+    pendingComponents = new Set();
+    projectionQueued = false;
     constructor(surface, host, options) {
         this.surface = surface;
         this.host = host;
@@ -183,6 +194,7 @@ class EveSurfaceBindingController {
         const root = this.surface.surface?.root;
         if (!resolver || !root)
             return;
+        const hydratedComponents = new Set();
         for (const component of walkEveComponents(root)) {
             for (const binding of component.stateBindings || []) {
                 if (this.disposed)
@@ -194,32 +206,102 @@ class EveSurfaceBindingController {
                     if (this.disposed)
                         return;
                     applyEveStateBindingValue(component, binding, value);
-                    this.renderCanonicalProjection();
+                    this.queueComponentProjection(component);
                 };
-                apply(await handle.latest());
+                applyEveStateBindingValue(component, binding, await handle.latest());
+                hydratedComponents.add(component);
                 if (this.disposed)
                     return;
                 this.unsubscribers.push(handle.watch(apply));
             }
         }
+        for (const component of hydratedComponents) {
+            if (this.disposed)
+                return;
+            this.renderComponentProjection(component);
+        }
     }
     dispose() {
         this.disposed = true;
+        this.pendingComponents.clear();
         for (const unsubscribe of this.unsubscribers.splice(0))
             unsubscribe();
     }
-    renderCanonicalProjection() {
-        const root = this.surface.surface?.root;
-        if (root)
-            this.host.replaceChildren(renderEveComponent(root, this.options));
+    queueComponentProjection(component) {
+        this.pendingComponents.add(component);
+        if (this.projectionQueued)
+            return;
+        this.projectionQueued = true;
+        queueMicrotask(() => {
+            this.projectionQueued = false;
+            if (this.disposed)
+                return;
+            for (const pending of this.pendingComponents)
+                this.renderComponentProjection(pending);
+            this.pendingComponents.clear();
+        });
     }
+    renderComponentProjection(component) {
+        const current = renderContext(this.options)?.elements.get(component);
+        if (!current?.isConnected)
+            return;
+        replaceElementPreservingInteraction(current, renderEveComponent(component, this.options), this.host);
+    }
+}
+function replaceElementPreservingInteraction(current, replacement, host) {
+    const active = current.ownerDocument.activeElement;
+    const activeElement = active instanceof HTMLElement && current.contains(active) ? active : undefined;
+    const activePath = activeElement ? elementPath(current, activeElement) : undefined;
+    const selection = activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement
+        ? { start: activeElement.selectionStart, end: activeElement.selectionEnd, direction: activeElement.selectionDirection }
+        : undefined;
+    const hostScroll = { left: host.scrollLeft, top: host.scrollTop };
+    current.replaceWith(replacement);
+    host.scrollLeft = hostScroll.left;
+    host.scrollTop = hostScroll.top;
+    if (!activePath)
+        return;
+    const nextActive = elementAtPath(replacement, activePath);
+    nextActive?.focus({ preventScroll: true });
+    if (selection && (nextActive instanceof HTMLInputElement || nextActive instanceof HTMLTextAreaElement)) {
+        nextActive.setSelectionRange(selection.start, selection.end, selection.direction ?? undefined);
+    }
+}
+function elementPath(root, target) {
+    if (root === target)
+        return [];
+    const path = [];
+    let current = target;
+    while (current && current !== root) {
+        const parent = current.parentElement;
+        if (!parent)
+            return undefined;
+        path.unshift(Array.prototype.indexOf.call(parent.children, current));
+        current = parent;
+    }
+    return current === root ? path : undefined;
+}
+function elementAtPath(root, path) {
+    let current = root;
+    for (const index of path) {
+        const child = current.children.item(index);
+        if (!(child instanceof HTMLElement))
+            return undefined;
+        current = child;
+    }
+    return current instanceof HTMLElement ? current : undefined;
 }
 function* walkEveComponents(root) {
     yield root;
     for (const child of root.children || [])
         yield* walkEveComponents(child);
 }
-export function renderEveComponent(node, options = currentOptions) {
+export function renderEveComponent(node, options = {}) {
+    const element = renderEveComponentProjection(node, options);
+    renderContext(options)?.elements.set(node, element);
+    return element;
+}
+function renderEveComponentProjection(node, options) {
     const kind = node.kind || "panel";
     const props = objectProps(node.props);
     const layout = objectProps(node.layout);
@@ -300,8 +382,8 @@ export function renderEveComponent(node, options = currentOptions) {
     if (adapter?.renderComponent) {
         return adapter.renderComponent(node, props, layout, style, options, {
             applyGeneratedLayout,
-            providerId: currentSurfaceDocument?.providerId || options.provider?.providerId,
-            resolveAssetUrl,
+            providerId: renderContext(options)?.surface.providerId || options.provider?.providerId,
+            resolveAssetUrl: uri => resolveAssetUrl(uri, options),
         });
     }
     if (kind === "world.scene3d" || kind === "world.scene2d") {
@@ -309,7 +391,7 @@ export function renderEveComponent(node, options = currentOptions) {
     }
     if (kind === "image.background") {
         const view = el("div", "cultui-background");
-        const src = resolveAssetUrl(firstString(props.src, props.assetUri, props.assetRef, ""));
+        const src = resolveAssetUrl(firstString(props.src, props.assetUri, props.assetRef, ""), options);
         if (src)
             view.style.backgroundImage = `url("${src}")`;
         view.setAttribute("aria-label", stringProp(props.label, "background"));
@@ -318,7 +400,7 @@ export function renderEveComponent(node, options = currentOptions) {
     if (kind === "image.sprite") {
         const figure = el("figure", `cultui-sprite ${stringProp(props.slot, "center")}`);
         assignId(figure, node);
-        const src = resolveAssetUrl(firstString(props.src, props.assetUri, props.assetRef, ""));
+        const src = resolveAssetUrl(firstString(props.src, props.assetUri, props.assetRef, ""), options);
         if (src) {
             const image = el("img");
             image.src = src;
@@ -330,7 +412,7 @@ export function renderEveComponent(node, options = currentOptions) {
     if (kind === "avatar") {
         const card = el("figure", "cultui-avatar-card");
         assignId(card, node);
-        const src = resolveAssetUrl(firstString(props.src, props.assetUri, props.assetRef, ""));
+        const src = resolveAssetUrl(firstString(props.src, props.assetUri, props.assetRef, ""), options);
         if (src) {
             const image = el("img");
             image.src = src;
@@ -529,7 +611,7 @@ export function renderEveComponent(node, options = currentOptions) {
         const figure = el("figure", "cultui-image-preview");
         assignId(figure, node);
         const frame = el("div", "cultui-image-frame");
-        const src = resolveAssetUrl(firstString(props.src, props.assetUri, props.assetRef, ""));
+        const src = resolveAssetUrl(firstString(props.src, props.assetUri, props.assetRef, ""), options);
         if (src) {
             const image = el("img");
             image.src = src;
@@ -848,7 +930,7 @@ function renderWorldScene(node, props, layout, style, options) {
 function emitWorldCommand(command, action, node, options) {
     void options.commandSink?.(createWorldActionIntent(command, action, options), node);
 }
-export function createWorldActionIntent(command, action, options = currentOptions) {
+export function createWorldActionIntent(command, action, options = {}) {
     return createEveCommandIntent(command, { action }, options);
 }
 function worldDirectionForKey(key) {
@@ -1060,7 +1142,7 @@ function renderInventoryItem(node, props, layout, style, options) {
 function hasInventoryDropCommand(target) {
     return Object.entries(target).some(([key, value]) => (key === "dropCommand" || key.startsWith("dropCommand.")) && typeof value === "string" && value.length > 0);
 }
-export function createInventoryDropIntent(source, target, destinationX, destinationY, options = currentOptions) {
+export function createInventoryDropIntent(source, target, destinationX, destinationY, options = {}) {
     const sourceKind = firstString(source.sourceKind, source.source, "");
     const command = firstString(target[`dropCommand.${sourceKind}`], target.dropCommand, "");
     if (!sourceKind || !command)
@@ -1395,10 +1477,11 @@ export function applyEveSurfaceStyles(styles, body = document.body) {
     body.dataset.pixelArt = normalized.tokens.pixelArt || normalized.tokens.imageRendering === "pixelated" ? "true" : "false";
     body.dataset.scanlines = normalized.tokens.scanlineOverlay ? "true" : "false";
 }
-export function createEveCommandIntent(commandId, props = {}, options = currentOptions) {
+export function createEveCommandIntent(commandId, props = {}, options = {}) {
     const action = objectProps(props.action);
-    const providerId = options.provider?.providerId || currentSurfaceDocument?.providerId || "surface unknown";
-    const surfaceId = options.activeSurfaceId || currentSurfaceDocument?.surface?.id || options.provider?.surfaces?.[0]?.surfaceId || providerId;
+    const surface = renderContext(options)?.surface;
+    const providerId = options.provider?.providerId || surface?.providerId || "surface unknown";
+    const surfaceId = options.activeSurfaceId || surface?.surface?.id || options.provider?.surfaces?.[0]?.surfaceId || providerId;
     const worldInteraction = resolveAdvertisedWorldInteraction(options, surfaceId);
     const commandBoundary = firstString(worldInteraction.commandBoundary, props.commandBoundary, action.commandBoundary, action.target);
     const receiptSchema = firstString(worldInteraction.receiptSchema, props.receiptSchema, action.receiptSchema);
@@ -1456,7 +1539,7 @@ function wireCommand(element, node, commandId, props, options) {
     });
 }
 function renderSlider(props, children, options) {
-    const anatomy = resolveSliderAnatomy(props, children);
+    const anatomy = resolveSliderAnatomy(props, children, options);
     const box = objectProps(anatomy.find(part => part.kind === "control.box")?.props);
     const parts = anatomy.filter(part => part.kind === "control.part");
     const min = Number(props.min ?? 0);
@@ -1507,9 +1590,11 @@ function renderSlider(props, children, options) {
     });
     return slider;
 }
-function resolveSliderAnatomy(props, children) {
+function resolveSliderAnatomy(props, children, options) {
     const skinName = typeof props.skin === "string" ? props.skin : "";
-    const skinChildren = skinName ? currentSurfaceStyles.controlSkins[skinName]?.children || [] : [];
+    const skinChildren = skinName
+        ? renderContext(options)?.styles.controlSkins[skinName]?.children || []
+        : [];
     const anatomy = [...skinChildren, ...children];
     if (anatomy.length)
         return anatomy;
@@ -1540,26 +1625,25 @@ function normalizeSurfaceStyles(styles) {
         controlSkins: objectProps(styles?.controlSkins),
     };
 }
-function resolveAssetUrl(uri) {
+function resolveAssetUrl(uri, options) {
     if (!uri)
         return "";
-    const resolver = currentOptions.assetUrlResolver;
+    const surface = renderContext(options)?.surface;
+    const resolver = options.assetUrlResolver;
     if (resolver)
-        return resolver(uri, currentSurfaceDocument);
+        return resolver(uri, surface);
     if (/^(https?:|data:|blob:)/i.test(uri))
         return uri;
-    if (currentOptions.assetBaseUrl && uri.startsWith("/")) {
-        return `${currentOptions.assetBaseUrl.replace(/\/+$/, "")}${uri}`;
+    if (options.assetBaseUrl && uri.startsWith("/")) {
+        return `${options.assetBaseUrl.replace(/\/+$/, "")}${uri}`;
     }
     return uri;
 }
 function loadFontStylesheet(href) {
     const normalized = typeof href === "string" ? href.trim() : "";
-    if (activeFontStylesheet?.dataset.href === normalized)
-        return;
-    activeFontStylesheet?.remove();
-    activeFontStylesheet = undefined;
     if (!normalized)
+        return;
+    if (loadedFontStylesheets.has(normalized))
         return;
     const preconnect = document.createElement("link");
     preconnect.rel = "preconnect";
@@ -1571,7 +1655,7 @@ function loadFontStylesheet(href) {
     link.href = normalized;
     link.dataset.href = normalized;
     document.head.append(link);
-    activeFontStylesheet = link;
+    loadedFontStylesheets.set(normalized, link);
 }
 function textClassName(kind, props, node) {
     const classes = [];
