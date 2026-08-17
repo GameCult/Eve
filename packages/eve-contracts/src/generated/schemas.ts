@@ -745,6 +745,38 @@ export const eveContractSchemas = {
       "sourceVersion": {
         "type": "integer",
         "minimum": 0
+      },
+      "navigation": {
+        "type": "object",
+        "required": [
+          "verseId",
+          "surfaceId"
+        ],
+        "properties": {
+          "verseId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "providerId": {
+            "type": "string"
+          },
+          "surfaceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surfaceKind": {
+            "type": "string"
+          },
+          "rendezvousEndpoints": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        },
+        "additionalProperties": false
       }
     },
     "additionalProperties": true

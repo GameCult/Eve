@@ -16,5 +16,12 @@ diagnostics?: {
 }[]
 issuedAtUtc?: string
 sourceVersion: number
+navigation?: {
+verseId: string
+providerId?: string
+surfaceId: string
+surfaceKind?: string
+rendezvousEndpoints?: string[]
+}
 [k: string]: any
 }

@@ -364,8 +364,9 @@ namespace GameCult.Eve.Surface
             string surfaceId,
             string message,
             string issuedAtUtc,
-            long sourceVersion)
-            : this(SchemaId, receiptId, commandId, command, state, ownerRepo, authority, providerId, surfaceId, message, issuedAtUtc, sourceVersion)
+            long sourceVersion,
+            EveSurfaceNavigationTarget? navigation = null)
+            : this(SchemaId, receiptId, commandId, command, state, ownerRepo, authority, providerId, surfaceId, message, issuedAtUtc, sourceVersion, navigation)
         {
         }
 
@@ -382,7 +383,8 @@ namespace GameCult.Eve.Surface
             string surfaceId,
             string message,
             string issuedAtUtc,
-            long sourceVersion)
+            long sourceVersion,
+            EveSurfaceNavigationTarget? navigation = null)
         {
             Schema = string.IsNullOrWhiteSpace(schema) ? SchemaId : schema;
             ReceiptId = receiptId ?? "";
@@ -396,6 +398,7 @@ namespace GameCult.Eve.Surface
             Message = message ?? "";
             IssuedAtUtc = issuedAtUtc ?? "";
             SourceVersion = sourceVersion;
+            Navigation = navigation;
         }
 
         [Key(0)] public string Schema { get; }
@@ -410,7 +413,31 @@ namespace GameCult.Eve.Surface
         [Key(9)] public string Message { get; }
         [Key(10)] public string IssuedAtUtc { get; }
         [Key(11)] public long SourceVersion { get; }
+        [Key(12)] public EveSurfaceNavigationTarget? Navigation { get; }
+    }
+
+    [MessagePackObject]
+    public sealed class EveSurfaceNavigationTarget
+    {
+        [SerializationConstructor]
+        public EveSurfaceNavigationTarget(
+            string verseId,
+            string providerId,
+            string surfaceId,
+            string surfaceKind,
+            string[]? rendezvousEndpoints = null)
+        {
+            VerseId = verseId ?? "";
+            ProviderId = providerId ?? "";
+            SurfaceId = surfaceId ?? "";
+            SurfaceKind = surfaceKind ?? "";
+            RendezvousEndpoints = rendezvousEndpoints ?? Array.Empty<string>();
+        }
+
+        [Key(0)] public string VerseId { get; }
+        [Key(1)] public string ProviderId { get; }
+        [Key(2)] public string SurfaceId { get; }
+        [Key(3)] public string SurfaceKind { get; }
+        [Key(4)] public string[] RendezvousEndpoints { get; }
     }
 }
-
-

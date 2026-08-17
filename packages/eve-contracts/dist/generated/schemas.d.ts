@@ -622,6 +622,35 @@ export declare const eveContractSchemas: {
                 readonly type: "integer";
                 readonly minimum: 0;
             };
+            readonly navigation: {
+                readonly type: "object";
+                readonly required: readonly ["verseId", "surfaceId"];
+                readonly properties: {
+                    readonly verseId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly providerId: {
+                        readonly type: "string";
+                    };
+                    readonly surfaceId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly surfaceKind: {
+                        readonly type: "string";
+                    };
+                    readonly rendezvousEndpoints: {
+                        readonly type: "array";
+                        readonly items: {
+                            readonly type: "string";
+                            readonly minLength: 1;
+                        };
+                        readonly uniqueItems: true;
+                    };
+                };
+                readonly additionalProperties: false;
+            };
         };
         readonly additionalProperties: true;
     };

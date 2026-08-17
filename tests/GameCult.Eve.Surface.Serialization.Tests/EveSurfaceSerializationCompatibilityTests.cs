@@ -169,6 +169,40 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         });
     }
 
+    [Test]
+    public void CommandReceiptCarriesRendererNeutralNavigationTarget()
+    {
+        var document = new EveCommandReceiptDocument(
+            "receipt:launch",
+            "launch",
+            "aetheria.hangar.launch",
+            "accepted",
+            "Aetheria",
+            "commander-daemon",
+            "aetheria.daemon",
+            "aetheria.hangar",
+            "",
+            "2026-08-17T20:00:00Z",
+            42,
+            new EveSurfaceNavigationTarget(
+                "gamecult.aetheria",
+                "aetheria.daemon",
+                "aetheria.pilot",
+                "interactive-world",
+                new[] { "cultnet+tcp://odin.gamecult.example:3076" }));
+
+        var bytes = MessagePackSerializer.Serialize(document, Options);
+        var reader = new MessagePackReader(bytes);
+        var restored = MessagePackSerializer.Deserialize<EveCommandReceiptDocument>(bytes, Options);
+
+        Assert.That(reader.ReadArrayHeader(), Is.EqualTo(13));
+        Assert.That(restored.Navigation, Is.Not.Null);
+        Assert.That(restored.Navigation!.VerseId, Is.EqualTo("gamecult.aetheria"));
+        Assert.That(restored.Navigation.SurfaceId, Is.EqualTo("aetheria.pilot"));
+        Assert.That(restored.Navigation.SurfaceKind, Is.EqualTo("interactive-world"));
+        Assert.That(restored.Navigation.RendezvousEndpoints, Is.EqualTo(new[] { "cultnet+tcp://odin.gamecult.example:3076" }));
+    }
+
     private static EveSurfaceDocument CreateCurrentDocument() => new(
         "current-provider",
         "current-kind",
@@ -265,4 +299,3 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         return buffer.WrittenSpan.ToArray();
     }
 }
-
