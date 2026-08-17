@@ -77,5 +77,5 @@ powershell -ExecutionPolicy Bypass -File .\scripts\start-browser-reference.ps1
 Then open:
 
 ```text
-http://127.0.0.1:8891/
+http://127.0.0.1:8798/
 ```

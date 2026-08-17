@@ -56,12 +56,16 @@ function generatedHeader() {
 async function checkOrWrite(path, expected) {
   if (process.argv.includes("--check")) {
     const actual = await readFile(path, "utf8").catch(() => "");
-    if (actual !== expected) {
+    if (normalizeNewlines(actual) !== normalizeNewlines(expected)) {
       throw new Error(`${path} is stale. Run npm run generate in ${packageRoot}.`);
     }
     return;
   }
   await writeFile(path, expected, "utf8");
+}
+
+function normalizeNewlines(value) {
+  return value.replace(/\r\n/g, "\n");
 }
 
 function inlineKnownRefs(value) {

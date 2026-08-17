@@ -177,7 +177,7 @@ See `docs/eve-dsl-reactive-bindings.md` for the first Eve DSL and reactive
 CultMesh binding contract.
 See `docs/eve-multiverse.md` for the Eve MultiVerse philosophy and missing API
 surface.
-See `docs/eve-face.md` for Eve's persistent mission memory.
+See `docs/eve-persona.md` for Eve's persistent mission memory.
 
 ## Browser Reference
 
@@ -347,8 +347,8 @@ without losing the basic app deployment path.
 
 ## Next Cut
 
-- Create the browser reference Eve runtime and use it as the visual/behavior
-  test oracle for native clients.
+- Connect the existing browser reference to a clean-consumer, networked
+  CultMesh sample and use it as the visual/behavior oracle for native clients.
 - Split the shared CultNet/CultMesh surface contract from the iOS app code and
   keep `gamecult.eve.surface.v1` as the renderer-facing contract.
 - Replace JSON/base64 sensor packets with binary framing once camera and mic

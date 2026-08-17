@@ -1,6 +1,6 @@
 param(
   [int] $Port = 8798,
-  [string] $OdinRoot = "E:\Projects\Odin",
+  [string] $OdinRoot = (Join-Path (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) "Odin"),
   [string] $OdinCultMeshUri = $(if ($env:ODIN_CULTMESH_URI) { $env:ODIN_CULTMESH_URI } else { "cultmesh://odin/rendezvous/provider-catalog" })
 )
 

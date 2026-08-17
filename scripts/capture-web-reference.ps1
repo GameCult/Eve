@@ -1,7 +1,7 @@
 param(
   [string] $ProviderId = "eve.cultui.inspector",
   [string] $OutputPath = "artifacts\parity\web-cultui-inspector.png",
-  [int] $Port = 8891,
+  [int] $Port = 8798,
   [int] $Width = 1280,
   [int] $Height = 720
 )

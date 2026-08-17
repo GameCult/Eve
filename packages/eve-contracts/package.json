@@ -20,10 +20,10 @@
     "README.md"
   ],
   "scripts": {
-    "generate": "C:\\Progra~1\\nodejs\\node.exe scripts/generate-contracts.mjs",
-    "generate:check": "C:\\Progra~1\\nodejs\\node.exe scripts/generate-contracts.mjs --check",
-    "build": "C:\\Progra~1\\nodejs\\node.exe scripts/generate-contracts.mjs --check && C:\\Progra~1\\nodejs\\node.exe ./node_modules/typescript/bin/tsc -p tsconfig.json",
-    "test": "C:\\Progra~1\\nodejs\\node.exe scripts/generate-contracts.mjs --check && C:\\Progra~1\\nodejs\\node.exe ./node_modules/typescript/bin/tsc -p tsconfig.json && C:\\Progra~1\\nodejs\\node.exe --test test/*.test.mjs"
+    "generate": "node scripts/generate-contracts.mjs",
+    "generate:check": "node scripts/generate-contracts.mjs --check",
+    "build": "node scripts/generate-contracts.mjs --check && node ./node_modules/typescript/bin/tsc -p tsconfig.json",
+    "test": "node scripts/generate-contracts.mjs --check && node ./node_modules/typescript/bin/tsc -p tsconfig.json && node --test test/*.test.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1"
