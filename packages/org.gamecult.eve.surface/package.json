@@ -5,7 +5,7 @@
     "unity": "2021.3",
     "description": "Renderer-neutral C# contracts and builders for gamecult.eve.surface.v1 documents.",
     "dependencies": {
-        "org.gamecult.cultlib": "1.0.43"
+        "org.gamecult.cultlib": "1.0.45"
     },
     "files": [
         "Runtime",
@@ -13,6 +13,7 @@
         "README.md",
         "README.md.meta",
         "Directory.Build.props",
+        "Directory.Build.props.meta",
         "GameCult.Eve.Surface.csproj",
         "GameCult.Eve.Surface.csproj.meta",
         "package.json.meta"
@@ -26,4 +27,3 @@
     "license": "MPL-2.0",
     "category": "Scripting"
 }
-
