@@ -13,6 +13,11 @@ another local client, but the semantic surface is the same retained tree.
 - CultMesh owns delivery, replay, provenance, and subscription state.
 - Renderers own native projection only. They do not invent provider semantics.
 
+The schema member names are also the canonical MessagePack wire keys. Providers
+publish map-shaped documents which any runtime can decode into the schema shape
+without a provider-specific adapter. The former C# indexed-array encoding is a
+read-only migration format; it is not a second public contract.
+
 ## Surface Document
 
 Required top-level fields:

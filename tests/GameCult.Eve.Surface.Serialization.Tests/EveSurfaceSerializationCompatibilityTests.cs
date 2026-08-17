@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Text.Json;
 using GameCult.Eve.Surface;
 using GameCult.Mesh;
 using MessagePack;
@@ -108,19 +109,37 @@ public sealed class EveSurfaceSerializationCompatibilityTests
     }
 
     [Test]
-    public void CurrentSerializationWritesNineFieldSurfaceAndWrappedStructuredCommandBinding()
+    public void CurrentSerializationWritesSchemaShapedMessagePackMap()
     {
         var document = CreateCurrentDocument();
 
         var bytes = MessagePackSerializer.Serialize(document, Options);
-        var reader = new MessagePackReader(bytes);
+        var fixturePath = Path.Combine(
+            AppContext.BaseDirectory,
+            "Fixtures",
+            "eve-surface-csharp-v1.base64");
+        Assert.That(
+            Convert.ToBase64String(bytes),
+            Is.EqualTo(File.ReadAllText(fixturePath).Trim()),
+            "The checked cross-runtime fixture must be regenerated from the real C# formatter when the wire changes.");
+        using var wire = JsonDocument.Parse(MessagePackSerializer.ConvertToJson(bytes));
+        var root = wire.RootElement;
+        var surface = root.GetProperty("surface");
+        var component = surface.GetProperty("root");
+        var command = root.GetProperty("commands")[0];
 
-        Assert.That(reader.ReadArrayHeader(), Is.EqualTo(9));
-        for (var field = 0; field < 8; field++)
-            reader.Skip();
-        Assert.That(reader.ReadArrayHeader(), Is.EqualTo(1), "commands collection");
-        Assert.That(reader.ReadArrayHeader(), Is.EqualTo(1), "command template wrapper");
-        Assert.That(reader.NextMessagePackType, Is.EqualTo(MessagePackType.Array), "structured operation binding");
+        Assert.Multiple(() =>
+        {
+            Assert.That(root.ValueKind, Is.EqualTo(JsonValueKind.Object));
+            Assert.That(root.GetProperty("schema").GetString(), Is.EqualTo(EveSurfaceDocument.SchemaId));
+            Assert.That(surface.ValueKind, Is.EqualTo(JsonValueKind.Object));
+            Assert.That(component.ValueKind, Is.EqualTo(JsonValueKind.Object));
+            Assert.That(component.GetProperty("stateBindings").ValueKind, Is.EqualTo(JsonValueKind.Array));
+            Assert.That(command.ValueKind, Is.EqualTo(JsonValueKind.Object));
+            Assert.That(command.GetProperty("schema").GetString(), Is.EqualTo("gamecult.eve.command.v1"));
+            Assert.That(command.GetProperty("command").GetString(), Is.EqualTo("current.execute"));
+            Assert.That(command.GetProperty("payloadSchema").GetString(), Is.EqualTo("gamecult.current.command.v1"));
+        });
 
         var roundTrip = MessagePackSerializer.Deserialize<EveSurfaceDocument>(bytes, Options);
         Assert.That(roundTrip.Commands[0].Command, Is.EqualTo("current.execute"));
@@ -225,9 +244,30 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         new EveSurfaceComponent(
             "root",
             "column",
-            new Dictionary<string, string>(),
-            Array.Empty<EveSurfaceComponent>()),
-        Array.Empty<EveStyleToken>());
+            new Dictionary<string, string> { ["label"] = "Vanguard" },
+            Array.Empty<EveSurfaceComponent>(),
+            new[]
+            {
+                new CultMeshStateBindingRecord(
+                    "label",
+                    "hangar.selectedShip.name",
+                    "hangar:current",
+                    "gamecult.aetheria.hangar.v1",
+                    "CultMesh",
+                    "local")
+            },
+            new[]
+            {
+                new EveEmbeddedDocumentSlot(
+                    "inventory",
+                    "hangar:inventory",
+                    "gamecult.aetheria.inventory.v1",
+                    "inventory-grid",
+                    new CultMeshRouteRecord("CultMesh", "local"))
+            },
+            new Dictionary<string, string> { ["grow"] = "1" },
+            new Dictionary<string, string> { ["accent"] = "hangar" }),
+        new[] { new EveStyleToken("accent", "#50f5dc") });
 
     private static byte[] WriteLegacySurfaceDocument()
     {

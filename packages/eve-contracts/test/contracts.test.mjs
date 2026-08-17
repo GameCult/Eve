@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import test from "node:test";
+import { decode } from "@msgpack/msgpack";
 import {
   EveContractValidationError,
   isEveCommandDescriptor,
@@ -11,6 +12,20 @@ import {
   parseEveProviderAdvertisement,
   parseEveSurfaceDocument,
 } from "../dist/index.js";
+
+test("parses the schema-shaped MessagePack surface emitted by the real C# Eve package", async () => {
+  const fixtureUrl = new URL("./fixtures/eve-surface-csharp-v1.base64", import.meta.url);
+  const bytes = Buffer.from((await readFile(fixtureUrl, "utf8")).trim(), "base64");
+  const surface = parseEveSurfaceDocument(decode(bytes));
+
+  assert.equal(surface.providerId, "current-provider");
+  assert.equal(surface.surface.root.kind, "column");
+  assert.equal(surface.surface.root.stateBindings[0].pointerId, "hangar.selectedShip.name");
+  assert.equal(surface.surface.root.embeddedDocuments[0].presentationKind, "inventory-grid");
+  assert.equal(surface.surface.styles[0].value, "#50f5dc");
+  assert.equal(surface.commands[0].command, "current.execute");
+  assert.equal(surface.commands[0].payloadSchema, "gamecult.current.command.v1");
+});
 
 const command = { schema: "gamecult.eve.command.v1", command: "swarm.set_heat", transport: "cultmesh" };
 const surface = {

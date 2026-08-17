@@ -426,23 +426,28 @@ namespace GameCult.Eve.Surface
         public void Serialize(ref MessagePackWriter writer, EveSurfaceDocument? value, MessagePackSerializerOptions options)
         {
             if (value == null) { writer.WriteNil(); return; }
-            writer.WriteArrayHeader(CurrentFieldCount);
-            writer.Write(value.Type);
-            writer.Write(value.Schema);
-            writer.Write(value.ProviderId);
-            writer.Write(value.ProviderKind);
-            writer.Write(value.Title);
-            writer.Write(value.Version);
-            writer.Write(value.UpdatedAtUtc);
-            Formatter<EveSurfaceTree>(options).Serialize(ref writer, value.Surface, options);
-            Formatter<IReadOnlyList<EveCommandTemplate>>(options).Serialize(ref writer, value.Commands, options);
+            writer.WriteMapHeader(CurrentFieldCount);
+            Write(ref writer, "type", value.Type);
+            Write(ref writer, "schema", value.Schema);
+            Write(ref writer, "providerId", value.ProviderId);
+            Write(ref writer, "providerKind", value.ProviderKind);
+            Write(ref writer, "title", value.Title);
+            writer.Write("version"); writer.Write(value.Version);
+            Write(ref writer, "updatedAtUtc", value.UpdatedAtUtc);
+            writer.Write("surface"); WriteSurface(ref writer, value.Surface, options);
+            writer.Write("commands");
+            writer.WriteArrayHeader(value.Commands.Count);
+            foreach (var command in value.Commands)
+                Formatter<EveCommandTemplate>(options).Serialize(ref writer, command, options);
         }
 
         public EveSurfaceDocument? Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
             if (reader.TryReadNil()) return null;
+            if (reader.NextMessagePackType == MessagePackType.Map)
+                return ReadMap(ref reader, options);
             if (reader.NextMessagePackType != MessagePackType.Array)
-                throw new MessagePackSerializationException("Eve surface document must be an array.");
+                throw new MessagePackSerializationException("Eve surface document must be a map or legacy array.");
 
             options.Security.DepthStep(ref reader);
             try
@@ -476,6 +481,317 @@ namespace GameCult.Eve.Surface
             finally { reader.Depth--; }
         }
 
+        private static EveSurfaceDocument ReadMap(ref MessagePackReader reader, MessagePackSerializerOptions options)
+        {
+            options.Security.DepthStep(ref reader);
+            try
+            {
+                var type = EveSurfaceDocument.DefaultType;
+                var schema = EveSurfaceDocument.SchemaId;
+                var providerId = "";
+                var providerKind = "";
+                var title = "";
+                long version = 0;
+                var updatedAtUtc = "";
+                EveSurfaceTree? surface = null;
+                IReadOnlyList<EveCommandTemplate> commands = Array.Empty<EveCommandTemplate>();
+                var fields = reader.ReadMapHeader();
+                for (var index = 0; index < fields; index++)
+                {
+                    switch (reader.ReadString())
+                    {
+                        case "type": type = ReadString(ref reader); break;
+                        case "schema": schema = ReadString(ref reader); break;
+                        case "providerId": providerId = ReadString(ref reader); break;
+                        case "providerKind": providerKind = ReadString(ref reader); break;
+                        case "title": title = ReadString(ref reader); break;
+                        case "version": version = reader.ReadInt64(); break;
+                        case "updatedAt":
+                        case "updatedAtUtc": updatedAtUtc = ReadString(ref reader); break;
+                        case "surface": surface = ReadSurface(ref reader, options); break;
+                        case "commands": commands = ReadCommands(ref reader, options); break;
+                        default: reader.Skip(); break;
+                    }
+                }
+
+                return new EveSurfaceDocument(
+                    type, schema, providerId, providerKind, title, version, updatedAtUtc,
+                    surface ?? throw new MessagePackSerializationException("Eve surface tree is required."),
+                    commands);
+            }
+            finally { reader.Depth--; }
+        }
+
+        private static void WriteSurface(
+            ref MessagePackWriter writer,
+            EveSurfaceTree surface,
+            MessagePackSerializerOptions options)
+        {
+            writer.WriteMapHeader(3);
+            Write(ref writer, "id", surface.Id);
+            writer.Write("root"); WriteComponent(ref writer, surface.Root, options);
+            writer.Write("styles");
+            writer.WriteArrayHeader(surface.Styles.Count);
+            foreach (var style in surface.Styles)
+            {
+                writer.WriteMapHeader(2);
+                Write(ref writer, "name", style.Name);
+                Write(ref writer, "value", style.Value);
+            }
+        }
+
+        private static EveSurfaceTree ReadSurface(
+            ref MessagePackReader reader,
+            MessagePackSerializerOptions options)
+        {
+            if (reader.NextMessagePackType == MessagePackType.Array)
+                return Formatter<EveSurfaceTree>(options).Deserialize(ref reader, options)!;
+            options.Security.DepthStep(ref reader);
+            try
+            {
+                var fields = reader.ReadMapHeader();
+                var id = "";
+                EveSurfaceComponent? root = null;
+                IReadOnlyList<EveStyleToken> styles = Array.Empty<EveStyleToken>();
+                for (var index = 0; index < fields; index++)
+                {
+                    switch (reader.ReadString())
+                    {
+                        case "id": id = ReadString(ref reader); break;
+                        case "root": root = ReadComponent(ref reader, options); break;
+                        case "styles": styles = ReadStyles(ref reader); break;
+                        default: reader.Skip(); break;
+                    }
+                }
+                return new EveSurfaceTree(
+                    id,
+                    root ?? throw new MessagePackSerializationException("Eve surface root is required."),
+                    styles);
+            }
+            finally { reader.Depth--; }
+        }
+
+        private static void WriteComponent(
+            ref MessagePackWriter writer,
+            EveSurfaceComponent component,
+            MessagePackSerializerOptions options)
+        {
+            writer.WriteMapHeader(8);
+            Write(ref writer, "id", component.Id);
+            Write(ref writer, "kind", component.Kind);
+            writer.Write("props"); WriteStringMap(ref writer, component.Props);
+            writer.Write("children");
+            writer.WriteArrayHeader(component.Children.Count);
+            foreach (var child in component.Children) WriteComponent(ref writer, child, options);
+            writer.Write("stateBindings");
+            writer.WriteArrayHeader(component.StateBindingRecords.Length);
+            foreach (var binding in component.StateBindingRecords) WriteStateBinding(ref writer, binding);
+            writer.Write("embeddedDocuments");
+            writer.WriteArrayHeader(component.EmbeddedDocuments.Count);
+            foreach (var embedded in component.EmbeddedDocuments) WriteEmbedded(ref writer, embedded);
+            writer.Write("layout"); WriteStringMap(ref writer, component.Layout);
+            writer.Write("style"); WriteStringMap(ref writer, component.Style);
+        }
+
+        private static EveSurfaceComponent ReadComponent(
+            ref MessagePackReader reader,
+            MessagePackSerializerOptions options)
+        {
+            if (reader.NextMessagePackType == MessagePackType.Array)
+                return Formatter<EveSurfaceComponent>(options).Deserialize(ref reader, options)!;
+            options.Security.DepthStep(ref reader);
+            try
+            {
+                var fields = reader.ReadMapHeader();
+                var id = "";
+                var kind = "";
+                IReadOnlyDictionary<string, string> props = new Dictionary<string, string>();
+                IReadOnlyList<EveSurfaceComponent> children = Array.Empty<EveSurfaceComponent>();
+                CultMeshStateBindingRecord[] stateBindings = Array.Empty<CultMeshStateBindingRecord>();
+                IReadOnlyList<EveEmbeddedDocumentSlot> embedded = Array.Empty<EveEmbeddedDocumentSlot>();
+                IReadOnlyDictionary<string, string> layout = new Dictionary<string, string>();
+                IReadOnlyDictionary<string, string> style = new Dictionary<string, string>();
+                for (var index = 0; index < fields; index++)
+                {
+                    switch (reader.ReadString())
+                    {
+                        case "id": id = ReadString(ref reader); break;
+                        case "kind": kind = ReadString(ref reader); break;
+                        case "props": props = ReadStringMap(ref reader); break;
+                        case "children": children = ReadComponents(ref reader, options); break;
+                        case "stateBindings": stateBindings = ReadStateBindings(ref reader); break;
+                        case "embeddedDocuments": embedded = ReadEmbeddedDocuments(ref reader); break;
+                        case "layout": layout = ReadStringMap(ref reader); break;
+                        case "style": style = ReadStringMap(ref reader); break;
+                        default: reader.Skip(); break;
+                    }
+                }
+                return new EveSurfaceComponent(id, kind, props, children, stateBindings, embedded, layout, style);
+            }
+            finally { reader.Depth--; }
+        }
+
+        private static void WriteStateBinding(ref MessagePackWriter writer, CultMeshStateBindingRecord binding)
+        {
+            writer.WriteMapHeader(6);
+            Write(ref writer, "targetProp", binding.TargetProp);
+            Write(ref writer, "pointerId", binding.PointerId);
+            Write(ref writer, "sourceId", binding.SourceId);
+            Write(ref writer, "schemaId", binding.SchemaId);
+            Write(ref writer, "routeKind", binding.RouteKind);
+            Write(ref writer, "routeDescription", binding.RouteDescription);
+        }
+
+        private static CultMeshStateBindingRecord[] ReadStateBindings(ref MessagePackReader reader)
+        {
+            var count = reader.ReadArrayHeader();
+            var values = new CultMeshStateBindingRecord[count];
+            for (var index = 0; index < count; index++)
+            {
+                var fields = reader.ReadMapHeader();
+                var targetProp = ""; var pointerId = ""; var sourceId = "";
+                var schemaId = ""; var routeKind = ""; var routeDescription = "";
+                for (var field = 0; field < fields; field++)
+                {
+                    switch (reader.ReadString())
+                    {
+                        case "targetProp": targetProp = ReadString(ref reader); break;
+                        case "pointerId": pointerId = ReadString(ref reader); break;
+                        case "sourceId": sourceId = ReadString(ref reader); break;
+                        case "schemaId": schemaId = ReadString(ref reader); break;
+                        case "routeKind": routeKind = ReadString(ref reader); break;
+                        case "routeDescription": routeDescription = ReadString(ref reader); break;
+                        default: reader.Skip(); break;
+                    }
+                }
+                values[index] = new CultMeshStateBindingRecord(
+                    targetProp, pointerId, sourceId, schemaId, routeKind, routeDescription);
+            }
+            return values;
+        }
+
+        private static void WriteEmbedded(ref MessagePackWriter writer, EveEmbeddedDocumentSlot embedded)
+        {
+            writer.WriteMapHeader(5);
+            Write(ref writer, "slotId", embedded.SlotId);
+            Write(ref writer, "documentId", embedded.DocumentId);
+            Write(ref writer, "schemaId", embedded.SchemaId);
+            Write(ref writer, "presentationKind", embedded.PresentationKind);
+            writer.Write("routeHint");
+            writer.WriteMapHeader(2);
+            Write(ref writer, "kind", embedded.Route.Kind);
+            Write(ref writer, "description", embedded.Route.Description);
+        }
+
+        private static IReadOnlyList<EveEmbeddedDocumentSlot> ReadEmbeddedDocuments(ref MessagePackReader reader)
+        {
+            var count = reader.ReadArrayHeader();
+            var values = new EveEmbeddedDocumentSlot[count];
+            for (var index = 0; index < count; index++)
+            {
+                var fields = reader.ReadMapHeader();
+                var slotId = ""; var documentId = ""; var schemaId = ""; var presentationKind = "";
+                var route = new CultMeshRouteRecord();
+                for (var field = 0; field < fields; field++)
+                {
+                    switch (reader.ReadString())
+                    {
+                        case "slotId": slotId = ReadString(ref reader); break;
+                        case "documentId": documentId = ReadString(ref reader); break;
+                        case "schemaId": schemaId = ReadString(ref reader); break;
+                        case "presentationKind": presentationKind = ReadString(ref reader); break;
+                        case "routeHint": route = ReadRoute(ref reader); break;
+                        default: reader.Skip(); break;
+                    }
+                }
+                values[index] = new EveEmbeddedDocumentSlot(slotId, documentId, schemaId, presentationKind, route);
+            }
+            return values;
+        }
+
+        private static CultMeshRouteRecord ReadRoute(ref MessagePackReader reader)
+        {
+            if (reader.NextMessagePackType == MessagePackType.String)
+                return new CultMeshRouteRecord(ReadString(ref reader), "");
+            var fields = reader.ReadMapHeader();
+            var kind = ""; var description = "";
+            for (var index = 0; index < fields; index++)
+            {
+                switch (reader.ReadString())
+                {
+                    case "kind": kind = ReadString(ref reader); break;
+                    case "description": description = ReadString(ref reader); break;
+                    default: reader.Skip(); break;
+                }
+            }
+            return new CultMeshRouteRecord(kind, description);
+        }
+
+        private static IReadOnlyList<EveSurfaceComponent> ReadComponents(
+            ref MessagePackReader reader,
+            MessagePackSerializerOptions options)
+        {
+            var count = reader.ReadArrayHeader();
+            var values = new EveSurfaceComponent[count];
+            for (var index = 0; index < count; index++) values[index] = ReadComponent(ref reader, options);
+            return values;
+        }
+
+        private static IReadOnlyList<EveStyleToken> ReadStyles(ref MessagePackReader reader)
+        {
+            var count = reader.ReadArrayHeader();
+            var values = new EveStyleToken[count];
+            for (var index = 0; index < count; index++)
+            {
+                var fields = reader.ReadMapHeader();
+                var name = ""; var value = "";
+                for (var field = 0; field < fields; field++)
+                {
+                    switch (reader.ReadString())
+                    {
+                        case "name": name = ReadString(ref reader); break;
+                        case "value": value = ReadString(ref reader); break;
+                        default: reader.Skip(); break;
+                    }
+                }
+                values[index] = new EveStyleToken(name, value);
+            }
+            return values;
+        }
+
+        private static IReadOnlyList<EveCommandTemplate> ReadCommands(
+            ref MessagePackReader reader,
+            MessagePackSerializerOptions options)
+        {
+            var count = reader.ReadArrayHeader();
+            var values = new EveCommandTemplate[count];
+            for (var index = 0; index < count; index++)
+                values[index] = Formatter<EveCommandTemplate>(options).Deserialize(ref reader, options)!;
+            return values;
+        }
+
+        private static void WriteStringMap(
+            ref MessagePackWriter writer,
+            IReadOnlyDictionary<string, string> values)
+        {
+            writer.WriteMapHeader(values.Count);
+            foreach (var pair in values) Write(ref writer, pair.Key, pair.Value);
+        }
+
+        private static IReadOnlyDictionary<string, string> ReadStringMap(ref MessagePackReader reader)
+        {
+            var count = reader.ReadMapHeader();
+            var values = new Dictionary<string, string>(count, StringComparer.Ordinal);
+            for (var index = 0; index < count; index++) values[ReadString(ref reader)] = ReadString(ref reader);
+            return values;
+        }
+
+        private static void Write(ref MessagePackWriter writer, string key, string value)
+        {
+            writer.Write(key);
+            writer.Write(value);
+        }
+
         private static IMessagePackFormatter<T> Formatter<T>(MessagePackSerializerOptions options) =>
             options.Resolver.GetFormatter<T>()
             ?? throw new MessagePackSerializationException($"No formatter is registered for {typeof(T).FullName}.");
@@ -493,15 +809,23 @@ namespace GameCult.Eve.Surface
         public void Serialize(ref MessagePackWriter writer, EveCommandTemplate? value, MessagePackSerializerOptions options)
         {
             if (value == null) { writer.WriteNil(); return; }
-            writer.WriteArrayHeader(1);
-            BindingFormatter(options).Serialize(ref writer, value.OperationRecord, options);
+            writer.WriteMapHeader(7);
+            Write(ref writer, "schema", "gamecult.eve.command.v1");
+            Write(ref writer, "command", value.OperationRecord.OperationId);
+            Write(ref writer, "label", value.OperationRecord.Label);
+            Write(ref writer, "payloadSchema", value.OperationRecord.SchemaId);
+            Write(ref writer, "transport", value.OperationRecord.RouteKind);
+            Write(ref writer, "routeKind", value.OperationRecord.RouteKind);
+            Write(ref writer, "routeDescription", value.OperationRecord.RouteDescription);
         }
 
         public EveCommandTemplate? Deserialize(ref MessagePackReader reader, MessagePackSerializerOptions options)
         {
             if (reader.TryReadNil()) return null;
+            if (reader.NextMessagePackType == MessagePackType.Map)
+                return ReadMap(ref reader);
             if (reader.NextMessagePackType != MessagePackType.Array)
-                throw new MessagePackSerializationException("Eve command template must be an array.");
+                throw new MessagePackSerializationException("Eve command template must be a map or legacy array.");
 
             options.Security.DepthStep(ref reader);
             try
@@ -526,6 +850,32 @@ namespace GameCult.Eve.Surface
             finally { reader.Depth--; }
         }
 
+        private static EveCommandTemplate ReadMap(ref MessagePackReader reader)
+        {
+            var fields = reader.ReadMapHeader();
+            var operationId = ""; var label = ""; var schemaId = "";
+            var transport = ""; var routeKind = ""; var routeDescription = "";
+            for (var index = 0; index < fields; index++)
+            {
+                switch (reader.ReadString())
+                {
+                    case "command":
+                    case "operationId": operationId = ReadString(ref reader); break;
+                    case "label": label = ReadString(ref reader); break;
+                    case "payloadSchema":
+                    case "schemaId": schemaId = ReadString(ref reader); break;
+                    case "transport": transport = ReadString(ref reader); break;
+                    case "routeKind": routeKind = ReadString(ref reader); break;
+                    case "routeDescription": routeDescription = ReadString(ref reader); break;
+                    default: reader.Skip(); break;
+                }
+            }
+            return new EveCommandTemplate(new CultMeshOperationBindingRecord(
+                operationId, label, schemaId,
+                string.IsNullOrWhiteSpace(routeKind) ? transport : routeKind,
+                routeDescription));
+        }
+
         private static IMessagePackFormatter<CultMeshOperationBindingRecord> BindingFormatter(
             MessagePackSerializerOptions options) =>
             options.Resolver.GetFormatter<CultMeshOperationBindingRecord>()
@@ -533,8 +883,14 @@ namespace GameCult.Eve.Surface
 
         private static string ReadString(ref MessagePackReader reader, int fields, int index) =>
             index < fields ? reader.ReadString() ?? "" : "";
+
+        private static string ReadString(ref MessagePackReader reader) => reader.ReadString() ?? "";
+
+        private static void Write(ref MessagePackWriter writer, string key, string value)
+        {
+            writer.Write(key);
+            writer.Write(value);
+        }
     }
 
 }
-
-

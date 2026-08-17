@@ -17,6 +17,11 @@
   <ItemGroup>
     <ProjectReference Include="..\..\packages\org.gamecult.eve.surface\GameCult.Eve.Surface.csproj" />
   </ItemGroup>
-</Project>
 
+  <ItemGroup>
+    <None Include="..\..\packages\eve-contracts\test\fixtures\eve-surface-csharp-v1.base64"
+          Link="Fixtures\eve-surface-csharp-v1.base64"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
 
