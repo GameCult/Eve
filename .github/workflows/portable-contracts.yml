@@ -1,6 +1,10 @@
 name: Portable Eve contracts and browser lowering
 
 on:
+  push:
+    branches:
+      - main
+      - "codex/**"
   pull_request:
   workflow_dispatch:
 
