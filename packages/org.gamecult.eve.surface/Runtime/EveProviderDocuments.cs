@@ -349,6 +349,7 @@ namespace GameCult.Eve.Surface
 
     [CultDocument("gamecult.eve.command_receipt", SchemaId)]
     [MessagePackObject]
+    [MessagePackFormatter(typeof(EveCommandReceiptCompatibilityFormatter))]
     public sealed class EveCommandReceiptDocument
     {
         public const string SchemaId = "gamecult.eve.command_receipt.v1";
@@ -414,6 +415,206 @@ namespace GameCult.Eve.Surface
         [Key(10)] public string IssuedAtUtc { get; }
         [Key(11)] public long SourceVersion { get; }
         [Key(12)] public EveSurfaceNavigationTarget? Navigation { get; }
+    }
+
+    /// <summary>
+    /// Writes the public command-receipt contract as a string-keyed map while retaining
+    /// read compatibility with the original positional C# representation.
+    /// </summary>
+    public sealed class EveCommandReceiptCompatibilityFormatter :
+        IMessagePackFormatter<EveCommandReceiptDocument?>
+    {
+        private const int LegacyFieldCount = 13;
+        private const int RequiredAndScalarFieldCount = 12;
+
+        public void Serialize(
+            ref MessagePackWriter writer,
+            EveCommandReceiptDocument? value,
+            MessagePackSerializerOptions options)
+        {
+            if (value == null) { writer.WriteNil(); return; }
+
+            writer.WriteMapHeader(value.Navigation == null
+                ? RequiredAndScalarFieldCount
+                : RequiredAndScalarFieldCount + 1);
+            Write(ref writer, "schema", value.Schema);
+            Write(ref writer, "receiptId", value.ReceiptId);
+            Write(ref writer, "commandId", value.CommandId);
+            Write(ref writer, "command", value.Command);
+            Write(ref writer, "state", value.State);
+            Write(ref writer, "ownerRepo", value.OwnerRepo);
+            Write(ref writer, "authority", value.Authority);
+            Write(ref writer, "providerId", value.ProviderId);
+            Write(ref writer, "surfaceId", value.SurfaceId);
+            Write(ref writer, "message", value.Message);
+            Write(ref writer, "issuedAtUtc", value.IssuedAtUtc);
+            writer.Write("sourceVersion"); writer.Write(value.SourceVersion);
+            if (value.Navigation != null)
+            {
+                writer.Write("navigation");
+                WriteNavigation(ref writer, value.Navigation);
+            }
+        }
+
+        public EveCommandReceiptDocument? Deserialize(
+            ref MessagePackReader reader,
+            MessagePackSerializerOptions options)
+        {
+            if (reader.TryReadNil()) return null;
+            if (reader.NextMessagePackType == MessagePackType.Map)
+                return ReadMap(ref reader, options);
+            if (reader.NextMessagePackType != MessagePackType.Array)
+                throw new MessagePackSerializationException("Eve command receipt must be a map or legacy array.");
+
+            options.Security.DepthStep(ref reader);
+            try
+            {
+                var fields = reader.ReadArrayHeader();
+                var schema = ReadString(ref reader, fields, 0, EveCommandReceiptDocument.SchemaId);
+                var receiptId = ReadString(ref reader, fields, 1);
+                var commandId = ReadString(ref reader, fields, 2);
+                var command = ReadString(ref reader, fields, 3);
+                var state = ReadString(ref reader, fields, 4);
+                var ownerRepo = ReadString(ref reader, fields, 5);
+                var authority = ReadString(ref reader, fields, 6);
+                var providerId = ReadString(ref reader, fields, 7);
+                var surfaceId = ReadString(ref reader, fields, 8);
+                var message = ReadString(ref reader, fields, 9);
+                var issuedAtUtc = ReadString(ref reader, fields, 10);
+                var sourceVersion = fields > 11 ? reader.ReadInt64() : 0;
+                var navigation = fields > 12 ? ReadNavigation(ref reader, options) : null;
+                for (var index = LegacyFieldCount; index < fields; index++) reader.Skip();
+                return new EveCommandReceiptDocument(
+                    schema, receiptId, commandId, command, state, ownerRepo, authority,
+                    providerId, surfaceId, message, issuedAtUtc, sourceVersion, navigation);
+            }
+            finally { reader.Depth--; }
+        }
+
+        private static EveCommandReceiptDocument ReadMap(
+            ref MessagePackReader reader,
+            MessagePackSerializerOptions options)
+        {
+            options.Security.DepthStep(ref reader);
+            try
+            {
+                var schema = EveCommandReceiptDocument.SchemaId;
+                var receiptId = "";
+                var commandId = "";
+                var command = "";
+                var state = "";
+                var ownerRepo = "";
+                var authority = "";
+                var providerId = "";
+                var surfaceId = "";
+                var message = "";
+                var issuedAtUtc = "";
+                long sourceVersion = 0;
+                EveSurfaceNavigationTarget? navigation = null;
+                var fields = reader.ReadMapHeader();
+                for (var index = 0; index < fields; index++)
+                {
+                    switch (reader.ReadString())
+                    {
+                        case "schema": schema = ReadString(ref reader); break;
+                        case "receiptId": receiptId = ReadString(ref reader); break;
+                        case "commandId": commandId = ReadString(ref reader); break;
+                        case "command": command = ReadString(ref reader); break;
+                        case "state": state = ReadString(ref reader); break;
+                        case "ownerRepo": ownerRepo = ReadString(ref reader); break;
+                        case "authority": authority = ReadString(ref reader); break;
+                        case "providerId": providerId = ReadString(ref reader); break;
+                        case "surfaceId": surfaceId = ReadString(ref reader); break;
+                        case "message": message = ReadString(ref reader); break;
+                        case "issuedAtUtc": issuedAtUtc = ReadString(ref reader); break;
+                        case "sourceVersion": sourceVersion = reader.ReadInt64(); break;
+                        case "navigation": navigation = ReadNavigation(ref reader, options); break;
+                        default: reader.Skip(); break;
+                    }
+                }
+
+                return new EveCommandReceiptDocument(
+                    schema, receiptId, commandId, command, state, ownerRepo, authority,
+                    providerId, surfaceId, message, issuedAtUtc, sourceVersion, navigation);
+            }
+            finally { reader.Depth--; }
+        }
+
+        private static void WriteNavigation(
+            ref MessagePackWriter writer,
+            EveSurfaceNavigationTarget? navigation)
+        {
+            if (navigation == null) { writer.WriteNil(); return; }
+
+            writer.WriteMapHeader(5);
+            Write(ref writer, "verseId", navigation.VerseId);
+            Write(ref writer, "providerId", navigation.ProviderId);
+            Write(ref writer, "surfaceId", navigation.SurfaceId);
+            Write(ref writer, "surfaceKind", navigation.SurfaceKind);
+            writer.Write("rendezvousEndpoints");
+            writer.WriteArrayHeader(navigation.RendezvousEndpoints.Length);
+            foreach (var endpoint in navigation.RendezvousEndpoints) writer.Write(endpoint);
+        }
+
+        private static EveSurfaceNavigationTarget? ReadNavigation(
+            ref MessagePackReader reader,
+            MessagePackSerializerOptions options)
+        {
+            if (reader.TryReadNil()) return null;
+            if (reader.NextMessagePackType == MessagePackType.Array)
+                return options.Resolver.GetFormatterWithVerify<EveSurfaceNavigationTarget>()
+                    .Deserialize(ref reader, options);
+            if (reader.NextMessagePackType != MessagePackType.Map)
+                throw new MessagePackSerializationException("Eve receipt navigation must be a map or legacy array.");
+
+            options.Security.DepthStep(ref reader);
+            try
+            {
+                var verseId = "";
+                var providerId = "";
+                var surfaceId = "";
+                var surfaceKind = "";
+                var endpoints = Array.Empty<string>();
+                var fields = reader.ReadMapHeader();
+                for (var index = 0; index < fields; index++)
+                {
+                    switch (reader.ReadString())
+                    {
+                        case "verseId": verseId = ReadString(ref reader); break;
+                        case "providerId": providerId = ReadString(ref reader); break;
+                        case "surfaceId": surfaceId = ReadString(ref reader); break;
+                        case "surfaceKind": surfaceKind = ReadString(ref reader); break;
+                        case "rendezvousEndpoints": endpoints = ReadStrings(ref reader); break;
+                        default: reader.Skip(); break;
+                    }
+                }
+                return new EveSurfaceNavigationTarget(verseId, providerId, surfaceId, surfaceKind, endpoints);
+            }
+            finally { reader.Depth--; }
+        }
+
+        private static string[] ReadStrings(ref MessagePackReader reader)
+        {
+            if (reader.TryReadNil()) return Array.Empty<string>();
+            var count = reader.ReadArrayHeader();
+            var values = new string[count];
+            for (var index = 0; index < count; index++) values[index] = ReadString(ref reader);
+            return values;
+        }
+
+        private static string ReadString(ref MessagePackReader reader) => reader.TryReadNil() ? "" : reader.ReadString() ?? "";
+
+        private static string ReadString(
+            ref MessagePackReader reader,
+            int fields,
+            int index,
+            string fallback = "") => fields > index ? ReadString(ref reader) : fallback;
+
+        private static void Write(ref MessagePackWriter writer, string key, string value)
+        {
+            writer.Write(key);
+            writer.Write(value ?? "");
+        }
     }
 
     [MessagePackObject]

@@ -212,14 +212,82 @@ public sealed class EveSurfaceSerializationCompatibilityTests
 
         var bytes = MessagePackSerializer.Serialize(document, Options);
         var reader = new MessagePackReader(bytes);
+        using var wireJson = JsonDocument.Parse(MessagePackSerializer.ConvertToJson(bytes));
         var restored = MessagePackSerializer.Deserialize<EveCommandReceiptDocument>(bytes, Options);
 
-        Assert.That(reader.ReadArrayHeader(), Is.EqualTo(13));
+        Assert.That(reader.NextMessagePackType, Is.EqualTo(MessagePackType.Map));
+        Assert.That(reader.ReadMapHeader(), Is.EqualTo(13));
+        Assert.That(wireJson.RootElement.GetProperty("navigation").ValueKind, Is.EqualTo(JsonValueKind.Object));
         Assert.That(restored.Navigation, Is.Not.Null);
         Assert.That(restored.Navigation!.VerseId, Is.EqualTo("gamecult.aetheria"));
         Assert.That(restored.Navigation.SurfaceId, Is.EqualTo("aetheria.pilot"));
         Assert.That(restored.Navigation.SurfaceKind, Is.EqualTo("interactive-world"));
         Assert.That(restored.Navigation.RendezvousEndpoints, Is.EqualTo(new[] { "cultnet+tcp://odin.gamecult.example:3076" }));
+    }
+
+    [Test]
+    public void CommandReceiptReadsLegacyPositionalRepresentation()
+    {
+        var buffer = new ArrayBufferWriter<byte>();
+        var writer = new MessagePackWriter(buffer);
+        writer.WriteArrayHeader(13);
+        writer.Write(EveCommandReceiptDocument.SchemaId);
+        writer.Write("receipt:legacy");
+        writer.Write("legacy-command");
+        writer.Write("aetheria.hangar.launch");
+        writer.Write("accepted");
+        writer.Write("Aetheria");
+        writer.Write("commander-daemon");
+        writer.Write("aetheria.daemon");
+        writer.Write("aetheria.hangar");
+        writer.Write("");
+        writer.Write("2026-08-17T20:00:00Z");
+        writer.Write(42L);
+        writer.WriteArrayHeader(5);
+        writer.Write("gamecult.aetheria");
+        writer.Write("aetheria.daemon");
+        writer.Write("aetheria.pilot");
+        writer.Write("interactive-world");
+        writer.WriteArrayHeader(1);
+        writer.Write("cultnet+tcp://odin.gamecult.example:3076");
+        writer.Flush();
+
+        var restored = MessagePackSerializer.Deserialize<EveCommandReceiptDocument>(buffer.WrittenMemory, Options);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(restored.ReceiptId, Is.EqualTo("receipt:legacy"));
+            Assert.That(restored.CommandId, Is.EqualTo("legacy-command"));
+            Assert.That(restored.Navigation, Is.Not.Null);
+            Assert.That(restored.Navigation!.SurfaceId, Is.EqualTo("aetheria.pilot"));
+        });
+    }
+
+    [Test]
+    public void CommandReceiptOmitsAbsentOptionalNavigation()
+    {
+        var document = new EveCommandReceiptDocument(
+            "receipt:no-navigation",
+            "select-verse",
+            "aetheria.hangar.select_verse",
+            "accepted",
+            "Aetheria",
+            "commander-daemon",
+            "aetheria.daemon",
+            "aetheria.hangar",
+            "",
+            "2026-08-17T20:00:00Z",
+            42);
+
+        var bytes = MessagePackSerializer.Serialize(document, Options);
+        using var wireJson = JsonDocument.Parse(MessagePackSerializer.ConvertToJson(bytes));
+        var restored = MessagePackSerializer.Deserialize<EveCommandReceiptDocument>(bytes, Options);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(wireJson.RootElement.TryGetProperty("navigation", out _), Is.False);
+            Assert.That(restored.Navigation, Is.Null);
+        });
     }
 
     private static EveSurfaceDocument CreateCurrentDocument() => new(
