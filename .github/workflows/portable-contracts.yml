@@ -1,0 +1,43 @@
+name: Portable Eve contracts and browser lowering
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  contracts-and-browser:
+    name: ${{ matrix.os }} ${{ matrix.package }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        package: [eve-contracts, eve-browser-lowering]
+
+    steps:
+      - name: Check out Eve
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: packages/${{ matrix.package }}/package-lock.json
+
+      - name: Install package dependencies
+        working-directory: packages/${{ matrix.package }}
+        run: npm ci
+
+      - name: Build and test source
+        working-directory: packages/${{ matrix.package }}
+        run: npm test
+
+      - name: Reject stale generated output
+        shell: pwsh
+        run: |
+          if (git status --short) {
+            git status --short
+            throw "The package build changed checked-in generated output."
+          }
