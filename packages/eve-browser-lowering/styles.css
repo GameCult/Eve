@@ -1086,6 +1086,22 @@ body[data-pixel-art="true"] .cultui-background {
   padding: 14px;
 }
 
+.cultui-inventory-placement-preview {
+  z-index: 20;
+  border: 1px solid currentColor;
+  box-sizing: border-box;
+}
+
+.cultui-inventory-placement-preview.is-valid {
+  color: #45e6a8;
+  background: rgb(69 230 168 / 34%);
+}
+
+.cultui-inventory-placement-preview.is-invalid {
+  color: #ff5148;
+  background: rgb(255 81 72 / 38%);
+}
+
 @media (max-width: 900px) {
   .cultui-graph {
     right: 12px;

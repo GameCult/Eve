@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { applyEveStateBindingValue, createEveCommandIntent, createInventoryDropIntent, createWorldActionIntent, normalizeFieldsDocument, projectSemanticListItem, projectSemanticListItems, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
+import { applyEveStateBindingValue, createEveCommandIntent, createInventoryDropIntent, createInventoryPlacementPreview, createWorldActionIntent, normalizeFieldsDocument, projectSemanticListItem, projectSemanticListItems, projectWorldScene, resolveRequiredPluginAdapters, selectAdvertisedSurface } from "../dist/index.js";
 
 test("applies provider state bindings to component props instead of receipt diagnostics", () => {
   const component = { props: { value: 1.2 } };
@@ -70,6 +70,8 @@ test("inventory drops select the provider-advertised operation and preserve spat
     targetEntityKey: "zone.0.entity.1",
     targetIndex: -1,
     "dropCommand.cargo": "aetheria.daemon.commands.EquipItem",
+    "payload.shipId": "hangar.ship.1",
+    "payload.expectedHangarRevision": "42",
   }, 7, 9, {
     activeSurfaceId: "aetheria.refit",
     clientId: "browser.inventory-test",
@@ -83,6 +85,31 @@ test("inventory drops select the provider-advertised operation and preserve spat
   assert.equal(intent.payload.destinationX, 7);
   assert.equal(intent.payload.destinationY, 9);
   assert.equal(intent.payload.hasDestinationPosition, true);
+  assert.equal(intent.payload.shipId, "hangar.ship.1");
+  assert.equal(intent.payload.expectedHangarRevision, "42");
+});
+
+test("inventory placement previews preserve irregular cells and reject occupancy", () => {
+  const source = { id: "moving", shapeCells: "0,0;1,0;0,1" };
+  const target = {
+    columns: 4,
+    rows: 3,
+    validCells: "0,0;1,0;2,0;3,0;0,1;1,1;2,1;3,1;0,2;1,2;2,2;3,2",
+  };
+  const children = [{
+    id: "installed",
+    kind: "inventory.item",
+    props: { x: 2, y: 1, shapeCells: "0,0" },
+    children: [],
+  }];
+
+  assert.deepEqual(createInventoryPlacementPreview(source, target, children, 0, 0), {
+    valid: true,
+    reason: "valid",
+    cells: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }],
+  });
+  assert.equal(createInventoryPlacementPreview(source, target, children, 1, 1).reason, "occupied");
+  assert.equal(createInventoryPlacementPreview(source, target, children, 3, 2).reason, "outside-grid");
 });
 
 test("inventory drops fail closed without an operation for the source kind", () => {

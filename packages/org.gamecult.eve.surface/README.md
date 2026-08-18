@@ -1,5 +1,10 @@
 # Eve Surface Contract
 
+Inventory surfaces may publish irregular `shapeCells`, optional grid
+`validCells`, and `payload.*` fields. Lowerers use those fields for transient
+placement previews and forward the namespaced payload through typed drop
+operations; providers remain the final placement authority.
+
 Eve owns this renderer-neutral package. It defines the retained CultUI surface
 document, provider advertisement, asset catalog, input vocabulary, and builder
 primitives shared by providers and lowerers. Headless daemons depend on this
@@ -33,4 +38,3 @@ there.
 
 EveUnity must not carry another live copy of this package. Its Unity Scene and
 UI Toolkit packages depend on the released Eve-owned package.
-

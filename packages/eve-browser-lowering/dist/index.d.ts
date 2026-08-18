@@ -171,6 +171,16 @@ export declare function projectSemanticListItem(node: EveSurfaceComponent): EveS
 export declare function projectWorldScene(node: EveSurfaceComponent): EveProjectedWorldEntity[];
 export declare function createWorldActionIntent(command: string, action: Record<string, unknown>, options?: EveBrowserLoweringOptions): EveCommandIntent;
 export declare function createInventoryDropIntent(source: Record<string, unknown>, target: Record<string, unknown>, destinationX: number, destinationY: number, options?: EveBrowserLoweringOptions): EveCommandIntent | undefined;
+export interface InventoryPlacementCell {
+    x: number;
+    y: number;
+}
+export interface InventoryPlacementPreview {
+    valid: boolean;
+    reason: "valid" | "outside-grid" | "outside-valid-shape" | "occupied";
+    cells: InventoryPlacementCell[];
+}
+export declare function createInventoryPlacementPreview(source: Record<string, unknown>, target: Record<string, unknown>, targetChildren: EveSurfaceComponent[], destinationX: number, destinationY: number): InventoryPlacementPreview;
 export declare function applyEveSurfaceStyles(styles: EveSurfaceStyles | undefined, body?: HTMLElement): void;
 export declare function createEveCommandIntent(commandId: string, props?: Record<string, unknown>, options?: EveBrowserLoweringOptions): EveCommandIntent;
 export declare function emptyState(message: string): HTMLElement;

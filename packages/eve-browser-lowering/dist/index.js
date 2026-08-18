@@ -1042,8 +1042,30 @@ function renderInventoryGrid(node, props, layout, style, options) {
         event.preventDefault();
         if (event.dataTransfer)
             event.dataTransfer.dropEffect = "move";
+        const encoded = event.dataTransfer?.getData("application/vnd.gamecult.eve.inventory-item+json") || "";
+        if (!encoded)
+            return;
+        try {
+            const source = JSON.parse(encoded);
+            const rect = board.getBoundingClientRect();
+            const cellSize = Math.max(1, numberProp(props.cellSize, 72));
+            const cellGap = Math.max(0, numberProp(props.cellGap, 4));
+            const pitch = cellSize + cellGap;
+            const x = Math.max(0, Math.floor((event.clientX - rect.left) / pitch));
+            const y = Math.max(0, Math.floor((event.clientY - rect.top) / pitch));
+            showInventoryPlacementPreview(board, source, props, node.children || [], x, y, cellSize);
+        }
+        catch {
+            clearInventoryPlacementPreview(board);
+        }
+    });
+    board.addEventListener("dragleave", event => {
+        if (event.relatedTarget instanceof Node && board.contains(event.relatedTarget))
+            return;
+        clearInventoryPlacementPreview(board);
     });
     board.addEventListener("drop", event => {
+        clearInventoryPlacementPreview(board);
         const encoded = event.dataTransfer?.getData("application/vnd.gamecult.eve.inventory-item+json") || "";
         if (!encoded)
             return;
@@ -1060,6 +1082,8 @@ function renderInventoryGrid(node, props, layout, style, options) {
         const pitch = cellSize + cellGap;
         const x = Math.max(0, Math.min(columns - 1, Math.floor((event.clientX - rect.left) / pitch)));
         const y = Math.max(0, Math.min(rows - 1, Math.floor((event.clientY - rect.top) / pitch)));
+        if (!createInventoryPlacementPreview(source, props, node.children || [], x, y).valid)
+            return;
         const intent = createInventoryDropIntent(source, props, x, y, options);
         if (!intent)
             return;
@@ -1108,7 +1132,7 @@ function renderInventoryItem(node, props, layout, style, options) {
         if (!item.draggable || !event.dataTransfer)
             return;
         event.dataTransfer.effectAllowed = "move";
-        event.dataTransfer.setData("application/vnd.gamecult.eve.inventory-item+json", JSON.stringify(props));
+        event.dataTransfer.setData("application/vnd.gamecult.eve.inventory-item+json", JSON.stringify({ ...props, id: node.id }));
     });
     let widthCells = positiveInt(props.shapeWidth, 1);
     let heightCells = positiveInt(props.shapeHeight, 1);
@@ -1153,7 +1177,10 @@ export function createInventoryDropIntent(source, target, destinationX, destinat
     const sourceIndex = numberProp(source.sourceIndex, -1);
     const targetIndex = numberProp(target.targetIndex, -1);
     const targetKind = firstString(target.targetKind, "");
-    const payload = {
+    const payload = {};
+    copyInventoryPayloadProps(source, payload);
+    copyInventoryPayloadProps(target, payload);
+    Object.assign(payload, {
         sourceKind,
         originEntityKey: firstString(source.sourceEntityKey, source.entityKey, ""),
         originIndex: sourceIndex,
@@ -1162,15 +1189,90 @@ export function createInventoryDropIntent(source, target, destinationX, destinat
         quantity: Math.max(1, numberProp(source.quantity, 1)),
         sourceX: numberProp(source.x, -2147483648),
         sourceY: numberProp(source.y, -2147483648),
+        sourceRotation: firstString(source.rotation, "None"),
         destinationKind: targetKind,
         destinationEntityKey: firstString(target.targetEntityKey, target.entityKey, ""),
         destinationIndex: targetIndex,
         destinationCargoIndex: targetKind === "cargo" ? targetIndex : -1,
         destinationX: Math.trunc(destinationX),
         destinationY: Math.trunc(destinationY),
+        destinationRotation: firstString(target.dropRotation, source.rotation, "None"),
         hasDestinationPosition: true,
-    };
+    });
     return createEveCommandIntent(command, { action: payload }, options);
+}
+export function createInventoryPlacementPreview(source, target, targetChildren, destinationX, destinationY) {
+    const columns = Math.max(1, positiveInt(target.columns, 1));
+    const rows = Math.max(1, positiveInt(target.rows, 1));
+    const cells = inventoryItemCells(source).map(cell => ({
+        x: Math.trunc(destinationX) + cell.x,
+        y: Math.trunc(destinationY) + cell.y,
+    }));
+    const validCells = new Set(parseInventoryCells(target.validCells).map(cell => `${cell.x}:${cell.y}`));
+    const sourceId = firstString(source.id, "");
+    const occupied = new Set();
+    for (const child of targetChildren || []) {
+        if (child.kind !== "inventory.item" || (sourceId && child.id === sourceId))
+            continue;
+        const props = objectProps(child.props);
+        const x = Math.trunc(numberProp(props.x, 0));
+        const y = Math.trunc(numberProp(props.y, 0));
+        for (const cell of inventoryItemCells(props))
+            occupied.add(`${x + cell.x}:${y + cell.y}`);
+    }
+    let reason = "valid";
+    if (cells.some(cell => cell.x < 0 || cell.y < 0 || cell.x >= columns || cell.y >= rows)) {
+        reason = "outside-grid";
+    }
+    else if (validCells.size > 0 && cells.some(cell => !validCells.has(`${cell.x}:${cell.y}`))) {
+        reason = "outside-valid-shape";
+    }
+    else if (cells.some(cell => occupied.has(`${cell.x}:${cell.y}`))) {
+        reason = "occupied";
+    }
+    return { valid: reason === "valid", reason, cells };
+}
+function inventoryItemCells(item) {
+    const explicit = parseInventoryCells(item.shapeCells);
+    if (explicit.length > 0)
+        return explicit;
+    let width = Math.max(1, positiveInt(item.shapeWidth, 1));
+    let height = Math.max(1, positiveInt(item.shapeHeight, 1));
+    const rotation = firstString(item.rotation, "").toLowerCase();
+    if (["clockwise", "counterclockwise", "right", "left", "rotate90", "rotate270", "clockwise90", "clockwise270"].includes(rotation)) {
+        [width, height] = [height, width];
+    }
+    return Array.from({ length: width * height }, (_, index) => ({ x: index % width, y: Math.floor(index / width) }));
+}
+function parseInventoryCells(value) {
+    if (typeof value !== "string")
+        return [];
+    return value.split(";").flatMap(token => {
+        const [x, y] = token.split(",").map(Number);
+        return Number.isInteger(x) && Number.isInteger(y) ? [{ x, y }] : [];
+    });
+}
+function copyInventoryPayloadProps(source, payload) {
+    for (const [key, value] of Object.entries(source)) {
+        if (key.startsWith("payload.") && key.length > "payload.".length)
+            payload[key.slice("payload.".length)] = value;
+    }
+}
+function clearInventoryPlacementPreview(board) {
+    board.querySelectorAll(".cultui-inventory-placement-preview").forEach(element => element.remove());
+}
+function showInventoryPlacementPreview(board, source, target, targetChildren, x, y, cellSize) {
+    clearInventoryPlacementPreview(board);
+    const preview = createInventoryPlacementPreview(source, target, targetChildren, x, y);
+    for (const cell of preview.cells) {
+        const ghost = el("div", `cultui-inventory-placement-preview ${preview.valid ? "is-valid" : "is-invalid"}`);
+        ghost.style.gridColumn = String(cell.x + 1);
+        ghost.style.gridRow = String(cell.y + 1);
+        ghost.style.width = cssSize(String(cellSize));
+        ghost.style.height = cssSize(String(cellSize));
+        ghost.style.pointerEvents = "none";
+        board.append(ghost);
+    }
 }
 function renderInputBindingMap(node, props, options) {
     const root = el("section", "cultui-binding-map");
