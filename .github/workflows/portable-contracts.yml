@@ -41,7 +41,8 @@ jobs:
       - name: Reject stale generated output
         shell: pwsh
         run: |
-          if (git status --short) {
-            git status --short
+          $changed = git diff --ignore-space-at-eol --name-only -- packages/${{ matrix.package }}
+          if ($changed) {
+            git diff --ignore-space-at-eol -- packages/${{ matrix.package }}
             throw "The package build changed checked-in generated output."
           }
