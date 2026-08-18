@@ -683,7 +683,10 @@ function renderEveComponentProjection(node, options) {
         toggle.append(el("span", "toggle-copy", stringProp(props.label, "Toggle")));
         return toggle;
     }
-    if (kind === "input.number" || kind === "input.select" || kind === "control.range" || kind === "control.input.text" || kind === "control.select") {
+    if (kind === "input.select" || kind === "control.select") {
+        return renderSelect(node, props, children, layout, style, options);
+    }
+    if (kind === "input.number" || kind === "control.range" || kind === "control.input.text") {
         const field = el("label", "field cultui-field");
         assignId(field, node);
         applyBoxProps(field, props);
@@ -1537,6 +1540,46 @@ function wireCommand(element, node, commandId, props, options) {
             publish();
         }
     });
+}
+function renderSelect(node, props, children, layout, style, options) {
+    const field = el("label", "field cultui-field cultui-select");
+    assignId(field, node);
+    applyBoxProps(field, props);
+    applyGeneratedLayout(field, layout, style);
+    const label = stringProp(props.label, "");
+    if (label)
+        field.append(el("span", "field-label", label));
+    const select = el("select", "field-control cultui-field-select");
+    select.setAttribute("aria-label", label || node.id || "Select");
+    for (const child of children) {
+        if (child.kind !== "control.option" && child.kind !== "input.option" && child.kind !== "option")
+            continue;
+        const optionProps = objectProps(child.props);
+        const option = document.createElement("option");
+        option.value = stringProp(optionProps.value, child.id || "");
+        option.textContent = stringProp(optionProps.label, stringProp(optionProps.text, option.value));
+        option.disabled = boolProp(optionProps.disabled) ||
+            (optionProps.enabled !== undefined && !boolProp(optionProps.enabled));
+        select.append(option);
+    }
+    select.value = stringProp(props.value, "");
+    select.disabled = boolProp(props.disabled) || (props.enabled !== undefined && !boolProp(props.enabled));
+    const commandId = resolveComponentCommandId(props, node);
+    if (commandId) {
+        select.dataset.commandId = commandId;
+        select.addEventListener("change", () => {
+            const intent = createEveCommandIntent(commandId, {
+                ...props,
+                action: {
+                    ...objectProps(props.action),
+                    value: select.value,
+                },
+            }, options);
+            void options.commandSink?.(intent, node);
+        });
+    }
+    field.append(select);
+    return field;
 }
 function renderSlider(props, children, options) {
     const anatomy = resolveSliderAnatomy(props, children, options);

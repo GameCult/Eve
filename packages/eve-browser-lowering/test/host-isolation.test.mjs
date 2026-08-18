@@ -15,6 +15,8 @@ function installDom() {
     "HTMLElement",
     "HTMLButtonElement",
     "HTMLInputElement",
+    "HTMLSelectElement",
+    "HTMLOptionElement",
     "HTMLTextAreaElement",
     "HTMLImageElement",
   ];
@@ -148,6 +150,46 @@ test("browser lowering isolates two hosts and patches only the bound component",
     assert.equal(updatedInput.selectionStart, 1);
     assert.equal(updatedInput.selectionEnd, 4);
     assert.equal(alphaHost.scrollTop, 37);
+  } finally {
+    restoreDom();
+  }
+});
+
+test("browser lowering renders command-backed select options", () => {
+  const restoreDom = installDom();
+  try {
+    const commands = [];
+    const host = document.querySelector("#a");
+    renderEveSurface({
+      providerId: "hangar-provider",
+      surface: {
+        id: "hangar",
+        root: {
+          id: "hangar.verse",
+          kind: "control.select",
+          props: { label: "VERSE", value: "local", command: "hangar.select_verse" },
+          children: [
+            { kind: "control.option", props: { label: "Local", value: "local" } },
+            { kind: "control.option", props: { label: "GameCult", value: "gamecult" } },
+          ],
+        },
+      },
+    }, host, {
+      clientId: "browser-test",
+      commandSink: intent => commands.push(intent),
+    });
+
+    const select = host.querySelector("select");
+    assert.deepEqual([...select.options].map(option => [option.text, option.value]), [
+      ["Local", "local"],
+      ["GameCult", "gamecult"],
+    ]);
+    assert.equal(select.value, "local");
+    select.value = "gamecult";
+    select.dispatchEvent(new window.Event("change", { bubbles: true }));
+    assert.equal(commands.length, 1);
+    assert.equal(commands[0].command, "hangar.select_verse");
+    assert.equal(commands[0].payload.value, "gamecult");
   } finally {
     restoreDom();
   }
