@@ -16,15 +16,19 @@ bindings through `StateBindings`, and nested synced document regions through
 schema, presentation kind, and route hint; renderers resolve that child through
 CultMesh instead of rebuilding it with runtime-local projection code.
 
-See `../../docs/surface-contract-v1.md` for the full contract and
-`../../web/fixtures/cultui-embedded-surface.json` for the parity fixture.
-Runtime discovery and required feature coverage live in
-`../../tools/parity/parity-manifest.json`; active GUI runtimes must list
+See the
+[surface contract](https://github.com/GameCult/Eve/blob/main/docs/surface-contract-v1.md)
+for the full contract and the
+[embedded-surface fixture](https://github.com/GameCult/Eve/blob/main/web/fixtures/cultui-embedded-surface.json)
+for parity evidence. Runtime discovery and required feature coverage live in
+the [parity manifest](https://github.com/GameCult/Eve/blob/main/tools/parity/parity-manifest.json);
+active GUI runtimes must list
 `embeddedDocuments` as a supported feature and require the `embedded-surface`
 fixture.
 
 Verification entrypoints:
 
+- clean .NET package consumer: `powershell -ExecutionPolicy Bypass -File .\scripts\pack-dotnet-surface.ps1`
 - C# serialization: `dotnet test tests/GameCult.Eve.Surface.Serialization.Tests/GameCult.Eve.Surface.Serialization.Tests.csproj`
 - Browser/TypeScript: `node --test web\eve-dsl.test.mjs`
 - Semantic runtime matrix: `powershell -ExecutionPolicy Bypass -File .\scripts\run-parity-harness.ps1`

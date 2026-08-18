@@ -5,6 +5,14 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Description>Portable Eve surface and provider contracts.</Description>
+    <PackageId>GameCult.Eve.Surface</PackageId>
+    <Version>0.3.2</Version>
+    <Authors>GameCult</Authors>
+    <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/GameCult/Eve</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/GameCult/Eve</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>eve;cultui;cultmesh;multiplayer;ui</PackageTags>
     <CultLibRoot Condition="'$(CultLibRoot)' == ''">$(MSBuildThisFileDirectory)..\..\..\CultLib</CultLibRoot>
   </PropertyGroup>
 
@@ -12,6 +20,9 @@
     <ProjectReference Include="$(CultLibRoot)\src\GameCult.Caching\GameCult.Caching.csproj" />
     <ProjectReference Include="$(CultLibRoot)\src\GameCult.Mesh\GameCult.Mesh.csproj" />
   </ItemGroup>
-</Project>
 
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+</Project>
 
