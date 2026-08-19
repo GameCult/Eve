@@ -622,11 +622,20 @@ export declare const eveContractSchemas: {
                 readonly type: "integer";
                 readonly minimum: 0;
             };
+            readonly invocationHash: {
+                readonly type: "string";
+                readonly minLength: 1;
+                readonly description: "Canonical digest of the immutable invocation envelope finalized by this receipt.";
+            };
             readonly navigation: {
                 readonly type: "object";
                 readonly required: readonly ["verseId", "surfaceId"];
                 readonly properties: {
                     readonly verseId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly authorityRuntimeId: {
                         readonly type: "string";
                         readonly minLength: 1;
                     };

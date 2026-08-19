@@ -209,7 +209,8 @@ public sealed class EveSurfaceSerializationCompatibilityTests
                 "aetheria.pilot",
                 "interactive-world",
                 new[] { "cultnet+tcp://odin.gamecult.example:3076" },
-                "commander-daemon"));
+                "commander-daemon"),
+            "sha256:launch-envelope");
 
         var bytes = MessagePackSerializer.Serialize(document, Options);
         var reader = new MessagePackReader(bytes);
@@ -217,7 +218,7 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         var restored = MessagePackSerializer.Deserialize<EveCommandReceiptDocument>(bytes, Options);
 
         Assert.That(reader.NextMessagePackType, Is.EqualTo(MessagePackType.Map));
-        Assert.That(reader.ReadMapHeader(), Is.EqualTo(13));
+        Assert.That(reader.ReadMapHeader(), Is.EqualTo(14));
         Assert.That(wireJson.RootElement.GetProperty("navigation").ValueKind, Is.EqualTo(JsonValueKind.Object));
         Assert.That(restored.Navigation, Is.Not.Null);
         Assert.That(restored.Navigation!.VerseId, Is.EqualTo("gamecult.aetheria"));
@@ -225,6 +226,7 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         Assert.That(restored.Navigation.SurfaceId, Is.EqualTo("aetheria.pilot"));
         Assert.That(restored.Navigation.SurfaceKind, Is.EqualTo("interactive-world"));
         Assert.That(restored.Navigation.RendezvousEndpoints, Is.EqualTo(new[] { "cultnet+tcp://odin.gamecult.example:3076" }));
+        Assert.That(restored.InvocationHash, Is.EqualTo("sha256:launch-envelope"));
     }
 
     [Test]
@@ -263,6 +265,7 @@ public sealed class EveSurfaceSerializationCompatibilityTests
             Assert.That(restored.Navigation, Is.Not.Null);
             Assert.That(restored.Navigation!.SurfaceId, Is.EqualTo("aetheria.pilot"));
             Assert.That(restored.Navigation.AuthorityRuntimeId, Is.Empty);
+            Assert.That(restored.InvocationHash, Is.Empty);
         });
     }
 
@@ -289,7 +292,9 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         Assert.Multiple(() =>
         {
             Assert.That(wireJson.RootElement.TryGetProperty("navigation", out _), Is.False);
+            Assert.That(wireJson.RootElement.TryGetProperty("invocationHash", out _), Is.False);
             Assert.That(restored.Navigation, Is.Null);
+            Assert.That(restored.InvocationHash, Is.Empty);
         });
     }
 

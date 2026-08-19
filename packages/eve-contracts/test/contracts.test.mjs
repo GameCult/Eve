@@ -81,6 +81,7 @@ test("accepts canonical provider, surface, command, invocation, and receipt docu
     providerId: "voidbot.swarm",
     surfaceId: "voidbot.swarm",
     sourceVersion: 1,
+    invocationHash: "sha256:command-1",
   }).state, "reconciled");
 });
 

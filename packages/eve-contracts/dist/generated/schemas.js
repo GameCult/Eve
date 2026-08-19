@@ -746,6 +746,11 @@ export const eveContractSchemas = {
                 "type": "integer",
                 "minimum": 0
             },
+            "invocationHash": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Canonical digest of the immutable invocation envelope finalized by this receipt."
+            },
             "navigation": {
                 "type": "object",
                 "required": [
@@ -754,6 +759,10 @@ export const eveContractSchemas = {
                 ],
                 "properties": {
                     "verseId": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "authorityRuntimeId": {
                         "type": "string",
                         "minLength": 1
                     },

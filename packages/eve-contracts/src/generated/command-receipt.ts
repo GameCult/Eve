@@ -16,6 +16,10 @@ diagnostics?: {
 }[]
 issuedAtUtc?: string
 sourceVersion: number
+/**
+ * Canonical digest of the immutable invocation envelope finalized by this receipt.
+ */
+invocationHash?: string
 navigation?: {
 verseId: string
 authorityRuntimeId?: string
