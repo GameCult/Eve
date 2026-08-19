@@ -757,6 +757,10 @@ export const eveContractSchemas = {
             "type": "string",
             "minLength": 1
           },
+          "authorityRuntimeId": {
+            "type": "string",
+            "minLength": 1
+          },
           "providerId": {
             "type": "string"
           },

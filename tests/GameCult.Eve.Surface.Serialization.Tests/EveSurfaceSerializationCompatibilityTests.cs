@@ -208,7 +208,8 @@ public sealed class EveSurfaceSerializationCompatibilityTests
                 "aetheria.daemon",
                 "aetheria.pilot",
                 "interactive-world",
-                new[] { "cultnet+tcp://odin.gamecult.example:3076" }));
+                new[] { "cultnet+tcp://odin.gamecult.example:3076" },
+                "commander-daemon"));
 
         var bytes = MessagePackSerializer.Serialize(document, Options);
         var reader = new MessagePackReader(bytes);
@@ -220,6 +221,7 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         Assert.That(wireJson.RootElement.GetProperty("navigation").ValueKind, Is.EqualTo(JsonValueKind.Object));
         Assert.That(restored.Navigation, Is.Not.Null);
         Assert.That(restored.Navigation!.VerseId, Is.EqualTo("gamecult.aetheria"));
+        Assert.That(restored.Navigation.AuthorityRuntimeId, Is.EqualTo("commander-daemon"));
         Assert.That(restored.Navigation.SurfaceId, Is.EqualTo("aetheria.pilot"));
         Assert.That(restored.Navigation.SurfaceKind, Is.EqualTo("interactive-world"));
         Assert.That(restored.Navigation.RendezvousEndpoints, Is.EqualTo(new[] { "cultnet+tcp://odin.gamecult.example:3076" }));
@@ -260,6 +262,7 @@ public sealed class EveSurfaceSerializationCompatibilityTests
             Assert.That(restored.CommandId, Is.EqualTo("legacy-command"));
             Assert.That(restored.Navigation, Is.Not.Null);
             Assert.That(restored.Navigation!.SurfaceId, Is.EqualTo("aetheria.pilot"));
+            Assert.That(restored.Navigation.AuthorityRuntimeId, Is.Empty);
         });
     }
 

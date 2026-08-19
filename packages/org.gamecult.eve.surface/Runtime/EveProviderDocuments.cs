@@ -546,8 +546,9 @@ namespace GameCult.Eve.Surface
         {
             if (navigation == null) { writer.WriteNil(); return; }
 
-            writer.WriteMapHeader(5);
+            writer.WriteMapHeader(6);
             Write(ref writer, "verseId", navigation.VerseId);
+            Write(ref writer, "authorityRuntimeId", navigation.AuthorityRuntimeId);
             Write(ref writer, "providerId", navigation.ProviderId);
             Write(ref writer, "surfaceId", navigation.SurfaceId);
             Write(ref writer, "surfaceKind", navigation.SurfaceKind);
@@ -571,6 +572,7 @@ namespace GameCult.Eve.Surface
             try
             {
                 var verseId = "";
+                var authorityRuntimeId = "";
                 var providerId = "";
                 var surfaceId = "";
                 var surfaceKind = "";
@@ -581,6 +583,7 @@ namespace GameCult.Eve.Surface
                     switch (reader.ReadString())
                     {
                         case "verseId": verseId = ReadString(ref reader); break;
+                        case "authorityRuntimeId": authorityRuntimeId = ReadString(ref reader); break;
                         case "providerId": providerId = ReadString(ref reader); break;
                         case "surfaceId": surfaceId = ReadString(ref reader); break;
                         case "surfaceKind": surfaceKind = ReadString(ref reader); break;
@@ -588,7 +591,8 @@ namespace GameCult.Eve.Surface
                         default: reader.Skip(); break;
                     }
                 }
-                return new EveSurfaceNavigationTarget(verseId, providerId, surfaceId, surfaceKind, endpoints);
+                return new EveSurfaceNavigationTarget(
+                    verseId, providerId, surfaceId, surfaceKind, endpoints, authorityRuntimeId);
             }
             finally { reader.Depth--; }
         }
@@ -626,9 +630,11 @@ namespace GameCult.Eve.Surface
             string providerId,
             string surfaceId,
             string surfaceKind,
-            string[]? rendezvousEndpoints = null)
+            string[]? rendezvousEndpoints = null,
+            string authorityRuntimeId = "")
         {
             VerseId = verseId ?? "";
+            AuthorityRuntimeId = authorityRuntimeId ?? "";
             ProviderId = providerId ?? "";
             SurfaceId = surfaceId ?? "";
             SurfaceKind = surfaceKind ?? "";
@@ -640,5 +646,6 @@ namespace GameCult.Eve.Surface
         [Key(2)] public string SurfaceId { get; }
         [Key(3)] public string SurfaceKind { get; }
         [Key(4)] public string[] RendezvousEndpoints { get; }
+        [Key(5)] public string AuthorityRuntimeId { get; }
     }
 }

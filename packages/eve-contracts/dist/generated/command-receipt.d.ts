@@ -16,6 +16,7 @@ export interface EveCommandReceipt {
     sourceVersion: number;
     navigation?: {
         verseId: string;
+        authorityRuntimeId?: string;
         providerId?: string;
         surfaceId: string;
         surfaceKind?: string;

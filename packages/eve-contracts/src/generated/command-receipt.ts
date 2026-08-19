@@ -18,6 +18,7 @@ issuedAtUtc?: string
 sourceVersion: number
 navigation?: {
 verseId: string
+authorityRuntimeId?: string
 providerId?: string
 surfaceId: string
 surfaceKind?: string
