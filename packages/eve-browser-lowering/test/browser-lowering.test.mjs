@@ -56,6 +56,24 @@ test("world interactions emit provider-routed command intents without local auth
   assert.equal(intent.payload.directionX, 1);
 });
 
+test("ordinary controls preserve provider-declared payload fields", () => {
+  const intent = createEveCommandIntent("aetheria.hangar.launch", {
+    label: "LAUNCH",
+    command: "aetheria.hangar.launch",
+    "payload.expectedProgressionVerseId": "gamecult.aetheria",
+    "payload.expectedProgressionSourceRevision": "7",
+  }, {
+    activeSurfaceId: "aetheria.hangar",
+    clientId: "browser.hangar-test",
+    provider: { providerId: "aetheria", surfaces: [{ surfaceId: "aetheria.hangar" }] },
+  });
+
+  assert.equal(intent.payload.expectedProgressionVerseId, "gamecult.aetheria");
+  assert.equal(intent.payload.expectedProgressionSourceRevision, "7");
+  assert.equal(intent.payload.label, undefined);
+  assert.equal(intent.payload.command, undefined);
+});
+
 test("inventory drops select the provider-advertised operation and preserve spatial identity", () => {
   const intent = createInventoryDropIntent({
     sourceKind: "cargo",

@@ -1178,8 +1178,8 @@ export function createInventoryDropIntent(source, target, destinationX, destinat
     const targetIndex = numberProp(target.targetIndex, -1);
     const targetKind = firstString(target.targetKind, "");
     const payload = {};
-    copyInventoryPayloadProps(source, payload);
-    copyInventoryPayloadProps(target, payload);
+    copyPayloadProps(source, payload);
+    copyPayloadProps(target, payload);
     Object.assign(payload, {
         sourceKind,
         originEntityKey: firstString(source.sourceEntityKey, source.entityKey, ""),
@@ -1252,7 +1252,7 @@ function parseInventoryCells(value) {
         return Number.isInteger(x) && Number.isInteger(y) ? [{ x, y }] : [];
     });
 }
-function copyInventoryPayloadProps(source, payload) {
+function copyPayloadProps(source, payload) {
     for (const [key, value] of Object.entries(source)) {
         if (key.startsWith("payload.") && key.length > "payload.".length)
             payload[key.slice("payload.".length)] = value;
@@ -1590,6 +1590,8 @@ export function createEveCommandIntent(commandId, props = {}, options = {}) {
     const worldInteraction = resolveAdvertisedWorldInteraction(options, surfaceId);
     const commandBoundary = firstString(worldInteraction.commandBoundary, props.commandBoundary, action.commandBoundary, action.target);
     const receiptSchema = firstString(worldInteraction.receiptSchema, props.receiptSchema, action.receiptSchema);
+    const declaredPayload = {};
+    copyPayloadProps(props, declaredPayload);
     const intent = {
         type: "surface-command",
         schema: "gamecult.eve.command_invocation.v1",
@@ -1597,6 +1599,7 @@ export function createEveCommandIntent(commandId, props = {}, options = {}) {
         surfaceId,
         command: commandId || stringProp(action.type, "invoke"),
         payload: {
+            ...declaredPayload,
             ...action,
             transport: props.transport ?? null,
         },
