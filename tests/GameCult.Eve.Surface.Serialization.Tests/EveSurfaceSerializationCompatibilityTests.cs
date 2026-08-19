@@ -69,6 +69,46 @@ public sealed class EveSurfaceSerializationCompatibilityTests
     private static readonly MessagePackSerializerOptions Options = MessagePackSerializerOptions.Standard;
 
     [Test]
+    public void CommandInvocationHashBindsEveryImmutableEnvelopeField()
+    {
+        var request = new EveSurfaceCommandRequest(
+            "provider",
+            "surface",
+            new CultMeshOperationInvocationDescriptor(
+                "launch",
+                "launch.v1",
+                new CultMeshRouteHint(CultMeshLocalityKind.Network, "commands"),
+                "command-1"),
+            CultMesh.OperationPayload(("shipId", "ship:one")),
+            DateTimeOffset.Parse("2026-08-19T00:00:00Z"),
+            "pilot:one",
+            "eve:commands",
+            EveCommandReceiptDocument.SchemaId);
+        var same = new EveSurfaceCommandRequest(
+            request.Schema,
+            request.ProviderId,
+            request.SurfaceId,
+            request.OperationRecord,
+            new Dictionary<string, string>(request.PayloadFields, StringComparer.Ordinal),
+            request.IssuedAt,
+            request.ClientId,
+            request.CommandBoundary,
+            request.ReceiptSchema);
+        var changedPayload = new EveSurfaceCommandRequest(
+            request.ProviderId,
+            request.SurfaceId,
+            request.Operation,
+            CultMesh.OperationPayload(("shipId", "ship:two")),
+            request.IssuedAt,
+            request.ClientId,
+            request.CommandBoundary,
+            request.ReceiptSchema);
+
+        Assert.That(EveCommandInvocationHash.Compute(same), Is.EqualTo(EveCommandInvocationHash.Compute(request)));
+        Assert.That(EveCommandInvocationHash.Compute(changedPayload), Is.Not.EqualTo(EveCommandInvocationHash.Compute(request)));
+    }
+
+    [Test]
     public void LegacySevenFieldSurfaceDocumentDeserializes()
     {
         var bytes = WriteLegacySurfaceDocument();
