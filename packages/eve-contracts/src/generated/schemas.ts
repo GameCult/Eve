@@ -767,7 +767,13 @@ export const eveContractSchemas = {
       },
       "sourceVersion": {
         "type": "integer",
-        "minimum": 0
+        "minimum": 0,
+        "description": "Provider-state generation that causally owns this result. It is not implicitly an Eve surface version."
+      },
+      "presentationSurfaceVersion": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "Optional advertised base-surface version that a renderer must mount before exposing terminal presentation finality."
       },
       "invocationHash": {
         "type": "string",

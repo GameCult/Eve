@@ -266,7 +266,8 @@ public sealed class EveSurfaceSerializationCompatibilityTests
                 "interactive-world",
                 new[] { "cultnet+tcp://odin.gamecult.example:3076" },
                 "commander-daemon"),
-            "sha256:launch-envelope");
+            "sha256:launch-envelope",
+            presentationSurfaceVersion: 77);
 
         var bytes = MessagePackSerializer.Serialize(document, Options);
         var reader = new MessagePackReader(bytes);
@@ -274,7 +275,7 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         var restored = MessagePackSerializer.Deserialize<EveCommandReceiptDocument>(bytes, Options);
 
         Assert.That(reader.NextMessagePackType, Is.EqualTo(MessagePackType.Map));
-        Assert.That(reader.ReadMapHeader(), Is.EqualTo(14));
+        Assert.That(reader.ReadMapHeader(), Is.EqualTo(15));
         Assert.That(wireJson.RootElement.GetProperty("navigation").ValueKind, Is.EqualTo(JsonValueKind.Object));
         Assert.That(restored.Navigation, Is.Not.Null);
         Assert.That(restored.Navigation!.VerseId, Is.EqualTo("gamecult.aetheria"));
@@ -283,6 +284,7 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         Assert.That(restored.Navigation.SurfaceKind, Is.EqualTo("interactive-world"));
         Assert.That(restored.Navigation.RendezvousEndpoints, Is.EqualTo(new[] { "cultnet+tcp://odin.gamecult.example:3076" }));
         Assert.That(restored.InvocationHash, Is.EqualTo("sha256:launch-envelope"));
+        Assert.That(restored.PresentationSurfaceVersion, Is.EqualTo(77));
     }
 
     [Test]
@@ -322,6 +324,7 @@ public sealed class EveSurfaceSerializationCompatibilityTests
             Assert.That(restored.Navigation!.SurfaceId, Is.EqualTo("aetheria.pilot"));
             Assert.That(restored.Navigation.AuthorityRuntimeId, Is.Empty);
             Assert.That(restored.InvocationHash, Is.Empty);
+            Assert.That(restored.PresentationSurfaceVersion, Is.Zero);
         });
     }
 
@@ -349,8 +352,10 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         {
             Assert.That(wireJson.RootElement.TryGetProperty("navigation", out _), Is.False);
             Assert.That(wireJson.RootElement.TryGetProperty("invocationHash", out _), Is.False);
+            Assert.That(wireJson.RootElement.TryGetProperty("presentationSurfaceVersion", out _), Is.False);
             Assert.That(restored.Navigation, Is.Null);
             Assert.That(restored.InvocationHash, Is.Empty);
+            Assert.That(restored.PresentationSurfaceVersion, Is.Zero);
         });
     }
 

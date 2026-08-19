@@ -640,6 +640,12 @@ export declare const eveContractSchemas: {
             readonly sourceVersion: {
                 readonly type: "integer";
                 readonly minimum: 0;
+                readonly description: "Provider-state generation that causally owns this result. It is not implicitly an Eve surface version.";
+            };
+            readonly presentationSurfaceVersion: {
+                readonly type: "integer";
+                readonly minimum: 1;
+                readonly description: "Optional advertised base-surface version that a renderer must mount before exposing terminal presentation finality.";
             };
             readonly invocationHash: {
                 readonly type: "string";
