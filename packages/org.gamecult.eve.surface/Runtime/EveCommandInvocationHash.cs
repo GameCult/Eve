@@ -32,6 +32,9 @@ namespace GameCult.Eve.Surface
             Append(request.ClientId);
             Append(request.CommandBoundary);
             Append(request.ReceiptSchema);
+            Append(request.Delegation?.OriginalInvocationHash);
+            Append(request.Delegation?.OriginalClientId);
+            Append(request.Delegation?.DelegatingRuntimeId);
             using var sha256 = SHA256.Create();
             var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(canonical.ToString()));
             var digest = new StringBuilder(bytes.Length * 2);

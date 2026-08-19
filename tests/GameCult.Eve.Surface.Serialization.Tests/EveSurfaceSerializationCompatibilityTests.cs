@@ -106,6 +106,22 @@ public sealed class EveSurfaceSerializationCompatibilityTests
 
         Assert.That(EveCommandInvocationHash.Compute(same), Is.EqualTo(EveCommandInvocationHash.Compute(request)));
         Assert.That(EveCommandInvocationHash.Compute(changedPayload), Is.Not.EqualTo(EveCommandInvocationHash.Compute(request)));
+        var delegated = new EveSurfaceCommandRequest(
+            request.Schema,
+            request.ProviderId,
+            request.SurfaceId,
+            request.OperationRecord,
+            new Dictionary<string, string>(request.PayloadFields, StringComparer.Ordinal),
+            request.IssuedAt,
+            "progression-router",
+            request.CommandBoundary,
+            request.ReceiptSchema,
+            new EveCommandDelegationRecord(
+                EveCommandInvocationHash.Compute(request),
+                request.ClientId,
+                "progression-router"));
+        Assert.That(EveCommandInvocationHash.Compute(delegated), Is.Not.EqualTo(EveCommandInvocationHash.Compute(request)));
+        Assert.That(delegated.Delegation!.OriginalInvocationHash, Is.EqualTo(EveCommandInvocationHash.Compute(request)));
     }
 
     [Test]

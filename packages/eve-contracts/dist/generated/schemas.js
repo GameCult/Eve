@@ -671,6 +671,29 @@ export const eveContractSchemas = {
             "receiptSchema": {
                 "type": "string",
                 "minLength": 1
+            },
+            "delegation": {
+                "type": "object",
+                "required": [
+                    "originalInvocationHash",
+                    "originalClientId",
+                    "delegatingRuntimeId"
+                ],
+                "properties": {
+                    "originalInvocationHash": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "originalClientId": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "delegatingRuntimeId": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "additionalProperties": false
             }
         },
         "additionalProperties": false

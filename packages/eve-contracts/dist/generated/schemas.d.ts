@@ -564,6 +564,25 @@ export declare const eveContractSchemas: {
                 readonly type: "string";
                 readonly minLength: 1;
             };
+            readonly delegation: {
+                readonly type: "object";
+                readonly required: readonly ["originalInvocationHash", "originalClientId", "delegatingRuntimeId"];
+                readonly properties: {
+                    readonly originalInvocationHash: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly originalClientId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly delegatingRuntimeId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                };
+                readonly additionalProperties: false;
+            };
         };
         readonly additionalProperties: false;
     };

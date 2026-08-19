@@ -20,4 +20,9 @@ issuedAt: string
 clientId: string
 commandBoundary: string
 receiptSchema: string
+delegation?: {
+originalInvocationHash: string
+originalClientId: string
+delegatingRuntimeId: string
+}
 }
