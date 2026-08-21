@@ -195,6 +195,28 @@ test("validates an existing canonical Eve surface fixture", async () => {
   assert.equal(parseEveSurfaceDocument(fixture).providerId, "eve.world-smoke");
 });
 
+test("provider parser lowers the canonical C# MessagePack tuple without app-specific decoding", () => {
+  const advertisement = parseEveProviderAdvertisement([
+    "gamecult.eve.provider_advertisement.v1",
+    "aetheria",
+    "aetheria-daemon",
+    "aetheria.local",
+    "Aetheria",
+    "game.runtime",
+    "cultmesh://aetheria",
+    "2026-08-22T00:00:00Z",
+    ["fresh", "2026-08-22T00:00:00Z", 15_000],
+    ["gamecult.eve.surface.v1"],
+    [["cultcache", "aetheria.cc", "typed state"]],
+    [["aetheria.hangar", "gamecult.eve.surface.v1", "eve:surface:aetheria.hangar", "cultmesh-record", "active", "interactive-world",
+      ["provider-authored-world-surface", ["aetheria.frame.v1"], "aetheria.daemon.commands", "eve:commands", "gamecult.eve.command_receipt.v1", "eve:receipts", "eve:assets", ["web-reference"], "provider owns truth"]]],
+    [["hangar.select_verse", "aetheria.hangar", "cultmesh", "Select Verse"]],
+    ["aetheria-daemon.soa"],
+  ]);
+  assert.equal(advertisement.surfaces[0].worldInteraction.commandBoundary, "aetheria.daemon.commands");
+  assert.equal(advertisement.witnesses[0].ref, "aetheria.cc");
+});
+
 test("command results validate persisted receipts and transient Eve projections together", () => {
   const result = parseEveCommandResult({
     schema: "gamecult.eve.command_result.v1",

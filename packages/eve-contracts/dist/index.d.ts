@@ -52,3 +52,9 @@ export declare const parseEveCommandInvocation: (value: unknown) => EveCommandIn
 export declare const parseEveCommandReceipt: (value: unknown) => EveCommandReceipt;
 export declare const parseEveCommandResult: (value: unknown) => EveCommandResult;
 export declare const parseEveInputCapability: (value: unknown) => EveInputCapability;
+/**
+ * Converts the canonical positional MessagePack representation used by the C#
+ * Eve package into the JSON-shaped provider contract used at browser/model
+ * boundaries. This is serialization lowering, not a second advertisement DTO.
+ */
+export declare function normalizeEveProviderAdvertisement(value: unknown): unknown;

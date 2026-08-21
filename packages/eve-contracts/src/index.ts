@@ -92,7 +92,7 @@ export const isEveInputCapability = (value: unknown): value is EveInputCapabilit
   isEveContract("inputCapability", value);
 
 export const parseEveProviderAdvertisement = (value: unknown): EveProviderAdvertisement =>
-  parseEveContract("providerAdvertisement", value);
+  parseEveContract("providerAdvertisement", normalizeEveProviderAdvertisement(value));
 export const parseEveSurfaceDocument = (value: unknown): EveSurfaceDocument =>
   parseEveContract("surface", value);
 export const parseEveCommandDescriptor = (value: unknown): EveCommandDescriptor =>
@@ -113,4 +113,78 @@ function requiredValidator(schemaId: string): ValidateFunction {
   const validator = ajv.getSchema(schemaId);
   if (!validator) throw new Error(`Eve contract schema ${schemaId} was not registered.`);
   return validator;
+}
+
+/**
+ * Converts the canonical positional MessagePack representation used by the C#
+ * Eve package into the JSON-shaped provider contract used at browser/model
+ * boundaries. This is serialization lowering, not a second advertisement DTO.
+ */
+export function normalizeEveProviderAdvertisement(value: unknown): unknown {
+  if (!Array.isArray(value)) return value;
+  if (value.length < 13) return value;
+  const [schema, providerId, serviceId, verseId, title, kind, cultMeshAddress, updatedAtUtc,
+    freshness, schemas, witnesses, surfaces, commands, authorizedBodyProducerIds] = value;
+  return {
+    schema,
+    providerId,
+    serviceId,
+    verseId,
+    title,
+    kind,
+    cultMeshAddress,
+    updatedAtUtc,
+    freshness: normalizeFreshness(freshness),
+    schemas,
+    witnesses: Array.isArray(witnesses) ? witnesses.map(normalizeWitness) : witnesses,
+    surfaces: Array.isArray(surfaces) ? surfaces.map(normalizeSurfaceAdvertisement) : surfaces,
+    commands: Array.isArray(commands) ? commands.map(normalizeAdvertisedCommand) : commands,
+    ...(Array.isArray(authorizedBodyProducerIds) ? { authorizedBodyProducerIds } : {}),
+  };
+}
+
+function normalizeFreshness(value: unknown): unknown {
+  return Array.isArray(value)
+    ? { state: value[0], lastSeenAtUtc: value[1], maxAgeMs: value[2] }
+    : value;
+}
+
+function normalizeWitness(value: unknown): unknown {
+  return Array.isArray(value)
+    ? { kind: value[0], ref: value[1], summary: value[2] }
+    : value;
+}
+
+function normalizeSurfaceAdvertisement(value: unknown): unknown {
+  if (!Array.isArray(value)) return value;
+  return {
+    surfaceId: value[0],
+    schema: value[1],
+    recordRef: value[2],
+    transport: value[3],
+    status: value[4],
+    surfaceKind: value[5],
+    ...(value[6] ? { worldInteraction: normalizeWorldInteraction(value[6]) } : {}),
+  };
+}
+
+function normalizeWorldInteraction(value: unknown): unknown {
+  if (!Array.isArray(value)) return value;
+  return {
+    projectionKind: value[0],
+    stateSchemas: value[1],
+    commandBoundary: value[2],
+    commandRecordRef: value[3],
+    receiptSchema: value[4],
+    receiptRecordRef: value[5],
+    assetManifestRecordRef: value[6],
+    loweringTargets: value[7],
+    ownership: value[8],
+  };
+}
+
+function normalizeAdvertisedCommand(value: unknown): unknown {
+  return Array.isArray(value)
+    ? { command: value[0], surfaceId: value[1], transport: value[2], summary: value[3] }
+    : value;
 }
