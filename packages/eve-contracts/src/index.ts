@@ -162,8 +162,8 @@ function normalizeSurfaceAdvertisement(value: unknown): unknown {
     schema: value[1],
     recordRef: value[2],
     transport: value[3],
-    status: value[4],
-    surfaceKind: value[5],
+    ...(value[4] ? { status: value[4] } : {}),
+    ...(value[5] ? { surfaceKind: value[5] } : {}),
     ...(value[6] ? { worldInteraction: normalizeWorldInteraction(value[6]) } : {}),
   };
 }
