@@ -2,6 +2,7 @@ import { type ErrorObject } from "ajv/dist/2020.js";
 import type { EveCommandDescriptor } from "./generated/command-descriptor.js";
 import type { EveCommandInvocation } from "./generated/command-invocation.js";
 import type { EveCommandReceipt } from "./generated/command-receipt.js";
+import type { EveCommandResult } from "./generated/command-result.js";
 import type { EveInputCapability } from "./generated/input-capability.js";
 import type { EveProviderAdvertisement } from "./generated/provider-advertisement.js";
 import type { EveSurfaceDocument } from "./generated/surface.js";
@@ -9,6 +10,7 @@ import { type EveContractSchemaName } from "./generated/schemas.js";
 export type { EveCommandDescriptor } from "./generated/command-descriptor.js";
 export type { EveCommandInvocation } from "./generated/command-invocation.js";
 export type { EveCommandReceipt } from "./generated/command-receipt.js";
+export type { EveCommandResult } from "./generated/command-result.js";
 export type { EveInputCapability } from "./generated/input-capability.js";
 export type { EveProviderAdvertisement } from "./generated/provider-advertisement.js";
 export type { EveSurfaceDocument } from "./generated/surface.js";
@@ -18,6 +20,7 @@ export declare const EVE_SURFACE_SCHEMA: "gamecult.eve.surface.v1";
 export declare const EVE_COMMAND_DESCRIPTOR_SCHEMA: "gamecult.eve.command.v1";
 export declare const EVE_COMMAND_INVOCATION_SCHEMA: "gamecult.eve.command_invocation.v1";
 export declare const EVE_COMMAND_RECEIPT_SCHEMA: "gamecult.eve.command_receipt.v1";
+export declare const EVE_COMMAND_RESULT_SCHEMA: "gamecult.eve.command_result.v1";
 export declare const EVE_INPUT_CAPABILITY_SCHEMA: "gamecult.eve.input_capability.v1";
 type ContractTypes = {
     providerAdvertisement: EveProviderAdvertisement;
@@ -25,6 +28,7 @@ type ContractTypes = {
     commandDescriptor: EveCommandDescriptor;
     commandInvocation: EveCommandInvocation;
     commandReceipt: EveCommandReceipt;
+    commandResult: EveCommandResult;
     inputCapability: EveInputCapability;
 };
 export declare class EveContractValidationError extends TypeError {
@@ -39,10 +43,12 @@ export declare const isEveSurfaceDocument: (value: unknown) => value is EveSurfa
 export declare const isEveCommandDescriptor: (value: unknown) => value is EveCommandDescriptor;
 export declare const isEveCommandInvocation: (value: unknown) => value is EveCommandInvocation;
 export declare const isEveCommandReceipt: (value: unknown) => value is EveCommandReceipt;
+export declare const isEveCommandResult: (value: unknown) => value is EveCommandResult;
 export declare const isEveInputCapability: (value: unknown) => value is EveInputCapability;
 export declare const parseEveProviderAdvertisement: (value: unknown) => EveProviderAdvertisement;
 export declare const parseEveSurfaceDocument: (value: unknown) => EveSurfaceDocument;
 export declare const parseEveCommandDescriptor: (value: unknown) => EveCommandDescriptor;
 export declare const parseEveCommandInvocation: (value: unknown) => EveCommandInvocation;
 export declare const parseEveCommandReceipt: (value: unknown) => EveCommandReceipt;
+export declare const parseEveCommandResult: (value: unknown) => EveCommandResult;
 export declare const parseEveInputCapability: (value: unknown) => EveInputCapability;

@@ -63,7 +63,20 @@
               "sourceId": { "type": "string", "minLength": 1 },
               "schemaId": { "type": "string", "minLength": 1 },
               "routeKind": { "type": "string", "minLength": 1 },
-              "routeDescription": { "type": "string" }
+              "routeDescription": { "type": "string" },
+              "bindingName": { "type": "string", "minLength": 1 },
+              "documentId": { "type": "string" },
+              "fieldPath": { "type": "string" },
+              "valueKind": {
+                "type": "string",
+                "enum": ["string", "number", "boolean", "choice", "string-list"]
+              },
+              "accessMode": {
+                "type": "string",
+                "enum": ["read", "write", "read-write", "local-draft"]
+              },
+              "authority": { "type": "string" },
+              "writeCommand": { "type": "string" }
             },
             "additionalProperties": true
           }

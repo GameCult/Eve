@@ -2,6 +2,7 @@ import Ajv2020, { type ErrorObject, type ValidateFunction } from "ajv/dist/2020.
 import type { EveCommandDescriptor } from "./generated/command-descriptor.js";
 import type { EveCommandInvocation } from "./generated/command-invocation.js";
 import type { EveCommandReceipt } from "./generated/command-receipt.js";
+import type { EveCommandResult } from "./generated/command-result.js";
 import type { EveInputCapability } from "./generated/input-capability.js";
 import type { EveProviderAdvertisement } from "./generated/provider-advertisement.js";
 import type { EveSurfaceDocument } from "./generated/surface.js";
@@ -10,6 +11,7 @@ import { eveContractSchemas, type EveContractSchemaName } from "./generated/sche
 export type { EveCommandDescriptor } from "./generated/command-descriptor.js";
 export type { EveCommandInvocation } from "./generated/command-invocation.js";
 export type { EveCommandReceipt } from "./generated/command-receipt.js";
+export type { EveCommandResult } from "./generated/command-result.js";
 export type { EveInputCapability } from "./generated/input-capability.js";
 export type { EveProviderAdvertisement } from "./generated/provider-advertisement.js";
 export type { EveSurfaceDocument } from "./generated/surface.js";
@@ -20,6 +22,7 @@ export const EVE_SURFACE_SCHEMA = "gamecult.eve.surface.v1" as const;
 export const EVE_COMMAND_DESCRIPTOR_SCHEMA = "gamecult.eve.command.v1" as const;
 export const EVE_COMMAND_INVOCATION_SCHEMA = "gamecult.eve.command_invocation.v1" as const;
 export const EVE_COMMAND_RECEIPT_SCHEMA = "gamecult.eve.command_receipt.v1" as const;
+export const EVE_COMMAND_RESULT_SCHEMA = "gamecult.eve.command_result.v1" as const;
 export const EVE_INPUT_CAPABILITY_SCHEMA = "gamecult.eve.input_capability.v1" as const;
 
 type ContractTypes = {
@@ -28,6 +31,7 @@ type ContractTypes = {
   commandDescriptor: EveCommandDescriptor;
   commandInvocation: EveCommandInvocation;
   commandReceipt: EveCommandReceipt;
+  commandResult: EveCommandResult;
   inputCapability: EveInputCapability;
 };
 
@@ -82,6 +86,8 @@ export const isEveCommandInvocation = (value: unknown): value is EveCommandInvoc
   isEveContract("commandInvocation", value);
 export const isEveCommandReceipt = (value: unknown): value is EveCommandReceipt =>
   isEveContract("commandReceipt", value);
+export const isEveCommandResult = (value: unknown): value is EveCommandResult =>
+  isEveContract("commandResult", value);
 export const isEveInputCapability = (value: unknown): value is EveInputCapability =>
   isEveContract("inputCapability", value);
 
@@ -95,6 +101,11 @@ export const parseEveCommandInvocation = (value: unknown): EveCommandInvocation 
   parseEveContract("commandInvocation", value);
 export const parseEveCommandReceipt = (value: unknown): EveCommandReceipt =>
   parseEveContract("commandReceipt", value);
+export const parseEveCommandResult = (value: unknown): EveCommandResult => {
+  const result = parseEveContract("commandResult", value);
+  if (result.transientProjection) parseEveSurfaceDocument(result.transientProjection);
+  return result;
+};
 export const parseEveInputCapability = (value: unknown): EveInputCapability =>
   parseEveContract("inputCapability", value);
 

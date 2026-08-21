@@ -42,6 +42,13 @@ sourceId: string
 schemaId: string
 routeKind: string
 routeDescription?: string
+bindingName?: string
+documentId?: string
+fieldPath?: string
+valueKind?: ("string" | "number" | "boolean" | "choice" | "string-list")
+accessMode?: ("read" | "write" | "read-write" | "local-draft")
+authority?: string
+writeCommand?: string
 [k: string]: any
 }[]
 embeddedDocuments?: {
@@ -65,5 +72,6 @@ transport?: string
 authority?: string
 result?: string
 payloadSchema?: string
+captureBindings?: string[]
 [k: string]: any
 }

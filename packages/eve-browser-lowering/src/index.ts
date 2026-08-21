@@ -1,4 +1,9 @@
 import { fieldsBrowserAdapter, type EveBrowserPluginAdapter } from "./fields-browser-adapter.js";
+import {
+  parseEveCommandResult,
+  type EveCommandInvocation,
+  type EveCommandResult,
+} from "@gamecult/eve-contracts";
 
 export { fieldsBrowserAdapter, normalizeFieldsDocument, type EveBrowserPluginAdapter } from "./fields-browser-adapter.js";
 
@@ -22,6 +27,13 @@ export interface EveStateBindingDescriptor {
   schemaId: string;
   routeKind: string;
   routeDescription?: string;
+  bindingName?: string;
+  documentId?: string;
+  fieldPath?: string;
+  valueKind?: "string" | "number" | "boolean" | "choice" | "string-list";
+  accessMode?: "read" | "write" | "read-write" | "local-draft";
+  authority?: string;
+  writeCommand?: string;
 }
 
 export interface EveStateBindingHandle {
@@ -45,6 +57,12 @@ export interface EveSurfaceDocument {
     styles?: EveSurfaceStyles;
   };
   mesh?: unknown;
+  commands?: Array<{
+    command: string;
+    payloadSchema?: string;
+    captureBindings?: string[];
+    transport?: string;
+  }>;
 }
 
 export type EveSurfaceStyles =
@@ -55,18 +73,8 @@ export type EveSurfaceStyles =
     }
   | Array<{ name?: string; value?: unknown }>;
 
-export interface EveCommandIntent {
-  type: "surface-command";
-  schema: "gamecult.eve.command_invocation.v1";
-  providerId: string;
-  surfaceId: string;
-  command: string;
-  commandBoundary?: string;
-  receiptSchema?: string;
-  payload: Record<string, unknown>;
-  issuedAt: string;
-  clientId: string;
-}
+export type EveCommandIntent = EveCommandInvocation;
+export type EveBrowserCommandResult = EveCommandResult;
 
 export interface EveSemanticListItem {
   label: string;
@@ -111,13 +119,14 @@ export interface EveBrowserLoweringOptions {
   assetUrlResolver?: (uri: string, surface: EveSurfaceDocument | undefined) => string;
   body?: HTMLElement;
   clientId?: string;
-  commandSink?: (intent: EveCommandIntent, component: EveSurfaceComponent) => void | Promise<void>;
+  commandSink?: (intent: EveCommandIntent, component: EveSurfaceComponent) => EveBrowserCommandResult | void | Promise<EveBrowserCommandResult | void>;
   documentResolver?: (request: EveEmbeddedDocumentRequest, component: EveSurfaceComponent) => Promise<EveResolvedDocument | EveSurfaceDocument | EveSurfaceDocument["surface"] | undefined>;
   provider?: EveProviderAdvertisement;
   pluginAdapters?: readonly EveBrowserPluginAdapter[];
   stateBindingResolver?: EveStateBindingResolver;
   source?: string;
   statusElement?: HTMLElement;
+  draftStore?: EveBrowserDraftStore;
 }
 
 export interface EveBrowserProviderTransport {
@@ -136,6 +145,39 @@ export interface EveBrowserProviderHostOptions {
   source?: string;
   statusElement?: HTMLElement;
   pluginAdapters?: readonly EveBrowserPluginAdapter[];
+}
+
+export class EveBrowserDraftStore {
+  private readonly values = new Map<string, unknown>();
+
+  private key(providerId: string, surfaceId: string, bindingName: string): string {
+    return `${providerId}\u001f${surfaceId}\u001f${bindingName}`;
+  }
+
+  has(providerId: string, surfaceId: string, bindingName: string): boolean {
+    return this.values.has(this.key(providerId, surfaceId, bindingName));
+  }
+
+  get(providerId: string, surfaceId: string, bindingName: string): unknown {
+    return this.values.get(this.key(providerId, surfaceId, bindingName));
+  }
+
+  set(providerId: string, surfaceId: string, bindingName: string, value: unknown): void {
+    this.values.set(this.key(providerId, surfaceId, bindingName), value);
+  }
+
+  clear(providerId: string, surfaceId: string, bindingNames?: readonly string[]): void {
+    if (bindingNames?.length) {
+      for (const name of bindingNames) this.values.delete(this.key(providerId, surfaceId, name));
+      return;
+    }
+    const prefix = `${providerId}\u001f${surfaceId}\u001f`;
+    for (const key of this.values.keys()) if (key.startsWith(prefix)) this.values.delete(key);
+  }
+
+  capture(providerId: string, surfaceId: string, bindingNames: readonly string[]): Record<string, unknown> {
+    return Object.fromEntries(bindingNames.map(name => [name, this.get(providerId, surfaceId, name)]));
+  }
 }
 
 export const defaultBrowserPluginAdapters: readonly EveBrowserPluginAdapter[] = [fieldsBrowserAdapter];
@@ -183,6 +225,7 @@ export class EveBrowserProviderHost {
   private provider: EveProviderAdvertisement | undefined;
   private selected: EveProviderSurfaceAdvertisement | undefined;
   private pluginAdapters: readonly EveBrowserPluginAdapter[] = [];
+  private readonly draftStore = new EveBrowserDraftStore();
 
   constructor(
     private readonly host: HTMLElement,
@@ -191,12 +234,20 @@ export class EveBrowserProviderHost {
   ) {}
 
   async start(): Promise<void> {
-    this.provider = await this.transport.providerAdvertisement();
-    this.selected = selectAdvertisedSurface(this.provider, this.options.requestedSurfaceId);
-    this.pluginAdapters = resolveRequiredPluginAdapters(
-      this.selected,
-      this.options.pluginAdapters || defaultBrowserPluginAdapters,
-    );
+    try {
+      this.provider = await this.transport.providerAdvertisement();
+      this.selected = selectAdvertisedSurface(this.provider, this.options.requestedSurfaceId);
+      requireCommandCapability(this.selected);
+      this.pluginAdapters = resolveRequiredPluginAdapters(
+        this.selected,
+        this.options.pluginAdapters || defaultBrowserPluginAdapters,
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Eve provider capabilities are unavailable.";
+      this.host.replaceChildren(emptyState(message));
+      if (this.options.statusElement) this.options.statusElement.textContent = message;
+      throw error;
+    }
     this.active = true;
     await this.refresh();
     const pollMs = Math.max(0, this.options.pollMs ?? 250);
@@ -229,6 +280,7 @@ export class EveBrowserProviderHost {
         pluginAdapters: this.pluginAdapters,
         source: this.options.source,
         statusElement: this.options.statusElement,
+        draftStore: this.draftStore,
       });
     } catch (error) {
       if (this.options.statusElement) {
@@ -238,9 +290,64 @@ export class EveBrowserProviderHost {
   }
 
   private async submit(intent: EveCommandIntent): Promise<void> {
-    await this.transport.submitCommand(intent);
+    try {
+      const result = parseEveCommandResult(await this.transport.submitCommand(intent));
+      await this.consumeCommandResult(intent, result);
+    } catch (error) {
+      this.presentCommandStatus(error instanceof Error ? error.message : "Command failed.", "error");
+      return;
+    }
     this.lastSurfaceVersion = "";
     window.setTimeout(() => void this.refresh(), 100);
+  }
+
+  private async consumeCommandResult(intent: EveCommandIntent, result: EveBrowserCommandResult): Promise<void> {
+    const accepted = result.receipt.state === "accepted" || result.receipt.state === "reconciled";
+    if (accepted && result.draftDirective?.clear) {
+      this.draftStore.clear(intent.providerId, intent.surfaceId, result.draftDirective.bindingNames);
+    }
+    if (result.pluginPayload) {
+      const adapter = this.pluginAdapters.find(candidate => candidate.pluginId === result.pluginPayload?.pluginId);
+      if (!adapter?.consumeCommandResult) {
+        throw new Error(`No Eve plugin adapter can consume ${result.pluginPayload.pluginId}.`);
+      }
+      await adapter.consumeCommandResult(result.pluginPayload, result, {
+        provider: this.provider,
+        surface: this.selected,
+      });
+    }
+    this.presentCommandStatus(
+      result.receipt.message || result.receipt.state,
+      accepted ? "status" : "error",
+      result.transientProjection,
+    );
+  }
+
+  private presentCommandStatus(message: string, role: "status" | "error", transient?: unknown): void {
+    let region = this.host.querySelector<HTMLElement>(":scope > .eve-command-result-region");
+    if (!region) {
+      region = el("section", "eve-command-result-region");
+      region.setAttribute("aria-live", "polite");
+      this.host.append(region);
+    }
+    region.setAttribute("role", role);
+    region.replaceChildren(el("p", "eve-command-result-message", message));
+    const projection = transient as EveSurfaceDocument | undefined;
+    if (projection?.surface?.root) {
+      region.append(renderEveComponent(projection.surface.root, {
+        activeSurfaceId: projection.surface.id || this.selected?.surfaceId,
+        clientId: this.options.clientId,
+        draftStore: this.draftStore,
+        pluginAdapters: this.pluginAdapters,
+        provider: this.provider,
+      }));
+    }
+  }
+}
+
+function requireCommandCapability(surface: EveProviderSurfaceAdvertisement): void {
+  if (!surface.worldInteraction?.commandBoundary || !surface.worldInteraction.receiptSchema) {
+    throw new Error(`Eve surface ${surface.surfaceId || "(unknown)"} does not advertise a command boundary and receipt schema.`);
   }
 }
 
@@ -299,6 +406,7 @@ const defaultStyleTokens: Record<string, string> = {
 
 const loadedFontStylesheets = new Map<string, HTMLLinkElement>();
 const activeSurfaceBindings = new WeakMap<HTMLElement, EveSurfaceBindingController>();
+const surfaceDraftStores = new WeakMap<HTMLElement, EveBrowserDraftStore>();
 
 interface NormalizedStyles {
   tokens: Record<string, unknown>;
@@ -341,7 +449,12 @@ export function renderEveSurface(
   options: EveBrowserLoweringOptions = {},
 ): HTMLElement {
   activeSurfaceBindings.get(host)?.dispose();
-  const scopedOptions = scopeEveBrowserOptions(surface, options);
+  let draftStore = options.draftStore || surfaceDraftStores.get(host);
+  if (!draftStore) {
+    draftStore = new EveBrowserDraftStore();
+    surfaceDraftStores.set(host, draftStore);
+  }
+  const scopedOptions = scopeEveBrowserOptions(surface, { ...options, draftStore });
   applyEveSurfaceStyles(surface.surface?.styles, options.body ?? host);
   host.dataset.provider = surface.providerId || options.provider?.providerId || "";
   if (options.body) {
@@ -889,14 +1002,19 @@ function renderEveComponentProjection(
     return renderSelect(node, props, children, layout, style, options);
   }
 
-  if (kind === "input.number" || kind === "control.range" || kind === "control.input.text") {
-    const field = el("label", "field cultui-field");
-    assignId(field, node);
-    applyBoxProps(field, props);
-    applyGeneratedLayout(field, layout, style);
-    field.append(el("span", "field-label", stringProp(props.label, "")));
-    field.append(el("span", "field-control cultui-field-value", props.value === undefined ? "" : String(props.value)));
-    return field;
+  if (kind === "control.choice-group") {
+    return renderChoiceGroup(node, props, children, layout, style, options);
+  }
+
+  if (
+    kind === "input.number" || kind === "control.range" || kind === "control.input.number" ||
+    kind === "control.input.text" || kind === "control.input.textarea"
+  ) {
+    return renderEditableControl(node, kind, props, layout, style, options);
+  }
+
+  if (kind === "control.tabs") {
+    return renderTabs(node, props, children, layout, style, options);
   }
 
   if (kind === "color.swatch") {
@@ -1870,22 +1988,57 @@ export function createEveCommandIntent(
   const worldInteraction = resolveAdvertisedWorldInteraction(options, surfaceId);
   const commandBoundary = firstString(worldInteraction.commandBoundary, props.commandBoundary, action.commandBoundary, action.target);
   const receiptSchema = firstString(worldInteraction.receiptSchema, props.receiptSchema, action.receiptSchema);
+  if (!commandBoundary || !receiptSchema) {
+    throw new Error(`Eve surface ${surfaceId} cannot invoke commands without an advertised command boundary and receipt schema.`);
+  }
+  const operationId = commandId || stringProp(action.type, "invoke");
+  const descriptor = surface?.commands?.find(command => command.command === operationId);
+  const captureBindings = stringArray(
+    descriptor?.captureBindings ?? action.captureBindings ?? props.captureBindings,
+  );
+  const bindings = options.draftStore?.capture(providerId, surfaceId, captureBindings) ?? {};
+  const payload = commandPayload(action);
+  if (captureBindings.length) payload.bindings = bindings;
   const intent: EveCommandIntent = {
-    type: "surface-command",
     schema: "gamecult.eve.command_invocation.v1",
     providerId,
     surfaceId,
-    command: commandId || stringProp(action.type, "invoke"),
-    payload: {
-      ...action,
-      transport: props.transport ?? null,
+    operation: {
+      operationId,
+      schemaId: firstString(descriptor?.payloadSchema, action.schemaId, props.payloadSchema, "gamecult.eve.operation_payload.v1"),
+      idempotencyKey: randomIdempotencyKey(),
+      routeHint: {
+        sourceVersion: Math.max(0, Math.trunc(surface?.version ?? 0)),
+        ...(firstString(descriptor?.transport, props.transport, action.transport)
+          ? { transport: firstString(descriptor?.transport, props.transport, action.transport) }
+          : {}),
+      },
     },
+    payload,
     issuedAt: new Date().toISOString(),
     clientId: options.clientId || "eve.browser",
+    commandBoundary,
+    receiptSchema,
   };
-  if (commandBoundary) intent.commandBoundary = commandBoundary;
-  if (receiptSchema) intent.receiptSchema = receiptSchema;
   return intent;
+}
+
+function commandPayload(action: Record<string, unknown>): Record<string, unknown> {
+  const payload = { ...action };
+  for (const key of ["command", "commandBoundary", "receiptSchema", "schemaId", "captureBindings", "transport"]) {
+    delete payload[key];
+  }
+  return payload;
+}
+
+function randomIdempotencyKey(): string {
+  if (typeof globalThis.crypto?.randomUUID === "function") return globalThis.crypto.randomUUID();
+  const bytes = new Uint8Array(16);
+  globalThis.crypto?.getRandomValues?.(bytes);
+  if (!bytes.some(Boolean)) {
+    for (let index = 0; index < bytes.length; index++) bytes[index] = Math.floor(Math.random() * 256);
+  }
+  return [...bytes].map(value => value.toString(16).padStart(2, "0")).join("");
 }
 
 function resolveAdvertisedWorldInteraction(
@@ -1944,6 +2097,207 @@ function wireCommand(
   });
 }
 
+interface EditableBindingContext {
+  bindingName: string;
+  providerId: string;
+  surfaceId: string;
+  value: unknown;
+  disabled: boolean;
+  binding?: EveStateBindingDescriptor;
+}
+
+function editableBindingContext(
+  node: EveSurfaceComponent,
+  props: Record<string, unknown>,
+  options: EveBrowserLoweringOptions,
+): EditableBindingContext {
+  const binding = (node.stateBindings || []).find(candidate => candidate.targetProp === "value")
+    ?? node.stateBindings?.[0];
+  const surface = renderContext(options)?.surface;
+  const providerId = options.provider?.providerId || surface?.providerId || "surface unknown";
+  const surfaceId = options.activeSurfaceId || surface?.surface?.id || providerId;
+  const bindingName = firstString(binding?.bindingName, props.bind, binding?.pointerId, node.id);
+  const draft = bindingName && options.draftStore?.has(providerId, surfaceId, bindingName)
+    ? options.draftStore.get(providerId, surfaceId, bindingName)
+    : undefined;
+  const accessMode = binding?.accessMode || (binding ? "read" : "local-draft");
+  return {
+    binding,
+    bindingName,
+    providerId,
+    surfaceId,
+    value: draft ?? props.value ?? "",
+    disabled: boolProp(props.disabled) || accessMode === "read",
+  };
+}
+
+function updateDraft(
+  context: EditableBindingContext,
+  value: unknown,
+  options: EveBrowserLoweringOptions,
+): void {
+  if (context.bindingName) options.draftStore?.set(context.providerId, context.surfaceId, context.bindingName, value);
+}
+
+function publishDirectEdit(
+  context: EditableBindingContext,
+  value: unknown,
+  node: EveSurfaceComponent,
+  options: EveBrowserLoweringOptions,
+): void {
+  const binding = context.binding;
+  const writeCommand = binding?.writeCommand;
+  if (!binding || !writeCommand || !context.bindingName) return;
+  void options.commandSink?.(createEveCommandIntent(writeCommand, {
+    action: {
+      bindingName: context.bindingName,
+      documentId: binding.documentId,
+      fieldPath: binding.fieldPath,
+      value,
+    },
+  }, options), node);
+}
+
+function renderEditableControl(
+  node: EveSurfaceComponent,
+  kind: string,
+  props: Record<string, unknown>,
+  layout: Record<string, unknown>,
+  style: Record<string, unknown>,
+  options: EveBrowserLoweringOptions,
+): HTMLElement {
+  const context = editableBindingContext(node, props, options);
+  const field = el("label", "field cultui-field cultui-editable");
+  assignId(field, node);
+  applyBoxProps(field, props);
+  applyGeneratedLayout(field, layout, style);
+  const label = stringProp(props.label, "");
+  if (label) field.append(el("span", "field-label", label));
+  const control = kind === "control.input.textarea"
+    ? el("textarea", "field-control cultui-field-input") as HTMLTextAreaElement
+    : el("input", "field-control cultui-field-input") as HTMLInputElement;
+  if (control instanceof HTMLInputElement) {
+    control.type = kind.includes("number") || kind === "control.range" ? "number" : "text";
+    if (props.min !== undefined) control.min = String(props.min);
+    if (props.max !== undefined) control.max = String(props.max);
+    if (props.step !== undefined) control.step = String(props.step);
+  } else if (props.rows !== undefined) {
+    control.rows = positiveInt(props.rows, 3);
+  }
+  control.value = String(context.value ?? "");
+  control.disabled = context.disabled;
+  control.name = context.bindingName;
+  control.dataset.bindingName = context.bindingName;
+  control.setAttribute("aria-label", label || context.bindingName || node.id || "Input");
+  if (props.placeholder !== undefined) control.setAttribute("placeholder", String(props.placeholder));
+  if (boolProp(props.required)) control.required = true;
+  control.addEventListener("input", () => {
+    const value = control instanceof HTMLInputElement && control.type === "number"
+      ? (control.value === "" ? "" : Number(control.value))
+      : control.value;
+    updateDraft(context, value, options);
+  });
+  control.addEventListener("change", () => {
+    const value = control instanceof HTMLInputElement && control.type === "number"
+      ? (control.value === "" ? "" : Number(control.value))
+      : control.value;
+    publishDirectEdit(context, value, node, options);
+  });
+  field.append(control);
+  const validation = firstString(props.validationMessage, props.error, "");
+  if (validation) {
+    const message = el("span", "cultui-field-validation", validation);
+    message.setAttribute("role", "alert");
+    field.append(message);
+    control.setAttribute("aria-invalid", "true");
+  }
+  return field;
+}
+
+function renderChoiceGroup(
+  node: EveSurfaceComponent,
+  props: Record<string, unknown>,
+  children: EveSurfaceComponent[],
+  layout: Record<string, unknown>,
+  style: Record<string, unknown>,
+  options: EveBrowserLoweringOptions,
+): HTMLElement {
+  const context = editableBindingContext(node, props, options);
+  const group = el("fieldset", "field cultui-field cultui-choice-group") as HTMLFieldSetElement;
+  assignId(group, node);
+  applyGeneratedLayout(group, layout, style);
+  const label = firstString(props.label, node.text, context.bindingName);
+  if (label) group.append(el("legend", "field-label", label));
+  for (const child of children) {
+    const optionProps = objectProps(child.props);
+    const value = firstString(optionProps.value, child.id);
+    const option = el("label", "cultui-choice");
+    const input = el("input") as HTMLInputElement;
+    input.type = boolProp(props.multiple) ? "checkbox" : "radio";
+    input.name = context.bindingName;
+    input.value = value;
+    input.disabled = context.disabled || boolProp(optionProps.disabled);
+    input.checked = input.type === "checkbox"
+      ? stringArray(context.value).includes(value)
+      : String(context.value) === value;
+    input.addEventListener("change", () => {
+      const next = input.type === "checkbox"
+        ? [...group.querySelectorAll<HTMLInputElement>("input:checked")].map(candidate => candidate.value)
+        : value;
+      updateDraft(context, next, options);
+      publishDirectEdit(context, next, node, options);
+    });
+    option.append(input, document.createTextNode(firstString(optionProps.label, child.text, value)));
+    group.append(option);
+  }
+  return group;
+}
+
+function renderTabs(
+  node: EveSurfaceComponent,
+  props: Record<string, unknown>,
+  children: EveSurfaceComponent[],
+  layout: Record<string, unknown>,
+  style: Record<string, unknown>,
+  options: EveBrowserLoweringOptions,
+): HTMLElement {
+  const context = editableBindingContext(node, { ...props, bind: props.bind || `${node.id || "tabs"}.selected` }, options);
+  const root = el("section", "cultui-tabs");
+  assignId(root, node);
+  applyGeneratedLayout(root, layout, style);
+  const tabList = el("div", "cultui-tab-list");
+  tabList.setAttribute("role", "tablist");
+  const panels = el("div", "cultui-tab-panels");
+  const selected = firstString(context.value, objectProps(children[0]?.props).value, children[0]?.id);
+  const activate = (value: string) => {
+    updateDraft(context, value, options);
+    for (const button of tabList.querySelectorAll<HTMLButtonElement>("[role=tab]")) {
+      const active = button.dataset.value === value;
+      button.setAttribute("aria-selected", String(active));
+      button.tabIndex = active ? 0 : -1;
+    }
+    for (const panel of panels.querySelectorAll<HTMLElement>("[role=tabpanel]")) panel.hidden = panel.dataset.value !== value;
+  };
+  for (const [index, child] of children.entries()) {
+    const childProps = objectProps(child.props);
+    const value = firstString(childProps.value, child.id, String(index));
+    const button = el("button", "cultui-tab", firstString(childProps.label, child.text, value)) as HTMLButtonElement;
+    button.type = "button";
+    button.dataset.value = value;
+    button.setAttribute("role", "tab");
+    button.addEventListener("click", () => activate(value));
+    tabList.append(button);
+    const panel = el("section", "cultui-tab-panel");
+    panel.dataset.value = value;
+    panel.setAttribute("role", "tabpanel");
+    for (const content of child.children || []) panel.append(renderEveComponent(content, options));
+    panels.append(panel);
+  }
+  root.append(tabList, panels);
+  activate(selected);
+  return root;
+}
+
 function renderSelect(
   node: EveSurfaceComponent,
   props: Record<string, unknown>,
@@ -1952,6 +2306,7 @@ function renderSelect(
   style: Record<string, unknown>,
   options: EveBrowserLoweringOptions,
 ): HTMLElement {
+  const context = editableBindingContext(node, props, options);
   const field = el("label", "field cultui-field cultui-select");
   assignId(field, node);
   applyBoxProps(field, props);
@@ -1971,13 +2326,16 @@ function renderSelect(
       (optionProps.enabled !== undefined && !boolProp(optionProps.enabled));
     select.append(option);
   }
-  select.value = stringProp(props.value, "");
-  select.disabled = boolProp(props.disabled) || (props.enabled !== undefined && !boolProp(props.enabled));
+  select.value = String(context.value ?? "");
+  select.name = context.bindingName;
+  select.dataset.bindingName = context.bindingName;
+  select.disabled = context.disabled || (props.enabled !== undefined && !boolProp(props.enabled));
 
   const commandId = resolveComponentCommandId(props, node);
   if (commandId) {
     select.dataset.commandId = commandId;
     select.addEventListener("change", () => {
+      updateDraft(context, select.value, options);
       const intent = createEveCommandIntent(commandId, {
         ...props,
         action: {
@@ -1986,6 +2344,11 @@ function renderSelect(
         },
       }, options);
       void options.commandSink?.(intent, node);
+    });
+  } else {
+    select.addEventListener("change", () => {
+      updateDraft(context, select.value, options);
+      publishDirectEdit(context, select.value, node, options);
     });
   }
   field.append(select);
@@ -2204,6 +2567,12 @@ export function projectSemanticListItems(value: unknown): EveSemanticListItem[] 
 
 function stringProp(value: unknown, fallback: string): string {
   return value === null || value === undefined ? fallback : String(value);
+}
+
+function stringArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(item => String(item).trim()).filter(Boolean);
+  if (typeof value === "string") return value.split(",").map(item => item.trim()).filter(Boolean);
+  return [];
 }
 
 function firstString(...values: unknown[]): string {

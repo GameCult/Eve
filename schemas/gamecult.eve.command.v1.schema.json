@@ -12,7 +12,12 @@
     "transport": { "type": "string" },
     "authority": { "type": "string" },
     "result": { "type": "string" },
-    "payloadSchema": { "type": "string" }
+    "payloadSchema": { "type": "string" },
+    "captureBindings": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    }
   },
   "additionalProperties": true
 }

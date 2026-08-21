@@ -13,6 +13,7 @@ const contracts = [
   ["commandDescriptor", "EveCommandDescriptor", "command-descriptor.ts", "gamecult.eve.command.v1.schema.json"],
   ["commandInvocation", "EveCommandInvocation", "command-invocation.ts", "gamecult.eve.command_invocation.v1.schema.json"],
   ["commandReceipt", "EveCommandReceipt", "command-receipt.ts", "gamecult.eve.command_receipt.v1.schema.json"],
+  ["commandResult", "EveCommandResult", "command-result.ts", "gamecult.eve.command_result.v1.schema.json"],
   ["inputCapability", "EveInputCapability", "input-capability.ts", "gamecult.eve.input_capability.v1.schema.json"],
 ];
 

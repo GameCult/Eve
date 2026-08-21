@@ -429,6 +429,30 @@ export declare const eveContractSchemas: {
                                 readonly routeDescription: {
                                     readonly type: "string";
                                 };
+                                readonly bindingName: {
+                                    readonly type: "string";
+                                    readonly minLength: 1;
+                                };
+                                readonly documentId: {
+                                    readonly type: "string";
+                                };
+                                readonly fieldPath: {
+                                    readonly type: "string";
+                                };
+                                readonly valueKind: {
+                                    readonly type: "string";
+                                    readonly enum: readonly ["string", "number", "boolean", "choice", "string-list"];
+                                };
+                                readonly accessMode: {
+                                    readonly type: "string";
+                                    readonly enum: readonly ["read", "write", "read-write", "local-draft"];
+                                };
+                                readonly authority: {
+                                    readonly type: "string";
+                                };
+                                readonly writeCommand: {
+                                    readonly type: "string";
+                                };
                             };
                             readonly additionalProperties: true;
                         };
@@ -504,6 +528,14 @@ export declare const eveContractSchemas: {
             };
             readonly payloadSchema: {
                 readonly type: "string";
+            };
+            readonly captureBindings: {
+                readonly type: "array";
+                readonly items: {
+                    readonly type: "string";
+                    readonly minLength: 1;
+                };
+                readonly uniqueItems: true;
             };
         };
         readonly additionalProperties: true;
@@ -653,6 +685,68 @@ export declare const eveContractSchemas: {
             };
         };
         readonly additionalProperties: true;
+    };
+    readonly commandResult: {
+        readonly $schema: "https://json-schema.org/draft/2020-12/schema";
+        readonly $id: "gamecult.eve.command_result.v1";
+        readonly title: "Eve Command Result";
+        readonly type: "object";
+        readonly required: readonly ["schema", "receipt"];
+        readonly properties: {
+            readonly schema: {
+                readonly const: "gamecult.eve.command_result.v1";
+            };
+            readonly receipt: {
+                readonly $ref: "gamecult.eve.command_receipt.v1";
+            };
+            readonly transientProjection: {
+                readonly type: "object";
+                readonly required: readonly ["schema"];
+                readonly properties: {
+                    readonly schema: {
+                        readonly const: "gamecult.eve.surface.v1";
+                    };
+                };
+                readonly additionalProperties: true;
+            };
+            readonly pluginPayload: {
+                readonly type: "object";
+                readonly required: readonly ["pluginId", "schemaId", "payload"];
+                readonly properties: {
+                    readonly pluginId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly schemaId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly payload: {
+                        readonly type: "object";
+                    };
+                };
+                readonly additionalProperties: false;
+            };
+            readonly draftDirective: {
+                readonly type: "object";
+                readonly required: readonly ["clear"];
+                readonly properties: {
+                    readonly clear: {
+                        readonly type: "boolean";
+                    };
+                    readonly bindingNames: {
+                        readonly type: "array";
+                        readonly items: {
+                            readonly type: "string";
+                            readonly minLength: 1;
+                        };
+                        readonly uniqueItems: true;
+                    };
+                };
+                readonly additionalProperties: false;
+            };
+        };
+        readonly additionalProperties: false;
     };
     readonly inputCapability: {
         readonly $schema: "https://json-schema.org/draft/2020-12/schema";

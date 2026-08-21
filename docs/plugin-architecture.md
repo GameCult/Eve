@@ -58,6 +58,13 @@ Providers own:
 - reconciliation;
 - side effects.
 
+Command delivery returns `gamecult.eve.command_result.v1`. The generic result
+always contains the provider's persisted receipt and may carry a transient Eve
+projection. A single optional plugin payload names its plugin id and schema;
+only that plugin's renderer adapter may consume it. The payload cannot accept a
+provider command or mutate provider state, so plugin rendering never becomes a
+shadow authority.
+
 Odin/CultMesh owns:
 
 - provider advertisement discovery;

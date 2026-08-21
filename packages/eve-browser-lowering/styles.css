@@ -1121,3 +1121,50 @@ body[data-pixel-art="true"] .cultui-background {
     width: auto;
   }
 }
+.cultui-field-input,
+.cultui-field-select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 0.65rem 0.75rem;
+  color: var(--text, inherit);
+  background: var(--panel-inset, rgba(0, 0, 0, 0.25));
+  border: 1px solid var(--border, currentColor);
+  border-radius: 0.25rem;
+  font: inherit;
+}
+
+textarea.cultui-field-input {
+  resize: vertical;
+}
+
+.cultui-field-validation {
+  display: block;
+  color: var(--danger, #ff8e8e);
+  margin-top: 0.25rem;
+}
+
+.cultui-choice-group {
+  border: 0;
+  padding: 0;
+}
+
+.cultui-choice {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.cultui-tab-list {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+}
+
+.cultui-tab[aria-selected="true"] {
+  border-bottom-color: var(--accent, currentColor);
+}
+
+.eve-command-result-region {
+  margin-top: 0.75rem;
+}

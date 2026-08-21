@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { JSDOM } from "jsdom";
-import { renderEveSurface } from "../dist/index.js";
+import { EveBrowserDraftStore, renderEveSurface } from "../dist/index.js";
 
 function installDom() {
   const dom = new JSDOM("<!doctype html><html><head></head><body><div id='a'></div><div id='b'></div></body></html>", {
@@ -104,6 +104,7 @@ test("browser lowering isolates two hosts and patches only the bound component",
       assetUrlResolver: uri => `https://alpha.assets${uri}`,
       commandSink: intent => alphaCommands.push(intent),
       pluginAdapters: [testInputAdapter(() => { alphaInputRenders++; })],
+      provider: { providerId: "alpha", surfaces: [{ surfaceId: "alpha.hangar", worldInteraction: { commandBoundary: "alpha.commands", receiptSchema: "gamecult.eve.command_receipt.v1" } }] },
       stateBindingResolver: async () => ({
         latest: async () => "hydrated",
         watch: callback => {
@@ -116,6 +117,7 @@ test("browser lowering isolates two hosts and patches only the bound component",
       assetUrlResolver: uri => `https://beta.assets${uri}`,
       commandSink: intent => betaCommands.push(intent),
       pluginAdapters: [testInputAdapter()],
+      provider: { providerId: "beta", surfaces: [{ surfaceId: "beta.hangar", worldInteraction: { commandBoundary: "beta.commands", receiptSchema: "gamecult.eve.command_receipt.v1" } }] },
     });
 
     await new Promise(resolve => setTimeout(resolve, 0));
@@ -177,6 +179,7 @@ test("browser lowering renders command-backed select options", () => {
     }, host, {
       clientId: "browser-test",
       commandSink: intent => commands.push(intent),
+      provider: { providerId: "hangar-provider", surfaces: [{ surfaceId: "hangar", worldInteraction: { commandBoundary: "hangar.commands", receiptSchema: "gamecult.eve.command_receipt.v1" } }] },
     });
 
     const select = host.querySelector("select");
@@ -188,8 +191,75 @@ test("browser lowering renders command-backed select options", () => {
     select.value = "gamecult";
     select.dispatchEvent(new window.Event("change", { bubbles: true }));
     assert.equal(commands.length, 1);
-    assert.equal(commands[0].command, "hangar.select_verse");
+    assert.equal(commands[0].operation.operationId, "hangar.select_verse");
     assert.equal(commands[0].payload.value, "gamecult");
+  } finally {
+    restoreDom();
+  }
+});
+
+test("editable bindings preserve local drafts across authoritative refresh and operations capture them", () => {
+  const restoreDom = installDom();
+  try {
+    const commands = [];
+    const drafts = new EveBrowserDraftStore();
+    const host = document.querySelector("#a");
+    const provider = {
+      providerId: "ghostlight",
+      surfaces: [{ surfaceId: "ghostlight.play", worldInteraction: {
+        commandBoundary: "ghostlight.eve.commands",
+        receiptSchema: "gamecult.eve.command_result.v1",
+      } }],
+    };
+    const surface = value => ({
+      providerId: "ghostlight",
+      version: 7,
+      commands: [{
+        command: "session_zero.message.send",
+        payloadSchema: "session_zero.message.send.v1",
+        captureBindings: ["composer.message"],
+      }],
+      surface: {
+        id: "ghostlight.play",
+        root: { id: "root", kind: "column", children: [
+          {
+            id: "composer",
+            kind: "control.input.textarea",
+            props: { label: "Message", value },
+            stateBindings: [{
+              targetProp: "value",
+              pointerId: "ghostlight.local.composer.message",
+              sourceId: "eve.browser.local",
+              schemaId: "gamecult.eve.local_draft.v1",
+              routeKind: "in-process",
+              bindingName: "composer.message",
+              valueKind: "string",
+              accessMode: "local-draft",
+              authority: "eve.browser",
+            }],
+          },
+          { id: "send", kind: "control.button", props: { label: "Send", command: "session_zero.message.send" } },
+        ] },
+      },
+    });
+    const options = { provider, draftStore: drafts, commandSink: intent => commands.push(intent) };
+    renderEveSurface(surface(""), host, options);
+    const composer = host.querySelector("textarea");
+    composer.value = "The world should remember this.";
+    composer.dispatchEvent(new window.Event("input", { bubbles: true }));
+
+    renderEveSurface(surface("stale provider value"), host, options);
+    assert.equal(host.querySelector("textarea").value, "The world should remember this.");
+    host.querySelector("button").click();
+    assert.deepEqual(commands[0].payload.bindings, {
+      "composer.message": "The world should remember this.",
+    });
+    assert.equal(commands[0].operation.schemaId, "session_zero.message.send.v1");
+    assert.equal(commands[0].operation.routeHint.sourceVersion, 7);
+
+    drafts.clear("ghostlight", "ghostlight.play", ["composer.message"]);
+    renderEveSurface(surface("accepted provider value"), host, options);
+    assert.equal(host.querySelector("textarea").value, "accepted provider value");
   } finally {
     restoreDom();
   }

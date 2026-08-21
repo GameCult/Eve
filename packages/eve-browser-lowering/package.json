@@ -8,6 +8,9 @@
     "dist",
     "styles.css"
   ],
+  "dependencies": {
+    "@gamecult/eve-contracts": "file:../eve-contracts"
+  },
   "scripts": {
     "build": "node ./node_modules/typescript/bin/tsc -p tsconfig.json",
     "test": "node ./node_modules/typescript/bin/tsc -p tsconfig.json && node --test test/*.test.mjs"

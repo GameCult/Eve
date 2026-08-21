@@ -8,6 +8,7 @@ import {
   isEveCommandDescriptor,
   parseEveCommandInvocation,
   parseEveCommandReceipt,
+  parseEveCommandResult,
   parseEveInputCapability,
   parseEveProviderAdvertisement,
   parseEveSurfaceDocument,
@@ -192,6 +193,33 @@ test("validates an existing canonical Eve surface fixture", async () => {
   );
   const fixture = JSON.parse(await readFile(fixturePath, "utf8"));
   assert.equal(parseEveSurfaceDocument(fixture).providerId, "eve.world-smoke");
+});
+
+test("command results validate persisted receipts and transient Eve projections together", () => {
+  const result = parseEveCommandResult({
+    schema: "gamecult.eve.command_result.v1",
+    receipt: {
+      schema: "gamecult.eve.command_receipt.v1",
+      receiptId: "receipt-2",
+      commandId: "command-2",
+      command: "session.message.send",
+      state: "accepted",
+      ownerRepo: "Ghostlight",
+      authority: "SessionZeroKernel",
+      providerId: "ghostlight",
+      surfaceId: "ghostlight.play",
+      sourceVersion: 4,
+    },
+    transientProjection: surface,
+    draftDirective: { clear: true, bindingNames: ["composer.message"] },
+  });
+  assert.equal(result.receipt.state, "accepted");
+  assert.equal(result.transientProjection.providerId, "voidbot.swarm");
+  assert.throws(() => parseEveCommandResult({
+    schema: "gamecult.eve.command_result.v1",
+    receipt: result.receipt,
+    transientProjection: { schema: "gamecult.eve.surface.v1" },
+  }), EveContractValidationError);
 });
 
 test("validates the Epiphany Model Atlas advertisement and canonical surface", async () => {

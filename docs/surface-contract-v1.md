@@ -247,14 +247,20 @@ invocations use `gamecult.eve.command_invocation.v1`:
 
 ```json
 {
-  "type": "surface-command",
   "schema": "gamecult.eve.command_invocation.v1",
   "providerId": "gamecult.home.vn",
   "surfaceId": "sai.visual_novel.surface",
-  "command": "story.choose",
+  "operation": {
+    "operationId": "story.choose",
+    "schemaId": "sai.story_choice.v1",
+    "idempotencyKey": "21a816d5-7ed5-4513-afb0-0a9bc9aa334b",
+    "routeHint": { "sourceVersion": 41 }
+  },
   "payload": { "index": 0, "targetPath": "eve" },
   "issuedAt": "2026-05-31T00:00:00.000Z",
-  "clientId": "browser.reference"
+  "clientId": "browser.reference",
+  "commandBoundary": "sai.commands",
+  "receiptSchema": "gamecult.eve.command_receipt.v1"
 }
 ```
 
@@ -283,6 +289,13 @@ are not the authoritative live command model and should not appear as public
 runtime construction APIs.
 
 Renderer command requests carry `CultMeshOperationInvocationDescriptor` values.
+Editable controls remain state bindings rather than form-shaped command DTOs.
+Bindings may additionally name their document and field, value kind, access
+mode, authority, stable `bindingName`, and optional `writeCommand`. Renderers
+keep unaccepted edits as local drafts. Operations declare `captureBindings` and
+receive those values under `payload.bindings`; accepted command results may
+request that exact bindings be cleared. HTML form elements are an accessibility
+lowering detail, not part of Eve's public ontology.
 That invocation descriptor is the canonical operation identity at click/change
 time and preserves request schema, preferred route, and optional idempotency.
 Renderer command requests also carry `CultMeshOperationPayload`, a shared

@@ -7,5 +7,6 @@ export interface EveCommandDescriptor {
     authority?: string;
     result?: string;
     payloadSchema?: string;
+    captureBindings?: string[];
     [k: string]: any;
 }

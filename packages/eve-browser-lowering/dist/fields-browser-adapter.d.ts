@@ -4,6 +4,14 @@ export interface EveBrowserPluginAdapter {
     componentKinds: readonly string[];
     schemas: readonly string[];
     normalizeDocument(schemaId: string | undefined, value: unknown): unknown;
+    consumeCommandResult?: (payload: {
+        pluginId: string;
+        schemaId: string;
+        payload: Record<string, unknown>;
+    }, result: unknown, context: {
+        provider: unknown;
+        surface: unknown;
+    }) => void | Promise<void>;
     renderComponent?: (component: FieldsComponent, props: Record<string, unknown>, layout: Record<string, unknown>, style: Record<string, unknown>, options: FieldsLoweringOptions, context: FieldsRuntimeContext) => HTMLElement;
 }
 export declare const fieldsBrowserAdapter: EveBrowserPluginAdapter;

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "gamecult.eve.operation_payload.v1",
+  "title": "Eve Generic Operation Payload",
+  "type": "object",
+  "properties": {
+    "bindings": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

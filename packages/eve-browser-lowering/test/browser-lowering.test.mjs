@@ -49,7 +49,10 @@ test("world interactions emit provider-routed command intents without local auth
     },
   });
 
-  assert.equal(intent.command, "world.move");
+  assert.equal(intent.operation.operationId, "world.move");
+  assert.equal(intent.operation.schemaId, "gamecult.eve.operation_payload.v1");
+  assert.ok(intent.operation.idempotencyKey);
+  assert.equal(intent.operation.routeHint.sourceVersion, 0);
   assert.equal(intent.commandBoundary, "example.commands");
   assert.equal(intent.receiptSchema, "example.receipt.v1");
   assert.equal(intent.payload.actorEntityId, "entity.player");
@@ -75,10 +78,16 @@ test("inventory drops select the provider-advertised operation and preserve spat
   }, 7, 9, {
     activeSurfaceId: "aetheria.refit",
     clientId: "browser.inventory-test",
-    provider: { providerId: "aetheria", surfaces: [{ surfaceId: "aetheria.refit" }] },
+    provider: { providerId: "aetheria", surfaces: [{
+      surfaceId: "aetheria.refit",
+      worldInteraction: {
+        commandBoundary: "aetheria.refit.commands",
+        receiptSchema: "gamecult.eve.command_receipt.v1",
+      },
+    }] },
   });
 
-  assert.equal(intent.command, "aetheria.daemon.commands.EquipItem");
+  assert.equal(intent.operation.operationId, "aetheria.daemon.commands.EquipItem");
   assert.equal(intent.payload.originEntityKey, "zone.0.entity.1");
   assert.equal(intent.payload.originCargoIndex, 2);
   assert.equal(intent.payload.destinationEntityKey, "zone.0.entity.1");

@@ -506,6 +506,41 @@ export const eveContractSchemas = {
                                 },
                                 "routeDescription": {
                                     "type": "string"
+                                },
+                                "bindingName": {
+                                    "type": "string",
+                                    "minLength": 1
+                                },
+                                "documentId": {
+                                    "type": "string"
+                                },
+                                "fieldPath": {
+                                    "type": "string"
+                                },
+                                "valueKind": {
+                                    "type": "string",
+                                    "enum": [
+                                        "string",
+                                        "number",
+                                        "boolean",
+                                        "choice",
+                                        "string-list"
+                                    ]
+                                },
+                                "accessMode": {
+                                    "type": "string",
+                                    "enum": [
+                                        "read",
+                                        "write",
+                                        "read-write",
+                                        "local-draft"
+                                    ]
+                                },
+                                "authority": {
+                                    "type": "string"
+                                },
+                                "writeCommand": {
+                                    "type": "string"
                                 }
                             },
                             "additionalProperties": true
@@ -600,6 +635,14 @@ export const eveContractSchemas = {
             },
             "payloadSchema": {
                 "type": "string"
+            },
+            "captureBindings": {
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "uniqueItems": true
             }
         },
         "additionalProperties": true
@@ -780,6 +823,79 @@ export const eveContractSchemas = {
             }
         },
         "additionalProperties": true
+    },
+    "commandResult": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "gamecult.eve.command_result.v1",
+        "title": "Eve Command Result",
+        "type": "object",
+        "required": [
+            "schema",
+            "receipt"
+        ],
+        "properties": {
+            "schema": {
+                "const": "gamecult.eve.command_result.v1"
+            },
+            "receipt": {
+                "$ref": "gamecult.eve.command_receipt.v1"
+            },
+            "transientProjection": {
+                "type": "object",
+                "required": [
+                    "schema"
+                ],
+                "properties": {
+                    "schema": {
+                        "const": "gamecult.eve.surface.v1"
+                    }
+                },
+                "additionalProperties": true
+            },
+            "pluginPayload": {
+                "type": "object",
+                "required": [
+                    "pluginId",
+                    "schemaId",
+                    "payload"
+                ],
+                "properties": {
+                    "pluginId": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "schemaId": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "payload": {
+                        "type": "object"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "draftDirective": {
+                "type": "object",
+                "required": [
+                    "clear"
+                ],
+                "properties": {
+                    "clear": {
+                        "type": "boolean"
+                    },
+                    "bindingNames": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "uniqueItems": true
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "additionalProperties": false
     },
     "inputCapability": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",

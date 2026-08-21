@@ -1,4 +1,5 @@
 import { type EveBrowserPluginAdapter } from "./fields-browser-adapter.js";
+import { type EveCommandInvocation, type EveCommandResult } from "@gamecult/eve-contracts";
 export { fieldsBrowserAdapter, normalizeFieldsDocument, type EveBrowserPluginAdapter } from "./fields-browser-adapter.js";
 export interface EveSurfaceComponent {
     id?: string;
@@ -19,6 +20,13 @@ export interface EveStateBindingDescriptor {
     schemaId: string;
     routeKind: string;
     routeDescription?: string;
+    bindingName?: string;
+    documentId?: string;
+    fieldPath?: string;
+    valueKind?: "string" | "number" | "boolean" | "choice" | "string-list";
+    accessMode?: "read" | "write" | "read-write" | "local-draft";
+    authority?: string;
+    writeCommand?: string;
 }
 export interface EveStateBindingHandle {
     latest(): Promise<unknown>;
@@ -36,6 +44,12 @@ export interface EveSurfaceDocument {
         styles?: EveSurfaceStyles;
     };
     mesh?: unknown;
+    commands?: Array<{
+        command: string;
+        payloadSchema?: string;
+        captureBindings?: string[];
+        transport?: string;
+    }>;
 }
 export type EveSurfaceStyles = {
     tokens?: Record<string, unknown>;
@@ -49,18 +63,8 @@ export type EveSurfaceStyles = {
     name?: string;
     value?: unknown;
 }>;
-export interface EveCommandIntent {
-    type: "surface-command";
-    schema: "gamecult.eve.command_invocation.v1";
-    providerId: string;
-    surfaceId: string;
-    command: string;
-    commandBoundary?: string;
-    receiptSchema?: string;
-    payload: Record<string, unknown>;
-    issuedAt: string;
-    clientId: string;
-}
+export type EveCommandIntent = EveCommandInvocation;
+export type EveBrowserCommandResult = EveCommandResult;
 export interface EveSemanticListItem {
     label: string;
     status: string;
@@ -99,13 +103,14 @@ export interface EveBrowserLoweringOptions {
     assetUrlResolver?: (uri: string, surface: EveSurfaceDocument | undefined) => string;
     body?: HTMLElement;
     clientId?: string;
-    commandSink?: (intent: EveCommandIntent, component: EveSurfaceComponent) => void | Promise<void>;
+    commandSink?: (intent: EveCommandIntent, component: EveSurfaceComponent) => EveBrowserCommandResult | void | Promise<EveBrowserCommandResult | void>;
     documentResolver?: (request: EveEmbeddedDocumentRequest, component: EveSurfaceComponent) => Promise<EveResolvedDocument | EveSurfaceDocument | EveSurfaceDocument["surface"] | undefined>;
     provider?: EveProviderAdvertisement;
     pluginAdapters?: readonly EveBrowserPluginAdapter[];
     stateBindingResolver?: EveStateBindingResolver;
     source?: string;
     statusElement?: HTMLElement;
+    draftStore?: EveBrowserDraftStore;
 }
 export interface EveBrowserProviderTransport {
     providerAdvertisement(): Promise<EveProviderAdvertisement>;
@@ -123,6 +128,15 @@ export interface EveBrowserProviderHostOptions {
     statusElement?: HTMLElement;
     pluginAdapters?: readonly EveBrowserPluginAdapter[];
 }
+export declare class EveBrowserDraftStore {
+    private readonly values;
+    private key;
+    has(providerId: string, surfaceId: string, bindingName: string): boolean;
+    get(providerId: string, surfaceId: string, bindingName: string): unknown;
+    set(providerId: string, surfaceId: string, bindingName: string, value: unknown): void;
+    clear(providerId: string, surfaceId: string, bindingNames?: readonly string[]): void;
+    capture(providerId: string, surfaceId: string, bindingNames: readonly string[]): Record<string, unknown>;
+}
 export declare const defaultBrowserPluginAdapters: readonly EveBrowserPluginAdapter[];
 export declare function resolveRequiredPluginAdapters(surface: EveProviderSurfaceAdvertisement, available?: readonly EveBrowserPluginAdapter[]): readonly EveBrowserPluginAdapter[];
 export declare function selectAdvertisedSurface(provider: EveProviderAdvertisement, requestedSurfaceId?: string): EveProviderSurfaceAdvertisement;
@@ -136,11 +150,14 @@ export declare class EveBrowserProviderHost {
     private provider;
     private selected;
     private pluginAdapters;
+    private readonly draftStore;
     constructor(host: HTMLElement, transport: EveBrowserProviderTransport, options?: EveBrowserProviderHostOptions);
     start(): Promise<void>;
     stop(): void;
     refresh(): Promise<void>;
     private submit;
+    private consumeCommandResult;
+    private presentCommandStatus;
 }
 export interface EveEmbeddedDocumentRequest {
     documentId: string;
