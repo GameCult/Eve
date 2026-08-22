@@ -294,7 +294,7 @@ export class EveBrowserProviderHost {
       const result = parseEveCommandResult(await this.transport.submitCommand(intent));
       await this.consumeCommandResult(intent, result);
     } catch (error) {
-      this.presentCommandStatus(error instanceof Error ? error.message : "Command failed.", "error");
+      this.presentCommandStatus(error instanceof Error ? error.message : "Command failed.", "alert");
       return;
     }
     this.lastSurfaceVersion = "";
@@ -318,12 +318,12 @@ export class EveBrowserProviderHost {
     }
     this.presentCommandStatus(
       result.receipt.message || result.receipt.state,
-      accepted ? "status" : "error",
+      accepted ? "status" : "alert",
       result.transientProjection,
     );
   }
 
-  private presentCommandStatus(message: string, role: "status" | "error", transient?: unknown): void {
+  private presentCommandStatus(message: string, role: "status" | "alert", transient?: unknown): void {
     let region = this.host.querySelector<HTMLElement>(":scope > .eve-command-result-region");
     if (!region) {
       region = el("section", "eve-command-result-region");
@@ -2236,6 +2236,8 @@ function renderEditableControl(
   } else if (props.rows !== undefined) {
     control.rows = positiveInt(props.rows, 3);
   }
+  const maxLength = positiveInt(props.maxLength, 0);
+  if (maxLength > 0) control.maxLength = maxLength;
   control.value = String(context.value ?? "");
   control.disabled = context.disabled;
   control.name = context.bindingName;

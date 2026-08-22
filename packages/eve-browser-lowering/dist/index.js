@@ -137,7 +137,7 @@ export class EveBrowserProviderHost {
             await this.consumeCommandResult(intent, result);
         }
         catch (error) {
-            this.presentCommandStatus(error instanceof Error ? error.message : "Command failed.", "error");
+            this.presentCommandStatus(error instanceof Error ? error.message : "Command failed.", "alert");
             return;
         }
         this.lastSurfaceVersion = "";
@@ -158,7 +158,7 @@ export class EveBrowserProviderHost {
                 surface: this.selected,
             });
         }
-        this.presentCommandStatus(result.receipt.message || result.receipt.state, accepted ? "status" : "error", result.transientProjection);
+        this.presentCommandStatus(result.receipt.message || result.receipt.state, accepted ? "status" : "alert", result.transientProjection);
     }
     presentCommandStatus(message, role, transient) {
         let region = this.host.querySelector(":scope > .eve-command-result-region");
@@ -1874,6 +1874,9 @@ function renderEditableControl(node, kind, props, layout, style, options) {
     else if (props.rows !== undefined) {
         control.rows = positiveInt(props.rows, 3);
     }
+    const maxLength = positiveInt(props.maxLength, 0);
+    if (maxLength > 0)
+        control.maxLength = maxLength;
     control.value = String(context.value ?? "");
     control.disabled = context.disabled;
     control.name = context.bindingName;

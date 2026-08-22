@@ -225,7 +225,7 @@ test("editable bindings preserve local drafts across authoritative refresh and o
           {
             id: "composer",
             kind: "control.input.textarea",
-            props: { label: "Message", value },
+            props: { label: "Message", value, maxLength: 2000 },
             stateBindings: [{
               targetProp: "value",
               pointerId: "ghostlight.local.composer.message",
@@ -245,6 +245,7 @@ test("editable bindings preserve local drafts across authoritative refresh and o
     const options = { provider, draftStore: drafts, commandSink: intent => commands.push(intent) };
     renderEveSurface(surface(""), host, options);
     const composer = host.querySelector("textarea");
+    assert.equal(composer.maxLength, 2000);
     composer.value = "The world should remember this.";
     composer.dispatchEvent(new window.Event("input", { bubbles: true }));
 
@@ -408,7 +409,7 @@ test("component captures extend rather than disappear behind operation descripto
   }
 });
 
-test("authoritative refresh preserves the renderer-owned command result", () => {
+test("authoritative refresh preserves the renderer-owned accessible command result", () => {
   const restoreDom = installDom();
   try {
     const host = document.querySelector("#a");
@@ -420,7 +421,7 @@ test("authoritative refresh preserves the renderer-owned command result", () => 
     renderEveSurface(surface(7), host);
     const result = document.createElement("section");
     result.className = "eve-command-result-region";
-    result.setAttribute("role", "error");
+    result.setAttribute("role", "alert");
     result.textContent = "The command was denied.";
     host.append(result);
 
