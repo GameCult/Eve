@@ -28,6 +28,9 @@ Derived state:
 - local drafts and the latest command-result region are renderer-owned
   transients; refresh may replace the surface projection but may not erase a
   receipt before the player can perceive it;
+- a provider-owned transient projection inherits the selected logical
+  surface's advertised command boundary while retaining its own command
+  descriptors and component context;
 - loaded font stylesheets are a document resource cache, not active-surface
   state.
 
@@ -42,6 +45,8 @@ Shared paths:
 
 - initial render, embedded render, plugin render, binding updates, command
   creation, and asset resolution all receive the same host-scoped context;
+- retained and command-result projections use the same host transport options;
+  a transient presentation surface ID never becomes command-routing authority;
 - initial binding hydration and live binding watches use the same component
   projection replacement primitive.
 - operation capture resolves edited drafts first and otherwise uses the
@@ -63,4 +68,6 @@ Verification:
 - untouched select and numeric defaults are present in captured operations;
 - accepted and denied command results remain visible after authoritative
   refresh;
+- controls inside a transient command-result projection invoke its descriptor
+  through the selected provider surface and canonical command sink;
 - disposing or rerendering one host cannot unsubscribe the other.

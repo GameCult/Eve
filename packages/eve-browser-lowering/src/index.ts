@@ -269,19 +269,7 @@ export class EveBrowserProviderHost {
       const version = `${surface.providerId || ""}:${surface.surface?.id || ""}:${surface.version ?? ""}`;
       if (version === this.lastSurfaceVersion) return;
       this.lastSurfaceVersion = version;
-      renderEveSurface(surface, this.host, {
-        activeSurfaceId: this.selected.surfaceId,
-        assetUrlResolver: this.transport.resolveAssetUrl,
-        body: this.options.body,
-        clientId: this.options.clientId || "eve-browser",
-        commandSink: intent => this.submit(intent),
-        documentResolver: this.transport.resolveDocument,
-        provider: this.provider,
-        pluginAdapters: this.pluginAdapters,
-        source: this.options.source,
-        statusElement: this.options.statusElement,
-        draftStore: this.draftStore,
-      });
+      renderEveSurface(surface, this.host, this.loweringOptions());
     } catch (error) {
       if (this.options.statusElement) {
         this.options.statusElement.textContent = error instanceof Error ? error.message : "Eve surface unavailable.";
@@ -334,14 +322,27 @@ export class EveBrowserProviderHost {
     region.replaceChildren(el("p", "eve-command-result-message", message));
     const projection = transient as EveSurfaceDocument | undefined;
     if (projection?.surface?.root) {
-      region.append(renderEveComponent(projection.surface.root, {
-        activeSurfaceId: projection.surface.id || this.selected?.surfaceId,
-        clientId: this.options.clientId,
-        draftStore: this.draftStore,
-        pluginAdapters: this.pluginAdapters,
-        provider: this.provider,
-      }));
+      region.append(renderEveComponent(
+        projection.surface.root,
+        scopeEveBrowserOptions(projection, this.loweringOptions()),
+      ));
     }
+  }
+
+  private loweringOptions(): EveBrowserLoweringOptions {
+    return {
+      activeSurfaceId: this.selected?.surfaceId,
+      assetUrlResolver: this.transport.resolveAssetUrl,
+      body: this.options.body,
+      clientId: this.options.clientId || "eve-browser",
+      commandSink: intent => this.submit(intent),
+      documentResolver: this.transport.resolveDocument,
+      provider: this.provider,
+      pluginAdapters: this.pluginAdapters,
+      source: this.options.source,
+      statusElement: this.options.statusElement,
+      draftStore: this.draftStore,
+    };
   }
 }
 

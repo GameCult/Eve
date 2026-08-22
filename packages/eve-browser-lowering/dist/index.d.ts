@@ -158,6 +158,7 @@ export declare class EveBrowserProviderHost {
     private submit;
     private consumeCommandResult;
     private presentCommandStatus;
+    private loweringOptions;
 }
 export interface EveEmbeddedDocumentRequest {
     documentId: string;

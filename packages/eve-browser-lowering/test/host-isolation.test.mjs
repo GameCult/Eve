@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { JSDOM } from "jsdom";
-import { EveBrowserDraftStore, renderEveSurface } from "../dist/index.js";
+import { EveBrowserDraftStore, EveBrowserProviderHost, renderEveSurface } from "../dist/index.js";
 
 function installDom() {
   const dom = new JSDOM("<!doctype html><html><head></head><body><div id='a'></div><div id='b'></div></body></html>", {
@@ -429,6 +429,117 @@ test("authoritative refresh preserves the renderer-owned accessible command resu
     assert.equal(host.querySelector(".eve-command-result-region"), result);
     assert.equal(result.textContent, "The command was denied.");
     assert.match(host.textContent, /revision 8/);
+  } finally {
+    restoreDom();
+  }
+});
+
+test("transient projection controls use the selected provider command boundary", async () => {
+  const restoreDom = installDom();
+  try {
+    const host = document.querySelector("#a");
+    const commands = [];
+    const descriptor = (command, payloadSchema) => ({
+      schema: "gamecult.eve.command.v1",
+      command,
+      payloadSchema,
+    });
+    const surfaceDocument = {
+      type: "surface-state",
+      schema: "gamecult.eve.surface.v1",
+      providerId: "ghostlight",
+      providerKind: "narrative.simulation",
+      title: "Ghostlight",
+      version: 7,
+      updatedAtUtc: "2026-08-22T00:00:00Z",
+      surface: {
+        id: "ghostlight.play",
+        styles: {},
+        root: {
+          id: "root",
+          kind: "control.button",
+          props: { label: "Assess", command: "world.assess" },
+          children: [],
+        },
+      },
+      commands: [descriptor("world.assess", "ghostlight.player_action_assess.v1")],
+    };
+    const transientProjection = {
+      type: "surface-state",
+      schema: "gamecult.eve.surface.v1",
+      providerId: "ghostlight",
+      providerKind: "narrative.simulation.command-result",
+      title: "Assessment",
+      version: 7,
+      updatedAtUtc: "2026-08-22T00:00:01Z",
+      surface: {
+        id: "ghostlight.command-result",
+        styles: {},
+        root: {
+          id: "roll",
+          kind: "control.button",
+          props: {
+            label: "Roll the d20",
+            command: "world.attempt",
+            action: { assessment_digest: "sha256:assessment" },
+          },
+          children: [],
+        },
+      },
+      commands: [descriptor("world.attempt", "ghostlight.player_action_attempt.v1")],
+    };
+    const receipt = command => ({
+      schema: "gamecult.eve.command_receipt.v1",
+      receiptId: `receipt:${command}`,
+      commandId: `command:${command}`,
+      command,
+      state: "accepted",
+      ownerRepo: "GameCult/Ghostlight",
+      authority: "WorldKernel",
+      providerId: "ghostlight",
+      surfaceId: "ghostlight.play",
+      message: "accepted",
+      diagnostics: [],
+      issuedAtUtc: "2026-08-22T00:00:02Z",
+      sourceVersion: 7,
+    });
+    const transport = {
+      providerAdvertisement: async () => ({
+        providerId: "ghostlight",
+        surfaces: [{
+          surfaceId: "ghostlight.play",
+          worldInteraction: {
+            commandBoundary: "ghostlight.eve.commands",
+            receiptSchema: "gamecult.eve.command_result.v1",
+          },
+        }],
+      }),
+      surface: async () => surfaceDocument,
+      submitCommand: async intent => {
+        commands.push(intent);
+        return {
+          schema: "gamecult.eve.command_result.v1",
+          receipt: receipt(intent.operation.operationId),
+          ...(intent.operation.operationId === "world.assess" ? { transientProjection } : {}),
+        };
+      },
+    };
+    const providerHost = new EveBrowserProviderHost(host, transport, { pollMs: 0 });
+    await providerHost.start();
+
+    host.querySelector("button").click();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const roll = host.querySelector(".eve-command-result-region button");
+    assert.equal(roll.textContent, "Roll the d20");
+    roll.click();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    assert.deepEqual(commands.map(command => command.operation.operationId), ["world.assess", "world.attempt"]);
+    assert.equal(commands[1].surfaceId, "ghostlight.play");
+    assert.equal(commands[1].operation.schemaId, "ghostlight.player_action_attempt.v1");
+    assert.equal(commands[1].commandBoundary, "ghostlight.eve.commands");
+    assert.equal(commands[1].payload.assessment_digest, "sha256:assessment");
+    providerHost.stop();
   } finally {
     restoreDom();
   }
