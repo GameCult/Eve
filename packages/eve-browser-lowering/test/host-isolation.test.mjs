@@ -325,6 +325,75 @@ test("operations capture untouched authored choice defaults", () => {
   }
 });
 
+test("component captures extend rather than disappear behind operation descriptors", () => {
+  const restoreDom = installDom();
+  try {
+    const commands = [];
+    const host = document.querySelector("#a");
+    const provider = {
+      providerId: "ghostlight",
+      surfaces: [{ surfaceId: "ghostlight.play", worldInteraction: {
+        commandBoundary: "ghostlight.eve.commands",
+        receiptSchema: "gamecult.eve.command_result.v1",
+      } }],
+    };
+    renderEveSurface({
+      providerId: "ghostlight",
+      version: 17,
+      commands: [{
+        command: "session_zero.decision.resolve",
+        payloadSchema: "session_zero.decision.resolve.v1",
+        captureBindings: [],
+      }],
+      surface: {
+        id: "ghostlight.play",
+        root: { id: "root", kind: "column", children: [
+          {
+            id: "counter",
+            kind: "control.input.textarea",
+            props: { label: "Counterproposal" },
+            stateBindings: [{
+              targetProp: "value",
+              pointerId: "draft:counter",
+              sourceId: "renderer",
+              schemaId: "gamecult.eve.local_draft.v1",
+              routeKind: "local",
+              bindingName: "counter",
+              valueKind: "string",
+              accessMode: "local-draft",
+              authority: "renderer-ephemeral",
+            }],
+          },
+          {
+            id: "counter-decision",
+            kind: "control.button",
+            props: {
+              label: "Counter",
+              command: "session_zero.decision.resolve",
+              action: { decision_id: "decision:one", accept: false },
+              captureBindings: ["counter"],
+            },
+          },
+        ] },
+      },
+    }, host, {
+      provider,
+      draftStore: new EveBrowserDraftStore(),
+      commandSink: intent => commands.push(intent),
+    });
+
+    const counter = host.querySelector("textarea");
+    counter.value = "Contamination fades, but scars remain.";
+    counter.dispatchEvent(new window.Event("input", { bubbles: true }));
+    host.querySelector("button").click();
+    assert.deepEqual(commands[0].payload.bindings, {
+      counter: "Contamination fades, but scars remain.",
+    });
+  } finally {
+    restoreDom();
+  }
+});
+
 test("authoritative refresh preserves the renderer-owned command result", () => {
   const restoreDom = installDom();
   try {

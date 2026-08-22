@@ -1696,7 +1696,11 @@ export function createEveCommandIntent(commandId, props = {}, options = {}) {
     }
     const operationId = commandId || stringProp(action.type, "invoke");
     const descriptor = surface?.commands?.find(command => command.command === operationId);
-    const captureBindings = stringArray(descriptor?.captureBindings ?? action.captureBindings ?? props.captureBindings);
+    const captureBindings = [...new Set([
+            ...stringArray(descriptor?.captureBindings),
+            ...stringArray(action.captureBindings),
+            ...stringArray(props.captureBindings),
+        ])];
     const bindings = captureBindingValues(surface?.surface?.root, providerId, surfaceId, captureBindings, options.draftStore);
     const payload = commandPayload(action);
     if (captureBindings.length)
