@@ -264,3 +264,88 @@ test("editable bindings preserve local drafts across authoritative refresh and o
     restoreDom();
   }
 });
+
+test("operations capture untouched authored choice defaults", () => {
+  const restoreDom = installDom();
+  try {
+    const commands = [];
+    const host = document.querySelector("#a");
+    const provider = {
+      providerId: "ghostlight",
+      surfaces: [{ surfaceId: "ghostlight.play", worldInteraction: {
+        commandBoundary: "ghostlight.eve.commands",
+        receiptSchema: "gamecult.eve.command_result.v1",
+      } }],
+    };
+    renderEveSurface({
+      providerId: "ghostlight",
+      version: 7,
+      commands: [{
+        command: "session_zero.message.send",
+        payloadSchema: "session_zero.message.send.v1",
+        captureBindings: ["channel_id"],
+      }],
+      surface: {
+        id: "ghostlight.play",
+        root: { id: "root", kind: "column", children: [
+          {
+            id: "channel",
+            kind: "control.select",
+            props: { label: "Speak at", value: "shared" },
+            stateBindings: [{
+              targetProp: "value",
+              pointerId: "ghostlight.local.channel_id",
+              sourceId: "eve.browser.local",
+              schemaId: "gamecult.eve.local_draft.v1",
+              routeKind: "in-process",
+              bindingName: "channel_id",
+              valueKind: "choice",
+              accessMode: "local-draft",
+              authority: "eve.browser",
+            }],
+            children: [
+              { kind: "control.option", props: { label: "Shared", value: "shared" } },
+              { kind: "control.option", props: { label: "Private", value: "private" } },
+            ],
+          },
+          { id: "send", kind: "control.button", props: { label: "Send", command: "session_zero.message.send" } },
+        ] },
+      },
+    }, host, {
+      provider,
+      draftStore: new EveBrowserDraftStore(),
+      commandSink: intent => commands.push(intent),
+    });
+
+    assert.equal(host.querySelector("select").value, "shared");
+    host.querySelector("button").click();
+    assert.deepEqual(commands[0].payload.bindings, { channel_id: "shared" });
+  } finally {
+    restoreDom();
+  }
+});
+
+test("authoritative refresh preserves the renderer-owned command result", () => {
+  const restoreDom = installDom();
+  try {
+    const host = document.querySelector("#a");
+    const surface = version => ({
+      providerId: "ghostlight",
+      version,
+      surface: { id: "ghostlight.play", root: { id: `root-${version}`, kind: "text", props: { value: `revision ${version}` } } },
+    });
+    renderEveSurface(surface(7), host);
+    const result = document.createElement("section");
+    result.className = "eve-command-result-region";
+    result.setAttribute("role", "error");
+    result.textContent = "The command was denied.";
+    host.append(result);
+
+    renderEveSurface(surface(8), host);
+    assert.equal(host.querySelector(".eve-command-result-region"), result);
+    assert.equal(result.textContent, "The command was denied.");
+    assert.match(host.textContent, /revision 8/);
+  } finally {
+    restoreDom();
+  }
+});

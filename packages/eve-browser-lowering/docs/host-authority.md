@@ -25,6 +25,9 @@ Derived state:
 
 - DOM nodes, focus restoration data, normalized styles, and component indexes
   are projections of the owning surface;
+- local drafts and the latest command-result region are renderer-owned
+  transients; refresh may replace the surface projection but may not erase a
+  receipt before the player can perceive it;
 - loaded font stylesheets are a document resource cache, not active-surface
   state.
 
@@ -41,6 +44,8 @@ Shared paths:
   creation, and asset resolution all receive the same host-scoped context;
 - initial binding hydration and live binding watches use the same component
   projection replacement primitive.
+- operation capture resolves edited drafts first and otherwise uses the
+  authored value currently displayed by the bound control.
 
 Cut line:
 
@@ -55,4 +60,7 @@ Verification:
   and control skins after either host renders or updates;
 - a bound leaf update does not replace either host root;
 - focused input selection and host scroll survive a binding update;
+- untouched select and numeric defaults are present in captured operations;
+- accepted and denied command results remain visible after authoritative
+  refresh;
 - disposing or rerendering one host cannot unsubscribe the other.

@@ -247,7 +247,10 @@ export function renderEveSurface(surface, host, options = {}) {
         options.statusElement.textContent = `${surface.title || surface.surface?.title || "surface"}${options.source ? ` (${options.source})` : ""}`;
     }
     if (surface.surface?.root) {
+        const commandResult = host.querySelector(":scope > .eve-command-result-region");
         host.replaceChildren(renderEveComponent(surface.surface.root, scopedOptions));
+        if (commandResult)
+            host.append(commandResult);
         if (options.stateBindingResolver) {
             const controller = new EveSurfaceBindingController(surface, host, scopedOptions);
             activeSurfaceBindings.set(host, controller);
@@ -1694,7 +1697,7 @@ export function createEveCommandIntent(commandId, props = {}, options = {}) {
     const operationId = commandId || stringProp(action.type, "invoke");
     const descriptor = surface?.commands?.find(command => command.command === operationId);
     const captureBindings = stringArray(descriptor?.captureBindings ?? action.captureBindings ?? props.captureBindings);
-    const bindings = options.draftStore?.capture(providerId, surfaceId, captureBindings) ?? {};
+    const bindings = captureBindingValues(surface?.surface?.root, providerId, surfaceId, captureBindings, options.draftStore);
     const payload = commandPayload(action);
     if (captureBindings.length)
         payload.bindings = bindings;
@@ -1720,6 +1723,38 @@ export function createEveCommandIntent(commandId, props = {}, options = {}) {
         receiptSchema,
     };
     return intent;
+}
+function captureBindingValues(root, providerId, surfaceId, bindingNames, drafts) {
+    const captured = {};
+    for (const name of bindingNames) {
+        if (drafts?.has(providerId, surfaceId, name)) {
+            captured[name] = drafts.get(providerId, surfaceId, name);
+            continue;
+        }
+        const authored = findAuthoredBindingValue(root, name);
+        if (authored.found)
+            captured[name] = authored.value;
+    }
+    return captured;
+}
+function findAuthoredBindingValue(node, bindingName) {
+    if (!node)
+        return { found: false };
+    const props = objectProps(node.props);
+    const binding = (node.stateBindings || []).find(candidate => firstString(candidate.bindingName, candidate.pointerId) === bindingName);
+    const localName = firstString(binding?.bindingName, props.bind, binding?.pointerId, node.id);
+    if (localName === bindingName) {
+        const targetProp = firstString(binding?.targetProp, "value");
+        if (Object.prototype.hasOwnProperty.call(props, targetProp)) {
+            return { found: true, value: props[targetProp] };
+        }
+    }
+    for (const child of node.children || []) {
+        const match = findAuthoredBindingValue(child, bindingName);
+        if (match.found)
+            return match;
+    }
+    return { found: false };
 }
 function commandPayload(action) {
     const payload = { ...action };
