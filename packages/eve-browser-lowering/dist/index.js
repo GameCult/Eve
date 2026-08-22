@@ -16,7 +16,7 @@ export class EveBrowserDraftStore {
         this.values.set(this.key(providerId, surfaceId, bindingName), value);
     }
     clear(providerId, surfaceId, bindingNames) {
-        if (bindingNames?.length) {
+        if (bindingNames !== undefined) {
             for (const name of bindingNames)
                 this.values.delete(this.key(providerId, surfaceId, name));
             return;

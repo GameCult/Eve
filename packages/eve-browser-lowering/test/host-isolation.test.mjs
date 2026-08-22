@@ -265,6 +265,20 @@ test("editable bindings preserve local drafts across authoritative refresh and o
   }
 });
 
+test("an explicit empty draft directive clears no unrelated bindings", () => {
+  const drafts = new EveBrowserDraftStore();
+  drafts.set("ghostlight", "ghostlight.play", "channel_id", "private:host");
+  drafts.set("ghostlight", "ghostlight.play", "message", "still drafting");
+
+  drafts.clear("ghostlight", "ghostlight.play", []);
+  assert.equal(drafts.get("ghostlight", "ghostlight.play", "channel_id"), "private:host");
+  assert.equal(drafts.get("ghostlight", "ghostlight.play", "message"), "still drafting");
+
+  drafts.clear("ghostlight", "ghostlight.play");
+  assert.equal(drafts.has("ghostlight", "ghostlight.play", "channel_id"), false);
+  assert.equal(drafts.has("ghostlight", "ghostlight.play", "message"), false);
+});
+
 test("operations capture untouched authored choice defaults", () => {
   const restoreDom = installDom();
   try {

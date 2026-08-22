@@ -167,7 +167,7 @@ export class EveBrowserDraftStore {
   }
 
   clear(providerId: string, surfaceId: string, bindingNames?: readonly string[]): void {
-    if (bindingNames?.length) {
+    if (bindingNames !== undefined) {
       for (const name of bindingNames) this.values.delete(this.key(providerId, surfaceId, name));
       return;
     }
