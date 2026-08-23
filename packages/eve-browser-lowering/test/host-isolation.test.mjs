@@ -544,3 +544,77 @@ test("transient projection controls use the selected provider command boundary",
     restoreDom();
   }
 });
+
+test("provider host replaces stale receipts with immediate renderer-local progress", async () => {
+  const restoreDom = installDom();
+  try {
+    const host = document.querySelector("#a");
+    let finish;
+    const commandResult = new Promise(resolve => { finish = resolve; });
+    const transport = {
+      providerAdvertisement: async () => ({
+        providerId: "ghostlight",
+        surfaces: [{
+          surfaceId: "ghostlight.play",
+          worldInteraction: {
+            commandBoundary: "ghostlight.eve.commands",
+            receiptSchema: "gamecult.eve.command_result.v1",
+          },
+        }],
+      }),
+      surface: async () => ({
+        type: "surface-state",
+        schema: "gamecult.eve.surface.v1",
+        providerId: "ghostlight",
+        title: "Ghostlight",
+        version: 7,
+        surface: {
+          id: "ghostlight.play",
+          root: {
+            id: "assess",
+            kind: "control.button",
+            props: { label: "Assess", command: "world.assess" },
+            children: [],
+          },
+        },
+        commands: [{
+          schema: "gamecult.eve.command.v1",
+          command: "world.assess",
+          payloadSchema: "ghostlight.player_action_assess.v1",
+        }],
+      }),
+      submitCommand: async () => commandResult,
+    };
+    const providerHost = new EveBrowserProviderHost(host, transport, { pollMs: 0 });
+    await providerHost.start();
+
+    host.querySelector("button").click();
+    assert.equal(host.querySelector(".eve-command-result-message").textContent, "Working…");
+    assert.equal(host.querySelector(".eve-command-result-region").getAttribute("role"), "status");
+
+    finish({
+      schema: "gamecult.eve.command_result.v1",
+      receipt: {
+        schema: "gamecult.eve.command_receipt.v1",
+        receiptId: "receipt:assess",
+        commandId: "command:assess",
+        command: "world.assess",
+        state: "denied",
+        ownerRepo: "GameCult/Ghostlight",
+        authority: "WorldKernel",
+        providerId: "ghostlight",
+        surfaceId: "ghostlight.play",
+        message: "No world state changed.",
+        diagnostics: [],
+        issuedAtUtc: "2026-08-23T00:00:00Z",
+        sourceVersion: 7,
+      },
+    });
+    await new Promise(resolve => setTimeout(resolve, 0));
+    assert.equal(host.querySelector(".eve-command-result-message").textContent, "No world state changed.");
+    assert.equal(host.querySelector(".eve-command-result-region").getAttribute("role"), "alert");
+    providerHost.stop();
+  } finally {
+    restoreDom();
+  }
+});

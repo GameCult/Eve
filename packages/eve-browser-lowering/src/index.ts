@@ -278,6 +278,7 @@ export class EveBrowserProviderHost {
   }
 
   private async submit(intent: EveCommandIntent): Promise<void> {
+    this.presentCommandStatus("Working…", "status");
     try {
       const result = parseEveCommandResult(await this.transport.submitCommand(intent));
       await this.consumeCommandResult(intent, result);
