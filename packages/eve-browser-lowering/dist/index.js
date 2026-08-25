@@ -631,6 +631,23 @@ function renderEveComponentProjection(node, options) {
         wireCommand(button, node, resolveComponentCommandId(props, node), props, options);
         return button;
     }
+    if (kind === "resource.download") {
+        const link = el("a", "cultui-button eve-resource-download", stringProp(props.label, "Download"));
+        assignId(link, node);
+        applyGeneratedLayout(link, layout, style);
+        const uri = firstString(props.uri, props.href, props.assetUri, "");
+        const href = resolveSafeDownloadUrl(uri, options);
+        if (!href) {
+            link.removeAttribute("href");
+            link.setAttribute("aria-disabled", "true");
+        }
+        else {
+            link.href = href;
+            link.download = safeDownloadFilename(stringProp(props.filename, "download"));
+        }
+        link.setAttribute("aria-label", stringProp(props.ariaLabel, stringProp(props.label, "Download")));
+        return link;
+    }
     if (kind === "control.popup") {
         const button = el("button", "cultui-button eve-control-popup", stringProp(props.label, "Open"));
         assignId(button, node);
@@ -2127,6 +2144,30 @@ function resolveAssetUrl(uri, options) {
         return `${options.assetBaseUrl.replace(/\/+$/, "")}${uri}`;
     }
     return uri;
+}
+function resolveSafeDownloadUrl(uri, options) {
+    const resolved = resolveAssetUrl(uri, options).trim();
+    if (!resolved || resolved.startsWith("//"))
+        return "";
+    if (resolved.startsWith("/"))
+        return resolved;
+    try {
+        const base = new URL(document.baseURI);
+        const candidate = new URL(resolved, base);
+        if (!/^https?:$/.test(candidate.protocol) || candidate.origin !== base.origin)
+            return "";
+        return candidate.href;
+    }
+    catch {
+        return "";
+    }
+}
+function safeDownloadFilename(value) {
+    const filename = value
+        .replace(/[\\/:*?"<>|\u0000-\u001f\u007f]/g, "_")
+        .replace(/^\.+/, "")
+        .trim();
+    return filename || "download";
 }
 function loadFontStylesheet(href) {
     const normalized = typeof href === "string" ? href.trim() : "";

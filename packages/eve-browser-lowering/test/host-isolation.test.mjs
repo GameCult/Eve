@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { JSDOM } from "jsdom";
-import { EveBrowserDraftStore, EveBrowserProviderHost, renderEveSurface } from "../dist/index.js";
+import { EveBrowserDraftStore, EveBrowserProviderHost, renderEveComponent, renderEveSurface } from "../dist/index.js";
 
 function installDom() {
   const dom = new JSDOM("<!doctype html><html><head></head><body><div id='a'></div><div id='b'></div></body></html>", {
@@ -30,6 +30,40 @@ function installDom() {
     dom.window.close();
   };
 }
+
+test("resource downloads lower to same-origin one-time links without scriptable URLs", () => {
+  const restoreDom = installDom();
+  try {
+    const link = renderEveComponent({
+      id: "campaign.export",
+      kind: "resource.download",
+      props: {
+        label: "Download campaign",
+        uri: "/ghostlight/api/eve/resources/opaque-grant",
+        filename: "campaign:bad?.cc",
+      },
+    });
+    assert.equal(link.tagName, "A");
+    assert.equal(link.getAttribute("href"), "/ghostlight/api/eve/resources/opaque-grant");
+    assert.equal(link.getAttribute("download"), "campaign_bad_.cc");
+    assert.equal(link.getAttribute("aria-disabled"), null);
+
+    const rejected = renderEveComponent({
+      kind: "resource.download",
+      props: { label: "Bad", uri: "javascript:alert(1)" },
+    });
+    assert.equal(rejected.getAttribute("href"), null);
+    assert.equal(rejected.getAttribute("aria-disabled"), "true");
+
+    const crossOrigin = renderEveComponent({
+      kind: "resource.download",
+      props: { label: "Bad", uri: "https://elsewhere.test/private.cc" },
+    });
+    assert.equal(crossOrigin.getAttribute("href"), null);
+  } finally {
+    restoreDom();
+  }
+});
 
 function testInputAdapter(onRender = () => {}) {
   return {
