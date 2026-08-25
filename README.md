@@ -102,8 +102,10 @@ schema or composition builders.
 
 ## Current Mechanism
 
-The current checked-in client is the iOS Theos app, still named `EveCanvas` at
-the bundle level until the wider Eve runtime split exists.
+The current checked-in iOS runtime is the Theos app still named `EveCanvas` at
+the bundle level. Its primary input is Gjallar's aggregate surface through the
+temporary Starfire Hermodr HTTP boundary; direct typed CultMesh transport can
+replace that edge later without moving layout authority into the client.
 
 The Android proof under `android/` is a small native Kotlin client built with
 the installed Android SDK and CultLib's `cultmesh-kotlin` package, without
@@ -115,9 +117,12 @@ payloads as `mimir.eve_media_observation.v1`.
 
 - `EVEAppDelegate` creates one fullscreen `UIWindow`.
 - `EVEViewController` installs:
+  - `EVEHermodrClient`, the configured live `gjallar.overview` surface client.
+  - native UIKit lowering for generic Eve trees and Gjallar's
+    `weighted-bisect` aggregate.
   - `EVEGLView`, a `CAEAGLLayer` backed OpenGL ES render target.
-  - a full-screen `UIImageView` that displays CEF relay frames.
-  - `EVEFrameStreamClient`, a native WebSocket client for frame/input transport.
+  - an optional full-screen `UIImageView` and `EVEFrameStreamClient` for legacy
+    configured frame streams.
   - a native UIKit `UILabel` overlay for crisp Retina status text.
   - `CADisplayLink` for frame ticking.
   - `CMMotionManager` for accelerometer and gyro telemetry.
@@ -152,8 +157,8 @@ payloads as `mimir.eve_media_observation.v1`.
 - CultNet carries typed surface state, commands, and timestamped sensor packets.
   Edge JSON is tolerated only as an interoperability envelope while the typed
   CultMesh document shape is being proven.
-- UIKit is the current iOS streamed-frame owner; OpenGL ES is fallback/local
-  render.
+- UIKit is the current iOS `gjallar.overview` lowering owner. Streamed frames
+  are an optional non-canonical input; OpenGL ES remains fallback/local render.
 - The status bar stays hidden.
 - Eve clients own local sensor reads and timestamps. Mimir owns synchronization
   and final interpretation after those samples arrive.
