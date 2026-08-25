@@ -132,11 +132,11 @@ Fensalir Direct2D:
 
 ## Current Proof
 
-The current native app consumes Mimir's dashboard WebSocket lowering for retained
-dashboard state. That lowering is shaped like the future API: retained dashboard
-state, provider switching, commands, and typed node metadata. It is a renderer
-path over daemon-owned state, not provider discovery authority. Live provider
-discovery belongs to Odin/CultMesh advertisements.
+The current native iOS app consumes Gjallar's aggregate Eve surface through
+Odin-owned Hermodr. Gjallar owns visible provider membership and weighted-bisect
+layout intent. Hermodr only lowers the typed CultMesh record at the HTTP edge;
+EveCanvas lowers the returned `surface.root` into UIKit and posts commands back
+through the same bridge. Provider discovery remains Odin/CultMesh authority.
 
 The Android proof under `android/` builds directly against the installed Android
 SDK and runs on Periwinkle. It is deliberately small: display Eve's role, render
@@ -156,12 +156,12 @@ pressure across the bench.
 
 ## Next Cut
 
-1. Extract the shared surface schema from the iOS app and Mimir broker into a
-   versioned CultMesh contract.
-2. Build the browser Eve runtime as the canonical renderer and comparison
-   target.
-3. Add a replay harness that feeds recorded surface/sensor documents to browser
+1. Admit readable provider-owned surface-state records into Odin so Gjallar can
+   compose live children instead of catalog-only advertisements.
+2. Add a replay harness that feeds recorded surface/sensor documents to browser
    and native clients.
+3. Prove native command receipts through Hermodr and provider-owned command
+   routes.
 4. Replace JSON/base64 sensor payloads with binary packets while preserving the
    typed envelope.
 5. Add Android client scaffolding against the same provider and sensor API.

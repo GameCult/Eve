@@ -4,7 +4,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "EVEFrameStreamClient.h"
-#import "EVEDashboardClient.h"
+#import "EVEHermodrClient.h"
 #import "EVEGLView.h"
 #import "EVEH264StreamDecoder.h"
 #import "EVESensorUplinkClient.h"
@@ -170,7 +170,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   return urls;
 }
 
-@interface EVEViewController () <EVEFrameStreamClientDelegate, EVEDashboardClientDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate>
+@interface EVEViewController () <EVEFrameStreamClientDelegate, EVEHermodrClientDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, UIGestureRecognizerDelegate>
 
 @property(nonatomic, strong) EVEGLView *glView;
 @property(nonatomic, strong) UIImageView *streamImageView;
@@ -189,7 +189,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
 @property(nonatomic, strong) CADisplayLink *displayLink;
 @property(nonatomic, strong) CMMotionManager *motionManager;
 @property(nonatomic, strong) EVEFrameStreamClient *streamClient;
-@property(nonatomic, strong) EVEDashboardClient *dashboardClient;
+@property(nonatomic, strong) EVEHermodrClient *hermodrClient;
 @property(nonatomic, strong) EVESensorUplinkClient *cameraUplink;
 @property(nonatomic, strong) EVESensorUplinkClient *micUplink;
 @property(nonatomic, strong) AVCaptureSession *captureSession;
@@ -291,9 +291,12 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   self.streamClient = [[EVEFrameStreamClient alloc] initWithURLs:streamURLs delegate:self];
   [self.streamClient connect];
 
-  NSArray<NSURL *> *dashboardURLs = EVEConfiguredURLs(@"EVE_DASHBOARD_URLS");
-  self.dashboardClient = [[EVEDashboardClient alloc] initWithURLs:dashboardURLs delegate:self];
-  [self.dashboardClient connect];
+  NSArray<NSURL *> *hermodrURLs = EVEConfiguredURLs(@"EVE_HERMODR_URLS");
+  self.hermodrClient = [[EVEHermodrClient alloc] initWithBaseURLs:hermodrURLs
+                                                      providerId:@"gjallar.overview"
+                                                       surfaceId:@"gjallar.overview"
+                                                        delegate:self];
+  [self.hermodrClient connect];
 
   NSArray<NSURL *> *cameraURLs = EVEConfiguredURLs(@"EVE_CAMERA_URLS");
   NSArray<NSURL *> *micURLs = EVEConfiguredURLs(@"EVE_MIC_URLS");
@@ -310,7 +313,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
 - (void)dealloc {
   [self.displayLink invalidate];
   [self.streamClient disconnect];
-  [self.dashboardClient disconnect];
+  [self.hermodrClient disconnect];
   [self.cameraUplink disconnect];
   [self.micUplink disconnect];
   [self.captureSession stopRunning];
@@ -791,7 +794,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   return CGPointMake(x, y);
 }
 
-- (void)dashboardClient:(EVEDashboardClient *)client didReceiveState:(NSDictionary *)state {
+- (void)hermodrClient:(EVEHermodrClient *)client didReceiveSurface:(NSDictionary *)state {
   (void)client;
   NSString *title = [state[@"title"] isKindOfClass:NSString.class] ? state[@"title"] : @"dashboard";
   self.dashboardStatus = [NSString stringWithFormat:@"%@ v%@", title, state[@"version"] ?: @"?"];
@@ -803,10 +806,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
     self.selectedNodeId = selected;
   }
 
-  NSArray *nodes = state[@"nodes"];
-  if (![nodes isKindOfClass:NSArray.class]) {
-    return;
-  }
+  NSArray *nodes = [state[@"nodes"] isKindOfClass:NSArray.class] ? state[@"nodes"] : @[];
 
   [self.dashboardNodes removeAllObjects];
   NSMutableSet<NSString *> *liveNodeIds = [NSMutableSet set];
@@ -876,19 +876,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
 - (BOOL)shouldRenderFullscreenSurfaceForState:(NSDictionary *)state {
   NSDictionary *surface = [state[@"surface"] isKindOfClass:NSDictionary.class] ? state[@"surface"] : nil;
   NSDictionary *root = [surface[@"root"] isKindOfClass:NSDictionary.class] ? surface[@"root"] : nil;
-  if (!root) {
-    return NO;
-  }
-
-  NSString *providerId = [state[@"providerId"] isKindOfClass:NSString.class] ? state[@"providerId"] : @"";
-  if ([providerId isEqualToString:@"odin.allseer"]) {
-    return YES;
-  }
-
-  NSDictionary *props = [root[@"props"] isKindOfClass:NSDictionary.class] ? root[@"props"] : nil;
-  NSDictionary *layout = [props[@"layout"] isKindOfClass:NSDictionary.class] ? props[@"layout"] : nil;
-  NSString *viewportMode = [layout[@"viewportMode"] isKindOfClass:NSString.class] ? layout[@"viewportMode"] : @"";
-  return [viewportMode isEqualToString:@"fullscreen"];
+  return root != nil;
 }
 
 - (void)renderFullscreenSurfaceState:(NSDictionary *)state title:(NSString *)title version:(id)version {
@@ -896,8 +884,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
     [view removeFromSuperview];
   }
 
-  NSString *providerId = [state[@"providerId"] isKindOfClass:NSString.class] ? state[@"providerId"] : @"";
-  if ([providerId isEqualToString:@"odin.allseer"] && [self renderOdinInterfaceWallForState:state]) {
+  if ([self renderAggregateSurfaceWallForState:state]) {
     return;
   }
 
@@ -932,7 +919,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   ]];
 }
 
-- (BOOL)renderOdinInterfaceWallForState:(NSDictionary *)state {
+- (BOOL)renderAggregateSurfaceWallForState:(NSDictionary *)state {
   [self.surfaceDashboardView layoutIfNeeded];
   CGRect bounds = self.surfaceDashboardView.bounds;
   if (bounds.size.width < 20.0 || bounds.size.height < 20.0) {
@@ -941,6 +928,11 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
 
   NSDictionary *surface = [state[@"surface"] isKindOfClass:NSDictionary.class] ? state[@"surface"] : nil;
   NSDictionary *root = [surface[@"root"] isKindOfClass:NSDictionary.class] ? surface[@"root"] : nil;
+  NSDictionary *rootLayout = [self surfaceLayoutForElement:root];
+  NSString *mode = [rootLayout[@"mode"] isKindOfClass:NSString.class] ? rootLayout[@"mode"] : @"";
+  if (![mode isEqualToString:@"weighted-bisect"]) {
+    return NO;
+  }
   NSArray *children = [root[@"children"] isKindOfClass:NSArray.class] ? root[@"children"] : @[];
   NSMutableArray<NSDictionary *> *interfaces = [NSMutableArray array];
   for (NSDictionary *child in children) {
@@ -948,10 +940,10 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
       continue;
     }
     NSString *kind = [child[@"kind"] isKindOfClass:NSString.class] ? child[@"kind"] : @"";
-    NSDictionary *props = [child[@"props"] isKindOfClass:NSDictionary.class] ? child[@"props"] : @{};
-    NSDictionary *layout = [props[@"layout"] isKindOfClass:NSDictionary.class] ? props[@"layout"] : @{};
-    NSNumber *visible = [layout[@"visible"] isKindOfClass:NSNumber.class] ? layout[@"visible"] : @YES;
-    if ([kind isEqualToString:@"interface"] && visible.boolValue) {
+    NSDictionary *layout = [self surfaceLayoutForElement:child];
+    id visible = layout[@"visible"];
+    BOOL isVisible = !visible || ![visible respondsToSelector:@selector(boolValue)] || [visible boolValue];
+    if ([kind isEqualToString:@"interface"] && isVisible) {
       [interfaces addObject:child];
     }
   }
@@ -965,9 +957,20 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   wall.backgroundColor = [self fensalirBackdropColor];
   [self.surfaceDashboardView addSubview:wall];
 
-  CGFloat gap = 8.0;
+  if (interfaces.count == 0) {
+    NSDictionary *props = [root[@"props"] isKindOfClass:NSDictionary.class] ? root[@"props"] : @{};
+    NSString *summary = [props[@"summary"] isKindOfClass:NSString.class] ? props[@"summary"] : @"No visible Eve surfaces";
+    UILabel *empty = [self surfaceLabelWithText:summary size:14.0 weight:UIFontWeightMedium color:[self fensalirQuietTextColor]];
+    empty.frame = CGRectInset(wall.bounds, 24.0, 24.0);
+    empty.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    empty.textAlignment = NSTextAlignmentCenter;
+    [wall addSubview:empty];
+    return YES;
+  }
+
+  CGFloat gap = [rootLayout[@"gap"] respondsToSelector:@selector(doubleValue)] ? [rootLayout[@"gap"] doubleValue] : 8.0;
   CGRect packBounds = CGRectInset(bounds, gap, gap);
-  NSArray<NSDictionary *> *placements = [self odinPackedPlacementsForInterfaces:interfaces bounds:packBounds gap:gap];
+  NSArray<NSDictionary *> *placements = [self aggregatePlacementsForInterfaces:interfaces bounds:packBounds gap:gap];
   for (NSDictionary *placement in placements) {
     NSDictionary *interface = [placement[@"interface"] isKindOfClass:NSDictionary.class] ? placement[@"interface"] : nil;
     NSValue *frameValue = [placement[@"frame"] isKindOfClass:NSValue.class] ? placement[@"frame"] : nil;
@@ -975,17 +978,18 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
     if (!interface || !frameValue) {
       continue;
     }
-    [wall addSubview:[self odinInterfaceTile:interface frame:frameValue.CGRectValue weight:weight.doubleValue]];
+    [wall addSubview:[self aggregateInterfaceTile:interface frame:frameValue.CGRectValue weight:weight.doubleValue]];
   }
 
   return YES;
 }
 
-- (NSArray<NSDictionary *> *)odinPackedPlacementsForInterfaces:(NSArray<NSDictionary *> *)interfaces bounds:(CGRect)bounds gap:(CGFloat)gap {
+- (NSArray<NSDictionary *> *)aggregatePlacementsForInterfaces:(NSArray<NSDictionary *> *)interfaces bounds:(CGRect)bounds gap:(CGFloat)gap {
   NSMutableArray<NSDictionary *> *items = [NSMutableArray arrayWithCapacity:interfaces.count];
   for (NSDictionary *interface in interfaces) {
-    double weight = [self surfaceWeightForElement:interface];
-    [items addObject:@{@"interface": interface, @"weight": @(MAX(0.65, weight))}];
+    NSDictionary *layout = [self surfaceLayoutForElement:interface];
+    double weight = [layout[@"weight"] respondsToSelector:@selector(doubleValue)] ? [layout[@"weight"] doubleValue] : 1.0;
+    [items addObject:@{@"interface": interface, @"weight": @(MAX(0.1, weight))}];
   }
   [items sortUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
     double lw = [left[@"weight"] doubleValue];
@@ -1000,11 +1004,11 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   }];
 
   NSMutableArray<NSDictionary *> *placements = [NSMutableArray array];
-  [self packOdinItems:items bounds:bounds gap:gap into:placements];
+  [self packAggregateItems:items bounds:bounds gap:gap into:placements];
   return placements;
 }
 
-- (void)packOdinItems:(NSArray<NSDictionary *> *)items bounds:(CGRect)bounds gap:(CGFloat)gap into:(NSMutableArray<NSDictionary *> *)placements {
+- (void)packAggregateItems:(NSArray<NSDictionary *> *)items bounds:(CGRect)bounds gap:(CGFloat)gap into:(NSMutableArray<NSDictionary *> *)placements {
   if (items.count == 0 || bounds.size.width <= 1.0 || bounds.size.height <= 1.0) {
     return;
   }
@@ -1040,15 +1044,15 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
     firstWidth = MAX(96.0, MIN(bounds.size.width - gap - 96.0, firstWidth));
     CGRect left = CGRectMake(bounds.origin.x, bounds.origin.y, firstWidth, bounds.size.height);
     CGRect right = CGRectMake(CGRectGetMaxX(left) + gap, bounds.origin.y, bounds.size.width - firstWidth - gap, bounds.size.height);
-    [self packOdinItems:first bounds:left gap:gap into:placements];
-    [self packOdinItems:second bounds:right gap:gap into:placements];
+    [self packAggregateItems:first bounds:left gap:gap into:placements];
+    [self packAggregateItems:second bounds:right gap:gap into:placements];
   } else {
     CGFloat firstHeight = floor((bounds.size.height - gap) * (CGFloat)ratio);
     firstHeight = MAX(72.0, MIN(bounds.size.height - gap - 72.0, firstHeight));
     CGRect top = CGRectMake(bounds.origin.x, bounds.origin.y, bounds.size.width, firstHeight);
     CGRect bottom = CGRectMake(bounds.origin.x, CGRectGetMaxY(top) + gap, bounds.size.width, bounds.size.height - firstHeight - gap);
-    [self packOdinItems:first bounds:top gap:gap into:placements];
-    [self packOdinItems:second bounds:bottom gap:gap into:placements];
+    [self packAggregateItems:first bounds:top gap:gap into:placements];
+    [self packAggregateItems:second bounds:bottom gap:gap into:placements];
   }
 }
 
@@ -1060,31 +1064,19 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   return MAX(0.001, total);
 }
 
-- (double)surfaceWeightForElement:(NSDictionary *)element {
-  NSString *kind = [element[@"kind"] isKindOfClass:NSString.class] ? element[@"kind"] : @"";
+- (NSDictionary *)surfaceLayoutForElement:(NSDictionary *)element {
+  if (![element isKindOfClass:NSDictionary.class]) {
+    return @{};
+  }
+  NSDictionary *layout = [element[@"layout"] isKindOfClass:NSDictionary.class] ? element[@"layout"] : nil;
+  if (layout) {
+    return layout;
+  }
   NSDictionary *props = [element[@"props"] isKindOfClass:NSDictionary.class] ? element[@"props"] : @{};
-  NSArray *children = [element[@"children"] isKindOfClass:NSArray.class] ? element[@"children"] : @[];
-  NSString *text = [self surfaceTextForElement:element props:props fallback:@""];
-  double weight = [kind isEqualToString:@"interface"] ? 0.9 : 0.35;
-  if ([kind isEqualToString:@"text"] || [kind isEqualToString:@"metric"]) {
-    weight += MAX(0.22, (double)text.length / 95.0);
-  } else if ([kind isEqualToString:@"rail"]) {
-    weight += 0.55 + MIN(3.0, (double)children.count * 0.18);
-  } else if ([kind isEqualToString:@"card"] || [kind isEqualToString:@"pane"]) {
-    weight += 0.85;
-  } else if ([kind isEqualToString:@"dashboard"] || [kind isEqualToString:@"cockpit"]) {
-    weight += 0.65;
-  }
-
-  for (NSDictionary *child in children) {
-    if ([child isKindOfClass:NSDictionary.class]) {
-      weight += [self surfaceWeightForElement:child];
-    }
-  }
-  return MAX(0.25, weight);
+  return [props[@"layout"] isKindOfClass:NSDictionary.class] ? props[@"layout"] : @{};
 }
 
-- (UIView *)odinInterfaceTile:(NSDictionary *)interface frame:(CGRect)frame weight:(double)weight {
+- (UIView *)aggregateInterfaceTile:(NSDictionary *)interface frame:(CGRect)frame weight:(double)weight {
   NSDictionary *props = [interface[@"props"] isKindOfClass:NSDictionary.class] ? interface[@"props"] : @{};
   UIView *tile = [[UIView alloc] initWithFrame:frame];
   tile.backgroundColor = [self fensalirPanelColor];
@@ -1865,7 +1857,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   }
 }
 
-- (void)dashboardClient:(EVEDashboardClient *)client didChangeStatus:(NSString *)status {
+- (void)hermodrClient:(EVEHermodrClient *)client didChangeStatus:(NSString *)status {
   (void)client;
   self.dashboardStatus = status;
   self.dashboardStatusLabel.text = status;
@@ -2022,7 +2014,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   }
 
   CGFloat scale = MAX(0.25, MIN(3.0, self.activeGestureStartScale * recognizer.scale));
-  [self.dashboardClient sendCommand:@{@"type": @"scale", @"nodeId": nodeId, @"scale": @(scale)}];
+  [self.hermodrClient sendCommand:@{@"type": @"scale", @"nodeId": nodeId, @"scale": @(scale)}];
 }
 
 - (void)nodeRotated:(UIRotationGestureRecognizer *)recognizer {
@@ -2037,7 +2029,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   }
 
   CGFloat rotation = self.activeGestureStartRotation + recognizer.rotation;
-  [self.dashboardClient sendCommand:@{@"type": @"rotate", @"nodeId": nodeId, @"rotation": @(rotation)}];
+  [self.hermodrClient sendCommand:@{@"type": @"rotate", @"nodeId": nodeId, @"rotation": @(rotation)}];
 }
 
 - (void)sendMoveForNodeId:(NSString *)nodeId center:(CGPoint)center {
@@ -2045,7 +2037,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   CGFloat canvasHeight = MAX(1.0, self.sceneCanvasView.bounds.size.height);
   CGFloat x = MIN(1.0, MAX(-1.0, (center.x / canvasWidth) * 2.0 - 1.0));
   CGFloat y = MIN(1.0, MAX(-1.0, (center.y / canvasHeight) * 2.0 - 1.0));
-  [self.dashboardClient sendCommand:@{@"type": @"move", @"nodeId": nodeId, @"x": @(x), @"y": @(y)}];
+  [self.hermodrClient sendCommand:@{@"type": @"move", @"nodeId": nodeId, @"x": @(x), @"y": @(y)}];
 }
 
 - (void)hierarchyNodePressed:(UIButton *)button {
@@ -2063,11 +2055,11 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
   NSString *command = [node[@"command"] isKindOfClass:NSString.class] ? node[@"command"] : nil;
   NSString *providerId = [node[@"providerId"] isKindOfClass:NSString.class] ? node[@"providerId"] : nil;
   if ([command isEqualToString:@"open-provider"] && providerId) {
-    [self.dashboardClient sendCommand:@{@"type": @"open-provider", @"nodeId": nodeId, @"providerId": providerId}];
+    [self.hermodrClient sendCommand:@{@"type": @"open-provider", @"nodeId": nodeId, @"providerId": providerId}];
     return;
   }
 
-  [self.dashboardClient sendCommand:@{@"type": @"select", @"nodeId": nodeId}];
+  [self.hermodrClient sendCommand:@{@"type": @"select", @"nodeId": nodeId}];
 }
 
 - (void)toolbarButtonPressed:(UIButton *)button {
@@ -2077,7 +2069,7 @@ static NSArray<NSURL *> *EVEConfiguredURLs(NSString *key) {
     return;
   }
 
-  [self.dashboardClient sendCommand:@{@"type": action, @"nodeId": nodeId}];
+  [self.hermodrClient sendCommand:@{@"type": action, @"nodeId": nodeId}];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {

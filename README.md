@@ -126,8 +126,10 @@ payloads as `mimir.eve_media_observation.v1`.
 - `EVESensorUplinkClient` opens separate WebSocket uplinks for camera and
   microphone observations so sensor traffic does not block display/control
   traffic.
-- `EVEDashboardClient` opens the native Mimir dashboard socket and receives
-  scene/control state snapshots.
+- `EVEHermodrClient` polls Odin-owned Hermodr for Gjallar's canonical
+  `gamecult.eve.surface_state.v1` aggregate and hands the decoded surface to
+  UIKit. Hermodr is a transport/lowering boundary; it does not own layout or
+  provider membership.
 - `EVEViewController` captures camera frames with AVFoundation and microphone
   blocks with AVAudioEngine, then sends binary CultMesh `eve-camera` and
   `eve-mic` media observations to Mimir. It also renders the dashboard natively with UIKit: a scene graph,
@@ -236,20 +238,19 @@ Periwinkle sends camera, microphone, motion, and touch observations only when
 launched with an explicit `org.gamecult.eve.SENSOR_URI`; the apps no longer
 guess receiver URLs.
 
-## Native Mimir Dashboard
+## Native Gjallar Runtime
 
-Start the dashboard authority on Starfire:
+EveCanvas is the native iOS lowering of Gjallar's aggregate Eve surface. Gjallar
+owns visible surface membership, order, and `weighted-bisect` layout metadata;
+EveCanvas owns UIKit views, touch handling, reconnect behavior, and visible
+transport failure. Odin-owned Hermodr exposes the typed CultMesh record at the
+iOS HTTP boundary.
 
-```powershell
-dotnet run --project E:\Projects\Mimir\src\Mimir.EveDashboard\Mimir.EveDashboard.csproj -- --port 8795
-```
-
-EveCanvas connects to the Mimir dashboard WebSocket lowering for native retained
-`dashboard-state` snapshots. That lowering renders the daemon-owned CultMesh
-dashboard state; it is not provider discovery authority. Live provider discovery
-belongs to Odin/CultMesh advertisements. Native iOS dashboard lowerings must be
-configured through `EVE_DASHBOARD_URLS`; missing discovery stays visible instead
-of falling back to LAN constants. EveCanvas sends compact commands back:
+Configure one or more Hermodr base URLs through the `EVE_HERMODR_URLS` array in
+`org.gamecult.evecanvas` preferences. EveCanvas reads
+`gjallar.overview` from `/hermodr/surface/gjallar.overview` and does not guess a
+LAN address. It sends supported interactions back through
+`/hermodr/commands/eve`:
 
 - `select`
 - `move`
@@ -347,14 +348,13 @@ without losing the basic app deployment path.
 
 ## Next Cut
 
-- Connect the existing browser reference to a clean-consumer, networked
-  CultMesh sample and use it as the visual/behavior oracle for native clients.
-- Split the shared CultNet/CultMesh surface contract from the iOS app code and
-  keep `gamecult.eve.surface.v1` as the renderer-facing contract.
+- Admit live provider-owned Eve surfaces into Odin/CultMesh so Gjallar's
+  aggregate has real children to tile; advertisements without readable surface
+  state remain catalog entries, not invented UI.
+- Add native command receipts for Gjallar tiles and prove touch round trips
+  against provider-owned command surfaces.
 - Replace JSON/base64 sensor packets with binary framing once camera and mic
   timing are proven through Mimir.
-- Replace the dashboard fixture state with live `MimirPresentationControlState`
-  and `MimirSceneEditorState` snapshots.
 - Expand the Android Kotlin client from dashboard node rendering into the full
   retained `surface.root` renderer, and add the browser client against the same
   provider/sensor API.
