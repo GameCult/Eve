@@ -646,7 +646,7 @@ Long-term renderer/client bodies should split out when they become real apps:
 
 - `EveElectron2D` or Aetheria-owned Electron client for RTS/editor/operator 2D.
 - `EveUnityUIToolkit` for Unity UI Toolkit 2D lowering.
-- `EveUnityScene` or Aetheria-owned Unity scene frontend for full game 2D/3D.
+- `EveUnityScene` for provider-agnostic full-game 2D/3D lowering.
 - `EveGodot` for Godot lowering.
 - `Fensalir` for Direct2D/native runtime lowering if Fensalir remains the body.
 - `EveWebReference` can stay in Eve core as the canonical reference renderer

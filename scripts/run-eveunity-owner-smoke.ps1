@@ -1,12 +1,12 @@
 param(
   [string] $EveUnityRoot = "E:\Projects\EveUnity",
-  [string] $AetheriaRoot = "E:\Projects\Aetheria"
+  [string] $AetheriaRoot = "E:\Projects\AetheriaEve"
 )
 
 $ErrorActionPreference = "Stop"
+$projectRoot = Split-Path -Parent $PSScriptRoot
 
 $requiredOwnerPaths = @(
-  "packages\org.gamecult.eve.surface\package.json",
   "packages\org.gamecult.eve.unity-uitoolkit\package.json",
   "packages\org.gamecult.eve.unity-uitoolkit\eve-runtime-capability.json",
   "packages\org.gamecult.eve.unity-scene\package.json",
@@ -25,18 +25,27 @@ foreach ($relativePath in $requiredOwnerPaths) {
   }
 }
 
-$aetheriaManifest = Get-Content (Join-Path $AetheriaRoot "Packages\manifest.json") -Raw | ConvertFrom-Json
-$expectedDependencies = @{
-  "org.gamecult.eve.surface" = "https://github.com/GameCult/EveUnity.git?path=/packages/org.gamecult.eve.surface#eveunity-surface-v0.1.0"
-  "org.gamecult.eve.unity-uitoolkit" = "https://github.com/GameCult/EveUnity.git?path=/packages/org.gamecult.eve.unity-uitoolkit#eveunity-uitoolkit-v0.1.0"
-  "org.gamecult.eve.plugin-fields" = "https://github.com/GameCult/EvePlugins.git?path=/plugins/eve-plugin-fields/unity/org.gamecult.eve.plugin-fields#eve-plugin-fields-unity-v0.1.1"
-  "org.gamecult.eve.unity-scene" = "https://github.com/GameCult/EveUnity.git?path=/packages/org.gamecult.eve.unity-scene#eveunity-scene-v0.1.4"
+$deletedSurfacePackage = Join-Path $EveUnityRoot "packages\org.gamecult.eve.surface"
+if (Test-Path -LiteralPath $deletedSurfacePackage) {
+  throw "EveUnity must consume Eve's renderer-neutral surface package instead of vendoring it: $deletedSurfacePackage"
 }
 
-foreach ($entry in $expectedDependencies.GetEnumerator()) {
-  $actual = $aetheriaManifest.dependencies.($entry.Key)
-  if ($actual -ne $entry.Value) {
-    throw "Aetheria dependency $($entry.Key) resolves to '$actual', expected '$($entry.Value)'."
+$eveSurface = Get-Content (Join-Path $projectRoot "packages\org.gamecult.eve.surface\package.json") -Raw | ConvertFrom-Json
+$unityScene = Get-Content (Join-Path $EveUnityRoot "packages\org.gamecult.eve.unity-scene\package.json") -Raw | ConvertFrom-Json
+$unityToolkit = Get-Content (Join-Path $EveUnityRoot "packages\org.gamecult.eve.unity-uitoolkit\package.json") -Raw | ConvertFrom-Json
+if ($eveSurface.dependencies.'org.gamecult.cultlib' -ne '1.0.56') {
+  throw "Eve surface must declare the admitted CultLib 1.0.56 contract."
+}
+if ($unityScene.dependencies.'org.gamecult.eve.surface' -ne $eveSurface.version -or
+    $unityToolkit.dependencies.'org.gamecult.eve.surface' -ne $eveSurface.version) {
+  throw "Every EveUnity package must declare Eve surface $($eveSurface.version)."
+}
+
+$aetheriaManifest = Get-Content (Join-Path $AetheriaRoot "Aetheria.Unity\Packages\manifest.json") -Raw | ConvertFrom-Json
+foreach ($packageName in @('org.gamecult.eve.surface', 'org.gamecult.eve.unity-scene', 'org.gamecult.eve.unity-uitoolkit')) {
+  $actual = $aetheriaManifest.dependencies.$packageName
+  if ($actual -notmatch '^https://github\.com/GameCult/(Eve|EveUnity)\.git\?path=/.+#[0-9a-f]{40}$') {
+    throw "Aetheria dependency $packageName must resolve from its owner repository at an immutable commit, found '$actual'."
   }
 }
 
@@ -45,4 +54,4 @@ if ($LASTEXITCODE -ne 0) {
   throw "EveUnity UI Toolkit package smoke failed."
 }
 
-Write-Host "EveUnity owns tagged Unity packages and Aetheria consumes their immutable releases."
+Write-Host "Eve owns the surface contract; EveUnity owns Unity lowering; Aetheria consumes both at immutable commits."

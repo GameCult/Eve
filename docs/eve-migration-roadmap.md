@@ -51,17 +51,15 @@ advertisements and typed command/receipt documents are the boundary.
   movement, targeting, and fire command receipts.
 - EveUnity's clean `TestProject` owns generic scene and UI Toolkit package
   verification; ordinary runtime tests no longer open or mutate Aetheria.
-- EveUnity publishes immutable `0.1.0` Git package tags for surface and UI
-  Toolkit plus scene `0.1.4`, whose generic CultMesh composition root discovers
-  playable worlds without product identifiers. Its release-only consumer
-  resolves those tags plus CultLib's assembled Unity package and passes 30
-  Unity EditMode tests without sibling package paths. Aetheria pins the same
-  released sources.
-- The same released-package consumer cold-starts from Aetheria's CultMesh
+- Eve owns the renderer-neutral surface package. EveUnity publishes the Unity
+  UI Toolkit and scene lowerers from one immutable repository commit; its
+  isolated consumer resolves those packages plus CultLib without borrowing a
+  provider's source tree. Aetheria pins the same owner commits.
+- The same isolated-package consumer cold-starts from Aetheria's CultMesh
   rendezvous endpoint with no configured provider or surface ID, discovers the
   daemon's `interactive-world`, loads provider-owned assets, and reconciles
   movement, targeting, and action receipts without importing Aetheria code.
-- Aetheria pins the same scene `0.1.4` release; no Aetheria Unity component
+- Aetheria pins the same EveUnity commit; no Aetheria Unity component
   constructs the generic CultMesh client transport used by that witness.
 - EveUnity can start from one CultMesh rendezvous endpoint, discover a Verse,
   select an advertised `interactive-world` surface, and connect without
@@ -124,7 +122,7 @@ advertisements and typed command/receipt documents are the boundary.
   resources, asset overlays, and capability-gap reporting. The general CultUI
   lowerer dispatches plugin component kinds without field-specific branches.
 - EvePlugins publishes runtime-neutral C# fields contracts as UPM and .NET
-  packages. EveUnity scene `0.1.4` owns the second native adapter: structured
+  packages. EveUnity scene owns the second native adapter: structured
   splat buffers, RenderTexture rasterization, layer texture allocation, and the
   generic fields shader.
   Aetheria implements the plugin interfaces and retains only a MonoScript-GUID
