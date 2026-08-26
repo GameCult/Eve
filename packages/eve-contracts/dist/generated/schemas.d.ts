@@ -596,6 +596,25 @@ export declare const eveContractSchemas: {
                 readonly type: "string";
                 readonly minLength: 1;
             };
+            readonly delegation: {
+                readonly type: "object";
+                readonly required: readonly ["originalInvocationHash", "originalClientId", "delegatingRuntimeId"];
+                readonly properties: {
+                    readonly originalInvocationHash: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly originalClientId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly delegatingRuntimeId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                };
+                readonly additionalProperties: false;
+            };
         };
         readonly additionalProperties: false;
     };
@@ -653,12 +672,27 @@ export declare const eveContractSchemas: {
             readonly sourceVersion: {
                 readonly type: "integer";
                 readonly minimum: 0;
+                readonly description: "Provider-state generation that causally owns this result. It is not implicitly an Eve surface version.";
+            };
+            readonly presentationSurfaceVersion: {
+                readonly type: "integer";
+                readonly minimum: 1;
+                readonly description: "Optional advertised base-surface version that a renderer must mount before exposing terminal presentation finality.";
+            };
+            readonly invocationHash: {
+                readonly type: "string";
+                readonly minLength: 1;
+                readonly description: "Canonical digest of the immutable invocation envelope finalized by this receipt.";
             };
             readonly navigation: {
                 readonly type: "object";
                 readonly required: readonly ["verseId", "surfaceId"];
                 readonly properties: {
                     readonly verseId: {
+                        readonly type: "string";
+                        readonly minLength: 1;
+                    };
+                    readonly authorityRuntimeId: {
                         readonly type: "string";
                         readonly minLength: 1;
                     };

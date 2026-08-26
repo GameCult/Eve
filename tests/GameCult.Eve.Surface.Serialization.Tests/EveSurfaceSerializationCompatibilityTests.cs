@@ -69,6 +69,62 @@ public sealed class EveSurfaceSerializationCompatibilityTests
     private static readonly MessagePackSerializerOptions Options = MessagePackSerializerOptions.Standard;
 
     [Test]
+    public void CommandInvocationHashBindsEveryImmutableEnvelopeField()
+    {
+        var request = new EveSurfaceCommandRequest(
+            "provider",
+            "surface",
+            new CultMeshOperationInvocationDescriptor(
+                "launch",
+                "launch.v1",
+                new CultMeshRouteHint(CultMeshLocalityKind.Network, "commands"),
+                "command-1"),
+            CultMesh.OperationPayload(("shipId", "ship:one")),
+            DateTimeOffset.Parse("2026-08-19T00:00:00Z"),
+            "pilot:one",
+            "eve:commands",
+            EveCommandReceiptDocument.SchemaId);
+        var same = new EveSurfaceCommandRequest(
+            request.Schema,
+            request.ProviderId,
+            request.SurfaceId,
+            request.OperationRecord,
+            new Dictionary<string, string>(request.PayloadFields, StringComparer.Ordinal),
+            request.IssuedAt,
+            request.ClientId,
+            request.CommandBoundary,
+            request.ReceiptSchema);
+        var changedPayload = new EveSurfaceCommandRequest(
+            request.ProviderId,
+            request.SurfaceId,
+            request.Operation,
+            CultMesh.OperationPayload(("shipId", "ship:two")),
+            request.IssuedAt,
+            request.ClientId,
+            request.CommandBoundary,
+            request.ReceiptSchema);
+
+        Assert.That(EveCommandInvocationHash.Compute(same), Is.EqualTo(EveCommandInvocationHash.Compute(request)));
+        Assert.That(EveCommandInvocationHash.Compute(changedPayload), Is.Not.EqualTo(EveCommandInvocationHash.Compute(request)));
+        var delegated = new EveSurfaceCommandRequest(
+            request.Schema,
+            request.ProviderId,
+            request.SurfaceId,
+            request.OperationRecord,
+            new Dictionary<string, string>(request.PayloadFields, StringComparer.Ordinal),
+            request.IssuedAt,
+            "progression-router",
+            request.CommandBoundary,
+            request.ReceiptSchema,
+            new EveCommandDelegationRecord(
+                EveCommandInvocationHash.Compute(request),
+                request.ClientId,
+                "progression-router"));
+        Assert.That(EveCommandInvocationHash.Compute(delegated), Is.Not.EqualTo(EveCommandInvocationHash.Compute(request)));
+        Assert.That(delegated.Delegation!.OriginalInvocationHash, Is.EqualTo(EveCommandInvocationHash.Compute(request)));
+    }
+
+    [Test]
     public void LegacySevenFieldSurfaceDocumentDeserializes()
     {
         var bytes = WriteLegacySurfaceDocument();
@@ -208,7 +264,10 @@ public sealed class EveSurfaceSerializationCompatibilityTests
                 "aetheria.daemon",
                 "aetheria.pilot",
                 "interactive-world",
-                new[] { "cultnet+tcp://odin.gamecult.example:3076" }));
+                new[] { "cultnet+tcp://odin.gamecult.example:3076" },
+                "commander-daemon"),
+            "sha256:launch-envelope",
+            presentationSurfaceVersion: 77);
 
         var bytes = MessagePackSerializer.Serialize(document, Options);
         var reader = new MessagePackReader(bytes);
@@ -216,13 +275,16 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         var restored = MessagePackSerializer.Deserialize<EveCommandReceiptDocument>(bytes, Options);
 
         Assert.That(reader.NextMessagePackType, Is.EqualTo(MessagePackType.Map));
-        Assert.That(reader.ReadMapHeader(), Is.EqualTo(13));
+        Assert.That(reader.ReadMapHeader(), Is.EqualTo(15));
         Assert.That(wireJson.RootElement.GetProperty("navigation").ValueKind, Is.EqualTo(JsonValueKind.Object));
         Assert.That(restored.Navigation, Is.Not.Null);
         Assert.That(restored.Navigation!.VerseId, Is.EqualTo("gamecult.aetheria"));
+        Assert.That(restored.Navigation.AuthorityRuntimeId, Is.EqualTo("commander-daemon"));
         Assert.That(restored.Navigation.SurfaceId, Is.EqualTo("aetheria.pilot"));
         Assert.That(restored.Navigation.SurfaceKind, Is.EqualTo("interactive-world"));
         Assert.That(restored.Navigation.RendezvousEndpoints, Is.EqualTo(new[] { "cultnet+tcp://odin.gamecult.example:3076" }));
+        Assert.That(restored.InvocationHash, Is.EqualTo("sha256:launch-envelope"));
+        Assert.That(restored.PresentationSurfaceVersion, Is.EqualTo(77));
     }
 
     [Test]
@@ -260,6 +322,9 @@ public sealed class EveSurfaceSerializationCompatibilityTests
             Assert.That(restored.CommandId, Is.EqualTo("legacy-command"));
             Assert.That(restored.Navigation, Is.Not.Null);
             Assert.That(restored.Navigation!.SurfaceId, Is.EqualTo("aetheria.pilot"));
+            Assert.That(restored.Navigation.AuthorityRuntimeId, Is.Empty);
+            Assert.That(restored.InvocationHash, Is.Empty);
+            Assert.That(restored.PresentationSurfaceVersion, Is.Zero);
         });
     }
 
@@ -286,7 +351,11 @@ public sealed class EveSurfaceSerializationCompatibilityTests
         Assert.Multiple(() =>
         {
             Assert.That(wireJson.RootElement.TryGetProperty("navigation", out _), Is.False);
+            Assert.That(wireJson.RootElement.TryGetProperty("invocationHash", out _), Is.False);
+            Assert.That(wireJson.RootElement.TryGetProperty("presentationSurfaceVersion", out _), Is.False);
             Assert.That(restored.Navigation, Is.Null);
+            Assert.That(restored.InvocationHash, Is.Empty);
+            Assert.That(restored.PresentationSurfaceVersion, Is.Zero);
         });
     }
 

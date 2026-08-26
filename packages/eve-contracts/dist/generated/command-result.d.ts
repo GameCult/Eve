@@ -32,9 +32,21 @@ export interface EveCommandReceipt {
         [k: string]: any;
     }[];
     issuedAtUtc?: string;
+    /**
+     * Provider-state generation that causally owns this result. It is not implicitly an Eve surface version.
+     */
     sourceVersion: number;
+    /**
+     * Optional advertised base-surface version that a renderer must mount before exposing terminal presentation finality.
+     */
+    presentationSurfaceVersion?: number;
+    /**
+     * Canonical digest of the immutable invocation envelope finalized by this receipt.
+     */
+    invocationHash?: string;
     navigation?: {
         verseId: string;
+        authorityRuntimeId?: string;
         providerId?: string;
         surfaceId: string;
         surfaceKind?: string;

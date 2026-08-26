@@ -366,8 +366,10 @@ namespace GameCult.Eve.Surface
             string message,
             string issuedAtUtc,
             long sourceVersion,
-            EveSurfaceNavigationTarget? navigation = null)
-            : this(SchemaId, receiptId, commandId, command, state, ownerRepo, authority, providerId, surfaceId, message, issuedAtUtc, sourceVersion, navigation)
+            EveSurfaceNavigationTarget? navigation = null,
+            string invocationHash = "",
+            long presentationSurfaceVersion = 0)
+            : this(SchemaId, receiptId, commandId, command, state, ownerRepo, authority, providerId, surfaceId, message, issuedAtUtc, sourceVersion, navigation, invocationHash, presentationSurfaceVersion)
         {
         }
 
@@ -385,7 +387,9 @@ namespace GameCult.Eve.Surface
             string message,
             string issuedAtUtc,
             long sourceVersion,
-            EveSurfaceNavigationTarget? navigation = null)
+            EveSurfaceNavigationTarget? navigation = null,
+            string invocationHash = "",
+            long presentationSurfaceVersion = 0)
         {
             Schema = string.IsNullOrWhiteSpace(schema) ? SchemaId : schema;
             ReceiptId = receiptId ?? "";
@@ -400,6 +404,8 @@ namespace GameCult.Eve.Surface
             IssuedAtUtc = issuedAtUtc ?? "";
             SourceVersion = sourceVersion;
             Navigation = navigation;
+            InvocationHash = invocationHash ?? "";
+            PresentationSurfaceVersion = presentationSurfaceVersion;
         }
 
         [Key(0)] public string Schema { get; }
@@ -415,6 +421,8 @@ namespace GameCult.Eve.Surface
         [Key(10)] public string IssuedAtUtc { get; }
         [Key(11)] public long SourceVersion { get; }
         [Key(12)] public EveSurfaceNavigationTarget? Navigation { get; }
+        [Key(13)] public string InvocationHash { get; }
+        [Key(14)] public long PresentationSurfaceVersion { get; }
     }
 
     /// <summary>
@@ -424,7 +432,7 @@ namespace GameCult.Eve.Surface
     public sealed class EveCommandReceiptCompatibilityFormatter :
         IMessagePackFormatter<EveCommandReceiptDocument?>
     {
-        private const int LegacyFieldCount = 13;
+        private const int LegacyFieldCount = 15;
         private const int RequiredAndScalarFieldCount = 12;
 
         public void Serialize(
@@ -434,9 +442,10 @@ namespace GameCult.Eve.Surface
         {
             if (value == null) { writer.WriteNil(); return; }
 
-            writer.WriteMapHeader(value.Navigation == null
-                ? RequiredAndScalarFieldCount
-                : RequiredAndScalarFieldCount + 1);
+            var optionalFields = (value.Navigation == null ? 0 : 1) +
+                (string.IsNullOrWhiteSpace(value.InvocationHash) ? 0 : 1) +
+                (value.PresentationSurfaceVersion <= 0 ? 0 : 1);
+            writer.WriteMapHeader(RequiredAndScalarFieldCount + optionalFields);
             Write(ref writer, "schema", value.Schema);
             Write(ref writer, "receiptId", value.ReceiptId);
             Write(ref writer, "commandId", value.CommandId);
@@ -453,6 +462,13 @@ namespace GameCult.Eve.Surface
             {
                 writer.Write("navigation");
                 WriteNavigation(ref writer, value.Navigation);
+            }
+            if (!string.IsNullOrWhiteSpace(value.InvocationHash))
+                Write(ref writer, "invocationHash", value.InvocationHash);
+            if (value.PresentationSurfaceVersion > 0)
+            {
+                writer.Write("presentationSurfaceVersion");
+                writer.Write(value.PresentationSurfaceVersion);
             }
         }
 
@@ -483,10 +499,13 @@ namespace GameCult.Eve.Surface
                 var issuedAtUtc = ReadString(ref reader, fields, 10);
                 var sourceVersion = fields > 11 ? reader.ReadInt64() : 0;
                 var navigation = fields > 12 ? ReadNavigation(ref reader, options) : null;
+                var invocationHash = ReadString(ref reader, fields, 13);
+                var presentationSurfaceVersion = fields > 14 ? reader.ReadInt64() : 0;
                 for (var index = LegacyFieldCount; index < fields; index++) reader.Skip();
                 return new EveCommandReceiptDocument(
                     schema, receiptId, commandId, command, state, ownerRepo, authority,
-                    providerId, surfaceId, message, issuedAtUtc, sourceVersion, navigation);
+                    providerId, surfaceId, message, issuedAtUtc, sourceVersion, navigation, invocationHash,
+                    presentationSurfaceVersion);
             }
             finally { reader.Depth--; }
         }
@@ -511,6 +530,8 @@ namespace GameCult.Eve.Surface
                 var issuedAtUtc = "";
                 long sourceVersion = 0;
                 EveSurfaceNavigationTarget? navigation = null;
+                var invocationHash = "";
+                long presentationSurfaceVersion = 0;
                 var fields = reader.ReadMapHeader();
                 for (var index = 0; index < fields; index++)
                 {
@@ -529,13 +550,16 @@ namespace GameCult.Eve.Surface
                         case "issuedAtUtc": issuedAtUtc = ReadString(ref reader); break;
                         case "sourceVersion": sourceVersion = reader.ReadInt64(); break;
                         case "navigation": navigation = ReadNavigation(ref reader, options); break;
+                        case "invocationHash": invocationHash = ReadString(ref reader); break;
+                        case "presentationSurfaceVersion": presentationSurfaceVersion = reader.ReadInt64(); break;
                         default: reader.Skip(); break;
                     }
                 }
 
                 return new EveCommandReceiptDocument(
                     schema, receiptId, commandId, command, state, ownerRepo, authority,
-                    providerId, surfaceId, message, issuedAtUtc, sourceVersion, navigation);
+                    providerId, surfaceId, message, issuedAtUtc, sourceVersion, navigation, invocationHash,
+                    presentationSurfaceVersion);
             }
             finally { reader.Depth--; }
         }
@@ -546,8 +570,9 @@ namespace GameCult.Eve.Surface
         {
             if (navigation == null) { writer.WriteNil(); return; }
 
-            writer.WriteMapHeader(5);
+            writer.WriteMapHeader(6);
             Write(ref writer, "verseId", navigation.VerseId);
+            Write(ref writer, "authorityRuntimeId", navigation.AuthorityRuntimeId);
             Write(ref writer, "providerId", navigation.ProviderId);
             Write(ref writer, "surfaceId", navigation.SurfaceId);
             Write(ref writer, "surfaceKind", navigation.SurfaceKind);
@@ -571,6 +596,7 @@ namespace GameCult.Eve.Surface
             try
             {
                 var verseId = "";
+                var authorityRuntimeId = "";
                 var providerId = "";
                 var surfaceId = "";
                 var surfaceKind = "";
@@ -581,6 +607,7 @@ namespace GameCult.Eve.Surface
                     switch (reader.ReadString())
                     {
                         case "verseId": verseId = ReadString(ref reader); break;
+                        case "authorityRuntimeId": authorityRuntimeId = ReadString(ref reader); break;
                         case "providerId": providerId = ReadString(ref reader); break;
                         case "surfaceId": surfaceId = ReadString(ref reader); break;
                         case "surfaceKind": surfaceKind = ReadString(ref reader); break;
@@ -588,7 +615,8 @@ namespace GameCult.Eve.Surface
                         default: reader.Skip(); break;
                     }
                 }
-                return new EveSurfaceNavigationTarget(verseId, providerId, surfaceId, surfaceKind, endpoints);
+                return new EveSurfaceNavigationTarget(
+                    verseId, providerId, surfaceId, surfaceKind, endpoints, authorityRuntimeId);
             }
             finally { reader.Depth--; }
         }
@@ -626,9 +654,11 @@ namespace GameCult.Eve.Surface
             string providerId,
             string surfaceId,
             string surfaceKind,
-            string[]? rendezvousEndpoints = null)
+            string[]? rendezvousEndpoints = null,
+            string authorityRuntimeId = "")
         {
             VerseId = verseId ?? "";
+            AuthorityRuntimeId = authorityRuntimeId ?? "";
             ProviderId = providerId ?? "";
             SurfaceId = surfaceId ?? "";
             SurfaceKind = surfaceKind ?? "";
@@ -640,5 +670,6 @@ namespace GameCult.Eve.Surface
         [Key(2)] public string SurfaceId { get; }
         [Key(3)] public string SurfaceKind { get; }
         [Key(4)] public string[] RendezvousEndpoints { get; }
+        [Key(5)] public string AuthorityRuntimeId { get; }
     }
 }

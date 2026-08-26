@@ -714,6 +714,29 @@ export const eveContractSchemas = {
             "receiptSchema": {
                 "type": "string",
                 "minLength": 1
+            },
+            "delegation": {
+                "type": "object",
+                "required": [
+                    "originalInvocationHash",
+                    "originalClientId",
+                    "delegatingRuntimeId"
+                ],
+                "properties": {
+                    "originalInvocationHash": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "originalClientId": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "delegatingRuntimeId": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "additionalProperties": false
             }
         },
         "additionalProperties": false
@@ -787,7 +810,18 @@ export const eveContractSchemas = {
             },
             "sourceVersion": {
                 "type": "integer",
-                "minimum": 0
+                "minimum": 0,
+                "description": "Provider-state generation that causally owns this result. It is not implicitly an Eve surface version."
+            },
+            "presentationSurfaceVersion": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Optional advertised base-surface version that a renderer must mount before exposing terminal presentation finality."
+            },
+            "invocationHash": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Canonical digest of the immutable invocation envelope finalized by this receipt."
             },
             "navigation": {
                 "type": "object",
@@ -797,6 +831,10 @@ export const eveContractSchemas = {
                 ],
                 "properties": {
                     "verseId": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "authorityRuntimeId": {
                         "type": "string",
                         "minLength": 1
                     },

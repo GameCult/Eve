@@ -335,7 +335,8 @@ namespace GameCult.Eve.Surface
             DateTimeOffset issuedAt,
             string clientId,
             string commandBoundary = "",
-            string receiptSchema = "")
+            string receiptSchema = "",
+            EveCommandDelegationRecord? delegation = null)
             : this(
                 SchemaId,
                 providerId,
@@ -346,7 +347,8 @@ namespace GameCult.Eve.Surface
                 issuedAt,
                 clientId,
                 commandBoundary,
-                receiptSchema)
+                receiptSchema,
+                delegation)
         {
         }
 
@@ -360,7 +362,8 @@ namespace GameCult.Eve.Surface
             DateTimeOffset issuedAt,
             string clientId,
             string commandBoundary,
-            string receiptSchema)
+            string receiptSchema,
+            EveCommandDelegationRecord? delegation = null)
         {
             Schema = string.IsNullOrWhiteSpace(schema) ? SchemaId : schema;
             ProviderId = providerId;
@@ -373,6 +376,7 @@ namespace GameCult.Eve.Surface
             ClientId = clientId;
             CommandBoundary = commandBoundary ?? "";
             ReceiptSchema = receiptSchema ?? "";
+            Delegation = delegation;
         }
 
         [Key(0)]
@@ -411,8 +415,30 @@ namespace GameCult.Eve.Surface
         [Key(8)]
         public string ReceiptSchema { get; }
 
+        [Key(9)]
+        public EveCommandDelegationRecord? Delegation { get; }
+
         [IgnoreMember]
         public string CommandId => Operation.IdempotencyKey ?? "";
+    }
+
+    [MessagePackObject]
+    public sealed class EveCommandDelegationRecord
+    {
+        [SerializationConstructor]
+        public EveCommandDelegationRecord(
+            string originalInvocationHash,
+            string originalClientId,
+            string delegatingRuntimeId)
+        {
+            OriginalInvocationHash = originalInvocationHash ?? "";
+            OriginalClientId = originalClientId ?? "";
+            DelegatingRuntimeId = delegatingRuntimeId ?? "";
+        }
+
+        [Key(0)] public string OriginalInvocationHash { get; }
+        [Key(1)] public string OriginalClientId { get; }
+        [Key(2)] public string DelegatingRuntimeId { get; }
     }
 
     /// <summary>
