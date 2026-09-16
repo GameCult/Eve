@@ -56,6 +56,7 @@ provider picker:
   `gamecult.eve.surface.v1` runtime-adapter surface for the Direct2D lowering
   path.
 - `Huginn .cc`: compiles `web/fixtures/huginn-cc-surface.eve`.
+  A retired-projection fixture retained for lowering conformance; Huginn is the memory organ and no longer emits this surface.
 - `Reactive DSL`: compiles `web/fixtures/reactive-composition.eve`.
 - `CultUI Inspector`: compiles `web/fixtures/cultui-slider-inspector.eve`
   and proves partition/field-row/slider-anatomy lowering in the web reference.

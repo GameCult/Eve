@@ -3,13 +3,13 @@
   "fixtureId": "huginn-cc",
   "title": "Huginn .cc",
   "pack": "provider",
-  "ownerRepo": "Huginn",
+  "ownerRepo": "Eve",
   "surface": {
     "transport": "local-eve-dsl",
     "path": "web/fixtures/huginn-cc-surface.eve"
   },
   "purpose": "Proves a provider-owned .cc inspection surface can be lowered through Eve while Huginn owns runtime stewardship.",
-  "exitCriteria": "Move to Huginn when .cc schema inspection, Persona-state projection, or CultMesh publication details become runtime-owned.",
+  "exitCriteria": "Retired-projection fixture retained for lowering conformance; Huginn is the memory organ and will not own this surface, and generic .cc inspection belongs to CultCache Studio.",
   "asserts": [
     "CultCache inspector cards",
     "record list bindings",
