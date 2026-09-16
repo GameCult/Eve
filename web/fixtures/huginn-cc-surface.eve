@@ -1,4 +1,4 @@
-# Huginn emits Eve DSL. Renderers compile and lower it.
+# Retired-projection fixture owned by Eve for lowering conformance. Nothing emits this surface; Huginn is the memory organ, not a .cc inspector.
 surface cultcache.huginn.inspector "Huginn .cc Inspector"
 version 1
 

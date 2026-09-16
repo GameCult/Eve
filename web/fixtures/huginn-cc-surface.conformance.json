@@ -8,12 +8,11 @@
     "transport": "local-eve-dsl",
     "path": "web/fixtures/huginn-cc-surface.eve"
   },
-  "purpose": "Proves a provider-owned .cc inspection surface can be lowered through Eve while Huginn owns runtime stewardship.",
+  "purpose": "Retired-projection fixture owned by Eve: proves a provider-shaped .cc inspection surface can be lowered through Eve. No runtime owns or emits this surface.",
   "exitCriteria": "Retired-projection fixture retained for lowering conformance; Huginn is the memory organ and will not own this surface, and generic .cc inspection belongs to CultCache Studio.",
   "asserts": [
     "CultCache inspector cards",
     "record list bindings",
     "provider-owned inspection state"
-  ],
-  "splitTarget": "Huginn"
+  ]
 }
