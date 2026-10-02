@@ -1,6 +1,10 @@
 # Thing: the rename of Eve, map and target
 
-Status: map, Imagination (`imagination-thing`), revision 3 of 2026-10-02.
+Status: map, Imagination (`imagination-thing`), revision 4 of 2026-10-02.
+Revision 4 adds the section "Fullscreen presentation" (ruling
+`thing:ruling:operator-deck-is-a-site-page`, question `thing-page-url`, cut
+`deck-site-page`, spec `docs/thing-cut-fullscreen.spec.json`); nothing before
+that section changed.
 Campaign slug `thing`. Rulings in force this revision rests on:
 `thing:ruling:operator-brand-reskin` (brand = re-skin, against revision 1's
 recommendation), `:operator-deck-facts-fix`, `:operator-dsl-thing-script`,
@@ -10,7 +14,8 @@ rename-now, against revision 1's recommendation), `:operator-aetheria-eve-rename
 Persona is retired and nothing replaces it; `persona-continuity` was
 withdrawn because the answer fell outside its options). The operator's words
 for the last three, verbatim: "Rename all, retire the Persona". Open:
-`aetheria-eve-contents`, `member-names` (section "Questions"). Cut 1's spec is
+`aetheria-eve-contents`, `member-names` (section "Questions"), `thing-page-url`
+(section "Fullscreen presentation"). Cut 1's spec is
 `docs/thing-cut-1.spec.json`; revision 3 proposes target r2. Questions, cut specs, rulings and
 reports become typed documents in Eureka's mind (instance `eureka`); this page
 keeps body facts, the inventory, the model page and rationale, as
@@ -1079,3 +1084,241 @@ VoidBot would otherwise recreate the Face on the next role-addressed chat
 - Renaming Yggdrasil's `/srv/repos/Eve` and `/srv/build/Eve`: deployment
   state, not a name anyone reads; an ops cut if ever wanted.
 - Renaming Epiphany's `atlas/eve_surface.rs`: Epiphany is being archived.
+- The deck as an iframe in the article column (cut 1's shape, live until cut
+  `deck-site-page`): overruled by `operator-deck-is-a-site-page`.
+- A full-bleed iframe under the masthead: the iframe becomes the scroller,
+  so the masthead never leaves the viewport and costs a phone a masthead's
+  height on every screen of the deck; two documents load for one page.
+- A fixed overlay root like the Graph viewer's: covers the masthead the
+  operator asked to present the deck with.
+- `@scope (.thing-deck)` instead of prefixed selectors: one line, but newer
+  than anything the site relies on (Firefox 128, July 2024); prefixing is
+  mechanical and Soul can grep it.
+- Inline `<style>` and `<script>` in `Thing.md`: they survive the pipeline,
+  but `Description` would index their text as the page's words (B13.4).
+- The whole-site reading of "always fullscreen" (chrome as overlays, no
+  1680px measure): dropped by the operator's clarification; prose keeps its
+  reading-width chrome.
+
+## Fullscreen presentation (revision 4)
+
+The deck went live as cut 1 shaped it: an iframe inside `.gamecult-embed-frame`
+in the article column of `/Blog/project-thing`, 85vh tall, with the applet at
+`/static/applets/project-thing/index.html`. The operator's words, verbatim:
+
+> we can also certainly do better than just embedding it in the site's body
+> chrome. Our site should always be a fullscreen experience
+
+and, asked what "always" covers:
+
+> I'm just saying, the masthead always fills the screen, and the content
+> should do the same, where reasonable. Having a body chrome that stops text
+> from taking up the full width when you're reading is just good UX. I don't
+> see why the Thing page can't be presented with the existing masthead. It's
+> the Thing page, on the GameCult site, right?
+
+Admitted as `thing:ruling:operator-deck-is-a-site-page`: the deck is a page
+of gamecult.org under the existing masthead, filling the screen below it; it
+is not an iframe in the body column. Prose pages keep their reading-width
+chrome. This is not a site redesign; the whole-site reading of "always
+fullscreen" and the `fullscreen-scope` question were dropped with the ruling.
+What this section settles is mechanism.
+
+### B12. How the site lays a page out today
+
+Pinned: gamecult-site `ae0927f1c7e2231a722007233f26847daf68f740` (the polish
+cut `cut-deck-polish` is in flight on the applet file; nothing below depends
+on that file's contents), GameCult-Quartz `ef43df0`.
+
+- The engine renders every page as `<body data-slug>` > `#quartz-root.page` >
+  `#quartz-body` with a left sidebar, `.center` (`.page-header` holding the
+  masthead and the `beforeBody` components, then `<article>`, an `<hr>`, the
+  `.page-footer`), a right sidebar and the site `Footer`
+  (`GameCult-Quartz/quartz/components/renderPage.tsx` lines 267-294).
+  `enableSPA: false` (`site/quartz.config.ts`): every navigation is a full
+  page load, there is no router, and inline or linked scripts run on load.
+- `.page` is `max-width: 1680px; padding: 0 1.2rem 2.5rem` (`custom.scss`
+  lines 31-35), so the masthead and all content share one measure; on a
+  display wider than 1680px nothing fills the screen. `.page::before` paints
+  the fixed grid texture over everything, pointer-events none (lines 37-47).
+- Sidebars are grid columns: an empty sidebar is `display: none` and the
+  grid collapses to one column (lines 50-85); the left column is the TOC
+  (desktop only), the right is the overview sidebar and backlinks. Which
+  components render is decided per page by slug predicates in
+  `site/quartz.layout.ts` (`isGraphPage`, `isIntegratedDossierPage`,
+  `isStandardContentPage`, `isBlogArticle`); Breadcrumbs, ArticleTitle and
+  ContentMeta are skipped for `index` and `Graph`.
+- The article is a card: `.page > #quartz-body .center > article` has a
+  gradient background, 1px border, 24px radius, shadow and
+  `padding: 1.45rem 1.7rem 1.9rem` (lines 1089-1099). Reading width inside it
+  comes from the page types (`.gamecult-studio-page` 72rem, Ritual Paper
+  980px, `max-width: 68ch` on some prose).
+- Nothing is full-bleed. The home page and the Projects page are studio
+  pages (72rem, right sidebar, no TOC). Ritual Paper is a typographic
+  variant inside the same grid (lines 101-630). Two pages reach for more
+  room ad hoc: `Blog/the-sleeping-colossus-refuses-the-throne` collapses the
+  grid to one column, hides both sidebars and the popover hint by slug
+  (lines 1152-1180), still inside the 1680px card; and `Graph`, whose
+  viewer bundle mounts `.gamecult-epiphany-graph-root` as
+  `position: fixed; inset: 0; z-index: 1000` and sets
+  `body.gamecult-graph-spa-active { overflow: hidden }`
+  (`GameCult/static/epiphany-graph/assets/viewer.css`), covering the masthead
+  and footer rather than removing them. That fixed root is the only visual
+  overlay on the site. Revision 3's phrase "overlay applet" meant the build
+  overlay (`site/` staged over the engine, B4), not a visual layer: the cat
+  and Thing applets are iframes in the article column.
+- The masthead (`GameCultMasthead`) is in normal flow, not sticky: title,
+  tagline, community links, nav chips. Its tagline is the page's first
+  standalone italic quote line after an optional H1, stripped from the
+  article by `stripTopTagline` (`site/quartz/components/gamecult.ts` lines
+  170-209, 486-505).
+- Embeds: `.gamecult-embed-frame` (lines 2388-2400, 2505) is used by three
+  pages (the cat post, the Thing post, `Projects/CultPong.md`); the Thing
+  post's 85vh override is the slug-scoped rule at lines 1148-1150.
+
+### B13. What Quartz does to raw HTML in a Markdown page
+
+`ObsidianFlavoredMarkdown` runs `rehype-raw` (`ofm.ts` line 544), so HTML in
+a `.md` page survives, including `<style>`, `<link>` and `<script>`
+elements, which Preact renders to static HTML and the browser executes on
+load. Four rules bite a pasted deck:
+
+1. CommonMark HTML blocks that open with `<div`/`<section` end at the first
+   blank line; text after a blank line that does not start with `<` is a
+   Markdown paragraph (`<p>` wrapping, inline parsing) and a line indented
+   four spaces after a blank line is a code block. `<style>` and `<script>`
+   blocks end at their closing tag and may contain blank lines. The deck's
+   markup (committed HEAD, lines 254-529) has 15 blank lines.
+2. `Latex` (remark-math) turns `$...$` into math outside HTML blocks; the
+   deck's markup carries no `$`.
+3. `CrawlLinks` marks `<a>` elements `internal` or `external` and appends an
+   external-link icon SVG to every external link (`links.ts` line 32,
+   `externalLinkIcon: true`); the deck has two external links in `.src`.
+4. `Description` sets `file.data.text` from the whole tree, which feeds the
+   search index and, absent a frontmatter `description`, the page
+   description and OG card; inline `<style>`/`<script>` text would be
+   indexed as page text. Linked files are not.
+
+Site styles that reach into an in-page deck (`GameCult-Quartz/quartz/styles/base.scss`):
+`a { font-weight: 600; color: var(--secondary) }` (line 84), `strong`
+(line 80), `h1`-`h6` families, sizes and margins (lines 356-420), `p, li`
+line-height (515-517), `table, th, td` (528-545), `ul` list style (37-44),
+plus the article card above. The deck's own unscoped selectors that would
+reach out: `*`, `:root`, `body`, `h1,h2,h3`, `p`, `b,strong`, `table`,
+`td`, `th`, `tr.lit td`, `tr.strike td(::after)`, `[data-reveal]`. Its 110
+class names and 14 keyframe names collide with nothing in `custom.scss` or
+`base.scss`. The script's only root touch is `document.documentElement`
+(line 532: `.rm` for reduced motion, `getComputedStyle(root)` for tokens);
+it otherwise reads `window.scrollY`, `innerHeight` and element rects, which
+hold for an in-flow deck. The HUD bar and pill are `position: fixed`.
+
+### The shape: the deck is the Thing page
+
+Under `operator-deck-is-a-site-page` the deck becomes one page of the site,
+rendered by the engine like every other page, with the masthead above it in
+flow and the deck's sections spanning the viewport below it:
+
+- **One copy, in the page.** The deck's markup is the body of a Markdown
+  page, wrapped once in `<div class="thing-deck">`, with its blank lines
+  removed (B13.1). Its styles and script are two static files the page
+  links, `site/quartz/static/thing/deck.css` and `deck.js`, not inline
+  (B13.4). The applet file is deleted; its URL becomes a redirect stub so
+  `old-names-resolve` holds.
+- **Scoped both ways by one class.** Every selector in `deck.css` is
+  prefixed `.thing-deck`; `:root` and `body` become `.thing-deck` (tokens,
+  font, size, colour; the body `background` is dropped because the site's
+  body already paints the same wash); `*` becomes `.thing-deck *`; the `.rm`
+  rules become `.thing-deck.rm ...`, and `deck.js` line 532 takes
+  `document.querySelector('.thing-deck')` as `root`, so reduced motion and
+  `tok()` both read the deck root. Site rules the deck must redeclare inside
+  its scope: `a` (weight and colour as the deck had them), `strong`,
+  headings' margins, `p` line-height, table cell padding and borders, list
+  style; and `.thing-deck .external-icon { display: none }` (B13.3).
+  Keyframe names stay (no collision).
+- **Masthead above, hero below, stacked.** The deck's hero does not
+  duplicate the masthead: the masthead is site identity and navigation, the
+  hero is the deck's cover. The hero's sticky stage sticks at `top: 0` once
+  the masthead has scrolled off, so the first viewport is masthead plus the
+  top of the hero and every later viewport is the deck alone. The masthead
+  tagline is the deck's `socialDeck` line, *"Thing renders things."*, given
+  as the page's first line and lifted into the masthead by `stripTopTagline`.
+  The HUD bar stays fixed at the top (3px, scaled to 0 at rest); the HUD pill
+  stays fixed bottom-right (top-right on phones, where it overlaps the
+  masthead's community icons until the first scroll; accepted).
+- **Page chrome on this page only**, scoped by `body[data-slug="Thing"]` in
+  `custom.scss` beside the other slug rules: `.page { max-width: none;
+  padding: 0 }` so the deck's `--inv` sections run edge to edge;
+  `.page > #quartz-body .center > .page-header { max-width: 1680px;
+  margin-inline: auto; padding: 0 1.2rem }` so the masthead keeps the measure
+  it has on every other page; the article card loses background, border,
+  radius, shadow and padding; the `<hr>` and `.page-footer` margin go. The
+  site footer follows the deck's close section. The layout predicates in
+  `quartz.layout.ts` gain `isThingPage` and skip Breadcrumbs, ArticleTitle,
+  ContentMeta, the overview sidebar and Backlinks for it, as they do for
+  `Graph`; with both sidebars empty the existing grid rules give one column.
+- **Scripts and the router.** There is no SPA router (`enableSPA: false`);
+  `deck.js` runs on every load of the page as `<script src defer>`. Nothing
+  to design.
+- **The Blog post** `/Blog/project-thing` stays as the dated news item: its
+  frontmatter unchanged, its body a paragraph and a link to the Thing page;
+  the iframe, the direct link and the slug-scoped 85vh rule go. The Eve card
+  item links to the Thing page. `.gamecult-embed-frame` stays for the cat
+  post and CultPong.
+
+Not chosen, and why (also under "Rejected"): a full-bleed iframe under the
+masthead keeps the deck untouched but makes the iframe the scroller, so the
+masthead never scrolls away and the deck loses a masthead's height of every
+phone viewport, and the page loads two documents; a fixed overlay like the
+Graph's covers the masthead the operator asked to keep; `@scope` instead of
+prefixing is one line but is newer than anything the site relies on
+(Firefox 128, 2024) and prefixing is mechanical.
+
+### Authority map delta
+
+- Owner of the deck's look: `deck.css`, scoped to `.thing-deck`; it reads no
+  site token and the site reads none of it. Owner of the page chrome on the
+  Thing page: `custom.scss` under `body[data-slug="Thing"]`, and
+  `quartz.layout.ts` for which components render. The engine owns the frame
+  (`renderPage.tsx`); it is not edited.
+- Derived, display-only: the masthead tagline (from the page's first line);
+  the one-column grid (from empty sidebars); the search-index text (from the
+  deck's copy, not its CSS or JS).
+- Forbidden writers: no site stylesheet styles anything inside
+  `.thing-deck`; no deck selector is unprefixed; no second copy of the deck
+  exists (the applet file is replaced by a stub that holds no deck markup);
+  no iframe, no fixed overlay root, no `overflow: hidden` on body.
+- Shared paths: the same Deploy Quartz workflow and Pages origin; the deck's
+  fact fixes and the polish cut's edits travel with the markup and script
+  unchanged (Soul diffs them against the polish cut's landing head).
+- Deletion line: before the page exists, the applet's `<style>`, `<body>`
+  and `<script>` are moved out and the applet file is reduced to the stub;
+  the embed and the 85vh rule are removed from the post and `custom.scss`.
+
+### Question `thing-page-url`: which URL is the Thing page?
+
+Options: **top-level** (`GameCult/Thing.md`, `/Thing`; a page of the site
+like `Pitch` or `tour`, with the masthead's tagline and no article chrome;
+`/Blog/project-thing` stays the dated announcement pointing at it; cut 4's
+Thing card links to it; the URL outlives the campaign as the family's page);
+**blog-post** (`/Blog/project-thing` is the page; `GameCultArticleMeta`,
+Breadcrumbs and ArticleTitle must be skipped for one blog slug, the Blog
+index lists a post whose body is the deck, and the family's page later
+needs another URL anyway). Recommended: **top-level**; the operator called
+it "the Thing page", and a dated post is the wrong container for a page
+meant to outlive its date. The cut spec `docs/thing-cut-fullscreen.spec.json`
+assumes top-level; under blog-post the same spec applies with
+`GameCult/Blog/project-thing.md` as the page file, `isThingPage` matching
+that slug and `isBlogArticle` excluding it.
+
+### Cut `deck-site-page` (spec `docs/thing-cut-fullscreen.spec.json`)
+
+Repo `gamecult-site`, after `cut-deck-polish` lands (the spec's base is
+`ae0927f`; Hands rebases onto the polish cut's landing head and takes the
+deck's markup, styles and script from that head, never from the artifact).
+Rulings: `operator-deck-is-a-site-page`, `operator-brand-reskin`,
+`operator-deck-facts-fix`. Question assumed: `thing-page-url = top-level`.
+Structural delta: the 680-line applet becomes a 12-line stub; about 270
+lines of markup, 250 of CSS and 150 of JS move into `GameCult/Thing.md`,
+`deck.css` and `deck.js`; about 40 lines of `custom.scss` and 8 of
+`quartz.layout.ts` are added; 3 lines of `custom.scss` and the post's embed
+are removed. No new dependency, no new format.

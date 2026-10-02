@@ -1,0 +1,250 @@
+{
+  "campaign": "thing",
+  "cut": "deck-site-page",
+  "revision": 1,
+  "title": "The Project Thing deck becomes the Thing page on gamecult.org: under the masthead, filling the screen, one copy scoped in the page; the applet URL redirects",
+  "repo": "GameCult/gamecult-site",
+  "branch": "main",
+  "base": "ae0927f1c7e2231a722007233f26847daf68f740",
+  "depends_on": [
+    "cut-deck-on-site",
+    "cut-deck-polish"
+  ],
+  "first": [
+    "Map: Eve docs/thing-campaign.md revision 4, section 'Fullscreen presentation': B12 (site layout), B13 (what Quartz does to raw HTML), 'The shape', 'Authority map delta'. Ruling thing:ruling:operator-deck-is-a-site-page, operator's words verbatim there. This spec assumes question thing-page-url = top-level (/Thing, GameCult/Thing.md); under blog-post the page file is GameCult/Blog/project-thing.md and isThingPage matches that slug.",
+    "Base: rebase onto the landing head of cut-deck-polish before starting. The deck's markup, styles and script are taken from site/quartz/static/applets/project-thing/index.html at that head, never from the artifact. Line numbers below are the committed HEAD ae0927f: <style> lines 9-252, <body> 254-529, <script> 530-679; they shift slightly after the polish cut.",
+    "Rules of the engine (B13): a <div>/<section> HTML block in Markdown ends at the first blank line, so the deck's markup must carry no blank line between <div class=\"thing-deck\"> and its closing tag; <link> and <script src> elements in the body survive rehype-raw and run on load; CrawlLinks appends an external-link icon to every external <a>; Description indexes all article text, so styles and script are linked files, not inline.",
+    "Scoping (B13, 'The shape'): every selector in deck.css is prefixed .thing-deck; :root and body become .thing-deck; * becomes .thing-deck *; .rm rules become .thing-deck.rm ...; the script's root is document.querySelector('.thing-deck'). Site rules that reach in and must be redeclared inside the scope: a (weight, colour), strong, h1-h3 margins, p line-height, table/th/td padding and borders, ul list-style, .external-icon hidden.",
+    "There is no SPA router (enableSPA: false in site/quartz.config.ts): deck.js runs on each full load; nothing else is needed for scripts.",
+    "Deploy is push to main -> workflow 'Deploy Quartz' -> GitHub Pages at gamecult.org. Small commits on main; CI is the verifier. A local .\\scripts\\quartz\\quartz.ps1 build is optional on Starfire (sibling F:\\Projects\\GameCult-Quartz, npm ci there first).",
+    "Precedents in the code: slug predicates in site/quartz.layout.ts (isGraphPage, isIntegratedDossierPage); slug-scoped chrome rules in site/quartz/styles/custom.scss (body[data-slug=\"Blog/the-sleeping-colossus-refuses-the-throne\"], lines 1152-1180); the masthead tagline lifted from the page's first italic quote line (site/quartz/components/gamecult.ts stripTopTagline)."
+  ],
+  "deletes": [
+    {
+      "path": "site/quartz/static/applets/project-thing/index.html",
+      "lines": 668,
+      "note": "The 680-line applet becomes a 12-line redirect stub: doctype, charset, <title>Project Thing</title>, <meta http-equiv=\"refresh\" content=\"0; url=/Thing\">, <link rel=\"canonical\" href=\"https://gamecult.org/Thing\">, and a body with one link to /Thing. No deck markup, style or script remains in it (invariant old-names-resolve: the URL still answers 200)."
+    },
+    {
+      "path": "site/quartz/styles/custom.scss",
+      "lines": 3,
+      "note": "The slug-scoped rule body[data-slug=\"Blog/project-thing\"] .gamecult-embed-frame iframe { height: 85vh } (lines 1148-1150) is removed; the shared .gamecult-embed-frame rules stay for the cat post and Projects/CultPong.md."
+    },
+    {
+      "path": "GameCult/Blog/project-thing.md",
+      "lines": 9,
+      "note": "The .gamecult-embed-frame div with its iframe and the 'open the deck directly' sentence are removed from the post body; frontmatter is unchanged."
+    }
+  ],
+  "keeps_moves": [
+    "The deck's markup (between <body> and <script> at the polish cut's head) moves verbatim into GameCult/Thing.md inside one <div class=\"thing-deck\"> wrapper, with only these edits: blank lines removed, and nothing else. Every section, exhibit, number and line of copy, including cut 1's two fact fixes and the polish cut's edits, is unchanged. Soul diffs the markup against the applet at the polish head and expects only the wrapper and the removed blank lines.",
+    "The deck's <style> content moves to site/quartz/static/thing/deck.css with the scoping edits in adds and no other change: same tokens, same weights, same keyframes, same media query at 760px, same reduced-motion rules.",
+    "The deck's <script> content moves to site/quartz/static/thing/deck.js with one edit: var root=document.documentElement becomes var root=document.querySelector('.thing-deck'). Everything else (hero intro, reveals, canvases, HUD, ticker, TPS) is unchanged.",
+    "GameCult/Blog/project-thing.md keeps its frontmatter (title, description, author, date, tags, socialDeck) and its H1 and first paragraph; it stays in the Blog index as the dated announcement.",
+    "The Eve card on GameCult/Projects/index.md keeps its Project Thing list item; only its href changes.",
+    "site/quartz/components/*, GameCult-Quartz (the engine), the shared .gamecult-embed-frame rules, the cat applet and the Graph viewer are not touched."
+  ],
+  "adds": [
+    "GameCult/Thing.md: frontmatter title 'Thing'; description, one sentence: the Project Thing board deck, a discussion document on renaming Eve to Thing; socialDeck 'Thing renders things.'; enableToc: false. Body, in this order and with no blank line inside the deck block: the tagline line *\"Thing renders things.\"* (lifted into the masthead by stripTopTagline), a blank line, <link rel=\"stylesheet\" href=\"/static/thing/deck.css\">, <div class=\"thing-deck\"> ... the deck's markup ... </div>, <script src=\"/static/thing/deck.js\" defer></script>. No H1 (the deck's hero carries the h1).",
+    "site/quartz/static/thing/deck.css: the deck's stylesheet scoped. Prefix every selector with '.thing-deck ' (including those inside @media (max-width:760px)); the :root block becomes .thing-deck { ... } keeping color-scheme and every token; the body rule becomes .thing-deck { margin:0; color:var(--ink-2); font-family:var(--body); font-weight:300; font-size:18px; line-height:1.55 } with the background declaration dropped (the site body paints the same wash) and overflow-x:hidden dropped (the polish cut keeps every section inside the page); * becomes .thing-deck *; .rm X becomes .thing-deck.rm X; h1,h2,h3 / p / b,strong / table / td / th / tr.lit td / tr.strike td / [data-reveal...] are prefixed like any other selector. @keyframes names stay (no collision with custom.scss or base.scss).",
+    "site/quartz/static/thing/deck.css, reach-in guards appended at the end under the same scope: .thing-deck a { color: inherit; font-weight: inherit; text-decoration: inherit } unless the deck already styles the anchor (then that rule wins by its own specificity); .thing-deck strong, .thing-deck b { font-weight: 500 }; .thing-deck h1, .thing-deck h2, .thing-deck h3 { margin: 0 } (already present, kept); .thing-deck p { margin: 0; line-height: inherit }; .thing-deck table, .thing-deck th, .thing-deck td { the deck's own padding, border and background exactly as its table rules state, so base.scss lines 528-545 do not show through }; .thing-deck ul { list-style: the deck's value; padding and margin as the deck had }; .thing-deck .external-icon { display: none }.",
+    "site/quartz/static/thing/deck.js: the deck's script with var root=document.querySelector('.thing-deck'); tok() therefore reads the deck root's computed style, where the tokens now live, and reduced motion adds .rm to the deck root. Wrapped as it was (an IIFE); no module, no bundler.",
+    "site/quartz.layout.ts: const isThingPage = (page) => page.fileData.slug === \"Thing\"; isStandardContentPage also requires !isThingPage(page) (so Breadcrumbs, ArticleTitle, ContentMeta and Backlinks skip it); the right-sidebar GameCultOverviewSidebar condition adds && !isThingPage(page); the left TableOfContents renders nothing because enableToc is false. Both sidebars empty gives one column through the existing :has(:empty) grid rules.",
+    "site/quartz/styles/custom.scss, one slug-scoped block beside the other body[data-slug] blocks: body[data-slug=\"Thing\"] { .page { max-width: none; padding: 0; } .page > #quartz-body .center > .page-header { max-width: 1680px; margin-inline: auto; padding: 0 1.2rem; } .page > #quartz-body .center > article { background: none; border: 0; border-radius: 0; box-shadow: none; padding: 0; } .page > #quartz-body .center > hr { display: none; } .page > #quartz-body .center > .page-footer { margin-top: 0; } }. The site Footer stays below the deck. Nothing in this block targets anything inside .thing-deck.",
+    "GameCult/Blog/project-thing.md body after the H1: the existing paragraph, then one sentence with a link: <a href=\"/Thing\">Open the Thing page</a>. Nothing else.",
+    "GameCult/Projects/index.md, Eve card: the Project Thing list item's href becomes /Thing; its text is unchanged."
+  ],
+  "file_changes": [
+    {
+      "location": {
+        "path": "GameCult/Thing.md",
+        "line": 1,
+        "end_line": 290
+      },
+      "change": "new file: frontmatter, tagline line, stylesheet link, the deck's markup inside <div class=\"thing-deck\"> with blank lines removed, the deferred script tag."
+    },
+    {
+      "location": {
+        "path": "site/quartz/static/thing/deck.css",
+        "line": 1,
+        "end_line": 270
+      },
+      "change": "new file: the applet's <style> content scoped to .thing-deck as in adds, plus the reach-in guards."
+    },
+    {
+      "location": {
+        "path": "site/quartz/static/thing/deck.js",
+        "line": 1,
+        "end_line": 150
+      },
+      "change": "new file: the applet's <script> content with root = document.querySelector('.thing-deck')."
+    },
+    {
+      "location": {
+        "path": "site/quartz/static/applets/project-thing/index.html",
+        "line": 1,
+        "end_line": 12
+      },
+      "change": "replaced by the redirect stub to /Thing."
+    },
+    {
+      "location": {
+        "path": "site/quartz.layout.ts",
+        "line": 9,
+        "end_line": 70
+      },
+      "change": "isThingPage predicate; isStandardContentPage and the overview-sidebar condition exclude it."
+    },
+    {
+      "location": {
+        "path": "site/quartz/styles/custom.scss",
+        "line": 1148,
+        "end_line": 1150
+      },
+      "change": "the project-thing iframe height rule removed; the body[data-slug=\"Thing\"] chrome block added beside the other slug-scoped blocks."
+    },
+    {
+      "location": {
+        "path": "GameCult/Blog/project-thing.md",
+        "line": 15,
+        "end_line": 25
+      },
+      "change": "embed and direct link removed; one link to /Thing added."
+    },
+    {
+      "location": {
+        "path": "GameCult/Projects/index.md",
+        "line": 74,
+        "end_line": 76
+      },
+      "change": "the Project Thing item links to /Thing."
+    }
+  ],
+  "authority_map": {
+    "owner": "deck.css owns the deck's look, scoped to .thing-deck; custom.scss under body[data-slug=\"Thing\"] and quartz.layout.ts own the page chrome on the Thing page; the engine (renderPage.tsx) owns the frame and is not edited; the polish cut's head owns the deck's markup and script.",
+    "inputs": [
+      "the applet at the polish cut's landing head",
+      "site/quartz.layout.ts predicates",
+      "custom.scss slug-scoped blocks and the article card rule (lines 1089-1099)",
+      "GameCult-Quartz base.scss rules that reach into article content",
+      "stripTopTagline in site/quartz/components/gamecult.ts"
+    ],
+    "outputs": [
+      "https://gamecult.org/Thing",
+      "https://gamecult.org/static/thing/deck.css and deck.js",
+      "https://gamecult.org/static/applets/project-thing/index.html as a redirect to /Thing",
+      "the Blog post and the Eve card pointing at /Thing"
+    ],
+    "derived_state": [
+      "the masthead tagline, lifted from the page's first line",
+      "the one-column grid, from both sidebars being empty",
+      "the search-index text for /Thing, from the deck's copy only",
+      "quartz-site/public is build output, git-ignored, never committed"
+    ],
+    "forbidden_writers": [
+      "no site stylesheet rule targets anything inside .thing-deck",
+      "no selector in deck.css is unprefixed; no :root, body or html rule in it",
+      "no second copy of the deck: the applet stub holds no markup, style or script",
+      "no iframe, no fixed overlay root, no overflow:hidden on body",
+      "no edit to the deck's copy, numbers, exhibits or script logic beyond the one root line",
+      "no edit to the engine"
+    ],
+    "shared_paths": [
+      "the same Deploy Quartz workflow and Pages origin every site change uses",
+      "the same slug-predicate and slug-scoped-CSS mechanisms the Graph and the sleeping-colossus post use"
+    ],
+    "deletion_line": "the applet's style, body and script are moved out and the file reduced to the stub, the post's embed and the 85vh rule are removed, before the Thing page is added."
+  },
+  "verification": {
+    "builds": [
+      "Deploy Quartz on GameCult/gamecult-site green for the landing commit: gh run list -R GameCult/gamecult-site -w \"Deploy Quartz\" -L 1",
+      "optional: .\\scripts\\quartz\\quartz.ps1 build succeeds and quartz-site/public/Thing/index.html, static/thing/deck.css, static/thing/deck.js exist"
+    ],
+    "tests": [
+      {
+        "name": "curl -sI https://gamecult.org/Thing returns 200; /static/thing/deck.css and deck.js return 200; /static/applets/project-thing/index.html returns 200 and its body carries the refresh to /Thing",
+        "pins": "site-green and old-names-resolve: the page is live and the old URL still answers."
+      },
+      {
+        "name": "screenshots of /Thing at 1440 and 375 px: masthead with tagline 'Thing renders things.' above the deck's hero, full width, no article card, sidebars, breadcrumbs or page title",
+        "pins": "operator-deck-is-a-site-page: existing masthead, deck filling the screen, stacked. After scrolling past the masthead the hero stage fills the viewport alone."
+      },
+      {
+        "name": "scroll /Thing end to end at 1440 and 375 px: every hero and exhibit animation runs, HUD progress and TPS update, no horizontal scrollbar, the site footer follows the close section",
+        "pins": "the deck is unchanged in behaviour inside the page (slam, rings, burst, reveals, etymology scrub, waterfall, TAM orbits, statement, close); the polish cut's work carries over."
+      },
+      {
+        "name": "computed styles on /Thing: .thing-deck .xhead h2 is Montserrat 200; no external-icon visible inside .thing-deck; masthead chip font and colour and body background equal those on /Projects",
+        "pins": "scoped both ways: nothing leaks in (base.scss a/strong/heading/table rules), nothing leaks out (the masthead and body look as on every other page)."
+      },
+      {
+        "name": "with prefers-reduced-motion: reduce emulated, .thing-deck carries class rm and every section renders in its finished state",
+        "pins": "the script's root change keeps reduced motion working."
+      },
+      {
+        "name": "diff GameCult/Thing.md's markup inside the wrapper against the applet's <body> at the polish head, and deck.js against its <script>",
+        "pins": "one copy, moved, not rewritten: the markup differs only by removed blank lines, deck.js only at the root line."
+      },
+      {
+        "name": "read_page of /Blog/project-thing shows the paragraph and the link to /Thing and no iframe; the Eve card on /Projects links to /Thing",
+        "pins": "the post is the announcement; the page is the deck."
+      }
+    ],
+    "negative": [
+      {
+        "pattern": "^[^.@}/ \\t][^{]*\\{|^:root|^body|^html",
+        "scope": "site/quartz/static/thing/deck.css: no match on any rule line outside @keyframes bodies (every rule starts with .thing-deck)."
+      },
+      {
+        "pattern": "thing-deck",
+        "scope": "site/quartz/styles/custom.scss and GameCult-Quartz: no match."
+      },
+      {
+        "pattern": "<style|<script>|<iframe|gamecult-embed-frame",
+        "scope": "GameCult/Thing.md: no match (styles and script are linked files; no iframe)."
+      },
+      {
+        "pattern": "^\\s*$",
+        "scope": "GameCult/Thing.md between <div class=\"thing-deck\"> and its closing </div>: no match (no blank line inside the HTML block)."
+      },
+      {
+        "pattern": "class=\"hero\"|hud-bar|<style",
+        "scope": "site/quartz/static/applets/project-thing/index.html: no match (the stub holds no deck)."
+      },
+      {
+        "pattern": "Blog/project-thing\"\\] \\.gamecult-embed-frame",
+        "scope": "site/quartz/styles/custom.scss: no match."
+      },
+      {
+        "pattern": "quartz-site/public",
+        "scope": "git ls-files: no match."
+      }
+    ],
+    "operator": [
+      "look at https://gamecult.org/Thing on a desktop and a phone and say whether the masthead plus deck reads as the Thing page on the GameCult site"
+    ]
+  },
+  "estimate": {
+    "lines_added": 720,
+    "lines_removed": 680,
+    "dependencies_added": [],
+    "dependencies_removed": [],
+    "formats_added": [],
+    "formats_removed": [],
+    "targets_added": [
+      "/Thing",
+      "/static/thing/deck.css",
+      "/static/thing/deck.js"
+    ],
+    "targets_removed": []
+  },
+  "rulings": [
+    "thing:ruling:operator-deck-is-a-site-page",
+    "thing:ruling:operator-brand-reskin",
+    "thing:ruling:operator-deck-facts-fix",
+    "thing:ruling:operator-home-eve-repo"
+  ],
+  "questions": [
+    "thing:question:thing-page-url"
+  ]
+}
