@@ -1335,3 +1335,18 @@ form, body facts B6-B8 and the mechanism are in the site-wide masthead map,
 gamecult-site `docs/masthead-campaign.md`; the masthead card's removal is that
 campaign's cut, not this one's. `body-under-scrollbar` is the engine's
 `html { width: 100vw }` and is question `scrollbar-fix-home` there.
+
+## Cut `deck-page-edges` (spec gamecult-site `docs/thing-cut-deck-page-edges.spec.json`)
+
+Written 2026-10-02 against gamecult-site `87f2942`, after Soul's pass on
+`deck-page-fixes` (`thing:verdict:cut-deck-page-fixes.s1`). It resolves
+`chrome-edges-wide` (the Thing masthead and footer boxes become the same box
+`.page` is on every other page, through one variable `--thing-frame`, and the
+footer neuters the engine's `min-width: 100%`) and `phone-ticker-short` (the
+ticker band and the confidentiality line leave absolute positioning and become
+flow siblings after the hero content; the stage is `min-height` one screen, so
+it grows on 375x667 and 360x740 instead of laying the band over the subtitle).
+The measurements, the mechanism and the authority map are in the site-wide
+masthead map, gamecult-site `docs/masthead-campaign.md`, section "Soul's
+findings after flat-nav". Allowed by `thing:ruling:operator-deck-polish`; no
+question is open.
