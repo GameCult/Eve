@@ -1,11 +1,17 @@
 # Thing: the rename of Eve, map and target
 
-Status: map, Imagination (`imagination-thing`), revision 2 of 2026-10-02.
+Status: map, Imagination (`imagination-thing`), revision 3 of 2026-10-02.
 Campaign slug `thing`. Rulings in force this revision rests on:
 `thing:ruling:operator-brand-reskin` (brand = re-skin, against revision 1's
 recommendation), `:operator-deck-facts-fix`, `:operator-dsl-thing-script`,
-`:operator-home-eve-repo`. Open: `wire-names`, `aetheria-eve`,
-`persona-continuity`. Cut 1's spec is `docs/thing-cut-1.spec.json`. Questions, cut specs, rulings and
+`:operator-home-eve-repo`, `:operator-wire-rename-now` (wire-names =
+rename-now, against revision 1's recommendation), `:operator-aetheria-eve-rename`
+(rename-archived), `:operator-retire-persona` (a direction ruling: the Eve
+Persona is retired and nothing replaces it; `persona-continuity` was
+withdrawn because the answer fell outside its options). The operator's words
+for the last three, verbatim: "Rename all, retire the Persona". Open:
+`aetheria-eve-contents`, `member-names` (section "Questions"). Cut 1's spec is
+`docs/thing-cut-1.spec.json`; revision 3 proposes target r2. Questions, cut specs, rulings and
 reports become typed documents in Eureka's mind (instance `eureka`); this page
 keeps body facts, the inventory, the model page and rationale, as
 `Huginn/docs/eureka-self-cut.md` does for `eureka-body`.
@@ -189,6 +195,78 @@ Persona-state steward yet.
 | "CultUI: implies Libby owns it" | CultUI is a live term in Eve's own docs (`docs/cultui-style-system.md`, `surface-contract-v1.md`), in doctrine ("Eve/CultUI") and in CultLib ("Unity CultUI", `org.gamecult.ui`, a different package that Libby does own). Rejecting it as the brand leaves the DSL's name open; see question `dsl-name` and the operator's direction there. |
 | Persona divinity arithmetic | Correct as stated (2.5/7 = 35.7%; 3.5/7 = 50.0%). |
 | "Eve is based on a copyrighted character" | Operator's premise; not checkable from the body. |
+
+### B9. The apps are not published anywhere
+
+`org.gamecult.evecanvas` (iOS, `EveCanvas`) installs only by Theos over SSH
+onto the jailbroken iPad `EVE` (`make package && make install`, README
+"Deployment"); `org.gamecult.eve` (Android) installs only by `adb install -r`
+onto Periwinkle with on-device approval; EveFlutter's `com.example.eve_parity`
+is a parity harness. No store, TestFlight, F-Droid, AltStore or package feed
+references any of them (`rg` over Eve, EveFlutter, gamecult-ops: no hit). The
+Idunn targets `eve-ipad-evecanvas` and `periwinkle-eve-android` are both
+`Status = "blocked"` with no deploy command. Changing the application ids makes
+a new app on each device and leaves the old install behind; both devices are
+operator-owned and the old app is removed by hand (`uicache`, `adb uninstall`).
+Not a fork: the ids rename, and the two uninstalls are listed as operator
+steps.
+
+### B10. There is no alias window on the wire; the store has a compatibility path
+
+CultLib's live `document-variants` campaign (`CultLib/docs/document-variants-cut.md`)
+carries two rulings that bind this one. **F7 (operator, 2026-09-30): retire
+`AsSchemaAlias`**, quoted there as "Schema aliasing sounds like a really bad
+idea"; the alias API, its registry path and tests are being deleted across
+runtimes, and C# `TryResolveDescriptorBySchemaAlias`, payload sniffing and
+`CultNetSchemaAliasMatching` are on the deletion list. **C1 (agreed): one
+string names a schema on every runtime and at Odin**, and every reader asks
+for that exact string. So a renamed id has no dual-read window on the wire:
+a producer and its consumers must agree at every moment they are both live.
+
+Stored records are different. `CompatibleSchemaIds` exists in C#
+(`GameCult.Caching/CultCache.cs` line 28; a persisted entry's compatible ids
+are read at line 510), TypeScript (`cultcache-ts`) and Python
+(`cultcache-py`): a document type declares the old id, records stored under it
+load, and new writes carry the new id. The variants map's F9 makes compatible
+ids compare as a set. **Rust `cultcache-rs` has no compatible-id path** (`rg
+-i compatible packages/cultcache-rs/src`: nothing), and the variants map (§2)
+records that Rust `pull_rudp_catalog_snapshot` drops unknown records silently.
+Rust-written stores that may hold eve-typed records: Odin's `odin.cc`
+(`odin-core/src/repository.rs`; a catalog of advertisements, derived) and
+Ghostlight's `service/mesh-v2.cc` (`deployment/idunn/recipe.toml` line 166;
+Hands probes whether it holds `gamecult.eve.surface`-typed records).
+TS/C#/Py-written stores that do: Bifrost `.bifrost/provider-store.cc`
+("typed provider advertisement, operator surface, Eve interface binding",
+`tools/provider-advertisement.mjs` line 372), VoidBot
+`.voidbot/status/cultmesh/voidbot-swarm-state.cc`, weksa `.weksa/*.cc`
+witnesses, Heimdall's verse state, repixelizer's (Python).
+
+Member names are part of schema identity in TypeScript and Python
+(`canonicalSchemaJson` carries `member.memberName`, `cultcache-ts/src/cult-cache.ts`
+line 706) and not in C# (slot and type driven, `cultcache-schema-compatibility.md`).
+A member named `eve_*` (Ghostlight's deployment receipt field `eve_commit`,
+`gamecult.ghostlight.deployment.v2`) is therefore a schema revision in two
+runtimes, not a string swap; see question `member-names`.
+
+### B11. Where the Persona actually lives and speaks
+
+VoidBot's Discord bot, worker and `persona-scheduler` run only in the Starfire
+local stack (`gamecult-ops/runbooks/voidbot-local-stack-and-reindex.md`: "the
+workstation-local VoidBot stack ... not the public GameCult server");
+`scripts/test-voidbot-swarm-yggdrasil.sh` fails if `bot`, `worker` or
+`persona-scheduler` appear in the Yggdrasil compose, which runs only the
+swarm publisher (`systemd/voidbot.service`, "VoidBot typed swarm Eve
+publisher"). The canonical Face registry is
+`REPO_DISCORD_IDENTITIES_PATH=.voidbot/private/repo-discord-identities.json`
+in the VoidBot checkout on Starfire (git-ignored; the committed example is
+`config/repo-discord-identities.example.json`); an entry carries `id`,
+`repoName`, `repoPath`, `roleId`, `avatarUrl`, `faceStatePath`
+(`.voidbot/private/repo-faces/<identity>.cc` by default; Eve's is the repo's
+own `.voidbot/state/eve.cc` per `.voidbot/status/void-memory-maintenance.json`).
+`ensureRepoFaceInitialized` recreates `.voidbot/voice` and `identity.json` on
+the first role-addressed chat, so retirement must remove the registry entry and
+the Discord role, not only the repo files. The ops archive precedent for `.cc`
+state is `gamecult-ops/artifacts/` (`ghostlight-campaign-*.cc`).
 
 ## Inventory of the rename
 
@@ -413,10 +491,10 @@ EveElectron 1, EveTui 1, Heimdall and EvePlugins 0. Four different things:
 | --- | --- | --- | --- |
 | GitHub repo name | `GameCult/<Name>`; injective within the org | renamed once; old name redirects until reused; never reused | operator via `gh repo rename`; Hands executes under a ruling |
 | Local checkout path | `F:\Projects\<Name>`; sibling paths assumed by scripts and memory notes | renamed with the repo; stale paths are a defect | Hands in cut 2; memory notes in cut 3 |
-| Schema id | `gamecult.eve.<name>.v<n>` in `Eve/schemas/*.schema.json`, mirrored as constants in CultLib Rust and consumer runtimes | versioned by suffix; a rename is a new id, so a migration of every fixture and conformance pack | ruling `wire-names`; owner of the id is the schema file in the kernel repo |
+| Schema id | `gamecult.eve.<name>.v<n>` in `Eve/schemas/*.schema.json`, mirrored as constants in CultLib Rust and consumer runtimes | renamed to `gamecult.thing.<name>.v<n>` (same `v<n>`: the shape is unchanged); old id declared in `CompatibleSchemaIds` so stored records load; no alias on the wire (B10) | `operator-wire-rename-now`; owner of the id is the schema file in the kernel repo; each live Verse redeploys as one window |
 | Provider type id | `mimir.eve_*.v1` and any other provider ids naming eve | provider-versioned | the provider repo, under `wire-names` |
-| Package id | `org.gamecult.eve.*` (UPM), `@gamecult/eve-*` (npm, unpublished), `org.gamecult.eve` / `org.gamecult.evecanvas` (installed app ids) | UPM: consumers pin by git URL plus id, a rename breaks every manifest; app ids: a rename is a new app on the device | `wire-names` |
-| Persona identity | `identityId: eve` (identity.json), `agentId` in `eve.cc`; Discord `roleId` numeric | one Persona, renamed in display; id frozen or migrated | VoidBot's persona-state path (`persona:migrate-portable`); no second writer; ruling `persona-continuity` |
+| Package id | `org.gamecult.eve.*` (UPM), `@gamecult/eve-*` (npm, unpublished), `org.gamecult.eve` / `org.gamecult.evecanvas` (installed app ids) | UPM renamed with a new tag that consumers repin to in their own cut; npm renamed in place (unpublished); app ids renamed, old installs removed by hand (B9) | `operator-wire-rename-now` |
+| Persona identity | `identityId: eve` (identity.json), `agentId` in `eve.cc`; Discord `roleId` numeric; registry entry on Starfire | retired: registry entry and role removed, state archived byte-identical with provenance, never read as live; nothing replaces it | `operator-retire-persona`; the archive is written once by Hands and owned by gamecult-ops; no live reader |
 | Display name | "Eve", "Eve DSL", "Eve MultiVerse", "Eve/CultUI", "EveFlutter"... in doctrine, READMEs, site, cards | replaced once by the taxonomy; historical records keep the old word | the taxonomy in this map, ruled by the operator; single copy in the Thing README "Naming" section, cited by doctrine |
 | Site URL | `/Blog/<slug>`, `/tags/eve`, `/static/applets/<name>/` | permanent once published; the site has no redirect mechanism | gamecult-site; invariant `old-names-resolve` |
 
@@ -429,18 +507,27 @@ No cut is mapped on a kind whose cell is empty; none is.
   (`F:\Projects\CLAUDE.md`, charters, memory notes) cite it; they do not
   restate it differently.
 - Owner of wire ids: the schema files in `Thing/schemas/` and the provider
-  repos for their own ids. Under the recommended `wire-names` ruling they are
-  frozen at the `eve` spelling for every `v1`; a `gamecult.thing.*` id appears
-  only with a breaking revision that is paid for by something else.
-- Owner of Persona state: `.voidbot/state/eve.cc` through VoidBot's
-  persona-state service. `identity.json` and the site card are derived
-  display; they do not decide the Persona's name.
+  repos for their own ids. Under `operator-wire-rename-now` every eve-named id
+  becomes a thing-named id in this campaign; the kernel declares each new id
+  once, consumers copy the exact string (C1), stores declare the old id
+  compatible or are rebuilt from their source of truth (B10). No alias, no
+  translation layer, no "accept both" on the wire.
+- Owner of the Persona's end: `operator-retire-persona`. The last live
+  `eve.cc` is archived once, with provenance, in gamecult-ops; afterwards no
+  runtime reads it. The registry entry, the Discord role, `.voidbot/voice`,
+  the site card's Persona parts and the portrait are live surfaces and come
+  down. Nothing is created in their place.
 - Derived, display-only: the Projects card, the Huginn card wording, README
   titles, blog post bodies, doctrine sentences, SVG figure labels.
 - Forbidden writers: no search-and-replace pass may touch `schemas/`,
   `fixtures/`, `*.cc`, `Packages/manifest.json` pins, `package.json` names,
   `pubspec.yaml` names, Android `applicationId`, iOS bundle ids, or Discord
-  ids. A rename of any of those is a cut of its own under a ruling.
+  ids outside the wire cut that owns them; a wire cut edits each by hand with
+  its compatible-id declaration and its consumer repins in the same diff. No
+  store is rewritten in place: a `.cc` file is either read through compatible
+  ids by its owning runtime or deleted and rebuilt by its owning daemon from
+  the source of truth it caches. No agent writes to `eve.cc` after the archive
+  is taken.
 - Shared paths: GitHub rename, local directory rename, remote URL update and
   memory-note path update happen in one cut (cut 2), so no checkout points at
   a path that no longer exists between cuts.
@@ -455,26 +542,45 @@ No cut is mapped on a kind whose cell is empty; none is.
   portrait URL the site uses, every `gamecult.org` page and tag) resolves
   after each cut, by redirect or by retention. No repo named `Eve*` is created
   in the org after cut 2.
-- `wire-ids-under-ruling`: no stored or published id (`gamecult.eve.*`,
-  `mimir.eve_*`, `org.gamecult.eve*`, `@gamecult/eve-*`, `identityId eve`)
-  changes except as the `wire-names` ruling allows; EveConformance fixtures and
-  exported packs decode unchanged after every cut.
+- `rename-whole-per-edge` (replaces revision 1's `wire-ids-under-ruling`;
+  chosen shape: **same-cut per edge, no dual-read window on the wire**, since
+  F7 retired aliasing and C1 makes every reader ask for one exact string,
+  B10): every eve-named wire id is renamed in this campaign; for each id, every
+  live producer and every live consumer of it moves in one cut per live edge,
+  and no commit on any `main` leaves a live edge with a producer and a
+  consumer disagreeing on the id; a Verse whose daemons share an id redeploys
+  in one Idunn window, Odin first or together (Rust drops unknown records);
+  every store that holds old-id records either declares the old id in
+  `CompatibleSchemaIds` (C#, TS, Py) or is deleted and rebuilt by its daemon
+  from the truth it caches (Rust, and any cache); ThingConformance fixtures
+  and exported packs, old and new, decode after migration; no alias,
+  translation or "accept both" path is introduced anywhere.
 - `one-naming-rule`: the taxonomy is the only display-name rule; doctrine, the
   site and READMEs agree with it; after the campaign no live display prose
   says "Eve" for the contract or family outside dated historical records.
-- `persona-continuity`: one Persona, one state file, one writer; the rename
-  keeps provenance (`updatedAt`, `storedAt`, history) and introduces no second
-  copy of Persona state.
+- `persona-retired` (replaces `persona-continuity`): no live surface presents
+  an Eve or Thing Persona: no VoidBot registry entry, no Discord role, no
+  `.voidbot/voice` or `.voidbot/state` in the Thing repo, no Persona badge,
+  portrait or biography on the Projects card, no portrait served from any
+  GameCult URL that live prose links; the archived state is byte-identical to
+  the last live `eve.cc` (sha256 recorded) with provenance (source path,
+  commit, `storedAt`, archive date) and is read by no runtime; no portrait is
+  commissioned.
 - `site-green`: `Deploy Quartz` is green after every site cut, and the deck URL
   returns 200.
 - `brand-per-ruling`: the site chrome around the deck follows the brand; the
   deck's own look follows the `brand` ruling (re-skin: brand tokens and
   fonts, single dark theme, layout and copy unchanged).
 
-Not in scope: Eve's architecture, contracts or renderer behaviour; Unity
+Not in scope: Eve's architecture, contracts or renderer behaviour (an id
+changes, no shape changes: every renamed schema keeps its `v<n>`); Unity
 CultUI (`org.gamecult.ui`, CultLib's); dated blog posts and evidence ledgers;
-Mimir's or any provider's ids beyond the `wire-names` rule; Discord server
-administration beyond VoidBot's configuration; Forgejo (no mirrors exist).
+Epiphany (being archived under `eureka-body`; its `atlas/eve_surface.rs` and
+ids die with it, not here); member names inside schemas unless `member-names`
+rules otherwise; the Yggdrasil filesystem paths `/srv/repos/Eve` and
+`/srv/build/Eve` (Idunn-owned deployment state, not a public name); Forgejo
+(no mirrors exist); the devices' old app installs beyond the two listed
+uninstalls.
 
 ## Cut 1: put the deck on the site, re-skinned to the brand
 
@@ -615,74 +721,191 @@ dependency.
 
 ## Cut order after cut 1
 
-Each cut is one `cut_spec`; `depends_on` is in parentheses.
+Each cut is one `cut_spec`; `depends_on` is in parentheses. Prose and
+display cuts come first because they are cheap and reversible; the wire cuts
+follow in producer-to-consumer order so that no live edge is ever
+half-renamed (invariant `rename-whole-per-edge`); in-repo prose comes after
+the kernel wire cut so READMEs state the new ids once.
 
 - **Cut 2 `repo-renames`** (none). For the seven live repos: `gh repo rename
   Thing -R GameCult/Eve` and so on (`ThingUnity`, `ThingFlutter`,
-  `ThingElectron`, `ThingTui`, `ThingPlugins`, `ThingConformance`); for
-  AetheriaEve as ruling `aetheria-eve` says (unarchive, rename to
-  `AetheriaThing`, re-archive, or leave). In the same cut: rename the local
-  directories `F:\Projects\Eve*` to match, `git remote set-url origin` in each,
-  update `.voidbot/voice/identity.json` `repoName` and `repoPath`, probe that
-  `raw.githubusercontent.com/GameCult/Eve/main/.voidbot/voice/eve.png` still
-  answers 200 (if not, cut 4 moves the card's image URL first), and run
-  `rg "uses: GameCult/Eve" F:\Projects --glob "**/.github/**"` (B2: action
-  references do not redirect; any hit is fixed in this cut). Ops wiring
-  (inventory A5): fields that *derive a GitHub URL from the repo name* change
-  (`Repo = "Eve"` in `idunn-deployment-targets.ps1` if Idunn builds the clone
-  URL from it, Hands probes; `Ghostlight/.gitmodules` URL and
-  `ghostlight.toml.in`); server filesystem paths (`/srv/repos/Eve`,
-  `/srv/build/Eve`, `HERMODR_EVE_*`, `eve_repo=`) stay as they are, since a
-  path on Yggdrasil is Idunn-owned deployment state and not a public name;
-  moving them is a separate ops cut if ever wanted. Verify with `git
-  ls-remote https://github.com/GameCult/Eve.git` still resolving, each
-  renamed checkout fetching, and `git submodule update` in Ghostlight.
+  `ThingElectron`, `ThingTui`, `ThingPlugins`, `ThingConformance`). For
+  AetheriaEve, ruling `operator-aetheria-eve-rename`: `gh api -X PATCH
+  repos/GameCult/AetheriaEve -f archived=false`, `gh repo rename AetheriaThing`,
+  `gh api -X PATCH repos/GameCult/AetheriaThing -f archived=true`; its
+  contents are not touched here (question `aetheria-eve-contents`). In the
+  same cut: rename the local directories `F:\Projects\Eve*` to match, `git
+  remote set-url origin` in each, update `.voidbot/voice/identity.json`
+  `repoName` and `repoPath` only if cut 5 has not yet removed the file, probe
+  that `raw.githubusercontent.com/GameCult/Eve/main/.voidbot/voice/eve.png`
+  still answers 200 (if not, cut 4 moves first), and run `rg "uses:
+  GameCult/Eve" F:\Projects --glob "**/.github/**"` (B2: action references do
+  not redirect; any hit is fixed in this cut). Ops wiring (inventory A5):
+  fields that *derive a GitHub URL from the repo name* change (`Repo = "Eve"`
+  in `idunn-deployment-targets.ps1` if Idunn builds the clone URL from it,
+  Hands probes; `Ghostlight/.gitmodules` URL and `ghostlight.toml.in`); server
+  filesystem paths (`/srv/repos/Eve`, `/srv/build/Eve`, `HERMODR_EVE_*`,
+  `eve_repo=`) stay as they are, since a path on Yggdrasil is Idunn-owned
+  deployment state and not a public name. Verify with `git ls-remote
+  https://github.com/GameCult/Eve.git` still resolving, each renamed checkout
+  fetching, and `git submodule update` in Ghostlight.
 - **Cut 3 `doctrine-and-memory`** (2). `F:\Projects\CLAUDE.md` lines 23, 24,
   26, 28 ("Eve/CultUI", "native Eve", "CultMesh/Eve surface", "Eve DSL", "Eve
-  MultiVerse") and line 90 ("Eve GUI lowerings"); `~/.claude/CLAUDE.md` line
-  175; `gamecult-ops/docs/persona-state-standard.md` last paragraph ("Eve,
-  overlays, native clients"); `gamecult-ops/docs/eve-crusade-coordination.md`
-  and `verse-service-architecture.md` as the inventory lists; memory notes:
+  MultiVerse" become "Thing", "Thing Script", "Thing MultiVerse" per ruling
+  `operator-dsl-thing-script`) and line 90 ("Eve GUI lowerings");
+  `~/.claude/CLAUDE.md` line 175; `gamecult-ops/docs/persona-state-standard.md`
+  last paragraph ("Eve, overlays, native clients");
+  `gamecult-ops/docs/eve-crusade-coordination.md` and
+  `verse-service-architecture.md` as the inventory lists; memory notes:
   `~/.claude/projects/F--Projects/memory/cultcache-stores-outside-assets.md`
-  lines 30-31 and `MEMORY.md` line 119 (reworded with the `dsl-name` ruling
-  so the Unity CultUI versus DSL distinction survives: "Unity CultUI is not
-  Thing Script" under the recommendation),
-  `cultlib-ci-harness.md` line 95 only if the script file is renamed. Leave as
-  written: `eureka-memory-organ.md` lines 90, 124, 131 and
-  `pending-doctrine-proposals.md` line 36 (historical); low risk, reword in
-  passing: `F--Projects-Aetheria/memory/aetheria-legacy-first.md` line 15,
-  `aetheria-cultcache-migration.md` line 19. The taxonomy is written once in
-  the Thing README "Naming" section and cited from doctrine.
+  lines 30-31 and `MEMORY.md` line 119 reworded to "Unity CultUI is not Thing
+  Script", `cultlib-ci-harness.md` line 95 only when the script file is
+  renamed (cut 8). Leave as written: `eureka-memory-organ.md` lines 90, 124,
+  131 and `pending-doctrine-proposals.md` line 36 (historical); low risk,
+  reword in passing: `F--Projects-Aetheria/memory/aetheria-legacy-first.md`
+  line 15, `aetheria-cultcache-migration.md` line 19. The taxonomy and the
+  Thing Script name are written once in the Thing README "Naming" section and
+  cited from doctrine.
 - **Cut 4 `site-prose`** (2). `GameCult/Projects/index.md`: the Eve card
-  becomes the Thing card (id `thing`, repo links to the new names, portrait
-  URL to the new repo path), the Huginn card drops "Eve projection" and
-  "projects inspectable Eve surfaces" in favour of what Huginn is (B6);
+  becomes the Thing card with id `thing`, repo links to the new names, **no
+  Persona**: the portrait `<img>` is replaced by the `swarm-avatar-fallback`
+  letter "T" the Ghostlight card uses, the `swarm-badge` and the
+  `<details class="swarm-persona">` biography are removed, the kicker and
+  description describe the contract and renderer family (ruling
+  `operator-retire-persona`; the legend's Face/Forming/Stewarded states are
+  unchanged and no "retired" state is added); the Huginn card drops "Eve
+  projection" and "projects inspectable Eve surfaces" for what Huginn is (B6);
   `Docs/Architecture-and-Evidence.md`, `Docs/Site-Architecture.md`,
   `Docs/index.md`, `Pitch.md`, `tour.md`, `stichting.md`,
   `Projects/CultLib.md` per the inventory; the SVG figure
   `static/interactive/portfolio-pitch/figures/surface-web-stack.svg` (two
-  "Eve" labels). Dated blog posts and the `eve` tag stay. `Deploy Quartz`
-  green.
-- **Cut 5 `persona`** (2, ruling `persona-continuity`). Through VoidBot's
-  persona-state path: `publicName` and `publicDescription` in `eve.cc`
-  renamed with provenance preserved; `identity.json` `displayName: Thing`,
-  `avatarUrl` repointed to the repo's own `.voidbot/voice/` (the current URL
-  names a dead VoidBot branch, B7); a new portrait `thing.png` per
-  `~/.claude/doctrine/images.md` (the deck's own constraints, played
-  straight: no orange rock, at least one arm, nothing ordinal); `docs/eve-persona.md`
-  → `docs/thing-persona.md` by `git mv` with its text updated;
-  `.voidbot/state/README.md` repointed from the nonexistent `docs/eve-face.md`
-  to it; the site card image in cut 4 follows. The Discord role's display name is an operator
-  action in Discord and is listed, not executed.
-- **Cut 6 `in-repo-prose`** (2). README titles and bodies in the eight repos,
-  `docs/eve-*.md` → `docs/thing-*.md` by `git mv`, comments and fixture
-  descriptions, `EveCanvas`/`EVE*` class prefixes only if the ruling on wire
-  names allows (installed app ids are wire). Forbidden-writer rule applies:
-  no pass over `schemas/`, fixtures or manifests.
-- **Cut 7 `wire-ids`** (6, ruling `wire-names`). Under `freeze`: one
-  paragraph in the Thing README "Naming" section: wire ids keep the `eve`
-  prefix as history; new breaking revisions take `gamecult.thing.*`. Under
-  `rename-now`: the migration, specified then, per id class.
+  "Eve" labels); `static/interactive/cotsc-praxis/eve.png` is removed if
+  nothing live references it (Hands probes the Ink and manifest files that
+  name it). Dated blog posts and the `eve` tag stay. `Deploy Quartz` green.
+- **Cut 5 `persona-retire`** (2; replaces revision 1's `persona`; ruling
+  `operator-retire-persona`). Archive first, then take down, in this order:
+  (a) in gamecult-ops, `artifacts/persona-eve-retired/` holding
+  `eve.cc` (byte-identical copy of `Eve/.voidbot/state/eve.cc` at Eve
+  `167a2d3`), `identity.json`, `void-memory-maintenance.json`,
+  `eve-persona.md`, and a `README.md` with provenance (source paths, source
+  commit, sha256 of each file, the `storedAt` 2026-07-08T06:13:43.893Z and
+  `updatedAt` 2026-05-31 from the record, archive date, the ruling id) and the
+  sentence that no runtime reads it; (b) on Starfire, the operator removes the
+  `eve` entry from `.voidbot/private/repo-discord-identities.json` and
+  deletes or renames away the Discord role `1510848465243082874` (operator
+  steps: both are outside any repo); (c) in the Thing repo, `git rm -r
+  .voidbot/` and `git rm docs/eve-persona.md`; the README's "See
+  `docs/eve-persona.md`" line goes; (d) `VoidBot/docs/persona-intake/sai.persona-intake.yaml`
+  lines 109, 118, 278 name Eve as a relationship target: left as Sai's memory,
+  not edited; the other Personas' `.cc` memories of Eve are theirs and are not
+  edited. No portrait is produced; `eve.png` leaves with `.voidbot/voice`.
+  Negative check: after the cut `rg -l "eve" --glob "**/.voidbot/**"
+  F:\Projects\Thing` is empty and a role-addressed chat cannot recreate the
+  Face because no registry entry names it.
+- **Cut 6 `wire-kernel`** (2; ruling `operator-wire-rename-now`; prose
+  dependency on CultLib's variants C1 being on `main`, so the kernel's TS and
+  Kotlin consumers meet one id rule). In the Thing repo, by hand, one diff:
+  the 38 schema files renamed `gamecult.thing.<name>.v1.schema.json` with
+  their `$id`/title strings; C# `SchemaId` consts in
+  `packages/org.gamecult.thing.surface/Runtime/*Document*.cs` set to the new
+  id with `CompatibleSchemaIds = ["gamecult.eve.<name>.v1"]`; TS
+  `THING_*_SCHEMA` in `packages/thing-contracts/src` with the same
+  compatible declaration; UPM `org.gamecult.thing.surface`, npm
+  `@gamecult/thing-contracts` and `@gamecult/thing-browser-lowering`, NuGet
+  `GameCult.Thing.Surface` (version 0.4.0, packed by the renamed
+  `scripts/pack-dotnet-surface.ps1`), asmdef and namespaces `GameCult.Thing.*`;
+  mesh key prefixes `eve:` → `thing:` and `cultmesh://.../eve/...` →
+  `/thing/...` in the kernel's fixtures and browser lowering; fixture and
+  authority ids `gamecult.eve.embedded-demo*` and friends; browser anatomy
+  classes `cultui-*` → `thingscript-*`; the `.eve` fixtures → `.thingscript`;
+  `web/eve-runtime-capability.json` → `thing-runtime-capability.json`; env
+  and constant names `EVE_*` → `THING_*`; Android `applicationId
+  org.gamecult.thing`, intent extras `org.gamecult.thing.*`, `app_name`,
+  `ThingTheme`, Kotlin package; iOS bundle `org.gamecult.thingcanvas`, app
+  `ThingCanvas`, ObjC prefix `EVE` → `THG` (13 files, `git mv`); scripts
+  `*-eve-*` → `*-thing-*`. Tags: `thing-surface-v<next>` on the landing
+  commit. Operator steps: `uicache -u /Applications/EveCanvas.app` on the iPad
+  and `adb uninstall org.gamecult.eve` on Periwinkle after the new builds
+  install (B9). Verification: the browser reference renders every fixture;
+  old-id fixture files decode through compatible ids; `rg "gamecult\.eve\."
+  --glob "!**/CompatibleSchemaIds*"` over the repo matches only compatible-id
+  declarations and dated docs.
+- **Cut 7 `wire-runtimes`** (6). ThingUnity, ThingFlutter, ThingElectron,
+  ThingTui, ThingPlugins, ThingConformance: repin to the kernel's new tag and
+  package ids (`Packages/manifest.json` git URLs now `GameCult/Thing*.git`
+  with `org.gamecult.thing.*` ids; `package.json` names `@gamecult/thing-*`,
+  `thing-tui`, bins `thing-plugin-*`; NuGet `GameCult.Thing.PluginFields`;
+  pubspec `thing_parity`, Android `com.example.thing_parity`), rename their
+  own ids (`runtime_*`, `electron_shell_projection`, `unity_*_projection`,
+  `tui_grid`, `plugin*`, Electron IPC channels `thing:*`), regenerate
+  conformance fixtures and exported packs, and prove in ThingConformance that
+  the previous exported packs (old ids) still decode through compatible ids.
+  New tags `thingunity-*`, `thingflutter-*`, `thingtui-*`,
+  `thing-plugin-fields-unity-v0.3.0`.
+- **Cut 8 `wire-cultlib`** (6; home of the variants campaign, so landed on a
+  branch its Self agrees to, after C1 is on `main`). `packages/cultcache-ts/src/swarm-documents.ts`
+  mirror ids; `packages/cultmesh-kotlin/.../eve/EveDocuments.kt` →
+  `thing/ThingDocuments.kt`, package `org.gamecult.cultmesh.thing`; Rust
+  `cultnet-rs/tests/provider_session.rs` and TS provider tests; samples
+  `eve-browser-network` → `thing-browser-network` (`EveBrowserNetworkSample`,
+  PackageReference `GameCult.Thing.Surface` 0.4.0, props `ThingRoot`,
+  `ThingSurfacePackageVersion`, flags `--thing-root`), `eve-two-runtime` →
+  `thing-two-runtime`; `scripts/verify-eve-browser-network.mjs` →
+  `verify-thing-browser-network.mjs` (then the memory note in cut 3);
+  `src/GameCult.Mesh/docs/getting-started/03-publish-an-eve-surface.md` →
+  `03-publish-a-thing.md`; READMEs. Heimdall's `vendor/CultLib` copy follows
+  in cut 9. The Rust compatible-id gap (B10) is a CultLib follow-up for the
+  variants campaign, not a Thing cut: Rust-written stores are rebuilt, not
+  read through.
+- **Cut 9 `wire-yggdrasil-verse`** (6, 8). One cut across the daemons that
+  share ids on Yggdrasil's Verse, landed as per-repo commits and deployed in
+  **one Idunn window, Odin first**: Odin (`odin-core/src/documents.rs` ids;
+  `odin.cc` is a derived catalog and is deleted before the restart so Odin
+  rebuilds it from advertisements), Bifrost (`tools/provider-advertisement.mjs`
+  ids and semantic services `<host>/thing/gui|tui|operator|governance`,
+  `.bifrost/eve-surfaces.cc` → `thing-surfaces.cc` in the witness list,
+  `MotionEveSurfaceService.cs` → `MotionThingSurfaceService.cs`;
+  `.bifrost/provider-store.cc` is read through TS compatible ids), Heimdall
+  (`verse-state.ts`, `odin-publication.ts`, `eve:plugin:gamecult.heimdall.access`
+  → `thing:plugin:...`, `docs/eve-access-plugin.md`, the vendored CultLib
+  refreshed), Ghostlight (`mesh.rs`, `idunn_health.rs`, `eve.rs` → `thing.rs`,
+  `deployment/idunn/recipe.toml` ids, gitlink `vendor/eve` → `vendor/thing`;
+  `service/mesh-v2.cc` deleted and rebuilt if the probe finds eve-typed
+  records, since Rust cannot read them through), Hermodr (`hermodr-daemon.cjs`,
+  `lower-surface.cjs`, `static-lowering.cjs`), the VoidBot swarm publisher
+  (`serve-voidbot-swarm-cultmesh.cjs`, `render-voidbot-swarm-dashboard.mjs`,
+  `export-voidbot-provider-advertisements.mjs`, `story_*` ids,
+  `voidbot-swarm-state.cc` via TS compatible ids), and gamecult-ops
+  (`compose/odin.yggdrasil.yaml` env names `HERMODR_THING_*`, unit
+  descriptions, `scripts/check-heimdall-odin-discovery.mjs`, the Idunn
+  bindings, a runbook step for the window). Verification: after the window,
+  Odin's catalog lists every provider under the new ids, Hermodr lowers
+  Bifrost's and Heimdall's surfaces, `heimdall.gamecult.org` and
+  `bifrost.gamecult.org` answer, and no daemon logs an unknown-schema refusal.
+- **Cut 10 `wire-other-hosts`** (6, 8). Per host, each in its own deploy
+  window: Nightwing (Gjallar `Program.cs`, `VerseState.cs`, `gjallar.service`
+  semantic id `/thing/tui`; the browser-reference unit
+  `nightwing-eve-browser-reference.service` → `nightwing-thing-browser-reference.service`
+  with its Idunn target id, restart scripts and health id; Mimir's archived
+  `nightwing-eve-dashboard` target renamed in the record only), Raven (Vili
+  `vili-daemon.mjs`), Starfire (Stonks `stonks-daemon.cjs`; Mimir
+  `mimir.eve_*` → `mimir.thing_*`, assemblies `Mimir.Thing*`, env
+  `MIMIR_THING_*`, service ids `mimir-thing-*`; the local VoidBot stack),
+  and the remaining providers (weksa, repixelizer with Python compatible ids,
+  StreamPixels, AquaSynth, Brokkr, Muninn, Loki, Sai, Ymir). Epiphany is
+  skipped (not in scope).
+- **Cut 11 `in-repo-prose`** (6, 7). README titles and bodies in the seven
+  live repos, `docs/eve-*.md` → `docs/thing-*.md` by `git mv` with the
+  "Naming" section added to the Thing README (taxonomy, Thing Script, and the
+  sentence that old ids load through compatible ids), `docs/cultui-style-system.md`
+  → `docs/thing-script.md`, comments and fixture descriptions, Mimir's and
+  CultLib's READMEs. Dated records stay.
+- **Cut 12 `aetheria-thing-contents`** (2; only under ruling
+  `aetheria-eve-contents = rename-inside`). Unarchive, rename the ~25
+  `eve:surface:*` keys, `gamecult.eve.surface.authoring.v1`,
+  `aetheria.eve_*`, `org.gamecult.aetheria.eve-runtime`, `conformance/eve/`,
+  `Assets/Generated/Eve/**`, props and manifests, re-archive. Under
+  `freeze-contents` this cut does not exist.
 
 ## Questions (the Self admits these; one fork each)
 
@@ -712,9 +935,9 @@ admits a scoped variant for typeset essays and already hosts the cat applet
 with its own styles; a quoted document in a brand frame is the same move. The
 hybrid buys neither the joke nor the brand.
 
-### `wire-names`: do the eve-named wire ids get renamed?
+### `wire-names` (ruled: rename-now, `operator-wire-rename-now`)
 
-The shape is `eureka-body:question:wire-names`. Options: **freeze** (every
+The shape was `eureka-body:question:wire-names`. Options: **freeze** (every
 `gamecult.eve.*.v1`, `mimir.eve_*.v1`, `org.gamecult.eve.*`,
 `@gamecult/eve-*`, app ids and `identityId eve` stay; the Thing README
 explains them as history; the rule recorded is rename-at-next-epoch);
@@ -725,9 +948,9 @@ manifest, Rust constant and installed app bought for a name). Recommended:
 **freeze**, with rename-at-next-epoch as the standing rule. The deck's own
 wave 1 says "redirect old names so nothing breaks"; wire ids have no redirect.
 
-### `aetheria-eve`: what happens to the archived repo?
+### `aetheria-eve` (ruled: rename-archived, `operator-aetheria-eve-rename`)
 
-Options: **rename-archived** (unarchive, `gh repo rename AetheriaThing`,
+Options were: **rename-archived** (unarchive, `gh repo rename AetheriaThing`,
 re-archive; three API calls, the deck's "eight" becomes true, the IP premise
 is honoured on the org list); **leave** (taxidermy stays named; the family is
 seven, as the Projects card already says). Recommended: **rename-archived**;
@@ -761,15 +984,33 @@ pairing misleading). Recommended: **thing-script**, as the operator led
 with it and it names exactly use (1) without touching the schema-named tree
 or CultLib's package.
 
-### `persona-continuity`: is Thing the same Persona as Eve?
+### `persona-continuity` (withdrawn; answered outside its options by `operator-retire-persona`)
 
-Options: **same-persona-renamed** (one `eve.cc`, `publicName` and
-description change through VoidBot's path, `identityId eve` frozen under
-`wire-names`, history and `storedAt` preserved); **new-persona** (a fresh
-Persona "Thing" with new state; Eve's state archived). Recommended:
-**same-persona-renamed**; the Persona standard says preserve provenance and
-do not let a second writer exist, and the deck itself says "we are not
-renaming the product, we are confessing it".
+The Persona is retired and nothing replaces it; cut 5 and invariant
+`persona-retired` carry the ruling.
+
+### `aetheria-eve-contents`: does the archived body's code get renamed too?
+
+The repo is renamed (ruled). Its contents: about 25 `eve:surface:*` keys,
+`gamecult.eve.surface.authoring.v1`, `aetheria.eve_*`,
+`org.gamecult.aetheria.eve-runtime`, `conformance/eve/`, 60 generated Unity
+assets, manifests and props (inventory A2, A3). Options: **freeze-contents**
+(the repo name changes, the code stays as archived; "rename all" is read as
+every *live* id, and an archived body is on no live edge, runs nowhere, and
+was ruled taxidermy by the CultCache campaign); **rename-inside** (unarchive,
+cut 12, re-archive: a mass edit of dead code that no compatible-id path will
+ever exercise). Recommended: **freeze-contents**.
+
+### `member-names`: are eve-named members inside schemas renamed?
+
+Known: `eve_commit` in `gamecult.ghostlight.deployment.v2` and
+`deployment_receipt.v2`; Hands will find more while cutting. In TS and
+Python a member name is part of schema identity (B10), so renaming one is a
+schema revision (`.v3`) with its own migration, not a string swap; in C# it
+is not. Options: **keep** (members stay; each is listed as a follow-up for
+that schema's next revision); **rename-as-revision** (each affected schema
+gets a `.v<n+1>` in this campaign). Recommended: **keep**; a member name is
+not an id and is read by nobody as a brand.
 
 ### `deck-facts`: are the deck's two factual slips corrected before publishing?
 
@@ -797,19 +1038,31 @@ GitHub redirects make the rename reversible and non-breaking (B2), and every
 prose cut wants to write the new URLs once. Doing prose first would write old
 URLs that then need a second pass.
 
-### Why wire ids are a ruling and not a cut
+### Why same-cut per edge and not a dual-read window
 
-A stored id has no redirect. Renaming `gamecult.eve.surface.v1` is a
-migration of every fixture, pack, manifest and Rust constant that names it,
-across at least four repos and two runtimes, and the campaign's reason (a
-character's name on the brand) is not served by it; nobody reads a schema id
-and sees a character. The `eureka-body` campaign faced the same fork and
-recommended freeze.
+The operator retired schema aliasing in the variants campaign (F7) and agreed
+that one string names a schema everywhere (C1). A dual-read window on the
+wire would be exactly the alias that ruling deleted, rebuilt for one rename.
+The honest unit of atomicity is the live edge: source cuts can land per repo
+because nothing is live until deployed, and a Verse redeploys in one window.
+Stored records are the one place a second id legitimately lives, and
+`CompatibleSchemaIds` already exists for it in three runtimes; Rust lacks it,
+so Rust-written stores are treated as the caches they are and rebuilt.
 
-### Why the Persona is renamed rather than reborn
+### Why the kernel keeps `v1`
 
-Persona state is the Mind the repo keeps (Persona standard). A new Persona
-would discard the operating lessons in `eve.cc` to change a display name.
+A renamed id with an unchanged shape is the same schema under a new name;
+bumping the version would claim a shape change that did not happen and would
+force every consumer to treat it as one.
+
+### Why the Persona is archived and not migrated
+
+`operator-retire-persona`: nothing replaces it. The archive keeps the Mind
+the repo kept (Persona standard: do not let state rot or vanish), with
+provenance, where other retired `.cc` state already lives; removing the
+registry entry and the role is what makes the retirement structural, since
+VoidBot would otherwise recreate the Face on the next role-addressed chat
+(B11).
 
 ### Rejected
 
@@ -822,3 +1075,7 @@ would discard the operating lessons in `eve.cc` to change a display name.
 - A redirect layer on gamecult.org for renamed pages: nothing is renamed on
   the site; the Projects card keeps its URL and changes its content.
 - Giving Huginn a cut: it carries no Eve wording (B6).
+- A new Persona named Thing: ruled out by `operator-retire-persona`.
+- Renaming Yggdrasil's `/srv/repos/Eve` and `/srv/build/Eve`: deployment
+  state, not a name anyone reads; an ops cut if ever wanted.
+- Renaming Epiphany's `atlas/eve_surface.rs`: Epiphany is being archived.
