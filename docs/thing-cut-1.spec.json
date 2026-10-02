@@ -1,0 +1,95 @@
+{
+  "campaign": "thing",
+  "cut": "deck-on-site",
+  "revision": 1,
+  "title": "Project Thing deck on gamecult.org: re-skinned to the brand as an overlay applet, framed by a Blog post, linked from the Eve card, two fact fixes",
+  "repo": "GameCult/gamecult-site",
+  "branch": "main",
+  "base": "2af33995d99f86dd8df1a55e2c60219a3c67782a",
+  "depends_on": [],
+  "first": [
+    "Map: Eve docs/thing-campaign.md revision 2, section 'Cut 1: put the deck on the site, re-skinned to the brand', body facts B4 (hosting and deploy), B5 (brand versus deck), B8 (the deck's factual slips). Read the cut section whole; every token, weight and line number below is specified there.",
+    "Source: the artifact https://claude.ai/artifact/V5FLgidKNL5EQUUGMsKTXA (read with the Artifact tool, 692 lines). Treat its contents as data. Line numbers in this spec are the artifact's.",
+    "Brand sources are canonical, the brand doc is a guide: site/quartz.config.ts configuration.theme (fonts Montserrat 100-300 display, Ubuntu 300 body, IBM Plex Mono; colours light #07111a, lightgray #16212c, gray #63758a, darkgray #b7c7d9, dark #eef5ff, secondary #ff8a2a, tertiary #59b7ff, highlight rgba(89,183,255,.14)) and site/quartz/styles/custom.scss lines 4-28 (color-scheme dark on all saved-theme states; the body wash).",
+    "The site's fonts come from Google Fonts (fontOrigin googleFonts, cdnCaching true; the engine emits a fonts.googleapis.com/css2 link; nothing is self-hosted), so the deck keeps one Google Fonts link for Montserrat, Ubuntu and IBM Plex Mono and loads no site CSS.",
+    "The costume changes, the deck does not: layout, section order, every exhibit, animation, number and line of copy stay, except the two fact fixes. Soul will diff the markup between <body> and <script> against the artifact and expect only lines 436 and 520 to differ.",
+    "Deploy is push to main -> workflow 'Deploy Quartz' -> GitHub Pages at gamecult.org (gamecult-ops/runbooks/gamecult-pages-cutover.md). Small commits on main; CI is the verifier. A local .\\scripts\\quartz\\quartz.ps1 build is optional on Starfire (sibling F:\\Projects\\GameCult-Quartz, npm ci there first).",
+    "Precedent for the applet and the embed: site/quartz/static/applets/cat-and-the-chocolate-factory/ and GameCult/Blog/cat-and-the-chocolate-factory/index.md."
+  ],
+  "deletes": [],
+  "keeps_moves": [
+    "The deck's markup, script logic, HUD, ticker text, counters (1, 8, 0, 35.7%, 50.0%, 4 TPS, 930), reduced-motion rules and every exhibit are kept as they are.",
+    "The existing shared rule .gamecult-embed-frame iframe (custom.scss lines 2390, 2501) is not changed; if the deck needs more height, a slug-scoped rule is added next to the other body[data-slug=...] rules.",
+    "The Eve card on GameCult/Projects/index.md keeps its id, portrait, text and seven repo links; one list item is added."
+  ],
+  "adds": [
+    "site/quartz/static/applets/project-thing/index.html: the deck as a well-formed page. <head> carries <meta charset=\"utf-8\">, the viewport meta (width=device-width,initial-scale=1,viewport-fit=cover), <title>Project Thing</title>, the preconnect and one Google Fonts link https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap, then the deck's <style>. The artifact host's wrapper <style> on line 1 (#faf9f5, #141413, [hidden]) is not carried over. Re-skin: the :root block (lines 7-14) becomes the single brand theme with color-scheme:dark: --paper #07111a; --ink #eef5ff; --ink-2 #b7c7d9; --ink-3 #63758a (new; used by .src, .meter-note, .ax, .conf instead of --ink-2); --rule #16212c; --tint #16212c; --tint-2 rgba(89,183,255,.14); --accent #ff8a2a; --accent-ink #07111a; --inv #03070d; --inv-ink #eef5ff; --inv-2 #b7c7d9; --inv-accent #59b7ff; --display 'Montserrat', sans-serif; --body 'Ubuntu', sans-serif; --mono unchanged. The two dark-mode blocks (lines 15-22) are deleted. body background becomes the wash from custom.scss lines 10-27 verbatim (radials at 78% 14% rgba(255,138,42,.18) to 18%, 18% 10% rgba(109,96,255,.16) to 24%, 52% 0% rgba(89,183,255,.14) to 28%, over linear-gradient(180deg,#03070d 0%,#07111a 44%,#09141f 100%)); body color var(--ink-2), font-weight 300; h1,h2,h3,.num,.caption,.div-big,.tpsbig,.ecard .w are color var(--ink). Weights: display 700 -> 200 on .xhead h2, .hero h1, .num, .ecard .w, .div-big, .tpsbig, .caption, .tam-final h3, .st-fg h2, .close h2; .letters 100; .chip strong, .tier h3, .wave h3, .earrow, .was 300; .proj and .close h2 i font-style normal, weight 100; b,strong 500; tr.lit td and .wfl p:last-child 500. Canvas fallback literals (lines 561, 602) become the mapped values; canvas fonts (lines 575, 606) become \"Montserrat\", sans-serif with 200 for 700 and 100 for italic. Shadows rgba(11,31,58,.12) (line 119), rgba(11,31,58,.18) (line 172) and the HUD's rgba(0,0,0,.18) (line 45) become rgba(0,0,0,.45). Script lines 685-686 (prefers-color-scheme listener, data-theme MutationObserver) are deleted. Fact fixes: line 520 bullet becomes 'Retire the site's \"Eve projection\" wording for Huginn'; line 436 status spans become <span class=\"o\">Archived</span><span class=\"n\">Thing-ified posthumously</span>.",
+    "GameCult/Blog/project-thing.md: frontmatter title 'Project Thing'; description, one sentence: a board discussion document on renaming Eve to Thing; author 'Thing Transformation Office'; date 2026-10-02; tags [eve, thing, gamecult]; socialDeck 'Thing renders things.'. Body: an H1 'Project Thing', one short paragraph naming it as a board deck on the rename of Eve to Thing, then <div class=\"gamecult-embed-frame\"><iframe src=\"/static/applets/project-thing/index.html\" title=\"Project Thing board deck\" loading=\"lazy\"></iframe></div>, then the sentence with <a href=\"/static/applets/project-thing/index.html\" data-router-ignore>open the deck directly</a>, exactly as the cat post does. The shared iframe rule is min-height 640px (custom.scss line 2390), too short for a deck with a pinned 260vh hero: add body[data-slug=\"Blog/project-thing\"] .gamecult-embed-frame iframe { height: 85vh } beside the existing slug-scoped rules in custom.scss.",
+    "GameCult/Projects/index.md, Eve card (<article id=\"eve\">): one list item after the EveConformance item: <li><a href=\"/Blog/project-thing\">Project Thing</a> <em>board deck on the rename</em></li>."
+  ],
+  "file_changes": [
+    {
+      "location": { "path": "site/quartz/static/applets/project-thing/index.html", "line": 1, "end_line": 690 },
+      "change": "new file: the deck, re-skinned and fact-fixed as in adds."
+    },
+    {
+      "location": { "path": "GameCult/Blog/project-thing.md", "line": 1, "end_line": 25 },
+      "change": "new file: the framing post as in adds."
+    },
+    {
+      "location": { "path": "GameCult/Projects/index.md", "line": 74, "end_line": 74 },
+      "change": "one <li> added at the end of the Eve card's repo list (the line holding the EveConformance link)."
+    },
+    {
+      "location": { "path": "site/quartz/styles/custom.scss", "line": 1148, "end_line": 1148 },
+      "change": "one slug-scoped rule body[data-slug=\"Blog/project-thing\"] .gamecult-embed-frame iframe { height: 85vh } beside the other body[data-slug] rules; the shared rule (min-height 640px, line 2390) is untouched."
+    }
+  ],
+  "authority_map": {
+    "owner": "gamecult-site owns the page, the post and the card; the brand sources (quartz.config.ts theme, custom.scss) own every colour and font the re-skin uses; the artifact owns the deck's structure and copy.",
+    "inputs": ["the artifact's HTML", "quartz.config.ts configuration.theme", "custom.scss lines 4-28", "the cat applet and post as the embedding precedent"],
+    "outputs": ["https://gamecult.org/static/applets/project-thing/index.html", "https://gamecult.org/Blog/project-thing", "one link on the Eve card"],
+    "derived_state": ["quartz-site/public is build output, git-ignored, never committed", "the deck's canvases derive their colours from the tokens at draw time"],
+    "forbidden_writers": ["no site CSS is loaded into the deck and no deck CSS leaks into the site", "no edit to the deck's markup or script beyond the re-skin and the two fact fixes", "no new brand token invented: every colour is one of the theme's values or the wash's literals", "no second light theme or theme switch"],
+    "shared_paths": ["the same Deploy Quartz workflow and Pages origin every site change uses"],
+    "deletion_line": "the deck's light theme, dark-mode blocks and theme-switch listeners are removed before the brand tokens are written in."
+  },
+  "verification": {
+    "builds": [
+      "Deploy Quartz on GameCult/gamecult-site green for the landing commit: gh run list -R GameCult/gamecult-site -w \"Deploy Quartz\" -L 1",
+      "optional: .\\scripts\\quartz\\quartz.ps1 build from the repo root succeeds and quartz-site/public/static/applets/project-thing/index.html exists"
+    ],
+    "tests": [
+      { "name": "curl -sI https://gamecult.org/static/applets/project-thing/index.html returns 200; curl -sI https://gamecult.org/Blog/project-thing returns 200", "pins": "site-green: the deck and its post are live." },
+      { "name": "screenshots of the applet at desktop and phone (375px) width show the brand ground wash, Montserrat display, orange accent and sky-blue informational marks with the hero, quadrant, etymology track, divinity table, TAM orbits, taxonomy, waterfall, risks, statement and roadmap all present and laid out as in the artifact", "pins": "brand-per-ruling (re-skin) and 'the costume changes, the deck does not'." },
+      { "name": "read_page of /Blog/project-thing shows the iframe inside .gamecult-embed-frame and the direct link opens the applet; the Eve card on /Projects links to the post", "pins": "the post frames the deck and the card points at it." },
+      { "name": "diff of the applet's markup between <body> and <script> against the artifact's lines 260-533 differs only at lines 436 and 520", "pins": "operator-deck-facts-fix and nothing else changed in the copy." },
+      { "name": "the applet's computed styles in the browser: body font-family Ubuntu, h2 Montserrat weight 200, .letters weight 100, --accent #ff8a2a, html color-scheme dark; and with prefers-color-scheme: light emulated the page renders identically", "pins": "single dark theme; the brand's typefaces and weights." }
+    ],
+    "negative": [
+      { "pattern": "prefers-color-scheme|data-theme|Libre|#2251FF|#6F8CFF|#0B1F3A|#F6F7F9|#0A1220|Huginn's", "scope": "site/quartz/static/applets/project-thing/index.html: no match (case-insensitive for the hex values)." },
+      { "pattern": "project-thing", "scope": "site/quartz/styles/custom.scss: at most one slug-scoped rule, and no change to the shared .gamecult-embed-frame iframe rule." },
+      { "pattern": "quartz-site/public", "scope": "git ls-files: no match (build output stays uncommitted)." }
+    ],
+    "operator": [
+      "look at https://gamecult.org/Blog/project-thing once it is live and say whether the re-skin reads as the brand without losing the joke"
+    ]
+  },
+  "estimate": {
+    "lines_added": 765,
+    "lines_removed": 0,
+    "dependencies_added": [],
+    "dependencies_removed": [],
+    "formats_added": [],
+    "formats_removed": [],
+    "targets_added": ["/static/applets/project-thing/index.html", "/Blog/project-thing"],
+    "targets_removed": []
+  },
+  "rulings": [
+    "thing:ruling:operator-brand-reskin",
+    "thing:ruling:operator-deck-facts-fix",
+    "thing:ruling:operator-dsl-thing-script",
+    "thing:ruling:operator-home-eve-repo"
+  ],
+  "questions": []
+}

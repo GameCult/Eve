@@ -1,8 +1,11 @@
 # Thing: the rename of Eve, map and target
 
-Status: map, Imagination (`imagination-thing`), revision 1 of 2026-10-02.
-Campaign slug `thing`. Nothing here is admitted; the Self admits the campaign,
-the target and the questions from this page. Questions, cut specs, rulings and
+Status: map, Imagination (`imagination-thing`), revision 2 of 2026-10-02.
+Campaign slug `thing`. Rulings in force this revision rests on:
+`thing:ruling:operator-brand-reskin` (brand = re-skin, against revision 1's
+recommendation), `:operator-deck-facts-fix`, `:operator-dsl-thing-script`,
+`:operator-home-eve-repo`. Open: `wire-names`, `aetheria-eve`,
+`persona-continuity`. Cut 1's spec is `docs/thing-cut-1.spec.json`. Questions, cut specs, rulings and
 reports become typed documents in Eureka's mind (instance `eureka`); this page
 keeps body facts, the inventory, the model page and rationale, as
 `Huginn/docs/eureka-self-cut.md` does for `eureka-body`.
@@ -465,31 +468,113 @@ No cut is mapped on a kind whose cell is empty; none is.
 - `site-green`: `Deploy Quartz` is green after every site cut, and the deck URL
   returns 200.
 - `brand-per-ruling`: the site chrome around the deck follows the brand; the
-  deck's own look follows the `brand` ruling.
+  deck's own look follows the `brand` ruling (re-skin: brand tokens and
+  fonts, single dark theme, layout and copy unchanged).
 
 Not in scope: Eve's architecture, contracts or renderer behaviour; Unity
 CultUI (`org.gamecult.ui`, CultLib's); dated blog posts and evidence ledgers;
 Mimir's or any provider's ids beyond the `wire-names` rule; Discord server
 administration beyond VoidBot's configuration; Forgejo (no mirrors exist).
 
-## Cut 1: put the deck on the site
+## Cut 1: put the deck on the site, re-skinned to the brand
 
-Repo: `gamecult-site`. Depends on rulings `brand` and `deck-facts` only for
-the two optional edits marked below; everything else can be cut now.
+Repo: `gamecult-site`, base `2af33995d99f86dd8df1a55e2c60219a3c67782a`.
+Rulings: `operator-brand-reskin`, `operator-deck-facts-fix`. The costume
+changes; the deck does not. Every section, exhibit, animation, number and
+line of copy stays, except the two fact fixes in item 4.
 
 Target shape:
 
-1. `site/quartz/static/applets/project-thing/index.html`: the deck. Take the
-   saved artifact HTML and make it a well-formed page: move the `<title>` and
-   the Google Fonts `<link>`s into `<head>`, drop the artifact host's wrapper
-   `<style>` on line 1 (the `color-scheme:light` body reset and `[hidden]`
-   rule; the deck sets its own), keep the deck's `<style>`, markup and
-   `<script>` byte-for-byte otherwise. Add
-   `<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">`
-   and `<meta charset="utf-8">`. No site CSS is loaded into the deck.
-   Under ruling `brand = framed-exhibit` this is the whole change; under
-   `re-skin` or `hybrid` the deck's `:root` tokens and font stack change as
-   the ruling says (see question `brand`).
+1. `site/quartz/static/applets/project-thing/index.html`: the deck as a
+   well-formed page. Source: the artifact
+   (`https://claude.ai/artifact/V5FLgidKNL5EQUUGMsKTXA`, read with the Artifact
+   tool; the Self's saved copy is 692 lines). Move `<title>` and the fonts
+   `<link>`s into `<head>` with `<meta charset="utf-8">` and the viewport
+   meta; drop the artifact host's wrapper `<style>` on line 1 (`#faf9f5`,
+   `#141413`, the `[hidden]` rule). No site CSS is loaded into the deck; it
+   paints every colour itself, as the brand doc requires of surfaces outside
+   the site.
+
+   **Re-skin: tokens.** The brand's canonical values are
+   `site/quartz.config.ts` `configuration.theme` and `site/quartz/styles/custom.scss`
+   lines 4-28. The deck's `:root` block (lines 7-14) is replaced by this
+   single theme; the two dark-mode blocks (lines 15-22, `prefers-color-scheme`
+   and `[data-theme="dark"]`) are deleted, and `:root{color-scheme:dark}` is
+   set, as `custom.scss` does for all three `saved-theme` states.
+
+   | Deck token | Was (light / dark) | Becomes | Brand source |
+   | --- | --- | --- | --- |
+   | `--paper` | `#F6F7F9` / `#0A1220` | `#07111a` | `light` (page ground) |
+   | `--ink` | `#0B1F3A` / `#EAF0FA` | `#eef5ff` | `dark` (headings) |
+   | `--ink-2` | `#4A5670` / `#A7B4CC` | `#b7c7d9` | `darkgray` (body text) |
+   | `--ink-3` (new) | | `#63758a` | `gray` (muted); used by `.src`, `.meter-note`, `.ax`, `.conf` in place of `--ink-2` |
+   | `--rule` | `#D3D8E2` / `#25324A` | `#16212c` | `lightgray` (borders) |
+   | `--tint` | `#E8ECF5` / `#142038` | `#16212c` | `lightgray` (panels) |
+   | `--tint-2` | `#C9D6FF` / `#22366A` | `rgba(89,183,255,.14)` | `highlight` (wash over panels; the SAM orbit) |
+   | `--accent` | `#2251FF` / `#6F8CFF` | `#ff8a2a` | `secondary` (the one accent) |
+   | `--accent-ink` | `#FFFFFF` / `#0A1220` | `#07111a` | `light` (text on orange) |
+   | `--inv` | `#0B1F3A` / `#13264A` | `#03070d` | the wash's darkest stop (hero, statement, close, impl card, tier 1) |
+   | `--inv-ink` | `#F6F7F9` | `#eef5ff` | `dark` |
+   | `--inv-2` | `#A9B8D8` / `#9FB1D8` | `#b7c7d9` | `darkgray` |
+   | `--inv-accent` | `#8FA8FF` / `#A9BCFF` | `#59b7ff` | `tertiary` (informational: rays, strike, cue, eyebrows on dark) |
+
+   `body{background:var(--paper)}` (line 25) becomes the brand ground wash,
+   copied from `custom.scss` lines 10-27 verbatim (three radials at 78% 14%
+   orange `.18`, 18% 10% violet `#6d60ff` `.16`, 52% 0% sky `.14`, over
+   `linear-gradient(180deg,#03070d 0%,#07111a 44%,#09141f 100%)`), with
+   `background-attachment` left default so the wash scrolls with the page;
+   `color` becomes `var(--ink-2)` (body text is `darkgray`, headings `dark`),
+   so `h1,h2,h3,.num,.caption,.div-big,.tpsbig,.ecard .w` set
+   `color:var(--ink)` where they do not already. Body text stays 18px.
+
+   **Re-skin: fonts.** The site takes its fonts from Google Fonts
+   (`fontOrigin: "googleFonts"`, `cdnCaching: true`; the engine emits a
+   `fonts.googleapis.com/css2` link, no `@font-face`, no self-hosting), so
+   the deck keeps one Google Fonts `<link>`, now
+   `https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap`.
+   `--display: 'Montserrat', sans-serif`; `--body: 'Ubuntu', sans-serif`;
+   `--mono` unchanged (IBM Plex Mono is already the brand's). Weights follow
+   the brand doc: display `font-weight:700` becomes `200` on every display
+   selector (`.xhead h2`, `.hero h1`, `.num`, `.ecard .w`, `.div-big`,
+   `.tpsbig`, `.caption`, `.tam-final h3`, `.st-fg h2`, `.close h2`), `100` on
+   `.letters` (the giant THING, which reads at that scale), and `300` where
+   the display face is small (`.chip strong`, `.tier h3`, `.wave h3`,
+   `.earrow`, `.was`). Italic display (`.proj`, `.close h2 i`) becomes
+   `font-style:normal;font-weight:100`, since the brand loads no Montserrat
+   italic. Body emphasis `b,strong{font-weight:700}` becomes `500` (the
+   brand's emphasis step); `tr.lit td` and `.wfl p:last-child` likewise.
+   `body{font-weight:300}` is added. Eyebrows, HUD, ticker, `.src`, table
+   heads: unchanged, they are already the mono-uppercase-tracked label.
+
+   **Re-skin: elements that hard-code their look.** The hero rays
+   (`repeating-conic-gradient` of `--inv-accent`, line 53) and the hero glow
+   (`radial-gradient` of `--accent`, line 51) read tokens and need no edit:
+   they become sky-blue rays and an orange glow, which is the brand wash
+   itself. The two canvases read tokens through `tok()` (lines 561, 602) and
+   follow automatically; their fallback literals (`#2251FF`, `#8FA8FF`,
+   `#F6F7F9`, `#A9B8D8`, `#0B1F3A`) become the mapped values above, and the
+   canvas fonts `"Libre Baskerville", Georgia, serif` (lines 575, 606) become
+   `"Montserrat", sans-serif` with weight `200` where the deck wrote `700` and
+   weight `100` where it wrote `italic`. Shadows written in navy,
+   `rgba(11,31,58,.12)` on `.chip` (line 119) and `rgba(11,31,58,.18)` on
+   `.caption` (line 172), become `rgba(0,0,0,.45)`, since a navy shadow on a
+   near-black ground is invisible; `.hud-pill`'s `rgba(0,0,0,.18)` becomes
+   `.45` for the same reason. The mask `#000` values (line 53) are masks and
+   stay. `.stamp`, `.chip`, `.ecard`, `.caption` keep `background:var(--paper)`:
+   a ground-coloured card on a panel is the brand's panel contrast inverted
+   and reads correctly on the wash.
+
+   **Dead code that goes with the light theme.** The `prefers-color-scheme`
+   listener and the `data-theme` `MutationObserver` in the script (lines
+   685-686) redraw the canvas on a theme switch that can no longer happen;
+   delete both lines. `.rm` (reduced motion) rules stay.
+
+   **What must not change.** Layout, section order, every exhibit, the
+   scroll scrubbing, the slam, the rings, the burst, the ticker text, the
+   HUD, every number (1, 8, 0, 35.7%, 50.0%, 4 TPS, 930), every line of
+   copy except item 4. Soul can diff the markup between `<body>` and
+   `<script>` against the artifact and expect only item 4's two edits.
+
 2. `GameCult/Blog/project-thing.md`: the news post that frames it.
    Frontmatter: `title: Project Thing`, `description` (one sentence: a board
    discussion document on renaming Eve to Thing), `author: Thing
@@ -498,26 +583,34 @@ Target shape:
    it as a board deck on the rename of Eve, the `gamecult-embed-frame` iframe
    pointing at `/static/applets/project-thing/index.html` with
    `title="Project Thing board deck"` and `loading="lazy"`, and the
-   `data-router-ignore` direct link, exactly as the cat post does. The iframe
-   needs real height for a scroll-driven deck; if `.gamecult-embed-frame
-   iframe` (custom.scss 2390) is shorter than about 80vh, add a scoped rule
+   `data-router-ignore` direct link, exactly as the cat post does. The shared
+   `.gamecult-embed-frame iframe` rule (custom.scss line 2390) is
+   `min-height: 640px`, too short for a deck with a pinned 260vh hero: add
    `body[data-slug="Blog/project-thing"] .gamecult-embed-frame iframe { height: 85vh }`
    next to the existing slug-scoped rules rather than changing the shared one.
-3. `GameCult/Projects/index.md`, Eve card: add one list item
+3. `GameCult/Projects/index.md` line 74, Eve card: add one list item
    `<li><a href="/Blog/project-thing">Project Thing</a> <em>board deck on the rename</em></li>`
    after the EveConformance item. Nothing else on the card changes in this cut.
-4. Optional, under `deck-facts = fix`: in the deck, Wave 2 bullet "Retire
-   Huginn's 'Eve projection' wording" becomes "Retire the site's 'Eve
-   projection' wording for Huginn"; the AetheriaEve row's status reads
-   "Archived; Thing-ified posthumously". No other copy changes.
+4. The two fact fixes (ruling `operator-deck-facts-fix`), in the deck only:
+   the Wave 2 bullet `<li>Retire Huginn's "Eve projection" wording</li>`
+   (artifact line 520) becomes `<li>Retire the site's "Eve projection" wording
+   for Huginn</li>`; in the AetheriaEve row (line 436) the status spans
+   `<span class="o">Pending</span><span class="n">Thing-ified</span>` become
+   `<span class="o">Archived</span><span class="n">Thing-ified posthumously</span>`.
+   No other copy changes.
 
 Verification Hands must show: local `.\scripts\quartz\quartz.ps1 build`
 succeeds (optional on Starfire; CI is the verifier), `gh run list -R
 GameCult/gamecult-site -w "Deploy Quartz" -L 1` green after the push, `curl -sI
 https://gamecult.org/static/applets/project-thing/index.html` 200 and
-`https://gamecult.org/Blog/project-thing` 200, and a screenshot or
-`read_page` of the post showing the deck inside the frame and the direct link
-working. Structural delta: three files added or edited, zero removed, no new
+`https://gamecult.org/Blog/project-thing` 200, a screenshot of the deck at
+desktop and phone width showing the brand ground, Montserrat display and
+orange accent with the layout intact, and `read_page` of the post showing the
+deck inside the frame and the direct link working. Negative checks: no
+`prefers-color-scheme`, `data-theme`, `Libre`, `#2251FF`, `#0B1F3A`,
+`#F6F7F9` or `Huginn's` remains in the applet; the markup between `<body>`
+and `<script>` differs from the artifact only at lines 436 and 520.
+Structural delta: three files added or edited, zero removed, no new
 dependency.
 
 ## Cut order after cut 1
@@ -720,7 +813,10 @@ would discard the operating lessons in `eve.cc` to change a display name.
 
 ### Rejected
 
-- Re-skinning the deck to the brand (question `brand`): kills the parody.
+- Keeping the deck's consulting look as a framed exhibit: revision 1's
+  recommendation, overruled by `operator-brand-reskin`. The re-skin keeps the
+  parody's structure (exhibits, waterfall, quadrant, TPS) and changes only
+  the costume.
 - Treating "Eve" in dated blog posts as live prose: they are history; the
   `eve` tag stays, since tag URLs have no redirect.
 - A redirect layer on gamecult.org for renamed pages: nothing is renamed on
