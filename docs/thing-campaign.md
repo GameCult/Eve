@@ -1322,3 +1322,16 @@ lines of markup, 250 of CSS and 150 of JS move into `GameCult/Thing.md`,
 `deck.css` and `deck.js`; about 40 lines of `custom.scss` and 8 of
 `quartz.layout.ts` are added; 3 lines of `custom.scss` and the post's embed
 are removed. No new dependency, no new format.
+
+## Cut `deck-page-fixes` (spec `docs/thing-cut-deck-page-fixes.spec.json`)
+
+Written 2026-10-02 against gamecult-site `e906f04`, after Soul's pass on
+`deck-site-page` (`thing:verdict:cut-deck-site-page.s1`). It resolves
+`engine-header-leak` and `chrome-edges` and makes the hero run up behind the
+masthead as one screen, per the operator's words on the `/Thing` screenshot
+("any reason the masthead has its own background separate from the page
+background? I feel like it could easily take up that same space"). The long
+form, body facts B6-B8 and the mechanism are in the site-wide masthead map,
+gamecult-site `docs/masthead-campaign.md`; the masthead card's removal is that
+campaign's cut, not this one's. `body-under-scrollbar` is the engine's
+`html { width: 100vw }` and is question `scrollbar-fix-home` there.

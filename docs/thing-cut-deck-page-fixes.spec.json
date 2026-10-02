@@ -1,0 +1,209 @@
+{
+  "campaign": "thing",
+  "cut": "deck-page-fixes",
+  "revision": 1,
+  "title": "Thing page fixes: the hero runs up behind the masthead as one screen, the masthead and footer keep the site's gutters, the engine's header rule stops reaching the deck's exhibits",
+  "repo": "GameCult/gamecult-site",
+  "branch": "main",
+  "base": "e906f0445b5e05c5b892af122a09bd786b49875f",
+  "depends_on": [
+    "deck-site-page"
+  ],
+  "first": [
+    "Map: gamecult-site docs/masthead-campaign.md, sections 'Body facts' B6-B8 and 'The shape' > '/Thing: the hero runs up behind the masthead'. Ruling thing:ruling:operator-deck-is-a-site-page stands (masthead kept, deck fills the screen). The operator's new words, verbatim in the map: 'any reason the masthead has its own background separate from the page background? I feel like it could easily take up that same space', the arrow pointing from the masthead down into the hero.",
+    "Soul findings this cut resolves: thing:finding:cut-deck-site-page.s1.engine-header-leak (Medium) and thing:finding:cut-deck-site-page.s1.chrome-edges (Low). thing:finding:cut-deck-site-page.s1.body-under-scrollbar is NOT in this cut: it is question scrollbar-fix-home (engine vs site-override); under site-override one rule html { width: auto } is added to custom.scss outside the Thing block, otherwise nothing here changes.",
+    "The frame (GameCult-Quartz renderPage.tsx 271-290): .page > #quartz-body is the grid; .center is one grid item holding .page-header, article, hr, .page-footer; the site footer is .center's sibling in grid-footer. The stacking below lives inside .center and needs no engine edit. The engine's Header.css sets header { display:flex; align-items:center; margin:2rem 0; gap:1.5rem } globally.",
+    "The deck stage (deck.css 479) is 100svh, position:relative without z-index, overflow:hidden, flex column centred; its children #burst (z 3) and .flash (z 4) would paint over a header with a lower z-index. deck.js already has a resize listener calling sizeCanvas and sizeBurst (last 6 lines of the file).",
+    "Gutters elsewhere: .page padding 0 1.2rem (custom.scss 32) plus #quartz-body padding 0 1rem below $desktop 1200px (base.scss) and .page padding 0 0.7rem at $mobile 800px (custom.scss 1432). The Thing block zeroes both, so the inset it gives back must equal their sum per breakpoint: 1.2rem desktop, 2.2rem tablet, 1.7rem mobile.",
+    "Deploy is push to main -> workflow 'Deploy Quartz' -> GitHub Pages at gamecult.org; small commits; CI is the verifier. A local .\\scripts\\quartz\\quartz.ps1 build is optional on Starfire."
+  ],
+  "deletes": [
+    {
+      "path": "site/quartz/styles/custom.scss",
+      "lines": 5,
+      "note": "Inside body[data-slug=\"Thing\"]: the .page-header rule (max-width 1680px; margin-inline auto; padding 0 1.2rem) is replaced by the stacked header rule in adds; the standalone padding value 1.2rem goes because the inset becomes var(--thing-inset)."
+    }
+  ],
+  "keeps_moves": [
+    "The deck's markup in GameCult/Thing.md, its exhibits, copy, numbers, HUD, ticker and every animation are unchanged. Soul diffs Thing.md against base and expects no change.",
+    "The masthead itself (GameCultMasthead.tsx, .gamecult-titlebar* rules, the card rule at custom.scss 646) is not touched by this cut; the card's removal is the site-masthead campaign's cut flat-nav.",
+    "The HUD pill's phone position (top-right, fixed) is kept; its overlap with the masthead's community icons until first scroll was accepted in the Thing map r4.",
+    "The stage stays 100svh tall and keeps its own ground var(--inv) #03070d, its .hero-bg and .rays; only its top padding changes."
+  ],
+  "adds": [
+    "custom.scss, Thing block, the variable: body[data-slug=\"Thing\"] { --thing-inset: 1.2rem; @media all and (max-width: 1200px) { --thing-inset: 2.2rem } @media all and (max-width: 800px) { --thing-inset: 1.7rem } } (use the engine's $desktop/$mobile tokens if custom.scss already imports variables.scss, as it does at line 2; otherwise the literal px values).",
+    "custom.scss, Thing block, the stack: .page > #quartz-body .center { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: \"stack\" \"foot\"; } .page > #quartz-body .center > .page-header { grid-area: stack; z-index: 5; align-self: start; justify-self: center; width: 100%; max-width: 1680px; box-sizing: border-box; padding: 0 var(--thing-inset); } .page > #quartz-body .center > article { grid-area: stack; min-width: 0; } .page > #quartz-body .center > .page-footer { grid-area: foot; }. The existing margin-top on .page-header (2.4rem desktop, 1.3rem mobile from the site-wide rules at 638 and 1435) still applies and is the masthead's distance from the top of the hero.",
+    "custom.scss, Thing block, the footer: .page > #quartz-body > footer { width: 100%; max-width: 1680px; margin-inline: auto; box-sizing: border-box; padding-inline: var(--thing-inset); } so the footer's links start where they do on /Projects at every width.",
+    "deck.css line 479, .thing-deck .stage: add padding-top: var(--masthead-h, 9rem). The stage is border-box and flex-centres .hero-in in the remaining height, so the hero content clears the masthead and masthead plus hero is one screen.",
+    "deck.css line 681, .thing-deck.rm .stage: padding-block becomes calc(var(--masthead-h, 9rem) + 96px) 160px.",
+    "deck.css line 461, .thing-deck .xhead: add align-items: stretch; margin: 0 so the engine's header rule decides nothing inside an exhibit header. Reach-in guards (line 689): add .thing-deck h1 { font-size: inherit } to the h1,h2,h3 guard line or as its own line.",
+    "deck.js, beside sizeCanvas/sizeBurst: var hdr=document.querySelector('.page-header'); function sizeHead(){ if(hdr) root.style.setProperty('--masthead-h', hdr.offsetHeight+'px'); } called at init before frame() and inside the existing resize listener before sizeCanvas(). Also call it in the document.fonts.ready handler (line 147) since the masthead's height changes when Montserrat arrives."
+  ],
+  "file_changes": [
+    {
+      "location": {
+        "path": "site/quartz/styles/custom.scss",
+        "line": 1148,
+        "end_line": 1179
+      },
+      "change": "the Thing block: --thing-inset per breakpoint; .center as the two-row stack; .page-header stacked over article with z-index 5 and the inset; .page-footer in row foot; the site footer insetted; the old .page-header rule replaced."
+    },
+    {
+      "location": {
+        "path": "site/quartz/static/thing/deck.css",
+        "line": 461,
+        "end_line": 461
+      },
+      "change": ".thing-deck .xhead gains align-items: stretch; margin: 0."
+    },
+    {
+      "location": {
+        "path": "site/quartz/static/thing/deck.css",
+        "line": 479,
+        "end_line": 479
+      },
+      "change": ".thing-deck .stage gains padding-top: var(--masthead-h, 9rem)."
+    },
+    {
+      "location": {
+        "path": "site/quartz/static/thing/deck.css",
+        "line": 681,
+        "end_line": 681
+      },
+      "change": ".thing-deck.rm .stage padding-block becomes calc(var(--masthead-h, 9rem) + 96px) 160px."
+    },
+    {
+      "location": {
+        "path": "site/quartz/static/thing/deck.css",
+        "line": 689,
+        "end_line": 689
+      },
+      "change": "reach-in guard: .thing-deck h1 { font-size: inherit }."
+    },
+    {
+      "location": {
+        "path": "site/quartz/static/thing/deck.js",
+        "line": 143,
+        "end_line": 148
+      },
+      "change": "sizeHead() defined and called at init, in the resize listener and in the fonts.ready handler."
+    }
+  ],
+  "authority_map": {
+    "owner": "custom.scss under body[data-slug=\"Thing\"] owns the page chrome on the Thing page: the stacking of masthead over hero and the inset of masthead and footer. deck.css owns the hero's clearance (the stage's top padding) and the exhibit headers' layout. deck.js owns the measured masthead height as a display-only variable on the deck root. The engine owns the frame and its Header rule and is not edited.",
+    "inputs": [
+      "the measured height of .page-header on the Thing page (deck.js)",
+      "the site's gutters per breakpoint (custom.scss 32 and 1432, base.scss #quartz-body padding), mirrored as --thing-inset",
+      "the deck's existing stage, hero and exhibit rules"
+    ],
+    "outputs": [
+      "https://gamecult.org/Thing: the first viewport is the masthead over the hero's ground and rays, the hero content below the masthead, one screen in all",
+      "the Thing page's masthead and footer inset equal to /Projects at 1440, 1000 and 375"
+    ],
+    "derived_state": [
+      "--masthead-h: display-only, derived from layout by deck.js on init, resize and font load; the CSS fallback 9rem is for a script-less load",
+      "--thing-inset: derived from the breakpoint; decides nothing on any other page",
+      "the one-column grid from empty sidebars, unchanged"
+    ],
+    "forbidden_writers": [
+      "no engine edit: renderPage.tsx, Header.tsx and base.scss are unchanged (the scrollbar fix is its own question and its own cut)",
+      "no site rule targets anything inside .thing-deck; the stage padding and xhead fix live in deck.css",
+      "no change to the deck's markup, copy, numbers or animations",
+      "no fixed or absolute positioning of the masthead; it scrolls away with the page as on every other page",
+      "no second inset value: the masthead and the footer both read --thing-inset"
+    ],
+    "shared_paths": [
+      "the same slug-block mechanism the Graph and the sleeping-colossus post use",
+      "the same Deploy Quartz workflow and Pages origin",
+      "the same resize path deck.js already uses for its canvases"
+    ],
+    "deletion_line": "the Thing block's old .page-header rule (max-width, margin-inline, padding 0 1.2rem) is removed before the stacked header rule is written; no rule in the block carries a literal gutter after this cut."
+  },
+  "verification": {
+    "builds": [
+      "Deploy Quartz on GameCult/gamecult-site green for the landing commit: gh run list -R GameCult/gamecult-site -w \"Deploy Quartz\" -L 1",
+      "optional: .\\scripts\\quartz\\quartz.ps1 build succeeds locally"
+    ],
+    "tests": [
+      {
+        "name": "screenshots of /Thing at 1440x900 and 375x812 on load: masthead over the hero ground, hero content below it, stage bottom at the viewport bottom",
+        "pins": "Pins operator-ground-behind-masthead on this page. Expect: screenshot of /Thing at 1440x900 and 375x812 on load: the masthead sits over the hero's ground; the hero's eyebrow, strike line, 'Project THING', subtitle and cue are all below the masthead and inside the first viewport; the stage's bottom edge is the viewport's bottom edge. operator-ground-behind-masthead on this page: the hero's ground and rays run up behind the masthead and masthead plus hero is one screen."
+      },
+      {
+        "name": "getBoundingClientRect of .page-header, .thing-deck .stage and .hero-in on /Thing at 1440 and 375",
+        "pins": "Pins the stacking and the clearance by measurement. Expect: getBoundingClientRect of .page-header and .thing-deck .stage on /Thing: stage.top is 0 and header.top is 2.4rem at 1440 (1.3rem at 375); .hero-in.top >= header.bottom; stage.bottom equals window.innerHeight within 1px. the stacking and the clearance by measurement, not by eye."
+      },
+      {
+        "name": "after 3s on /Thing at 1440 (after the slam and burst): the masthead's title, tagline, community icons and nav are fully visible and clickable (elementFromPoint at the Studio link returns the link)",
+        "pins": "the header's z-index beats the burst canvas and the flash; nothing in the stage covers the masthead."
+      },
+      {
+        "name": "x of the footer's first link and of .gamecult-titlebar on /Thing versus /Projects at 1440, 1000 and 375: equal within 1px at each width",
+        "pins": "chrome-edges resolved: the masthead and footer keep the site's gutters on this page."
+      },
+      {
+        "name": "computed styles of the first .thing-deck .xhead and of .thing-deck .hero h1 on /Thing",
+        "pins": "Pins engine-header-leak resolved. Expect: computed style of the first .thing-deck .xhead: align-items stretch, margin-top 0; the eyebrow's left equals the h2's left; computed font-size of .thing-deck .hero h1 is 18px (inherited), its .letters child clamp(96px,22vw,300px). engine-header-leak resolved: the engine's header and h1 rules decide nothing inside the deck."
+      },
+      {
+        "name": "resize /Thing from 1440 to 700 wide; then load /Thing with scripts disabled",
+        "pins": "Pins the clearance follows the measured masthead and the fallback holds. Expect: resize the window from 1440 to 700 wide on /Thing: --masthead-h on .thing-deck changes to the new .page-header offsetHeight and the hero content still clears the masthead; with scripts disabled the stage has padding-top 9rem. the clearance follows the measured masthead; the fallback holds without the script."
+      },
+      {
+        "name": "scroll /Thing end to end at 1440 and 375: the masthead scrolls away with the page, every exhibit animation runs, no horizontal scrollbar, the site footer follows the close section",
+        "pins": "the deck is unchanged in behaviour; the masthead is in flow, not fixed."
+      },
+      {
+        "name": "git diff base..head -- GameCult/Thing.md is empty",
+        "pins": "the deck's markup is not touched by a chrome cut."
+      },
+      {
+        "name": "/Projects, / and /Graph at 1440 and 375 before and after: identical masthead and footer positions",
+        "pins": "nothing in the Thing block reaches another page."
+      }
+    ],
+    "negative": [
+      {
+        "pattern": "padding: 0 1\\.2rem|1\\.2rem;\\s*$",
+        "scope": "site/quartz/styles/custom.scss inside body[data-slug=\"Thing\"]: no literal gutter; the inset is var(--thing-inset) everywhere in the block."
+      },
+      {
+        "pattern": "thing-deck",
+        "scope": "site/quartz/styles/custom.scss: no match."
+      },
+      {
+        "pattern": "position:\\s*(fixed|absolute|sticky)",
+        "scope": "the .page-header rules inside body[data-slug=\"Thing\"]: no match (the masthead is a grid item in flow)."
+      },
+      {
+        "pattern": "^[^.@}/ \\t][^{]*\\{|^:root|^body|^html",
+        "scope": "site/quartz/static/thing/deck.css: no match on any rule line outside @keyframes bodies (every rule still starts with .thing-deck)."
+      },
+      {
+        "pattern": "quartz/components/|quartz/styles/base\\.scss",
+        "scope": "git diff --name-only base..head: no engine file; the gamecult-site diff touches only custom.scss, deck.css and deck.js."
+      }
+    ],
+    "operator": [
+      "look at https://gamecult.org/Thing on a desktop and a phone and say whether the masthead now reads as sitting on the hero rather than above it, and whether the hero still lands"
+    ]
+  },
+  "estimate": {
+    "lines_added": 42,
+    "lines_removed": 5,
+    "dependencies_added": [],
+    "dependencies_removed": [],
+    "formats_added": [],
+    "formats_removed": [],
+    "targets_added": [],
+    "targets_removed": []
+  },
+  "rulings": [
+    "thing:ruling:operator-deck-is-a-site-page",
+    "thing:ruling:operator-thing-page-top-level",
+    "site-masthead:ruling:operator-ground-behind-masthead"
+  ],
+  "questions": [
+    "scrollbar-fix-home: engine (recommended; one-line deletion in GameCult-Quartz base.scss, its own cut) or site-override (html { width: auto } in custom.scss by this cut). Assumed: engine."
+  ]
+}
