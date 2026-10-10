@@ -1710,3 +1710,61 @@ the same day, before `repo-renames` lands, with post-rename repo names: an
 `OrgRepo` is a name, and the renamed repos exist by the time any of their
 cuts runs, because each held spec's `first` names `thing` cut `repo-renames`.
 Each has its own target r1 carrying r3's invariants and citing this file.
+
+## Revision 6: hold (2026-10-10)
+
+Imagination (`imagination-thing-hold-remap`, session
+`self-2026-10-10c-eureka`). Rulings: `thing:ruling:hold-renames-for-thing2`
+and `thing:ruling:thing2-one-solver-taffy` (both operator, today), under
+`thing:ruling:operator-compat-rebuild`. The task: establish what can land
+before a Thing 2.0 map names the surviving repos, without a held cut. Probe
+script `p1_idreach.py` is in the Self's scratchpad
+`imagination-thing-hold-remap/`. Refs are each local checkout's
+`origin/<default>` as last fetched (not refreshed today except Eve and
+gamecult-ops); code files only, `docs/`, `*.md` and `dist/` excluded.
+
+**B25. Which repos carry each kernel schema id.** Of the 38 kernel schemas,
+5 have no carrier outside the kernel (`asset_catalog`, `entity_soa_view.v1`,
+`input_bindings`, `input_capability`, `operation_payload`). 25 ids are
+carried only by held repos (the family, CultLib, Sai, repixelizer). Every id
+on the live discovery edge E1 (`provider_advertisement`, `surface`,
+`surface_state`, `interface_binding`, `command`, `command_receipt`,
+`plugin_advertisement`, `plugin_abi*`) has at least one held carrier:
+CultLib, and Stonks, Vili or weksa. Only `command_result` (Ghostlight,
+Heimdall) and `local_draft` (Ghostlight) are live and touch no held repo.
+
+**B26. CultLib is on the live edge, not only build-time.** `CultLib`
+`packages/cultcache-ts/src/swarm-documents.ts:83-99` declares
+`gamecult.eve.surface_state.v1` and `gamecult.eve.interface_binding`.
+`gamecult-ops/scripts/deploy-heimdall.sh:22-27,108-120` archives
+`packages/cultcache-ts` and `cultmesh-ts` from `/srv/build/CultLib` at a
+pinned `cultlib_commit` and builds them into Heimdall's release. Heimdall's
+spec says as much ("vendored CultLib refreshed after cultlib-wire"). So E5's
+"compat, build-time" row is wrong for CultLib: `cultlib-wire` (held,
+`thing-family`) is a precondition of `heimdall-wire` and of the window.
+
+**B27. The held providers are live.** `gamecult-ops` `origin/main`
+(`9aed01f`) `scripts/idunn/idunn-deployment-targets.ps1` still lists Stonks
+(l.49), weksa (l.62) and Vili (l.114) as daemon targets with published
+health. StreamPixels runs on Yggdrasil (B15).
+
+**B28. Nothing has landed on a wire branch.** No `origin/thing/wire` exists
+in Eve, VoidBot, gamecult-ops, Odin or Ghostlight; the only `thing/*`
+branches are the merged persona cuts.
+
+**What follows.** `verse-window` cannot run while any E1 carrier is held, so
+every cut whose `first` says "merge inside the Verse window" (the three
+kernel cuts, `voidbot-wire`, the eight `thing-verse` cuts) could only sit on
+an unmerged `thing/wire` branch, and `kernel-prose` and `ops-prose` depend on
+the window. The `thing-verse` cuts are not named by the hold but are held by
+it in effect (B26, B27). The subsets that land with no live edge are the five
+kernel-only ids and the Android and iOS app ids (E7): they would leave the
+kernel in a mixed `eve`/`thing` namespace for as long as the hold lasts, and
+are the kinds Thing 2.0's closed render-command list is most likely to
+reshape or delete. No wire cut is re-specified; the fork is question
+`thing:question:wire-rename-under-thing2`.
+
+One item does not depend on the rename: follow-up
+`thing:follow_up:stale-voidbot-ignore-and-exclude` (three `.gitignore`
+lines and one `--exclude` in Eve) names a held cut as its owner and can be
+fixed on Eve main by itself.
