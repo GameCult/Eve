@@ -25,6 +25,3 @@ flutter/eve_parity/assets/repixelizer/
 *.deb
 *.ipa
 *.dSYM/
-.voidbot/birth/
-.voidbot/logs/
-.voidbot/state/*.msgpack

@@ -21,7 +21,6 @@ tar `
   --exclude=flutter `
   --exclude=tools `
   --exclude=web `
-  --exclude=.voidbot `
   --exclude=packages `
   -cf $archive `
   -C $projectRoot .
