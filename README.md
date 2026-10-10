@@ -1,4 +1,9 @@
-# Eve
+# Thing
+
+This repository is Thing. Its present tree is Thing 1, kept running for live
+consumers until each ports; Thing 2.0 is built here (`docs/thing2-target.md`).
+The Thing 1 renderer repos are archived under their Eve names: EveUnity,
+EveFlutter, EveElectron, EveTui, EvePlugins and EveConformance.
 
 CultMesh-based surface web, portable control layer, and timestamped sensor
 edge.
