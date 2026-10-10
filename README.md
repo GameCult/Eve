@@ -177,7 +177,6 @@ See `docs/eve-dsl-reactive-bindings.md` for the first Eve DSL and reactive
 CultMesh binding contract.
 See `docs/eve-multiverse.md` for the Eve MultiVerse philosophy and missing API
 surface.
-See `docs/eve-persona.md` for Eve's persistent mission memory.
 
 ## Browser Reference
 
