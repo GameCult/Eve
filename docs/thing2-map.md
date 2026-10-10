@@ -5,8 +5,10 @@ session `self-2026-10-10c-eureka`, 2026-10-10. Target `thing2:target:r1`
 (`docs/thing2-target.md`). Rulings in force and cited by id:
 `thing:ruling:thing2-one-solver-taffy`, `thing:ruling:thing2-thing-owns-text`,
 `thing:ruling:wire-rename-freeze-fold`, `thing:ruling:operator-compat-rebuild`,
-`thing:ruling:hold-renames-for-thing2`, `thing:ruling:operator-dsl-thing-script`,
-`thing:ruling:operator-member-names-keep`, `thing:ruling:operator-aetheria-eve-rename`.
+`thing:ruling:operator-dsl-thing-script`, `thing:ruling:operator-member-names-keep`,
+`thing:ruling:operator-aetheria-eve-rename`, and the six `thing2:ruling:*` of
+2026-10-10 (`code-home`, `thing-script-form`, `advertisement-owner`,
+`port-cutover`, `campaign-repo-limit`, `retired-repo-names`).
 
 This page holds body facts, the model page, the consumer contract at the level
 consumers need, the cut order at the level of deliverables, and rationale. The
@@ -105,6 +107,66 @@ matched.
 to 16) is in force with no report; both its questions are answered
 (`eureka-substrate:ruling:campaign-repo-set-home`, `:campaign-repo-removal`).
 
+**P12. Rust CultCache writes a union as serde's external tag; the C# reference
+writes `[key, fields]`. They do not read each other.** Probe pass
+`imagination-thing2-contract-cut`, 2026-10-10, local scratch
+`imagination-thing2-contract-cut/{rs,cs,ts}` against CultLib `6bdc23c9`. One
+record type in all three runtimes: `id`, `version`, `root: Node` with `Node`
+one of `Box { id, children: [Node] }`, `Text { id, content }`,
+`Use { id, composition, slots: [Node] }`, and `outcomes: [Outcome]` with a unit
+arm. Rust (`#[derive(DatabaseEntry)]`, serde enums) writes the payload
+`94 af..31 07 81 a3"Box" 92 ...`: each arm a one-entry map keyed by the variant
+name, fields positional, a unit arm the bare string `"Denied"`. C# (MessagePack
+`[Union(n, ...)]`, the reference) writes `94 af..31 07 92 00 92 ...`: each arm
+`[key, [fields]]`, the unit arm `[2, []]`. C# reading the Rust store fails:
+`MessagePackSerializationException: Failed to deserialize ProbeSurface value.
+<- Unexpected msgpack code 129 (fixmap) encountered.` Rust reading the C# store
+fails: `failed to decode CultCache entry "probe.surface" ... a value does not
+fit the store format`. Each runtime round-trips its own store. The
+`cultcache-rs` derive handles structs only
+(`cultcache-rs-derive/src/lib.rs:51`); enum members go through `rmp_serde`.
+Owner: CultLib (`thing2:follow_up:cultcache-union-parity`).
+
+**P13. TypeScript CultCache has no typed codec.** `cult-cache.ts:679-692`: with
+no `formatter`, a payload decodes to plain arrays and maps and `schema.parse`
+sees them raw; the interop test hand-writes a positional formatter per type
+(`test/cult-cache.test.ts:1263-1310`). In the probe, a hand-written TS codec
+for the union read the Rust store, wrote a store Rust read back equal, and
+re-encoded byte-identical to Rust's payload; against the C# store the same
+codec refused the `[key, fields]` arm (`node is not a tag map`). A TS reader
+matches whichever encoding its author hand-codes.
+
+**P14. Nothing live builds from the six retired family repos.** `git grep` at
+`origin/HEAD` of Ghostlight `327cbe3`, Odin `8e1de66`, VoidBot `46d891b`,
+Heimdall `7904e17`, Muninn `1d0ea0b`, weksa `d16cff5`, Stonks `3f6e91c`, Vili
+`8773c15`, Gjallar `6a92976`, StreamPixels `8d40541`, CultLib, Idunn `6667f0f`,
+gamecult-site `8169ee5` and Ymir `f8c0e39` for `EveUnity|EveFlutter|EveElectron|
+EveTui|EvePlugins|EveConformance` outside `*.md`: no match. gamecult-ops `9aed01f`
+matches only `docs/repo-census-2026-09/synthesis.html`; Eve matches a local
+smoke script (`scripts/run-aetheria-conformance-consumer-smoke.ps1:35`, a local
+path) and a spec; parked Mimir names them in one configuration file. GitHub,
+2026-10-10: all six unarchived; active workflows only on EveFlutter and EveTui
+(`runtime.yml`) and EveConformance (`conformance.yml`); `GameCult/Thing` and
+`GameCult/AetheriaThing` do not exist; AetheriaEve is archived.
+
+**P15. Ghostlight's deploy compares its Eve clone's origin by exact string.**
+gamecult-ops `9aed01f` `scripts/deploy-ghostlight-yggdrasil.sh:20`
+(`eve_origin=https://github.com/GameCult/Eve.git`) and `:871-876`
+(`require_idunn_repo` refuses "a foreign origin" when `git remote get-url
+origin` differs), called at `:883`; the binding template carries the same URL
+(`idunn/yggdrasil/bindings/ghostlight.toml.in:14`). Editing either URL without
+re-pointing Yggdrasil's Idunn-owned clone stops the next Ghostlight deploy;
+leaving both on the old name keeps working through GitHub's rename redirect.
+The `Repo = "Eve"` targets (`idunn-deployment-targets.ps1:223`, `:236`,
+`:262`) are Thing 1 targets (iPad, Android, Nightwing browser reference) paired
+with `LocalPath = "$projectsRoot\Eve"`.
+
+**P16. gamecult-site carries a generated Thing 1 surface.**
+`scripts/generate-vn-eve-surface.mjs` writes
+`GameCult/static/interactive/gamecult-compound/gamecult-compound.eve-gui.json`
+(`gamecult.eve.*` ids), referenced by `GameCult/Pitch.md:15`
+(`data-eve-gui=`). The census (C) does not list the site as a consumer.
+
 ## The model page
 
 Every persistent kind Thing 2.0 has. Ids follow rename table T: schema
@@ -123,7 +185,7 @@ compatible eve id (`operator-compat-rebuild`).
 | Command result | schema `gamecult.thing.command_result.v1`; key `thing:result:<invocationId>.<seq>` (`seq` from 1; a pending result may be followed by a final one) | Written once per `seq`; the final outcome ends the invocation | The provider that handles the command, through the contract's constructors only; core validates on receipt |
 | Asset catalog | schema `gamecult.thing.asset_catalog.v1`; key `thing:asset_catalog:<providerId>.<catalogId>`; `version: u64` | Republished whole, `version + 1`; image nodes reference `catalogId` + asset id | The provider |
 | Theme | schema `gamecult.thing.theme.v1`; key `thing:theme:<themeId>` | Versioned like a document; documents reference tokens, never a theme | The host application that embeds Thing (the GameCult brand theme is one such document); `thing.std` default theme in core |
-| Provider discovery (today `gamecult.eve.provider_advertisement.v1`) | Under the recommended option of `thing2:question:advertisement-owner`, not a Thing kind: owned by the Verse discovery owner and renamed once there | Until its owner lands, the eve advertisement is read through core's discovery port, unchanged | Pending `thing2:question:advertisement-owner`; the provider writes, Odin aggregates |
+| Provider discovery (today `gamecult.eve.provider_advertisement.v1`) | Not a Thing kind (`thing2:ruling:advertisement-owner`): owned by the Verse discovery owner and renamed once there (`thing2:follow_up:discovery-owner-campaign`) | Until its owner lands, the eve advertisement is read through core's discovery port, unchanged | The discovery owner; the provider writes, Odin aggregates |
 | Accessibility tree | not persisted: derived by core per frame from the resolved document and layout (AccessKit tree updates) | Rebuilt on every change | Thing core; backends bridge to the platform |
 | Render-command list | not persisted and never published: in-process from core to backend | Per frame | Thing core |
 | Geometry and render-command goldens | test fixtures in the Thing repo (`tests/goldens/`) | Regenerated only by a reviewed change to core; a backend never writes one | The Thing repo's core tests |
@@ -214,8 +276,8 @@ percent, unit), duration, timestamp, prefix and suffix text.
 
 What Thing needs from discovery is only "this provider exists and is reachable
 here": its surfaces are its `gamecult.thing.surface` records and its commands are
-declared inside them. Who owns discovery is
-`thing2:question:advertisement-owner`.
+declared inside them. Discovery leaves Thing (`thing2:ruling:advertisement-owner`);
+the contract has no advertisement type, and core reads discovery through a port.
 
 ### Rules that must die under their own mutation
 
@@ -305,11 +367,16 @@ code fails it.
 1. **Contract** (code home per `thing2:question:code-home`): the contract crate
    with the types above, published schemas `schemas/gamecult.thing.*`, golden
    wire fixtures, and the TypeScript and C# packages held to them (the live
-   consumers' languages: Rust, JS/TS, C#). First proof: a Rust-written recursive
-   node union decodes with parity in the TS and C# CultCache runtimes (P9); if it
-   does not, that stops the cut as a CultLib fork. Python and Kotlin packages
-   follow as their own deliverables. Blocked on `thing-script-form`,
-   `advertisement-owner` and `code-home`.
+   consumers' languages: Rust, JS/TS, C#). The first proof (P9) was run: a
+   Rust-written recursive union does not decode in the C# reference, nor the
+   reverse (P12), and TS decodes only what a hand-written codec says (P13). The
+   contract waits on CultLib's union parity
+   (`thing2:follow_up:cultcache-union-parity`). Three cuts: `contract-rs`, then
+   `contract-ts` and `contract-cs`. The published schema of each kind is its
+   CultCache catalog entry, identical in the three packages; no JSON Schema
+   files are written, because Thing 2.0 has no JSON reader of these kinds (the
+   browser reads them through core, not `ajv`). Python and Kotlin packages
+   follow as their own deliverables.
 2. **Core**, in three cuts: (a) resolution, compositions with `thing.std`,
    binding through the CultMesh port, Taffy layout, render commands, the command
    dispatcher and result validation, goldens; (b) Parley text, focus, editing and
@@ -329,17 +396,18 @@ code fails it.
    StreamPixels, then gamecult-ops (the Nightwing target), then CultLib (its eve
    document definitions in `cultcache-ts` and `cultmesh-kotlin` are deleted, B26).
    These need more repos than the campaign lists: `thing2:question:campaign-repo-limit`.
-6. **Retirement**: delete Thing 1's tree from the kernel repo; archive the six
-   family repos; the repo renames and site prose re-specified on what survives
-   (`thing:cut_spec:cut-repo-renames.r1` and `cut-site-prose.r1` revised).
+6. **Retirement**: delete Thing 1's tree from the kernel repo. The renames,
+   archives and site prose are re-specified as `thing:cut_spec:cut-repo-renames.r2`
+   and `cut-site-prose.r2` and do not wait for it (P14).
 
 **Repos this map retires:** EveUnity, EveFlutter, EveElectron, EveTui, EvePlugins
 and EveConformance (no Thing 2.0 role: no domain kinds, no per-renderer
-lowerers, parity by goldens). How they are named when archived is
-`thing2:question:retired-repo-names`. AetheriaEve stays under its rulings. The
-kernel repo survives as Thing under the recommended `code-home` option; once
-that question is ruled, the hold on `repo-renames` and `site-prose`
-(`thing:ruling:hold-renames-for-thing2`) has its answer.
+lowerers, parity by goldens). They are archived under their Eve names
+(`thing2:ruling:retired-repo-names`) by `thing:cut_spec:cut-repo-renames.r2`,
+ahead of retirement, because nothing live builds from them (P14). The kernel
+repo is renamed Thing in the same cut (`thing2:ruling:code-home`); its URLs in
+gamecult-ops stay on the redirect until the port that owns each one (P15).
+AetheriaEve stays under its rulings.
 
 **Parked (dormant or blocked) consumers:** Bifrost, repixelizer, Mimir, Hermodr,
 Loki, Sai, AquaSynth, Brokkr, Ymir. Their Thing 1 pins keep resolving at the
