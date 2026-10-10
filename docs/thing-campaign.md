@@ -500,7 +500,7 @@ EveElectron 1, EveTui 1, Heimdall and EvePlugins 0. Four different things:
 | --- | --- | --- | --- |
 | GitHub repo name | `GameCult/<Name>`; injective within the org | renamed once; old name redirects until reused; never reused | operator via `gh repo rename`; Hands executes under a ruling |
 | Local checkout path | `F:\Projects\<Name>`; sibling paths assumed by scripts and memory notes | renamed by the operator after the Verse window (revision 5); sibling-path defaults (`..\Eve`, `-EveRoot`) move in each repo's wire cut, explicit overrides cover the interval | operator; memory notes by Life at each cut |
-| Schema id | `gamecult.eve.<name>.v<n>` in `Eve/schemas/*.schema.json`, mirrored as constants in CultLib Rust and consumer runtimes | renamed to `gamecult.thing.<name>.v<n>` (same `v<n>`: the shape is unchanged); no alias on the wire (B10). Revision 5 (B19): in TypeScript a declared compatible id also answers wire requests, so whether stores read old records through `CompatibleSchemaIds` or are rebuilt is question `compat-ids-reach-wire` | `operator-wire-rename-now`; owner of the id is the schema file in the kernel repo; each live Verse redeploys as one window |
+| Schema id | `gamecult.eve.<name>.v<n>` in `Eve/schemas/*.schema.json`, mirrored as constants in CultLib Rust and consumer runtimes | renamed to `gamecult.thing.<name>.v<n>` (same `v<n>`: the shape is unchanged); no alias on the wire (B10). Revision 5 (B19): in TypeScript a declared compatible id also answers wire requests, so no renamed type declares `CompatibleSchemaIds`: every eve-typed store is deleted and rebuilt (ruling `operator-compat-rebuild`, target r3) | `operator-wire-rename-now`; owner of the id is the schema file in the kernel repo; each live Verse redeploys as one window |
 | Provider type id | `mimir.eve_*.v1` and any other provider ids naming eve | provider-versioned | the provider repo, under `wire-names` |
 | Package id | `org.gamecult.eve.*` (UPM), `@gamecult/eve-*` (npm, unpublished), `org.gamecult.eve` / `org.gamecult.evecanvas` (installed app ids) | UPM renamed with a new tag that consumers repin to in their own cut; npm renamed in place (unpublished); app ids renamed, old installs removed by hand (B9) | `operator-wire-rename-now` |
 | Persona identity | `identityId: eve` (identity.json), `agentId` in `eve.cc`; Discord `roleId` numeric; registry entry on Starfire | retired: registry entry and role removed, state archived byte-identical with provenance, never read as live; nothing replaces it | `operator-retire-persona`; the archive is written once by Hands and owned by gamecult-ops; no live reader |
@@ -1531,7 +1531,7 @@ candidate against its schema before renaming (follow-up `member-names-next-revis
 | --- | --- | --- | --- |
 | Gitlink path | `vendor/eve` in Ghostlight's tree and `.gitmodules`; key of the Idunn binding and of the recipe's `required_gitlinks` | moved once to `vendor/thing` in the Verse window; the binding key, recipe and tree move in one deploy (B18) | Ghostlight owns the tree path; gamecult-ops owns the installed binding; Idunn only checks they agree |
 | Idunn target and unit id | `eve-ipad-evecanvas`, `periwinkle-eve-android`, `nightwing-eve-browser-reference`, `nightwing-eve-dashboard` (archived) | renamed `thing-*` in the window; the archived one renamed in the record only | gamecult-ops inventory; Idunn reads it |
-| Stored document (`.cc` holding eve-typed records) | the store file plus the schema id of each record | derived stores (Odin `odin.cc`, VoidBot swarm state, weksa witnesses, Ghostlight `mesh-v2.cc`, Bifrost surfaces) are deleted and rebuilt by their daemon in the window; any store that is truth waits on `compat-ids-reach-wire` | the owning daemon; no agent rewrites a store in place |
+| Stored document (`.cc` holding eve-typed records) | the store file plus the schema id of each record | derived stores (Odin `odin.cc`, VoidBot swarm state, weksa witnesses, Ghostlight `mesh-v2.cc`, Bifrost surfaces) are deleted and rebuilt by their daemon in the window; a store found to be truth stops its cut as a fork (ruling `operator-compat-rebuild`) | the owning daemon; no agent rewrites a store in place |
 | Campaign repo list | `OrgRepo` strings fixed at campaign admission | cannot follow a GitHub rename: `thing` keeps `GameCult/Eve`, which then names `GameCult/Thing` by redirect | Self admits campaigns; gap `eureka-substrate:follow_up:gap-campaign-repos-fixed` (recurrence recorded here) |
 
 Every row has all three cells; no cut below is mapped on an empty cell.
@@ -1563,7 +1563,7 @@ Every row has all three cells; no cut below is mapped on an empty cell.
 | E3 binding key `vendor/eve` | gamecult-ops `ghostlight.toml.in`, Ghostlight `recipe.toml`, Idunn's check | **lockstep** (Idunn refuses a mismatch, B18) | binding installed with the Ghostlight deploy in the window |
 | E4 env names `HERMODR_EVE_*`, `MIMIR_EVE_*`, unit names | each compose or unit file with its daemon | lockstep per service | inside the window |
 | E5 build-time pins: UPM git URLs, conformance lock, `file:` npm deps, NuGet `GameCult.Eve.Surface` ProjectReferences, Kotlin `org.gamecult.cultmesh.eve` | family runtimes, CultLib, Ymir, AetheriaThing (frozen) | compat: a pin is immutable and resolves through the redirect | each consumer repins in its own cut after the kernel merge |
-| E6 stores | `odin.cc`, VoidBot swarm state, weksa, Ghostlight `mesh-v2.cc`, Bifrost `provider-store.cc` and `eve-surfaces.cc`, Heimdall verse state, repixelizer | derived: delete and rebuild at the owning daemon's restart in the window; truth: question `compat-ids-reach-wire` | with E1 |
+| E6 stores | `odin.cc`, VoidBot swarm state, weksa, Ghostlight `mesh-v2.cc`, Bifrost `provider-store.cc` and `eve-surfaces.cc`, Heimdall verse state, repixelizer | derived: delete and rebuild at the owning daemon's restart in the window; truth: stops its cut as a fork (`operator-compat-rebuild`) | with E1 |
 | E7 app ids | Android and iOS builds | no live edge (both targets blocked) | with `kernel-dotnet-apps`; two operator uninstalls |
 | Not live | Bifrost, repixelizer, Sai, Loki, AquaSynth, Brokkr, Ymir | none | any time after the kernel merge |
 | Excluded | Epiphany (B23), AetheriaThing contents (ruling freeze) | none | never |
@@ -1582,7 +1582,7 @@ Every row has all three cells; no cut below is mapped on an empty cell.
   catalog and every derived `.cc` store are rebuilt from their sources; the
   site's `gamecult-compound` data is regenerated.
 - **Forbidden writers:** any alias, `AsSchemaAlias`, `CompatibleSchemaIds` on
-  a wire type (until `compat-ids-reach-wire` rules), or "accept both" reader;
+  any renamed type (ruling `operator-compat-rebuild`), or "accept both" reader;
   a `thing/wire` branch merged outside the window; a hand edit of `dist/`,
   generated data or a `.cc` store; any repo named `Eve*` created after the
   rename; an agent editing doctrine before the window (doctrine naming ids
@@ -1694,3 +1694,19 @@ presentation snapshots) are all renderer or architecture work, which target r2
 puts out of scope ("an id changes, no shape changes"). None belongs in
 `thing`'s target. They move unchanged into `docs/thing-migration-roadmap.md`
 in `kernel-prose`; the follow-up can be withdrawn by Self with that reason.
+
+### Ruling and target r3 (2026-10-10)
+
+Question `compat-ids-reach-wire` is answered `rebuild` (ruling
+`thing:ruling:operator-compat-rebuild`). Target r3 rewords
+`rename-whole-per-edge`: no renamed type declares `CompatibleSchemaIds`;
+every store holding eve-typed records is deleted and rebuilt by its owning
+daemon in the window; a store found to be truth stops its cut as a fork;
+conformance packs are re-exported under thing ids and the old packs stay as
+dated history. The other r2 invariants carry over unchanged.
+
+Campaigns `thing-family`, `thing-verse` and `thing-providers` are admitted
+the same day, before `repo-renames` lands, with post-rename repo names: an
+`OrgRepo` is a name, and the renamed repos exist by the time any of their
+cuts runs, because each held spec's `first` names `thing` cut `repo-renames`.
+Each has its own target r1 carrying r3's invariants and citing this file.
