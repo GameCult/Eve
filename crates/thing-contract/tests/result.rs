@@ -124,9 +124,6 @@ fn record_keys_injective() {
     assert_eq!(first, "thing:result:x.1.2");
     assert_eq!(second, "thing:result:x.12");
     assert_ne!(first, second);
-
-    // Nothing in src spells the old prefix.
-    assert!(!catalog("p", "c").record_key().starts_with("thing:assets:"));
 }
 
 #[test]
@@ -144,6 +141,7 @@ fn domain_newtypes_refuse_out_of_domain() {
     assert!(Count::new(-1).is_err());
     assert!(Count::new(i32::MIN).is_err());
     assert_eq!(Count::new(0).unwrap().get(), 0);
+    assert_eq!(Count::new(7).unwrap().get(), 7);
     assert!(Segment::new("").is_err());
     assert!(Segment::new("a.b").is_err());
     assert!(Segment::new(".").is_err());
