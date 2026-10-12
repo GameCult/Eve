@@ -34,7 +34,7 @@ test("each factory builds its outcome", () => {
 });
 
 test("a factory refuses seq below 1 naming Seq, and not the value", () => {
-  for (const bad of [0, -1, -2 ** 31]) {
+  for (const bad of [0, -1, -(2 ** 31)]) {
     for (const build of [
       () => CommandResult.pending(answered, bad, "m"),
       () => CommandResult.completed(answered, bad, null, false, null),
