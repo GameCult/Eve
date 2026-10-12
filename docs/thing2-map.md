@@ -22,7 +22,7 @@ restate their options. Research for the forks:
 
 ## Body facts
 
-Probes run 2026-10-10 against `origin/<default>` after `git fetch` unless a
+Probes P1-P16 ran 2026-10-10, P17-P19 2026-10-12, against `origin/<default>` after `git fetch` unless a
 local path is named. Scripts are in the session scratchpad
 `imagination-thing2-contract/`.
 
@@ -167,6 +167,45 @@ with `LocalPath = "$projectsRoot\Eve"`.
 (`gamecult.eve.*` ids), referenced by `GameCult/Pitch.md:15`
 (`data-eve-gui=`). The census (C) does not list the site as a consumer.
 
+**P17. The contract's integer leaves are signed because TS and Python have no
+unsigned leaf; the C# reference has one.** CultLib `b3bd8dd5`:
+`src/GameCult.Caching/CultSchemaTypeNames.cs` names any CLR type (so `UInt32`,
+`UInt64` and `Byte` slots exist in the reference); `cultcache-ts`
+`src/codec.ts` exports only `int32` and `int64` integer codecs and
+`cultcache-py` `leaves.py:147-148` only `int32` and `int64`. A `u64` above
+2^63 has no TS or Python reading, so versions stay `Int64` and counts `Int32`,
+and the non-negative rule is the contract's, not the leaf's. `Rgba` keeps `u8`
+(the reference's `Byte`); the TS and Python packages mirror its 0-255 range
+from a refusal golden until CultLib gives them a byte leaf.
+
+**P18. A domain newtype's own `Deserialize` holds its rule at every decode
+door, and leaves the bytes unchanged.** Probe `imagination-contract-rs-r2/`
+(throwaway commit `fbbdaf79` on `649844aa`, Yggdrasil, 2026-10-12): `Seq(i32)`
+refusing below 1 and `Version(i64)` refusing below 0, each `Serialize` the inner
+integer and `Deserialize` through `new`. A result payload with seq 0 or -7 is
+refused by `rmp_serde::from_slice` ("Seq: at least 1") and by
+`cultcache_rs::decode_payload` (opaque: "a value does not fit the store
+format"); seq 0 through serde's in-memory `IntoDeserializer` is refused the same
+way, so the rule holds for any serde format. With `CommandResult.seq: Seq` and
+both composition versions `Version` (an `Int32` slot widened to `Int64`),
+`goldens_match` still compares byte-identical, `surface.cc` included. The
+derive reads each slot with `seq.next_element::<FieldType>()`
+(`cultcache-rs-derive/src/lib.rs`, `slot_codec`, at `b3bd8dd5`), so a field's
+type is the one owner of its domain on both paths. `DatabaseEntry` requires
+`DeserializeOwned` (`cultcache-rs/src/lib.rs:162`), so the public
+`Deserialize` of every kind cannot be removed: it is the decode door.
+
+**P19. Dotted provider ids are the Verse's norm; dotted local names are not
+needed.** `git grep` over Ghostlight, VoidBot, Odin, Heimdall, Muninn, Stonks
+and Eve (operator checkouts, 2026-10-12): provider ids `voidbot.swarm`,
+`odin.allseer`, `stonks.market`, `sleipnir.input-mirror.raven`, `heimdall`;
+Thing 1 surface ids repeat the provider as a prefix (`voidbot.swarm.surface`,
+`ghostlight.play` in `crates/ghostlight-dungeon/src/mesh.rs:37`). No
+`gamecult.thing.*` record exists outside the contract's tests, and Thing 1
+records are rebuilt, not read (`thing:ruling:operator-compat-rebuild`), so the
+Thing 2.0 key grammar strands nothing. Probe evidence of the collision itself:
+Soul's `soul-thing2-contract-rs/rust1.log` KEY lines.
+
 ## The model page
 
 Every persistent kind Thing 2.0 has. Ids follow rename table T: schema
@@ -175,15 +214,15 @@ compatible eve id (`operator-compat-rebuild`).
 
 | Kind | What names it | What happens to it over time | Who decides (one writer) |
 | --- | --- | --- | --- |
-| Thing Script document (a published surface) | schema `gamecult.thing.surface.v1`; key `thing:surface:<providerId>.<label>`; `version: u64` in the record | Republished whole when its structure changes, `version + 1`; core ignores a version at or below the one it holds. Live values never cause a republish (they arrive through bindings). Retired when the provider deletes the record. A contract revision is a new `v<n>`; stores holding the old one are deleted and rebuilt by their daemon | The publishing provider. Core and viewers only read |
-| Composition | schema `gamecult.thing.composition.v1`; key `thing:composition:<publisher>.<name>.v<n>` | Immutable once published: a change is a new `v<n>` under a new key; references pin the version. The standard library (`thing.std.*`) ships compiled into core and is also published by the Thing repo's release | The publisher (a provider, or the Thing repo for `thing.std`). Core resolves and expands; nothing else writes |
+| Thing Script document (a published surface) | schema `gamecult.thing.surface.v1`; key `thing:surface:<providerId>.<label>`, where `label` is one segment (non-empty, no `.`), so the key splits at its last dot and is injective while provider ids stay dotted (P19); `version` is an `Int64` at least 0 in the record (P17) | Republished whole when its structure changes, `version + 1`; core ignores a version at or below the one it holds. Live values never cause a republish (they arrive through bindings). Retired when the provider deletes the record. A contract revision is a new `v<n>`; stores holding the old one are deleted and rebuilt by their daemon | The publishing provider. Core and viewers only read |
+| Composition | schema `gamecult.thing.composition.v1`; key `thing:composition:<publisher>.<name>.v<n>`, `name` one segment (no `.`), `n` an `Int64` at least 0 | Immutable once published: a change is a new `v<n>` under a new key; references pin the version. The standard library (`thing.std.*`) ships compiled into core and is also published by the Thing repo's release | The publisher (a provider, or the Thing repo for `thing.std`). Core resolves and expands; nothing else writes |
 | Binding | not a document: a field of a node in a Thing Script document or composition (`Bind`) | Lives and dies with the document that holds it | Declared by the document's writer; resolved only by core |
 | Bound state record | the provider's own schema and key (e.g. `voidbot.swarm_control_state.v1`) | The provider's lifecycle | The provider. Core never writes typed state; a change goes through a command |
 | Viewer session state (focus, scroll offsets, editing drafts, selection, IME composition, open overlays) | the core instance; node ids within a resolved document | Not persisted and never published; dies with the session. A draft that must outlive the session is state, and state belongs to a provider | Thing core |
 | Command declaration | not a document: an entry of the Thing Script document (`CommandDecl`, id local to the document) | With its document | The document's writer |
 | Command invocation | schema `gamecult.thing.command_invocation.v1`; key `thing:invocation:<invocationId>` (a UUID minted by core per user action, also the idempotency key) | Written once, never edited; retained by the provider's command boundary until its final result, then the provider's retention | Thing core, on behalf of the viewer; the transport sets the caller identity |
-| Command result | schema `gamecult.thing.command_result.v1`; key `thing:result:<invocationId>.<seq>` (`seq` from 1; a pending result may be followed by a final one) | Written once per `seq`; the final outcome ends the invocation | The provider that handles the command, through the contract's constructors only; core validates on receipt |
-| Asset catalog | schema `gamecult.thing.asset_catalog.v1`; key `thing:asset_catalog:<providerId>.<catalogId>`; `version: u64` | Republished whole, `version + 1`; image nodes reference `catalogId` + asset id | The provider |
+| Command result | schema `gamecult.thing.command_result.v1`; key `thing:result:<invocationId>.<seq>` (`seq` an `Int32` from 1, refused below 1 on construction and decode; the key is injective because `seq` is the last dot segment and never holds a dot; a pending result may be followed by a final one) | Written once per `seq`; the final outcome ends the invocation | The provider that handles the command, through the contract's constructors only; core validates on receipt |
+| Asset catalog | schema `gamecult.thing.asset_catalog.v1`; key `thing:asset_catalog:<providerId>.<catalogId>`, `catalogId` one segment (no `.`); `version` an `Int64` at least 0; asset width and height `Int32` at least 0 | Republished whole, `version + 1`; image nodes reference `catalogId` + asset id | The provider |
 | Theme | schema `gamecult.thing.theme.v1`; key `thing:theme:<themeId>` | Versioned like a document; documents reference tokens, never a theme | The host application that embeds Thing (the GameCult brand theme is one such document); `thing.std` default theme in core |
 | Provider discovery (today `gamecult.eve.provider_advertisement.v1`) | Not a Thing kind (`thing2:ruling:advertisement-owner`): owned by the Verse discovery owner and renamed once there (`thing2:follow_up:discovery-owner-campaign`) | Until its owner lands, the eve advertisement is read through core's discovery port, unchanged | The discovery owner; the provider writes, Odin aggregates |
 | Accessibility tree | not persisted: derived by core per frame from the resolved document and layout (AccessKit tree updates) | Rebuilt on every change | Thing core; backends bridge to the platform |
@@ -269,8 +308,12 @@ percent, unit), duration, timestamp, prefix and suffix text.
   receipt is the result: `command.v1`, `command_receipt.v1`,
   `transientProjection` and `pluginPayload` have no successor.
 - Handlers in every language receive a decoded invocation and return an
-  `Outcome`; the language package writes the result. No package exposes a way to
-  write a result record from a map, a JSON value or a string state.
+  `Outcome`; the language package writes the result. No package takes a state
+  as a string or converts a map into a result. Decoding is the one other door
+  (every CultCache kind is deserializable, P18): it holds the same domain as the
+  constructors because each field's type owns its rule. A decoded result can
+  name any invocation; binding a result to an invocation core issued is core's
+  validation (`thing:ruling:thing2-one-solver-taffy`), not the contract's.
 
 ### 4. Advertisement
 
@@ -377,9 +420,21 @@ code fails it.
    files are written, because Thing 2.0 has no JSON reader of these kinds (the
    browser reads them through core, not `ajv`). Python and Kotlin packages
    follow as their own deliverables.
+   `contract-rs` attempt 1 landed on `hands/thing2-contract-rs` (`649844aa`);
+   Soul's `thing2:verdict:cut-contract-rs.s1` returned seven findings. Its fix
+   batch is `thing2:cut_spec:cut-contract-rs.r2`. Waiting, one line each:
+   - `contract-ts`, `contract-cs`: their r1 specs predate r2's domain types,
+     key grammar and refusal goldens, and are refreshed when the frontier
+     reaches them.
+   - CultLib pin bump: when `cultlib-gaps:follow_up:decode-stack-safety` lands,
+     move the pin and run `deep_tree` on the default thread (its 16 MiB thread
+     goes); the crate docs' hazard note goes with it.
+   - Missing-slot golden: re-added only when
+     `cultlib-gaps:follow_up:rust-missing-slot-vs-reference` settles the rule.
 2. **Core**, in three cuts: (a) resolution, compositions with `thing.std`,
    binding through the CultMesh port, Taffy layout, render commands, the command
-   dispatcher and result validation, goldens; (b) Parley text, focus, editing and
+   dispatcher and result validation, goldens; (a)'s decode of Verse surfaces
+   waits on `cultlib-gaps:follow_up:decode-stack-safety`; (b) Parley text, focus, editing and
    IME state; (c) the AccessKit tree.
 3. **TUI backend** (Rust): cell measurement in the Taffy measure function,
    terminal drawing, keyboard input. First, because it exercises the whole
@@ -435,3 +490,23 @@ have no live consumer and are parked until one appears.
 - **Why the result has no free-form payload.** P2 and P7: the only live uses of
   `pluginPayload` and `transientProjection` were a navigation and a status,
   which are `effect` and `outcome`.
+- **Why each integer's rule lives in its field type.** The decode door cannot be
+  closed (P18), so a rule held only by a constructor is a rule the wire skips.
+  A newtype per domain (`Seq`, `Version`, `Count`, `Segment`) is read by both
+  paths, keeps the bytes, and gives the TS and C# packages one refusal golden
+  each to mirror. This is serde's `try_from` pattern, written by hand because
+  the CultCache derive emits the codec itself.
+- **Why the key grammar constrains only the local segment.** Provider ids and
+  publishers are owned by discovery (`thing2:ruling:advertisement-owner`) and
+  are dotted in the Verse today (P19); the contract owns only `label`, `name`
+  and `catalogId`. Refusing the separator there makes every key split at its
+  last dots, the way DNS labels and the mind's own `<root>:<kind>:<local>` keys
+  stay unambiguous. A different separator between provider and label would
+  instead impose a grammar on ids the contract does not own. Listing a
+  provider's records filters on the record's provider field, not a key prefix,
+  because a dotted provider is a prefix of a longer one.
+- **Why contract-rs merges before CultLib's stack fix.** The overflow is the
+  decode door's (`cultlib-gaps:follow_up:decode-stack-safety`) and every Rust
+  reader of these kinds inherits it whether or not the contract merges. The
+  contract decodes no hostile input; core's Verse decode does, so that is where
+  the wait sits (cut 2a). The crate docs name the hazard meanwhile.
