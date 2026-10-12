@@ -4,10 +4,16 @@
 import { codecs } from "@gamecult/cultcache-ts";
 import type { Codec } from "@gamecult/cultcache-ts";
 
+// A domain's wire form is its value, so its encode hands the checked value back: a caller that holds a number from
+// outside (a factory argument, a key part) passes it through `encode` and keeps what comes out.
+export interface Domain<TValue> extends Codec<TValue> {
+  encode(value: TValue): TValue;
+}
+
 function bounded<TValue extends number | bigint | string>(
   leaf: Codec<TValue>,
   refusal: (value: TValue) => string | null,
-): Codec<TValue> {
+): Domain<TValue> {
   const hold = (value: TValue): TValue => {
     const refused = refusal(value);
     if (refused !== null) throw new Error(refused);
@@ -34,7 +40,7 @@ export const count = bounded(codecs.int32, (value) => (value >= 0 ? null : "Coun
  * A name the contract joins into a record key: non-empty, no '.'. A domain admits no nil, and the library refuses a nil
  * in a value slot, so it is declared one.
  */
-export const segment: Codec<string> = {
+export const segment: Domain<string> = {
   ...bounded(codecs.string, (value) =>
     value === "" ? "Segment must be non-empty" : value.includes(".") ? "Segment must be free of '.'" : null,
   ),
