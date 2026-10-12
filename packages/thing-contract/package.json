@@ -1,0 +1,29 @@
+{
+  "name": "@gamecult/thing-contract",
+  "version": "0.1.0",
+  "description": "The gamecult.thing.* wire types and codecs for TypeScript, held byte for byte to the Rust crate's goldens.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsc -p tsconfig.json && tsc -p tsconfig.test.json && node --test dist-test/test/*.test.js"
+  },
+  "dependencies": {
+    "@gamecult/cultcache-ts": "file:../../../CultLib/packages/cultcache-ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  },
+  "license": "MIT"
+}

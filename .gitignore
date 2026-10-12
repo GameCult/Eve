@@ -8,6 +8,11 @@ packages/eve-browser-lowering/node_modules/
 !packages/eve-contracts/**
 packages/eve-contracts/node_modules/
 packages/eve-contracts/*.tgz
+!packages/thing-contract/
+!packages/thing-contract/**
+packages/thing-contract/node_modules/
+packages/thing-contract/dist/
+packages/thing-contract/dist-test/
 !packages/org.gamecult.eve.surface/
 !packages/org.gamecult.eve.surface/**
 packages/org.gamecult.eve.surface/bin~/
