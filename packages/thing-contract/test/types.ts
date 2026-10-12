@@ -17,9 +17,10 @@ export const shaped: CommandResult = plain;
 // @ts-expect-error
 export const spread: CommandResult = { ...result };
 
-// The constructor is private.
+// The constructor is private: even a call whose arguments all type-check (the door argument is typed `never` here) is
+// refused, so the error is the access, not the arity.
 // @ts-expect-error
-export const constructed = new CommandResult("x", 1, { kind: "Failed", reason: "r" });
+export const constructed = new CommandResult(undefined as never, "x", 1, { kind: "Failed", reason: "r" });
 
 // The fields are read-only.
 // @ts-expect-error
