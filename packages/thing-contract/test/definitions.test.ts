@@ -16,6 +16,14 @@ const NS = "GameCult.Thing.Contract.";
 const STRING = "System.String";
 const list = (item: string) => `System.Collections.Generic.List<${NS}${item}>`;
 
+const rustName: Record<string, string> = {
+  "gamecult.thing.surface": "SurfaceDocument",
+  "gamecult.thing.composition": "CompositionDocument",
+  "gamecult.thing.command_invocation": "CommandInvocation",
+  "gamecult.thing.command_result": "CommandResult",
+  "gamecult.thing.asset_catalog": "AssetCatalog",
+};
+
 const expected = [
   [surfaceDocument, "gamecult.thing.surface", [
     "0:ProviderId:" + STRING,
@@ -61,6 +69,7 @@ for (const [definition, type, members] of expected) {
     assert.equal(definition.type, type);
     assert.equal(definition.schemaName, type);
     assert.equal(definition.schemaVersion, `${type}.v1`);
+    assert.equal(definition.codec?.typeName, `${NS}${rustName[type]}`);
     assert.deepEqual(
       definition.members?.map((member) => `${member.slot}:${member.memberName}:${member.typeName}`),
       members,

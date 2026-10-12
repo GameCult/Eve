@@ -23,22 +23,22 @@ const required = <TValue>(codec: Codec<TValue | null>): Codec<TValue> => codec a
 
 // source.rs
 export const paramName = codecs.slots<T.ParamName>({ 0: ["name", string] }, named("ParamName"));
-const textLiteral = codecs.slots<T.TextLiteral>({ 0: ["value", string] }, named("TextLiteral"));
-const numberLiteral = codecs.slots<T.NumberLiteral>({ 0: ["value", float64] }, named("NumberLiteral"));
-const boolLiteral = codecs.slots<T.BoolLiteral>({ 0: ["value", boolean] }, named("BoolLiteral"));
+export const textLiteral = codecs.slots<T.TextLiteral>({ 0: ["value", string] }, named("TextLiteral"));
+export const numberLiteral = codecs.slots<T.NumberLiteral>({ 0: ["value", float64] }, named("NumberLiteral"));
+export const boolLiteral = codecs.slots<T.BoolLiteral>({ 0: ["value", boolean] }, named("BoolLiteral"));
 
-const memberName = codecs.slots<T.MemberName>({ 0: ["name", string] }, named("MemberName"));
-const memberIndex = codecs.slots<T.MemberIndex>({ 0: ["index", count] }, named("MemberIndex"));
+export const memberName = codecs.slots<T.MemberName>({ 0: ["name", string] }, named("MemberName"));
+export const memberIndex = codecs.slots<T.MemberIndex>({ 0: ["index", count] }, named("MemberIndex"));
 export const memberStep = required(
   codecs.union<T.MemberStep>("MemberStep", { 0: ["Name", memberName], 1: ["Index", memberIndex] }, named("MemberStep")),
 );
 export const memberPath = codecs.slots<T.MemberPath>({ 0: ["steps", list(memberStep)] }, named("MemberPath"));
 
-const numberFormat = codecs.slots<T.NumberFormat>(
+export const numberFormat = codecs.slots<T.NumberFormat>(
   { 0: ["precision", count], 1: ["percent", boolean], 2: ["unit", nullable(string)] },
   named("NumberFormat"),
 );
-const affixFormat = codecs.slots<T.AffixFormat>({ 0: ["prefix", string], 1: ["suffix", string] }, named("AffixFormat"));
+export const affixFormat = codecs.slots<T.AffixFormat>({ 0: ["prefix", string], 1: ["suffix", string] }, named("AffixFormat"));
 export const format = required(
   codecs.union<T.Format>(
     "Format",
@@ -47,7 +47,7 @@ export const format = required(
   ),
 );
 
-const stateRef = codecs.slots<T.StateRef>(
+export const stateRef = codecs.slots<T.StateRef>(
   { 0: ["provider", nullable(string)], 1: ["schema", string], 2: ["key", string] },
   named("StateRef"),
 );
@@ -81,7 +81,7 @@ export const boolSource = required(
   ),
 );
 
-const recordsSource = codecs.slots<T.RecordsSource>(
+export const recordsSource = codecs.slots<T.RecordsSource>(
   { 0: ["provider", nullable(string)], 1: ["schema", string], 2: ["keyPrefix", string] },
   named("RecordsSource"),
 );
@@ -94,7 +94,7 @@ export const collectionSource = required(
 );
 
 // style.rs
-const scalar = codecs.slots<T.Scalar>({ 0: ["value", float64] }, named("Scalar"));
+export const scalar = codecs.slots<T.Scalar>({ 0: ["value", float64] }, named("Scalar"));
 export const dimension = required(
   codecs.union<T.Dimension>(
     "Dimension",
@@ -182,7 +182,7 @@ export const boxStyle = codecs.slots<T.BoxStyle>(
   },
   named("BoxStyle"),
 );
-const themeToken = codecs.slots<T.ThemeToken>({ 0: ["name", string] }, named("ThemeToken"));
+export const themeToken = codecs.slots<T.ThemeToken>({ 0: ["name", string] }, named("ThemeToken"));
 export const rgba = codecs.slots<T.Rgba>(
   { 0: ["r", channel], 1: ["g", channel], 2: ["b", channel], 3: ["a", channel] },
   named("Rgba"),
@@ -190,7 +190,7 @@ export const rgba = codecs.slots<T.Rgba>(
 export const colorRef = required(
   codecs.union<T.ColorRef>("ColorRef", { 0: ["Token", themeToken], 1: ["Rgba", rgba] }, named("ColorRef")),
 );
-const border = codecs.slots<T.Border>({ 0: ["color", colorRef], 1: ["width", float64] }, named("Border"));
+export const border = codecs.slots<T.Border>({ 0: ["color", colorRef], 1: ["width", float64] }, named("Border"));
 export const paint = codecs.slots<T.Paint>(
   { 0: ["background", nullable(colorRef)], 1: ["border", nullable(border)], 2: ["radius", float64] },
   named("Paint"),
@@ -216,7 +216,7 @@ export const commandDecl = codecs.slots<T.CommandDecl>(
   { 0: ["id", string], 1: ["payloadSchema", string], 2: ["captures", list(string)], 3: ["confirm", nullable(string)] },
   named("CommandDecl"),
 );
-const commandIdRef = codecs.slots<T.CommandIdRef>({ 0: ["id", string] }, named("CommandIdRef"));
+export const commandIdRef = codecs.slots<T.CommandIdRef>({ 0: ["id", string] }, named("CommandIdRef"));
 export const commandRef = required(
   codecs.union<T.CommandRef>("CommandRef", { 0: ["Id", commandIdRef], 1: ["Param", paramName] }, named("CommandRef")),
 );
@@ -224,10 +224,10 @@ export const recordPayload = codecs.slots<T.RecordPayload>(
   { 0: ["schema", string], 1: ["bytes", bytes] },
   named("RecordPayload"),
 );
-const textValue = codecs.slots<T.TextValue>({ 0: ["value", string] }, named("TextValue"));
-const numberValue = codecs.slots<T.NumberValue>({ 0: ["value", float64] }, named("NumberValue"));
-const boolValue = codecs.slots<T.BoolValue>({ 0: ["value", boolean] }, named("BoolValue"));
-const choiceValue = codecs.slots<T.ChoiceValue>({ 0: ["value", string] }, named("ChoiceValue"));
+export const textValue = codecs.slots<T.TextValue>({ 0: ["value", string] }, named("TextValue"));
+export const numberValue = codecs.slots<T.NumberValue>({ 0: ["value", float64] }, named("NumberValue"));
+export const boolValue = codecs.slots<T.BoolValue>({ 0: ["value", boolean] }, named("BoolValue"));
+export const choiceValue = codecs.slots<T.ChoiceValue>({ 0: ["value", string] }, named("ChoiceValue"));
 export const inputValue = required(
   codecs.union<T.InputValue>(
     "InputValue",
@@ -255,9 +255,9 @@ export const commandInvocation = codecs.slots<T.CommandInvocation>(
 );
 
 // result.rs
-const pendingOutcome = codecs.slots<T.PendingOutcome>({ 0: ["message", string] }, named("PendingOutcome"));
-const openSurfaceEffect = codecs.slots<T.OpenSurfaceEffect>({ 0: ["key", string] }, named("OpenSurfaceEffect"));
-const openExternalEffect = codecs.slots<T.OpenExternalEffect>(
+export const pendingOutcome = codecs.slots<T.PendingOutcome>({ 0: ["message", string] }, named("PendingOutcome"));
+export const openSurfaceEffect = codecs.slots<T.OpenSurfaceEffect>({ 0: ["key", string] }, named("OpenSurfaceEffect"));
+export const openExternalEffect = codecs.slots<T.OpenExternalEffect>(
   { 0: ["url", string], 1: ["resume", commandRef] },
   named("OpenExternalEffect"),
 );
@@ -268,15 +268,15 @@ export const effect = required(
     named("Effect"),
   ),
 );
-const completedOutcome = codecs.slots<T.CompletedOutcome>(
+export const completedOutcome = codecs.slots<T.CompletedOutcome>(
   { 0: ["sourceVersion", nullable(version)], 1: ["clearDrafts", boolean], 2: ["effect", nullable(effect)] },
   named("CompletedOutcome"),
 );
-const deniedOutcome = codecs.slots<T.DeniedOutcome>(
+export const deniedOutcome = codecs.slots<T.DeniedOutcome>(
   { 0: ["reason", string], 1: ["node", nullable(string)] },
   named("DeniedOutcome"),
 );
-const failedOutcome = codecs.slots<T.FailedOutcome>({ 0: ["reason", string] }, named("FailedOutcome"));
+export const failedOutcome = codecs.slots<T.FailedOutcome>({ 0: ["reason", string] }, named("FailedOutcome"));
 export const outcome = required(
   codecs.union<T.Outcome>(
     "Outcome",
@@ -294,11 +294,11 @@ export const nodeCommon = codecs.slots<T.NodeCommon>(
 // Node closes its own cycle here and nowhere else.
 export const node: Codec<T.Node> = lazy(() => nodeUnion);
 
-const boxNode = codecs.slots<T.BoxNode>(
+export const boxNode = codecs.slots<T.BoxNode>(
   { 0: ["common", nodeCommon], 1: ["style", boxStyle], 2: ["paint", paint], 3: ["role", role], 4: ["children", list(node)] },
   named("BoxNode"),
 );
-const textNode = codecs.slots<T.TextNode>(
+export const textNode = codecs.slots<T.TextNode>(
   {
     0: ["common", nodeCommon],
     1: ["content", textSource],
@@ -316,19 +316,19 @@ export const imageFit = required(
     named("ImageFit"),
   ),
 );
-const imageNode = codecs.slots<T.ImageNode>(
+export const imageNode = codecs.slots<T.ImageNode>(
   { 0: ["common", nodeCommon], 1: ["catalog", string], 2: ["asset", string], 3: ["fit", imageFit], 4: ["alt", textSource] },
   named("ImageNode"),
 );
-const buttonNode = codecs.slots<T.ButtonNode>(
+export const buttonNode = codecs.slots<T.ButtonNode>(
   { 0: ["common", nodeCommon], 1: ["content", list(node)], 2: ["onActivate", commandRef], 3: ["enabled", boolSource] },
   named("ButtonNode"),
 );
-const toggleNode = codecs.slots<T.ToggleNode>(
+export const toggleNode = codecs.slots<T.ToggleNode>(
   { 0: ["common", nodeCommon], 1: ["checked", boolSource], 2: ["onChange", commandRef] },
   named("ToggleNode"),
 );
-const sliderNode = codecs.slots<T.SliderNode>(
+export const sliderNode = codecs.slots<T.SliderNode>(
   {
     0: ["common", nodeCommon],
     1: ["min", float64],
@@ -342,7 +342,7 @@ const sliderNode = codecs.slots<T.SliderNode>(
 export const inputKind = required(
   codecs.union<T.InputKind>("InputKind", { 0: ["Text", unit], 1: ["Number", unit] }, named("InputKind")),
 );
-const textInputNode = codecs.slots<T.TextInputNode>(
+export const textInputNode = codecs.slots<T.TextInputNode>(
   {
     0: ["common", nodeCommon],
     1: ["multiline", boolean],
@@ -353,28 +353,28 @@ const textInputNode = codecs.slots<T.TextInputNode>(
   },
   named("TextInputNode"),
 );
-const selectOption = codecs.slots<T.SelectOption>({ 0: ["value", string], 1: ["label", string] }, named("SelectOption"));
-const literalOptions = codecs.slots<T.LiteralOptions>({ 0: ["options", list(selectOption)] }, named("LiteralOptions"));
-const boundOptions = codecs.slots<T.BoundOptions>(
+export const selectOption = codecs.slots<T.SelectOption>({ 0: ["value", string], 1: ["label", string] }, named("SelectOption"));
+export const literalOptions = codecs.slots<T.LiteralOptions>({ 0: ["options", list(selectOption)] }, named("LiteralOptions"));
+export const boundOptions = codecs.slots<T.BoundOptions>(
   { 0: ["collection", collectionSource], 1: ["valueMember", memberPath], 2: ["labelMember", memberPath] },
   named("BoundOptions"),
 );
 export const optionList = required(
   codecs.union<T.OptionList>("OptionList", { 0: ["Literal", literalOptions], 1: ["Bound", boundOptions] }, named("OptionList")),
 );
-const selectNode = codecs.slots<T.SelectNode>(
+export const selectNode = codecs.slots<T.SelectNode>(
   { 0: ["common", nodeCommon], 1: ["options", optionList], 2: ["value", bind], 3: ["onChange", commandRef] },
   named("SelectNode"),
 );
-const repeatNode = codecs.slots<T.RepeatNode>(
+export const repeatNode = codecs.slots<T.RepeatNode>(
   { 0: ["common", nodeCommon], 1: ["collection", collectionSource], 2: ["keyMember", memberPath], 3: ["template", node] },
   named("RepeatNode"),
 );
-const anchorNode = codecs.slots<T.AnchorNode>({ 0: ["node", string] }, named("AnchorNode"));
+export const anchorNode = codecs.slots<T.AnchorNode>({ 0: ["node", string] }, named("AnchorNode"));
 export const anchor = required(
   codecs.union<T.Anchor>("Anchor", { 0: ["Viewport", unit], 1: ["Node", anchorNode] }, named("Anchor")),
 );
-const overlayNode = codecs.slots<T.OverlayNode>(
+export const overlayNode = codecs.slots<T.OverlayNode>(
   {
     0: ["common", nodeCommon],
     1: ["anchor", anchor],
@@ -387,7 +387,7 @@ const overlayNode = codecs.slots<T.OverlayNode>(
 export const plotMark = required(
   codecs.union<T.PlotMark>("PlotMark", { 0: ["Line", unit], 1: ["Bar", unit], 2: ["Area", unit] }, named("PlotMark")),
 );
-const plotNode = codecs.slots<T.PlotNode>(
+export const plotNode = codecs.slots<T.PlotNode>(
   {
     0: ["common", nodeCommon],
     1: ["series", bind],
@@ -399,7 +399,7 @@ const plotNode = codecs.slots<T.PlotNode>(
   },
   named("PlotNode"),
 );
-const embedNode = codecs.slots<T.EmbedNode>(
+export const embedNode = codecs.slots<T.EmbedNode>(
   {
     0: ["common", nodeCommon],
     1: ["slotKind", string],
@@ -413,12 +413,12 @@ export const compositionRef = codecs.slots<T.CompositionRef>(
   { 0: ["publisher", string], 1: ["name", segment], 2: ["version", version] },
   named("CompositionRef"),
 );
-const textArg = codecs.slots<T.TextArg>({ 0: ["value", string] }, named("TextArg"));
-const numberArg = codecs.slots<T.NumberArg>({ 0: ["value", float64] }, named("NumberArg"));
-const boolArg = codecs.slots<T.BoolArg>({ 0: ["value", boolean] }, named("BoolArg"));
-const collectionArg = codecs.slots<T.CollectionArg>({ 0: ["source", collectionSource] }, named("CollectionArg"));
-const commandArg = codecs.slots<T.CommandArg>({ 0: ["command", commandRef] }, named("CommandArg"));
-const slotArg = codecs.slots<T.SlotArg>({ 0: ["nodes", list(node)] }, named("SlotArg"));
+export const textArg = codecs.slots<T.TextArg>({ 0: ["value", string] }, named("TextArg"));
+export const numberArg = codecs.slots<T.NumberArg>({ 0: ["value", float64] }, named("NumberArg"));
+export const boolArg = codecs.slots<T.BoolArg>({ 0: ["value", boolean] }, named("BoolArg"));
+export const collectionArg = codecs.slots<T.CollectionArg>({ 0: ["source", collectionSource] }, named("CollectionArg"));
+export const commandArg = codecs.slots<T.CommandArg>({ 0: ["command", commandRef] }, named("CommandArg"));
+export const slotArg = codecs.slots<T.SlotArg>({ 0: ["nodes", list(node)] }, named("SlotArg"));
 export const argValue = required(
   codecs.union<T.ArgValue>(
     "ArgValue",
@@ -435,7 +435,7 @@ export const argValue = required(
   ),
 );
 export const arg = codecs.slots<T.Arg>({ 0: ["name", string], 1: ["value", argValue] }, named("Arg"));
-const useNode = codecs.slots<T.UseNode>(
+export const useNode = codecs.slots<T.UseNode>(
   { 0: ["common", nodeCommon], 1: ["composition", compositionRef], 2: ["args", list(arg)] },
   named("UseNode"),
 );
@@ -501,7 +501,7 @@ export const compositionDocument = codecs.slots<T.CompositionDocument>(
   },
   named("CompositionDocument"),
 );
-const assetEntry = codecs.slots<T.AssetEntry>(
+export const assetEntry = codecs.slots<T.AssetEntry>(
   { 0: ["id", string], 1: ["mediaType", string], 2: ["uri", string], 3: ["width", count], 4: ["height", count] },
   named("AssetEntry"),
 );
