@@ -14,6 +14,8 @@ packages/org.gamecult.eve.surface/bin~/
 packages/org.gamecult.eve.surface/obj~/
 !packages/org.gamecult.eve.unity-uitoolkit/
 !packages/org.gamecult.eve.unity-uitoolkit/**
+!packages/GameCult.Thing.Contract/
+!packages/GameCult.Thing.Contract/**
 obj/
 artifacts/
 tools/deps/
