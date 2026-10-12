@@ -5,11 +5,11 @@
 import { segment, seq, version } from "./domain.js";
 
 export function surfaceKey(providerId: string, label: string): string {
-  return `thing:surface:${providerId}.${segment.decode(label)}`;
+  return `thing:surface:${providerId}.${segment.encode(label)}`;
 }
 
 export function compositionKey(publisher: string, name: string, versionNumber: number | bigint): string {
-  return `thing:composition:${publisher}.${segment.decode(name)}.v${version.decode(versionNumber)}`;
+  return `thing:composition:${publisher}.${segment.encode(name)}.v${version.encode(versionNumber)}`;
 }
 
 export function invocationKey(invocationId: string): string {
@@ -17,9 +17,9 @@ export function invocationKey(invocationId: string): string {
 }
 
 export function resultKey(invocationId: string, position: number): string {
-  return `thing:result:${invocationId}.${seq.decode(position)}`;
+  return `thing:result:${invocationId}.${seq.encode(position)}`;
 }
 
 export function assetCatalogKey(providerId: string, catalogId: string): string {
-  return `thing:asset_catalog:${providerId}.${segment.decode(catalogId)}`;
+  return `thing:asset_catalog:${providerId}.${segment.encode(catalogId)}`;
 }

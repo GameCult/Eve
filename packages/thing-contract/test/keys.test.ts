@@ -38,6 +38,9 @@ test("a result key refuses a seq below 1 and a composition key a version below 0
   assert.throws(() => resultKey("x", 0), /Seq must be at least 1/);
   assert.throws(() => compositionKey("pub", "card", -1), /Version must be at least 0/);
   assert.equal(compositionKey("pub", "card", 0), "thing:composition:pub.card.v0");
+  assert.throws(() => compositionKey("pub", "card", 1.5), /int64/);
+  assert.throws(() => resultKey("x", 1.5), /int32/);
+  assert.throws(() => resultKey("x", 2 ** 31), /int32/);
 });
 
 test("keys are injective over their field sets", () => {

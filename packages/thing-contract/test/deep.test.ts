@@ -37,7 +37,7 @@ const admits = (levels: number): boolean => {
 test("the deepest Box chain the bound admits round-trips on the default stack, and one more is refused", () => {
   let deepest = 1;
   while (admits(deepest + 1)) deepest++;
-  assert.equal(deepest, 84, "the bound admits 84 Box levels above the leaf");
+  assert.equal(deepest, 83, "the bound admits 83 Box levels above the text leaf, 84 nodes deep");
   assert.ok(!admits(deepest + 1));
 
   const value = chain(deepest);

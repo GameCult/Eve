@@ -27,7 +27,7 @@ export class CommandResult {
   private constructor(key: typeof door, invocationId: string, position: number, outcome: Outcome) {
     if (key !== door) throw new Error("a CommandResult is built by its factories");
     this.invocationId = invocationId;
-    this.seq = seq.decode(position);
+    this.seq = seq.encode(position);
     this.outcome = outcome;
     Object.freeze(this);
   }
