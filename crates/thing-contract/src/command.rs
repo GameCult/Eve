@@ -3,6 +3,7 @@
 
 use cultcache_rs::{CultSlots, CultUnion, DatabaseEntry};
 
+use crate::domain::Version;
 use crate::keys::{CommandId, NodeId, SchemaId, invocation_key};
 use crate::source::ParamName;
 
@@ -87,7 +88,9 @@ pub struct CapturedInput {
     pub value: InputValue,
 }
 
-/// A consumer's request that a provider run a declared command.
+/// A consumer's request that a provider run a declared command. Its fields are public, so a
+/// result's copy of `invocation_id` is a convenience and not provenance: core binds results
+/// to the invocations it issued.
 #[derive(Clone, Debug, PartialEq, DatabaseEntry)]
 #[cultcache(type = "gamecult.thing.command_invocation", schema = "gamecult.thing.command_invocation.v1")]
 pub struct CommandInvocation {
@@ -97,7 +100,7 @@ pub struct CommandInvocation {
     #[cultcache(key = 1)]
     pub surface_key: String,
     #[cultcache(key = 2)]
-    pub surface_version: i64,
+    pub surface_version: Version,
     #[cultcache(key = 3)]
     pub command: CommandId,
     #[cultcache(key = 4)]

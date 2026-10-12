@@ -3,9 +3,20 @@
 //!
 //! Every kind is a CultCache `DatabaseEntry`; every closed set is a `CultUnion` written
 //! `[armKey, [slots...]]`, the shape the C# reference reads and writes.
+//!
+//! Decoding is a door as well as the constructors: every kind keeps its public serde
+//! `Deserialize` (CultCache's `DatabaseEntry` requires it). The domains therefore live in the
+//! field types (`Seq`, `Version`, `Count`, `Segment`), whose `Deserialize` calls the same
+//! `new` the constructors call, so no door skips a check.
+//!
+//! Hazard: decoding these kinds from untrusted bytes on a default-size thread can abort the
+//! process inside CultCache's nesting bound before the bound refuses (the stack is not
+//! bounded by nesting depth). The owner is `cultlib-gaps:follow_up:decode-stack-safety`; the
+//! tests decode on a 16 MiB thread until it lands.
 
 mod asset;
 mod command;
+mod domain;
 mod keys;
 mod node;
 mod result;
@@ -14,6 +25,7 @@ mod style;
 
 pub use asset::*;
 pub use command::*;
+pub use domain::{Count, DomainError, Segment, Seq, Version};
 pub use keys::{CommandId, NodeId, ProviderId, RecordKey, SchemaId};
 pub use node::*;
 pub use result::*;

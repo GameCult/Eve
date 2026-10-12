@@ -2,6 +2,7 @@
 
 use cultcache_rs::{CultSlots, DatabaseEntry};
 
+use crate::domain::{Count, Segment, Version};
 use crate::keys::{ProviderId, asset_catalog_key};
 
 #[derive(Clone, Debug, PartialEq, CultSlots)]
@@ -13,9 +14,9 @@ pub struct AssetEntry {
     #[cultcache(key = 2)]
     pub uri: String,
     #[cultcache(key = 3)]
-    pub width: i32,
+    pub width: Count,
     #[cultcache(key = 4)]
-    pub height: i32,
+    pub height: Count,
 }
 
 #[derive(Clone, Debug, PartialEq, DatabaseEntry)]
@@ -24,9 +25,9 @@ pub struct AssetCatalog {
     #[cultcache(key = 0)]
     pub provider_id: ProviderId,
     #[cultcache(key = 1)]
-    pub catalog_id: String,
+    pub catalog_id: Segment,
     #[cultcache(key = 2)]
-    pub version: i64,
+    pub version: Version,
     #[cultcache(key = 3)]
     pub assets: Vec<AssetEntry>,
 }

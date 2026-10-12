@@ -3,6 +3,7 @@
 
 use cultcache_rs::{CultSlots, CultUnion, DatabaseEntry};
 
+use crate::domain::{Count, Segment, Version};
 use crate::command::{CommandDecl, CommandRef};
 use crate::keys::{NodeId, ProviderId, composition_key, surface_key};
 use crate::source::{Bind, BoolSource, CollectionSource, MemberPath, NumberSource, TextSource};
@@ -74,7 +75,7 @@ pub struct TextNode {
     #[cultcache(key = 3)]
     pub wrap: bool,
     #[cultcache(key = 4)]
-    pub max_lines: Option<i32>,
+    pub max_lines: Option<Count>,
     #[cultcache(key = 5)]
     pub selectable: bool,
 }
@@ -303,9 +304,9 @@ pub struct CompositionRef {
     #[cultcache(key = 0)]
     pub publisher: String,
     #[cultcache(key = 1)]
-    pub name: String,
+    pub name: Segment,
     #[cultcache(key = 2)]
-    pub version: i32,
+    pub version: Version,
 }
 
 #[derive(Clone, Debug, PartialEq, CultSlots)]
@@ -414,9 +415,9 @@ pub struct SurfaceDocument {
     #[cultcache(key = 0)]
     pub provider_id: ProviderId,
     #[cultcache(key = 1)]
-    pub label: String,
+    pub label: Segment,
     #[cultcache(key = 2)]
-    pub version: i64,
+    pub version: Version,
     #[cultcache(key = 3)]
     pub title: String,
     #[cultcache(key = 4)]
@@ -438,9 +439,9 @@ pub struct CompositionDocument {
     #[cultcache(key = 0)]
     pub publisher: String,
     #[cultcache(key = 1)]
-    pub name: String,
+    pub name: Segment,
     #[cultcache(key = 2)]
-    pub version: i32,
+    pub version: Version,
     #[cultcache(key = 3)]
     pub params: Vec<ParamDecl>,
     #[cultcache(key = 4)]

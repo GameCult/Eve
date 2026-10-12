@@ -3,6 +3,7 @@
 
 use cultcache_rs::{CultSlots, CultUnion};
 
+use crate::domain::Count;
 use crate::keys::{ProviderId, RecordKey, SchemaId};
 
 /// A composition parameter, named.
@@ -114,7 +115,7 @@ pub struct MemberName {
 #[derive(Clone, Debug, PartialEq, CultSlots)]
 pub struct MemberIndex {
     #[cultcache(key = 0)]
-    pub index: i32,
+    pub index: Count,
 }
 
 #[derive(Clone, Debug, PartialEq, CultUnion)]
@@ -132,7 +133,7 @@ pub enum Format {
 #[derive(Clone, Debug, PartialEq, CultSlots)]
 pub struct NumberFormat {
     #[cultcache(key = 0)]
-    pub precision: i32,
+    pub precision: Count,
     #[cultcache(key = 1)]
     pub percent: bool,
     #[cultcache(key = 2)]

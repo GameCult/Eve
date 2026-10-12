@@ -1,10 +1,12 @@
-//! The answer to a command invocation. A `CommandResult` is built only by its four
-//! constructors, each of which copies the invocation's id, and is read through accessors.
-//! Nothing here takes a state as a string, and nothing builds a result from a map.
+//! The answer to a command invocation. A `CommandResult` is built by its four constructors,
+//! each of which copies the invocation's id, and is read through accessors. Decoding is the
+//! other door and holds the same domain: `seq` is a `Seq`, refused below 1 whichever door
+//! it enters by. No API takes a state as a string or converts a map.
 
 use cultcache_rs::{CultSlots, CultUnion, DatabaseEntry};
 
 use crate::command::{CommandInvocation, CommandRef};
+use crate::domain::{Seq, Version};
 use crate::keys::{NodeId, result_key};
 
 #[derive(Clone, Debug, PartialEq, CultSlots)]
@@ -16,7 +18,7 @@ pub struct PendingOutcome {
 #[derive(Clone, Debug, PartialEq, CultSlots)]
 pub struct CompletedOutcome {
     #[cultcache(key = 0)]
-    pub source_version: Option<i64>,
+    pub source_version: Option<Version>,
     /// Whether the captured drafts of the invocation clear.
     #[cultcache(key = 1)]
     pub clear_drafts: bool,
@@ -73,34 +75,77 @@ pub enum Effect {
     OpenExternal(OpenExternalEffect),
 }
 
-/// A provider's answer to one invocation. `seq` counts from 1 per invocation.
+/// A provider's answer to one invocation. `seq` counts from 1 per invocation. The copied
+/// invocation id is a convenience: core binds a result to an invocation it issued.
 ///
 /// The positive case, a result built by a constructor from the invocation it answers:
 ///
 /// ```
-/// use thing_contract::{CommandInvocation, CommandResult};
+/// use thing_contract::{CommandInvocation, CommandResult, Seq};
 /// fn answer(invocation: &CommandInvocation) -> CommandResult {
-///     CommandResult::failed(invocation, 1, "refused")
+///     CommandResult::failed(invocation, Seq::FIRST, "refused")
 /// }
 /// ```
 ///
 /// A struct literal does not compile, because the fields are private:
 ///
 /// ```compile_fail,E0451
-/// use thing_contract::{CommandResult, Outcome, FailedOutcome};
+/// use thing_contract::{CommandResult, FailedOutcome, Outcome, Seq};
 /// let _ = CommandResult {
 ///     invocation_id: String::new(),
-///     seq: 1,
+///     seq: Seq::FIRST,
 ///     outcome: Outcome::Failed(FailedOutcome { reason: String::new() }),
 /// };
 /// ```
 ///
-/// Neither does assigning the outcome:
+/// Each field is read through its accessor:
+///
+/// ```
+/// use thing_contract::{CommandInvocation, CommandResult, Seq};
+/// fn read(invocation: &CommandInvocation) {
+///     let result = CommandResult::failed(invocation, Seq::FIRST, "refused");
+///     let _ = result.invocation_id();
+/// }
+/// ```
+///
+/// and assigning it does not compile:
 ///
 /// ```compile_fail,E0616
-/// use thing_contract::{CommandInvocation, CommandResult, Outcome, FailedOutcome};
+/// use thing_contract::{CommandInvocation, CommandResult, Seq};
 /// fn tamper(invocation: &CommandInvocation) {
-///     let mut result = CommandResult::failed(invocation, 1, "refused");
+///     let mut result = CommandResult::failed(invocation, Seq::FIRST, "refused");
+///     result.invocation_id = String::new();
+/// }
+/// ```
+///
+/// ```
+/// use thing_contract::{CommandInvocation, CommandResult, Seq};
+/// fn read(invocation: &CommandInvocation) {
+///     let result = CommandResult::failed(invocation, Seq::FIRST, "refused");
+///     let _ = result.seq();
+/// }
+/// ```
+///
+/// ```compile_fail,E0616
+/// use thing_contract::{CommandInvocation, CommandResult, Seq};
+/// fn tamper(invocation: &CommandInvocation) {
+///     let mut result = CommandResult::failed(invocation, Seq::FIRST, "refused");
+///     result.seq = Seq::FIRST.next();
+/// }
+/// ```
+///
+/// ```
+/// use thing_contract::{CommandInvocation, CommandResult, Seq};
+/// fn read(invocation: &CommandInvocation) {
+///     let result = CommandResult::failed(invocation, Seq::FIRST, "refused");
+///     let _ = result.outcome();
+/// }
+/// ```
+///
+/// ```compile_fail,E0616
+/// use thing_contract::{CommandInvocation, CommandResult, FailedOutcome, Outcome, Seq};
+/// fn tamper(invocation: &CommandInvocation) {
+///     let mut result = CommandResult::failed(invocation, Seq::FIRST, "refused");
 ///     result.outcome = Outcome::Failed(FailedOutcome { reason: String::new() });
 /// }
 /// ```
@@ -126,24 +171,24 @@ pub struct CommandResult {
     #[cultcache(key = 0)]
     invocation_id: String,
     #[cultcache(key = 1)]
-    seq: i32,
+    seq: Seq,
     #[cultcache(key = 2)]
     outcome: Outcome,
 }
 
 impl CommandResult {
-    fn answering(invocation: &CommandInvocation, seq: i32, outcome: Outcome) -> Self {
+    fn answering(invocation: &CommandInvocation, seq: Seq, outcome: Outcome) -> Self {
         Self { invocation_id: invocation.invocation_id.clone(), seq, outcome }
     }
 
-    pub fn pending(invocation: &CommandInvocation, seq: i32, message: impl Into<String>) -> Self {
+    pub fn pending(invocation: &CommandInvocation, seq: Seq, message: impl Into<String>) -> Self {
         Self::answering(invocation, seq, Outcome::Pending(PendingOutcome { message: message.into() }))
     }
 
     pub fn completed(
         invocation: &CommandInvocation,
-        seq: i32,
-        source_version: Option<i64>,
+        seq: Seq,
+        source_version: Option<Version>,
         clear_drafts: bool,
         effect: Option<Effect>,
     ) -> Self {
@@ -156,14 +201,14 @@ impl CommandResult {
 
     pub fn denied(
         invocation: &CommandInvocation,
-        seq: i32,
+        seq: Seq,
         reason: impl Into<String>,
         node: Option<NodeId>,
     ) -> Self {
         Self::answering(invocation, seq, Outcome::Denied(DeniedOutcome { reason: reason.into(), node }))
     }
 
-    pub fn failed(invocation: &CommandInvocation, seq: i32, reason: impl Into<String>) -> Self {
+    pub fn failed(invocation: &CommandInvocation, seq: Seq, reason: impl Into<String>) -> Self {
         Self::answering(invocation, seq, Outcome::Failed(FailedOutcome { reason: reason.into() }))
     }
 
@@ -171,7 +216,7 @@ impl CommandResult {
         &self.invocation_id
     }
 
-    pub fn seq(&self) -> i32 {
+    pub fn seq(&self) -> Seq {
         self.seq
     }
 

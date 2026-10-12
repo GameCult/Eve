@@ -2,6 +2,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use crate::domain::{Segment, Seq, Version};
+
 macro_rules! id_type {
     ($(#[$doc:meta])* $name:ident) => {
         $(#[$doc])*
@@ -42,22 +44,27 @@ id_type!(
     CommandId
 );
 
-pub(crate) fn surface_key(provider: &ProviderId, label: &str) -> String {
-    format!("thing:surface:{}.{}", provider.as_str(), label)
+// Each key joins free-string provider or publisher ids (dotted, as the Verse names them)
+// with typed trailing parts: a `Segment` holds no dot and a `Seq` or `Version` is digits. A
+// key therefore splits at its last dot (surface, asset catalog, result) or last two
+// (composition), so two different field sets never build one key.
+
+pub(crate) fn surface_key(provider: &ProviderId, label: &Segment) -> String {
+    format!("thing:surface:{}.{}", provider.as_str(), label.as_str())
 }
 
-pub(crate) fn composition_key(publisher: &str, name: &str, version: i32) -> String {
-    format!("thing:composition:{publisher}.{name}.v{version}")
+pub(crate) fn composition_key(publisher: &str, name: &Segment, version: Version) -> String {
+    format!("thing:composition:{publisher}.{}.v{}", name.as_str(), version.get())
 }
 
 pub(crate) fn invocation_key(invocation_id: &str) -> String {
     format!("thing:invocation:{invocation_id}")
 }
 
-pub(crate) fn result_key(invocation_id: &str, seq: i32) -> String {
-    format!("thing:result:{invocation_id}.{seq}")
+pub(crate) fn result_key(invocation_id: &str, seq: Seq) -> String {
+    format!("thing:result:{invocation_id}.{}", seq.get())
 }
 
-pub(crate) fn asset_catalog_key(provider: &ProviderId, catalog_id: &str) -> String {
-    format!("thing:assets:{}.{}", provider.as_str(), catalog_id)
+pub(crate) fn asset_catalog_key(provider: &ProviderId, catalog_id: &Segment) -> String {
+    format!("thing:asset_catalog:{}.{}", provider.as_str(), catalog_id.as_str())
 }

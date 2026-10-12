@@ -5,6 +5,22 @@
 
 use thing_contract::*;
 
+pub fn seq(value: i32) -> Seq {
+    Seq::new(value).unwrap()
+}
+
+pub fn ver(value: i64) -> Version {
+    Version::new(value).unwrap()
+}
+
+pub fn count(value: i32) -> Count {
+    Count::new(value).unwrap()
+}
+
+pub fn seg(value: &str) -> Segment {
+    Segment::new(value).unwrap()
+}
+
 pub fn nid(id: &str) -> NodeId {
     NodeId::new(id)
 }
@@ -114,7 +130,7 @@ pub fn invocation() -> CommandInvocation {
     CommandInvocation {
         invocation_id: "3f2b8c1e-5d44-4a6b-9a07-1c2d3e4f5a6b".into(),
         surface_key: "thing:surface:provider.a.main".into(),
-        surface_version: 7,
+        surface_version: ver(7),
         command: CommandId::new("go"),
         payload: RecordPayload { schema: SchemaId::new("gamecult.thing.test.go.v1"), bytes: vec![0x91, 0x01, 0xff, 0x00] },
         captured: vec![

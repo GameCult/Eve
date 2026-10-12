@@ -45,12 +45,12 @@ fn golden<T: DatabaseEntry + PartialEq + Debug>(name: &str, value: &T) -> String
 }
 
 fn bind_all_formats() -> Vec<Bind> {
-    let number = Format::Number(NumberFormat { precision: 2, percent: true, unit: Some("ms".into()) });
+    let number = Format::Number(NumberFormat { precision: count(2), percent: true, unit: Some("ms".into()) });
     let affix = Format::Affix(AffixFormat { prefix: "$".into(), suffix: "/s".into() });
     let indexed = MemberPath {
         steps: vec![
             MemberStep::Name(MemberName { name: "items".into() }),
-            MemberStep::Index(MemberIndex { index: 3 }),
+            MemberStep::Index(MemberIndex { index: count(3) }),
         ],
     };
     vec![
@@ -111,7 +111,7 @@ fn full_surface() -> SurfaceDocument {
             content: TextSource::Bound(item_bind(path(&["name"]))),
             style_token: "body".into(),
             wrap: false,
-            max_lines: Some(2),
+            max_lines: Some(count(2)),
             selectable: true,
         })),
     });
@@ -154,6 +154,14 @@ fn full_surface() -> SurfaceDocument {
             placeholder: lit_text("name"),
             initial: TextSource::Param(param("initial")),
             submit: command("rename"),
+        }),
+        Node::TextInput(TextInputNode {
+            common: common("title-input"),
+            multiline: false,
+            kind: InputKind::Text,
+            placeholder: lit_text("title"),
+            initial: TextSource::Param(param("initial")),
+            submit: command("retitle"),
         }),
         Node::Select(SelectNode {
             common: common("pick"),
@@ -206,7 +214,7 @@ fn full_surface() -> SurfaceDocument {
         }),
         Node::Use(UseNode {
             common: common("kv"),
-            composition: CompositionRef { publisher: "thing.std".into(), name: "key-value".into(), version: 1 },
+            composition: CompositionRef { publisher: "thing.std".into(), name: seg("key-value"), version: ver(1) },
             args: vec![Arg { name: "key".into(), value: ArgValue::Text(TextArg { value: "k".into() }) }],
         }),
     ];
@@ -318,8 +326,8 @@ fn full_surface() -> SurfaceDocument {
 
     SurfaceDocument {
         provider_id: ProviderId::new("provider.a"),
-        label: "main".into(),
-        version: 7,
+        label: seg("main"),
+        version: ver(7),
         title: "All arms".into(),
         root: boxed("root", children),
         commands: vec![
@@ -357,13 +365,13 @@ fn full_composition() -> CompositionDocument {
     ];
     let inner_use = Node::Use(UseNode {
         common: common("inner"),
-        composition: CompositionRef { publisher: "thing.std".into(), name: "card".into(), version: 2 },
+        composition: CompositionRef { publisher: "thing.std".into(), name: seg("card"), version: ver(2) },
         args,
     });
     CompositionDocument {
         publisher: "provider.a".into(),
-        name: "panel".into(),
-        version: 3,
+        name: seg("panel"),
+        version: ver(3),
         params: [
             ("title", ParamKind::Text),
             ("count", ParamKind::Number),
@@ -382,13 +390,13 @@ fn full_composition() -> CompositionDocument {
 
 fn results(invocation: &CommandInvocation) -> Vec<(&'static str, CommandResult)> {
     vec![
-        ("result-pending", CommandResult::pending(invocation, 1, "working")),
-        ("result-completed", CommandResult::completed(invocation, 2, Some(8), true, None)),
+        ("result-pending", CommandResult::pending(invocation, seq(1), "working")),
+        ("result-completed", CommandResult::completed(invocation, seq(2), Some(ver(8)), true, None)),
         (
             "result-completed-open-surface",
             CommandResult::completed(
                 invocation,
-                3,
+                seq(3),
                 None,
                 false,
                 Some(Effect::OpenSurface(OpenSurfaceEffect { key: "thing:surface:provider.a.next".into() })),
@@ -398,8 +406,8 @@ fn results(invocation: &CommandInvocation) -> Vec<(&'static str, CommandResult)>
             "result-completed-open-external",
             CommandResult::completed(
                 invocation,
-                4,
-                Some(9),
+                seq(4),
+                Some(ver(9)),
                 true,
                 Some(Effect::OpenExternal(OpenExternalEffect {
                     url: "https://example.test/auth".into(),
@@ -407,20 +415,20 @@ fn results(invocation: &CommandInvocation) -> Vec<(&'static str, CommandResult)>
                 })),
             ),
         ),
-        ("result-denied", CommandResult::denied(invocation, 5, "not yours", Some(nid("go")))),
-        ("result-denied-no-node", CommandResult::denied(invocation, 6, "not allowed", None)),
-        ("result-failed", CommandResult::failed(invocation, 7, "broke")),
+        ("result-denied", CommandResult::denied(invocation, seq(5), "not yours", Some(nid("go")))),
+        ("result-denied-no-node", CommandResult::denied(invocation, seq(6), "not allowed", None)),
+        ("result-failed", CommandResult::failed(invocation, seq(7), "broke")),
     ]
 }
 
 fn asset_catalog() -> AssetCatalog {
     AssetCatalog {
         provider_id: ProviderId::new("provider.a"),
-        catalog_id: "icons".into(),
-        version: 2,
+        catalog_id: seg("icons"),
+        version: ver(2),
         assets: vec![
-            AssetEntry { id: "gear".into(), media_type: "image/png".into(), uri: "assets/gear.png".into(), width: 32, height: 32 },
-            AssetEntry { id: "bolt".into(), media_type: "image/svg+xml".into(), uri: "assets/bolt.svg".into(), width: 0, height: 0 },
+            AssetEntry { id: "gear".into(), media_type: "image/png".into(), uri: "assets/gear.png".into(), width: count(32), height: count(32) },
+            AssetEntry { id: "bolt".into(), media_type: "image/svg+xml".into(), uri: "assets/bolt.svg".into(), width: count(0), height: count(0) },
         ],
     }
 }
@@ -434,7 +442,7 @@ fn write_store(path: &std::path::Path) {
     let surface = full_surface();
     let composition = full_composition();
     let invocation = invocation();
-    let result = CommandResult::pending(&invocation, 1, "working");
+    let result = CommandResult::pending(&invocation, seq(1), "working");
     let catalog = asset_catalog();
     put(&mut cache, &surface.record_key(), &surface);
     put(&mut cache, &composition.record_key(), &composition);
@@ -505,7 +513,7 @@ fn goldens_match() {
     let composition = full_composition();
     assert_eq!(cache.get::<CompositionDocument>(&composition.record_key()).unwrap(), Some(composition));
     assert_eq!(cache.get::<CommandInvocation>(&invocation.record_key()).unwrap(), Some(invocation.clone()));
-    let result = CommandResult::pending(&invocation, 1, "working");
+    let result = CommandResult::pending(&invocation, seq(1), "working");
     assert_eq!(cache.get::<CommandResult>(&result.record_key()).unwrap(), Some(result));
     let catalog = asset_catalog();
     assert_eq!(cache.get::<AssetCatalog>(&catalog.record_key()).unwrap(), Some(catalog));
@@ -541,6 +549,8 @@ fn refusal_payloads() -> Vec<(&'static str, Vec<u8>)> {
         },
     };
     let unit: [u8; 0] = [];
+    let pending = Outcome::Pending(PendingOutcome { message: CANARY.into() });
+    let root = text("root", "x");
     vec![
         ("result-thing1-flat", rmp_serde::to_vec_named(&flat).unwrap()),
         // A surface whose root is an arm key the Node union does not declare.
@@ -555,8 +565,26 @@ fn refusal_payloads() -> Vec<(&'static str, Vec<u8>)> {
             "result-extra-slot",
             rmp_serde::to_vec(&("inv-1", 1i32, (0i32, ("working",)), CANARY)).unwrap(),
         ),
-        // A result without its outcome.
-        ("result-missing-slot", rmp_serde::to_vec(&("inv-1", 1i32)).unwrap()),
+        // Each domain refusal is a tuple of real values with one slot out of domain.
+        // A result at seq 0.
+        ("result-seq-zero", rmp_serde::to_vec(&("inv-1", 0i32, &pending)).unwrap()),
+        // A surface at version -1.
+        (
+            "surface-version-negative",
+            rmp_serde::to_vec(&("provider.a", "main", -1i64, CANARY, &root, unit)).unwrap(),
+        ),
+        // A surface whose label holds a dot, so its key would be ambiguous.
+        (
+            "surface-label-dotted",
+            rmp_serde::to_vec(&("provider.a", "b.c", 1i64, CANARY, &root, unit)).unwrap(),
+        ),
+        // An asset whose width is negative.
+        (
+            "asset-extent-negative",
+            rmp_serde::to_vec(&("provider.a", "icons", 1i64, [("gear", "image/png", CANARY, -5i32, 32i32)])).unwrap(),
+        ),
+        // A colour channel past the u8 leaf.
+        ("rgba-channel-out-of-range", rmp_serde::to_vec(&(256i32, 0i32, 0i32, 255i32)).unwrap()),
     ]
 }
 
@@ -565,19 +593,28 @@ fn refusal_cases() {
     let payloads: std::collections::BTreeMap<_, _> = refusal_payloads().into_iter().collect();
     let committed = |name: &str| golden_bytes(&format!("{name}.bin"), &payloads[name]);
 
-    let cases: [(&str, &str, &str); 3] = [
+    // Stored under their key, each is refused naming the kind and the key, never a value.
+    let cases: [(&str, &str, &str); 7] = [
         ("result-thing1-flat", "gamecult.thing.command_result", "thing:result:inv-1.1"),
         ("node-unknown-arm", "gamecult.thing.surface", "thing:surface:provider.a.main"),
         ("outcome-unknown-arm", "gamecult.thing.command_result", "thing:result:inv-1.1"),
+        ("result-seq-zero", "gamecult.thing.command_result", "thing:result:inv-1.0"),
+        ("surface-version-negative", "gamecult.thing.surface", "thing:surface:provider.a.main"),
+        ("surface-label-dotted", "gamecult.thing.surface", "thing:surface:provider.a.b.c"),
+        ("asset-extent-negative", "gamecult.thing.asset_catalog", "thing:asset_catalog:provider.a.icons"),
     ];
     for (name, kind, key) in cases {
         let mut cache = CultCache::new();
         ThingContract.register_entries(&mut cache).unwrap();
         let bytes = committed(name);
-        let error = if kind == "gamecult.thing.surface" {
-            cache.put_envelope::<SurfaceDocument>(envelope::<SurfaceDocument>(key, bytes)).unwrap_err()
-        } else {
-            cache.put_envelope::<CommandResult>(envelope::<CommandResult>(key, bytes)).unwrap_err()
+        let error = match kind {
+            "gamecult.thing.surface" => {
+                cache.put_envelope::<SurfaceDocument>(envelope::<SurfaceDocument>(key, bytes)).unwrap_err()
+            }
+            "gamecult.thing.asset_catalog" => {
+                cache.put_envelope::<AssetCatalog>(envelope::<AssetCatalog>(key, bytes)).unwrap_err()
+            }
+            _ => cache.put_envelope::<CommandResult>(envelope::<CommandResult>(key, bytes)).unwrap_err(),
         };
         let message = format!("{error:#}");
         assert!(message.contains(kind), "{name}: the error names the kind: {message}");
@@ -597,26 +634,40 @@ fn refusal_cases() {
         assert!(!message.contains(CANARY), "{name}: {message}");
     }
 
-    // An extra trailing slot is read (CultLib's extra-trailing-slots ruling); a missing slot is not.
+    // Decoded directly, a domain refusal names the domain and never the payload.
+    for (name, domain) in [
+        ("result-seq-zero", "Seq"),
+        ("surface-version-negative", "Version"),
+        ("surface-label-dotted", "Segment"),
+        ("asset-extent-negative", "Count"),
+    ] {
+        let bytes = committed(name);
+        let message = match name {
+            "result-seq-zero" => rmp_serde::from_slice::<CommandResult>(&bytes).unwrap_err().to_string(),
+            "asset-extent-negative" => rmp_serde::from_slice::<AssetCatalog>(&bytes).unwrap_err().to_string(),
+            _ => rmp_serde::from_slice::<SurfaceDocument>(&bytes).unwrap_err().to_string(),
+        };
+        assert!(message.contains(domain), "{name}: {message}");
+        assert!(!message.contains(CANARY), "{name}: {message}");
+    }
+
+    // The u8 leaf refuses a channel past 255 when decoded as an Rgba.
+    let rgba = rmp_serde::from_slice::<Rgba>(&committed("rgba-channel-out-of-range")).unwrap_err();
+    assert!(!rgba.to_string().contains(CANARY));
+
+    // An extra trailing slot is read (CultLib's extra-trailing-slots ruling: read, never written
+    // back). Whether a missing slot is refused is CultLib's rule, so no golden asserts it.
     let mut answered = invocation();
     answered.invocation_id = "inv-1".into();
     let extra: CommandResult = rmp_serde::from_slice(&committed("result-extra-slot")).unwrap();
-    assert_eq!(extra, CommandResult::pending(&answered, 1, "working"));
-    let missing = rmp_serde::from_slice::<CommandResult>(&committed("result-missing-slot")).unwrap_err();
-    println!("missing slot: {missing}");
-    let mut cache = CultCache::new();
-    ThingContract.register_entries(&mut cache).unwrap();
-    let missing = cache
-        .put_envelope::<CommandResult>(envelope::<CommandResult>("thing:result:inv-1.1", committed("result-missing-slot")))
-        .unwrap_err();
-    let message = format!("{missing:#}");
-    assert!(message.contains("gamecult.thing.command_result") && message.contains("thing:result:inv-1.1"), "{message}");
+    assert_eq!(extra, CommandResult::pending(&answered, seq(1), "working"));
 }
 
 #[test]
 fn deep_tree() {
     // Decoding a Node costs tens of KiB of debug stack per nesting level, so the chain runs on a
-    // thread that has the room; the 2 MiB default does not.
+    // thread that has the room; the 2 MiB default does not. The hazard is CultCache's, owned by
+    // cultlib-gaps:follow_up:decode-stack-safety; the test stays on the big thread until it lands.
     std::thread::Builder::new().stack_size(16 * 1024 * 1024).spawn(deep_tree_body).unwrap().join().unwrap();
 }
 
@@ -628,8 +679,8 @@ fn deep_tree_body() {
     }
     let deep = SurfaceDocument {
         provider_id: ProviderId::new("provider.a"),
-        label: "deep".into(),
-        version: 1,
+        label: seg("deep"),
+        version: ver(1),
         title: "deep".into(),
         root: chain,
         commands: vec![],
@@ -639,8 +690,8 @@ fn deep_tree_body() {
     wide_children.push(boxed("tail", vec![]));
     let wide = SurfaceDocument {
         provider_id: ProviderId::new("provider.a"),
-        label: "wide".into(),
-        version: 1,
+        label: seg("wide"),
+        version: ver(1),
         title: "wide".into(),
         root: boxed("root", wide_children),
         commands: vec![],
