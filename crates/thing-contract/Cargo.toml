@@ -1,0 +1,14 @@
+[package]
+name = "thing-contract"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+publish = false
+
+[dependencies]
+anyhow = { workspace = true }
+cultcache-rs = { workspace = true }
+serde = { workspace = true }
+
+[dev-dependencies]
+rmp-serde = { workspace = true }

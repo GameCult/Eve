@@ -1,0 +1,9 @@
+[workspace]
+members = ["crates/*"]
+resolver = "2"
+
+[workspace.dependencies]
+anyhow = "1"
+cultcache-rs = { git = "https://github.com/GameCult/CultLib.git", rev = "b3bd8dd5e5b208b2012392e9c5d6dfee2441aaa7", package = "cultcache-rs" }
+serde = { version = "1", features = ["derive"] }
+rmp-serde = "1.3"

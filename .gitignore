@@ -25,3 +25,4 @@ flutter/eve_parity/assets/repixelizer/
 *.deb
 *.ipa
 *.dSYM/
+/target
