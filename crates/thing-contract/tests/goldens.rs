@@ -565,12 +565,12 @@ fn refusal_cases() {
     let payloads: std::collections::BTreeMap<_, _> = refusal_payloads().into_iter().collect();
     let committed = |name: &str| golden_bytes(&format!("{name}.bin"), &payloads[name]);
 
-    let cases: [(&str, &str, &str, &str); 3] = [
-        ("result-thing1-flat", "gamecult.thing.command_result", "thing:result:inv-1.1", "CommandResult"),
-        ("node-unknown-arm", "gamecult.thing.surface", "thing:surface:provider.a.main", "Node"),
-        ("outcome-unknown-arm", "gamecult.thing.command_result", "thing:result:inv-1.1", "Outcome"),
+    let cases: [(&str, &str, &str); 3] = [
+        ("result-thing1-flat", "gamecult.thing.command_result", "thing:result:inv-1.1"),
+        ("node-unknown-arm", "gamecult.thing.surface", "thing:surface:provider.a.main"),
+        ("outcome-unknown-arm", "gamecult.thing.command_result", "thing:result:inv-1.1"),
     ];
-    for (name, kind, key, union) in cases {
+    for (name, kind, key) in cases {
         let mut cache = CultCache::new();
         ThingContract.register_entries(&mut cache).unwrap();
         let bytes = committed(name);
@@ -582,25 +582,45 @@ fn refusal_cases() {
         let message = format!("{error:#}");
         assert!(message.contains(kind), "{name}: the error names the kind: {message}");
         assert!(message.contains(key), "{name}: the error names the record key: {message}");
-        assert!(message.contains(union) || name == "result-thing1-flat", "{name}: {message}");
         assert!(!message.contains(CANARY), "{name}: the error echoed a value: {message}");
     }
 
-    // The unknown arm key is named; the payload never is.
+    // Decoded directly, the refusal names the union and the arm key, and never the payload.
+    for (name, union, key) in [("node-unknown-arm", "Node", "13"), ("outcome-unknown-arm", "Outcome", "4")] {
+        let bytes = committed(name);
+        let message = if union == "Node" {
+            rmp_serde::from_slice::<SurfaceDocument>(&bytes).unwrap_err().to_string()
+        } else {
+            rmp_serde::from_slice::<CommandResult>(&bytes).unwrap_err().to_string()
+        };
+        assert!(message.contains(union) && message.contains(key), "{name}: {message}");
+        assert!(!message.contains(CANARY), "{name}: {message}");
+    }
+
+    // An extra trailing slot is read (CultLib's extra-trailing-slots ruling); a missing slot is not.
+    let mut answered = invocation();
+    answered.invocation_id = "inv-1".into();
+    let extra: CommandResult = rmp_serde::from_slice(&committed("result-extra-slot")).unwrap();
+    assert_eq!(extra, CommandResult::pending(&answered, 1, "working"));
+    let missing = rmp_serde::from_slice::<CommandResult>(&committed("result-missing-slot")).unwrap_err();
+    println!("missing slot: {missing}");
     let mut cache = CultCache::new();
     ThingContract.register_entries(&mut cache).unwrap();
-    let node = cache
-        .put_envelope::<SurfaceDocument>(envelope::<SurfaceDocument>("k", committed("node-unknown-arm")))
+    let missing = cache
+        .put_envelope::<CommandResult>(envelope::<CommandResult>("thing:result:inv-1.1", committed("result-missing-slot")))
         .unwrap_err();
-    assert!(format!("{node:#}").contains("13"), "{node:#}");
-    let outcome = cache
-        .put_envelope::<CommandResult>(envelope::<CommandResult>("k", committed("outcome-unknown-arm")))
-        .unwrap_err();
-    assert!(format!("{outcome:#}").contains('4'), "{outcome:#}");
+    let message = format!("{missing:#}");
+    assert!(message.contains("gamecult.thing.command_result") && message.contains("thing:result:inv-1.1"), "{message}");
 }
 
 #[test]
 fn deep_tree() {
+    // Decoding a Node costs tens of KiB of debug stack per nesting level, so the chain runs on a
+    // thread that has the room; the 2 MiB default does not.
+    std::thread::Builder::new().stack_size(16 * 1024 * 1024).spawn(deep_tree_body).unwrap().join().unwrap();
+}
+
+fn deep_tree_body() {
     // A 64-deep Box chain.
     let mut chain = text("leaf", "bottom");
     for depth in (0..64).rev() {
