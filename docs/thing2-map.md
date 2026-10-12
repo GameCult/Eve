@@ -22,7 +22,7 @@ restate their options. Research for the forks:
 
 ## Body facts
 
-Probes P1-P16 ran 2026-10-10, P17-P19 2026-10-12, against `origin/<default>` after `git fetch` unless a
+Probes P1-P16 ran 2026-10-10, P17-P22 2026-10-12, against `origin/<default>` after `git fetch` unless a
 local path is named. Scripts are in the session scratchpad
 `imagination-thing2-contract/`.
 
@@ -205,6 +205,75 @@ Thing 1 surface ids repeat the provider as a prefix (`voidbot.swarm.surface`,
 records are rebuilt, not read (`thing:ruling:operator-compat-rebuild`), so the
 Thing 2.0 key grammar strands nothing. Probe evidence of the collision itself:
 Soul's `soul-thing2-contract-rs/rust1.log` KEY lines.
+
+**P20. In C#, the constructor MessagePack calls is the one door, and the decode
+recursion fits a default thread inside the bound.** Probe
+`imagination-contract-cs-ts/` (throwaway commit `e5030d3b` on CultLib
+`b3bd8dd5`, Yggdrasil, image dotnet sdk 10.0, MessagePack 3.1.7, Debug and
+Release, log `cs2.log`). A `[MessagePackObject]` class with get-only `[Key]`
+properties and one constructor taking the keys in slot order, throwing on
+`seq < 1`:
+- public constructor: `CultDocumentRegistry` accepts it; `result-pending.bin`
+  decodes through `CultDocumentMessagePackSerialization` and re-encodes
+  identical; `result-seq-zero.bin` is refused by the constructor through
+  `DeserializeUntyped`, through `MessagePackSerializerOptions.Standard`, and
+  through `System.Text.Json` (which calls the same constructor); no message
+  holds the golden's canary.
+- private constructor with `[SerializationConstructor]` under
+  `[MessagePackObject(AllowPrivate = true)]`: the same results, the registry
+  accepts it, reflection finds no public constructor and no public setter, and
+  `System.Text.Json` refuses the type (`NotSupportedException`).
+- internal constructor without `AllowPrivate`: the registry refuses the type
+  ("no constructor MessagePack can call"), and `CultDocumentRegistry.Shared`
+  then refuses every type in the assembly, so one bad type breaks the package.
+- `outcome-unknown-arm.bin` is refused through `CultDocumentMessagePackSerialization`
+  (`CultUnionGuard`: "Union ... has no arm for key 4"), but decodes with a null
+  outcome through `MessagePackSerializerOptions.Standard`: the guard lives only
+  in CultLib's options, so a package decodes only through them.
+- Stack: a Box-shaped recursive union (3 containers per level) reaches the
+  256 bound at 84 levels. Decoding recurses per level: depth 10 decodes on a
+  64 KiB thread, depth 84 needs 256 KiB in Debug and 128 KiB in Release, and an
+  overflow aborts the process (rc 134). .NET's 1 MiB default thread holds the
+  deepest admitted payload with at least 4x margin, so C# carries no part of
+  `cultlib-gaps:follow_up:decode-stack-safety`.
+
+**P21. In TypeScript, cultcache-ts runs a document's codec and schema on both
+doors, and its recursion fits the default stack.** Same probe commit, image
+kotlin (Node 24.21.0), log `ts2.log`. cultcache-ts at `b3bd8dd5` (0.14.0) has
+`slots`, `union`, `list`, `lazy`, `unit` and the 256 payload bound;
+`decodeDocumentPayload` runs the codec then `schema.parse`, and
+`encodeDocumentPayload` runs `schema.parse` then the codec
+(`src/document.ts`). A `seq` codec delegating to `int32` with a `>= 1` check,
+and a `CommandResult` class with a `#brand` private field, a private
+constructor, a codec wrapping its slot codec that mints an instance on decode,
+and a `schema.parse` that refuses anything without the brand:
+- `result-pending.bin` decodes to an instance and re-encodes identical;
+  `result-seq-zero.bin` is refused ("seq (slot 1): Seq must be at least 1");
+  `outcome-unknown-arm.bin` is refused ("Union Outcome: unknown arm key 4");
+  `result-extra-slot.bin` reads as seq 1; no message holds the canary.
+- `structuredClone`, spread and `JSON.parse` of an instance lose the brand,
+  and encoding any of them, or an object literal with seq 0, is refused; the
+  factory with seq 0 throws.
+- `tsc` (strict, NodeNext, ESM importing the CommonJS cultcache-ts) passes
+  with `@ts-expect-error` on an object literal and a spread typed
+  `CommandResult`, on `new CommandResult(...)`, and on assigning `seq`;
+  `structuredClone(result)` and `JSON.parse` still type as `CommandResult`, so
+  the runtime brand check is the guard there.
+- Stack: the same chain reaches the bound at 84 levels. Depth 84 decodes with
+  `--stack-size` 200 and the default 984; at 60 to 120 the codec throws (a
+  `RangeError`, wrapped by the codec into its own refusal), never aborting.
+
+**P22. Packaging around the two packages.** Eve `6ae2da0`: `.gitignore`
+ignores `packages/*` with one `!` pair per package (lines 2-16), so a new
+package directory is invisible to git until it gets its pair, and global
+`obj/` (line 17) is where the Thing 1 test project keeps its output
+(`BaseOutputPath obj\bin\`). `GameCult.Eve.Surface.csproj` reads CultLib from
+`CultLibRoot`, defaulting to the sibling checkout `..\..\..\CultLib`.
+`npm view @gamecult/cultcache-ts` answers 404: cultcache-ts is on no registry,
+and the consumers that use it (Heimdall, StreamPixels) take it as
+`file:vendor/CultLib/packages/cultcache-ts` from a submodule. No file outside
+`crates/` and `docs/` names `thing-contract` or `GameCult.Thing.Contract` at
+`6ae2da0` except `Cargo.lock`.
 
 ## The model page
 
@@ -413,19 +482,29 @@ code fails it.
    consumers' languages: Rust, JS/TS, C#). The first proof (P9) was run: a
    Rust-written recursive union does not decode in the C# reference, nor the
    reverse (P12), and TS decodes only what a hand-written codec says (P13). The
-   contract waits on CultLib's union parity
-   (`thing2:follow_up:cultcache-union-parity`). Three cuts: `contract-rs`, then
+   contract waited on CultLib's union parity
+   (`thing2:follow_up:cultcache-union-parity`), which is on CultLib main by
+   `b3bd8dd5` (P20, P21) and unreleased. Three cuts: `contract-rs`, then
    `contract-ts` and `contract-cs`. The published schema of each kind is its
    CultCache catalog entry, identical in the three packages; no JSON Schema
    files are written, because Thing 2.0 has no JSON reader of these kinds (the
    browser reads them through core, not `ajv`). Python and Kotlin packages
    follow as their own deliverables.
-   `contract-rs` attempt 1 landed on `hands/thing2-contract-rs` (`649844aa`);
-   Soul's `thing2:verdict:cut-contract-rs.s1` returned seven findings. Its fix
-   batch is `thing2:cut_spec:cut-contract-rs.r2`. Waiting, one line each:
-   - `contract-ts`, `contract-cs`: their r1 specs predate r2's domain types,
-     key grammar and refusal goldens, and are refreshed when the frontier
-     reaches them.
+   `contract-rs` landed on Eve main (`6ae2da0`) after two Soul passes
+   (`thing2:verdict:cut-contract-rs.s1`, `.s2`). The siblings are mapped
+   against `6ae2da0` and run side by side, touching only their own package and
+   one `.gitignore` insertion each, at separate anchors:
+   `thing2:cut_spec:cut-contract-cs.r2` and `thing2:cut_spec:cut-contract-ts.r2`.
+   Waiting, one line each:
+   - Cross-runtime store check, after both siblings land: the C# package opens
+     a store the TS package wrote and the reverse, which proves the catalog
+     type names (`GameCult.Thing.Contract.<RustName>`) agree; neither sibling
+     can prove it alone.
+   - Publication: when `cultlib-gaps:cut_spec:cut-union-parity-release.r3`
+     publishes cultcache-ts, the TS package's dependency moves from the sibling
+     `file:` path to the published version, and both packages get a release
+     line. Until then both read CultLib from the sibling checkout at the Cargo
+     rev (P22).
    - CultLib pin bump: when `cultlib-gaps:follow_up:decode-stack-safety` lands,
      move the pin and run `deep_tree` on the default thread (its 16 MiB thread
      goes); the crate docs' hazard note goes with it.
@@ -505,6 +584,23 @@ have no live consumer and are parked until one appears.
   instead impose a grammar on ids the contract does not own. Listing a
   provider's records filters on the record's provider field, not a key prefix,
   because a dotted provider is a prefix of a longer one.
+- **Why each sibling holds its domains where its decoder constructs.** The
+  rule from contract-rs is that a domain is checked on every door by one owner.
+  C# has no newtype that keeps the leaf's bytes without a custom formatter,
+  which CultLib owns, but MessagePack, System.Text.Json and code all build a
+  C# value through the one constructor that takes the slots (P20), so that
+  constructor, calling `ThingDomain`, is the door. cultcache-ts runs each
+  slot's codec on encode and decode (P21), so a domain codec over the plain
+  leaf is the door there, the same shape as Rust's newtype `Deserialize`.
+  `CommandResult` is closed differently in each language: a private
+  constructor under `AllowPrivate` in C#, a `#brand` field checked by the
+  document's `schema.parse` in TS, because TypeScript's structural types let
+  any object with the right fields pass as a class with only public members.
+- **Why the siblings read CultLib from a sibling checkout, not a submodule.**
+  The C# package already reads CultLib that way (`CultLibRoot`), cultcache-ts
+  is on no registry yet (P22), and the Rust crate pins the same commit by
+  Cargo rev. A submodule would be a third pin to keep equal to the Cargo rev;
+  publication replaces the `file:` path instead.
 - **Why contract-rs merges before CultLib's stack fix.** The overflow is the
   decode door's (`cultlib-gaps:follow_up:decode-stack-safety`) and every Rust
   reader of these kinds inherits it whether or not the contract merges. The
