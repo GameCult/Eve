@@ -1,7 +1,7 @@
 // The answer to a command invocation. A CommandResult is built by its four factories, each of which copies the
 // invocation's id, and by the command_result document codec when it decodes. Decoding is the other door and holds the
 // same domain: `seq` is refused below 1 whichever door it enters by. No export takes a state as a string or converts a
-// plain object: an object literal, a spread, structuredClone or JSON.parse output is not a result, and encoding one is
+// plain object: an object literal, a spread, structuredClone copy or parsed JSON is not a result, and encoding one is
 // refused (schema.parse in documents.ts).
 //
 // The copied invocation id is a convenience and not provenance: core binds a result to an invocation it issued.
@@ -13,7 +13,7 @@ import { seq } from "./domain.js";
 import type { CommandInvocation, Effect, NodeId, Outcome } from "./types.js";
 
 // The one constructor call. The class's static block sets `mint`; the factories and the codec below use it; it is not
-// exported. The constructor refuses any call that does not carry `door`, so a script that reaches the constructor at run
+// exported. The constructor refuses a call that does not carry `door`, so a script that reaches the constructor at run
 // time (the TypeScript `private` is compile-time only) builds nothing, and it holds the seq domain for every door.
 const door: unique symbol = Symbol("CommandResult.door");
 let mint: (invocationId: string, position: number, outcome: Outcome) => CommandResult;
@@ -58,7 +58,7 @@ export class CommandResult {
     return mint(invocation.invocationId, position, { kind: "Failed", reason });
   }
 
-  /** True for an instance a factory or the codec made; false for any other value, whatever its shape or prototype. */
+  /** True for an instance a factory or the codec made; false for every other value, whatever its shape or prototype. */
   static isResult(value: unknown): value is CommandResult {
     return typeof value === "object" && value !== null && #brand in value;
   }
