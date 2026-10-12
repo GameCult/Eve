@@ -9,6 +9,7 @@ publish = false
 anyhow = { workspace = true }
 cultcache-rs = { workspace = true }
 serde = { workspace = true }
+serde_bytes = "0.11"
 
 [dev-dependencies]
 rmp-serde = { workspace = true }

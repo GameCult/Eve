@@ -377,6 +377,7 @@ dependencies = [
  "cultcache-rs",
  "rmp-serde",
  "serde",
+ "serde_bytes",
 ]
 
 [[package]]
