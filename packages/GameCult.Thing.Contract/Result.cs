@@ -97,7 +97,7 @@ public sealed class OpenExternalEffect : Effect
 /// <summary>
 /// A provider's answer to one invocation. Results are built by the four factories and nothing else: the constructor is
 /// private (MessagePack calls it on decode, and it holds the same <see cref="ThingDomain.Seq"/> bound), and no API takes a
-/// state as a string or an object payload. <c>Seq</c> counts from 1 per invocation. The copied invocation id is a
+/// state as free text or as an untyped value. <c>Seq</c> counts from 1 per invocation. The copied invocation id is a
 /// convenience: core binds a result to an invocation it issued, so the copy is not provenance.
 /// </summary>
 [CultDocument("gamecult.thing.command_result", "gamecult.thing.command_result.v1")]

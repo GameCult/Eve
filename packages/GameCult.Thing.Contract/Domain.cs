@@ -37,7 +37,7 @@ public static class ThingDomain
 
     public static int? Count(int? value) => value.HasValue ? Count(value.Value) : null;
 
-    /// <summary>A name the contract joins into a record key: non-empty, no '.'.</summary>
+    /// <summary>A name the contract joins into a key: non-empty, no '.'.</summary>
     public static string Segment(string value) =>
         string.IsNullOrEmpty(value) ? throw new ThingDomainException("Segment", "non-empty")
         : value.IndexOf('.') >= 0 ? throw new ThingDomainException("Segment", "free of '.'")
