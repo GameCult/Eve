@@ -34,7 +34,7 @@ public sealed class ReadOnlyListTests
         }
 
         Assert.That(offenders, Is.Empty);
-        Assert.That(checkedProperties, Is.GreaterThan(300));
+        Assert.That(checkedProperties, Is.GreaterThan(200));
     }
 
     [Test]

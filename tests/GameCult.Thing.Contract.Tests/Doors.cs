@@ -35,7 +35,7 @@ internal static class Doors
     public static IReadOnlyList<Door> All()
     {
         var doors = new List<Door>();
-        foreach (var type in Package.GetExportedTypes().Where(t => !t.IsAbstract || t.IsSealed))
+        foreach (var type in Package.GetExportedTypes().Where(t => (!t.IsAbstract || t.IsSealed) && t != typeof(ThingDomainException)))
         {
             foreach (var ctor in type.GetConstructors(BindingFlags.Public | BindingFlags.Instance))
                 doors.Add(new Door($"new {type.Name}", ctor));

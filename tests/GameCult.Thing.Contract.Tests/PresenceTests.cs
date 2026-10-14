@@ -75,5 +75,7 @@ public sealed class PresenceTests
         Assert.That(Assert.Throws<ThingDomainException>(() => ThingDomain.Items<string>(null, "Captures"))!.Domain, Is.EqualTo("Captures"));
         var nilItem = Assert.Throws<ThingDomainException>(() => ThingDomain.Items<string>(new List<string> { "a", null! }, "Captures"))!;
         Assert.That((nilItem.Domain, nilItem.Bound), Is.EqualTo(("Captures", "free of nil items")));
+        var withCanary = Assert.Throws<ThingDomainException>(() => ThingDomain.Items<string>(new List<string> { Wire.Canary, null! }, "Captures"))!;
+        Assert.That(withCanary.Message, Does.Not.Contain(Wire.Canary));
     }
 }
