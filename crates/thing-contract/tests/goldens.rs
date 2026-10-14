@@ -665,13 +665,6 @@ fn refusal_cases() {
 
 #[test]
 fn deep_tree() {
-    // Decoding a Node costs tens of KiB of debug stack per nesting level, so the chain runs on a
-    // thread that has the room; the 2 MiB default does not. The hazard is CultCache's, owned by
-    // cultlib-gaps:follow_up:decode-stack-safety; the test stays on the big thread until it lands.
-    std::thread::Builder::new().stack_size(16 * 1024 * 1024).spawn(deep_tree_body).unwrap().join().unwrap();
-}
-
-fn deep_tree_body() {
     // A 64-deep Box chain.
     let mut chain = text("leaf", "bottom");
     for depth in (0..64).rev() {
