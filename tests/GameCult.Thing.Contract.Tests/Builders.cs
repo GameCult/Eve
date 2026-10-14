@@ -190,10 +190,10 @@ internal static class Builders
         children.AddRange(leaves);
         children.Add(new PlotNode(Common("trend-line"), binds[2].ToBind(), new PlotMarkLine(), null, null, null, null));
         children.Add(new PlotNode(Common("trend-bar"), binds[2].ToBind(), new PlotMarkBar(), null, null, null, null));
-        var fits = new[] { new ImageFitContain(), new ImageFitFill(), new ImageFitUnscaled() };
+        var fits = new ImageFit[] { new ImageFitContain(), new ImageFitFill(), new ImageFitUnscaled() };
         for (var index = 0; index < fits.Length; index++)
             children.Add(new ImageNode(Common($"img-fit-{index}"), "icons", "gear", fits[index], LitText("")));
-        var roles = new[] { new RoleList(), new RoleListItem(), new RoleHeading(), new RoleDialog(), new RoleToolbar() };
+        var roles = new Role[] { new RoleList(), new RoleListItem(), new RoleHeading(), new RoleDialog(), new RoleToolbar() };
         for (var index = 0; index < roles.Length; index++)
         {
             var roleStyle = index == 0
