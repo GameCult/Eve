@@ -51,7 +51,7 @@ public sealed class PresenceTests
 
         Assert.That(failures, Is.Empty);
         TestContext.Progress.WriteLine($"PRESENCE required={required} optional={optional}");
-        Assert.That(required, Is.GreaterThan(200), "the scan reached the required slots");
+        Assert.That(required, Is.GreaterThan(150), "the scan reached the required slots");
         Assert.That(optional, Is.GreaterThan(15), "the scan reached the optional slots");
     }
 

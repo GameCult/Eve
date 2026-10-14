@@ -35,6 +35,19 @@ public sealed class NameSetTests
         Assert.That(actual, Has.Length.GreaterThan(150));
     }
 
+    private static int Replace(byte[] bytes, byte[] from, byte[] to)
+    {
+        var count = 0;
+        for (var i = 0; i + from.Length <= bytes.Length; i++)
+        {
+            if (!bytes.AsSpan(i, from.Length).SequenceEqual(from)) continue;
+            to.CopyTo(bytes, i);
+            count++;
+        }
+
+        return count;
+    }
+
     [Test]
     public void AStoreWhoseRecordedTypeNameChangedIsRefusedOnReopen()
     {
@@ -50,24 +63,22 @@ public sealed class NameSetTests
             using (var cache = CultCacheMessagePack.Create(scratch, new CultCacheOpenOptions { Registry = Wire.Registry, ReadOnly = true }))
                 Assert.That(cache.GetAll<AssetCatalog>().Single().Assets, Has.Count.EqualTo(2), "the unpatched store reopens");
 
+            // A store written by a different type shape carries a different schema id and different type names. The
+            // reopen compares names only when the ids differ, so the patch moves both: the id's last digit and Int64.
+            var id = Wire.Registry.GetRequired(typeof(AssetCatalog)).ToCatalogEntry().SchemaId;
+            var movedId = id[..^1] + (id[^1] == '0' ? '1' : '0');
             var bytes = File.ReadAllBytes(scratch);
-            var from = "System.Int64"u8.ToArray();
-            var to = "System.Int32"u8.ToArray();
-            var patched = 0;
-            for (var i = 0; i + from.Length <= bytes.Length; i++)
-            {
-                if (!bytes.AsSpan(i, from.Length).SequenceEqual(from)) continue;
-                to.CopyTo(bytes, i);
-                patched++;
-            }
-
+            var patched = Replace(bytes, System.Text.Encoding.UTF8.GetBytes(id), System.Text.Encoding.UTF8.GetBytes(movedId))
+                + Replace(bytes, "System.Int64"u8.ToArray(), "System.Int32"u8.ToArray());
             Assert.That(patched, Is.GreaterThan(0), "the store records the type name");
             File.WriteAllBytes(scratch, bytes);
             var error = Assert.Catch(() =>
             {
                 using var cache = CultCacheMessagePack.Create(scratch, new CultCacheOpenOptions { Registry = Wire.Registry, ReadOnly = true });
+                _ = cache.GetAll<AssetCatalog>().ToList();
             })!;
             TestContext.Progress.WriteLine($"NAMEPATCH patched={patched} refused-by: {Wire.Flatten(error)}");
+            Assert.That(Wire.Flatten(error), Does.Contain("System.Int64").And.Contain("System.Int32"), "the refusal is the type-name comparison");
         }
         finally
         {
