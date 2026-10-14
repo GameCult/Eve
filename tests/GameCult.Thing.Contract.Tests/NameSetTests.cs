@@ -1,4 +1,5 @@
 using GameCult.Caching;
+using GameCult.Caching.MessagePack;
 
 namespace GameCult.Thing.Contract.Tests;
 
