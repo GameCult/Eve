@@ -144,7 +144,6 @@ public sealed class BoolSourceParam : BoolSource
 public abstract class StateSource
 {
     internal StateSource() { }
-    public static StateSource Item => StateSourceItem.Instance;
 }
 
 [MessagePackObject]
@@ -162,12 +161,10 @@ public sealed class StateRef : StateSource
     }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class StateSourceItem : StateSource
 {
-    internal static readonly StateSourceItem Instance = new StateSourceItem();
-
-    [SerializationConstructor] private StateSourceItem() { }
+    public StateSourceItem() { }
 }
 
 [Union(0, typeof(MemberName))]
@@ -206,8 +203,6 @@ public sealed class MemberIndex : MemberStep
 public abstract class Format
 {
     internal Format() { }
-    public static Format Duration => FormatDuration.Instance;
-    public static Format Timestamp => FormatTimestamp.Instance;
 }
 
 [MessagePackObject]
@@ -225,20 +220,16 @@ public sealed class NumberFormat : Format
     }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class FormatDuration : Format
 {
-    internal static readonly FormatDuration Instance = new FormatDuration();
-
-    [SerializationConstructor] private FormatDuration() { }
+    public FormatDuration() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class FormatTimestamp : Format
 {
-    internal static readonly FormatTimestamp Instance = new FormatTimestamp();
-
-    [SerializationConstructor] private FormatTimestamp() { }
+    public FormatTimestamp() { }
 }
 
 [MessagePackObject]

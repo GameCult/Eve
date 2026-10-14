@@ -139,16 +139,4 @@ public sealed class FactoriesOnlyTests
         var failed = (FailedOutcome)CommandResult.Failed(invocation, 1, "broke").Outcome;
         Assert.That(failed.Reason, Is.EqualTo("broke"));
     }
-
-    [Test]
-    public void UnitArmsAreSharedInstancesAndWriteAnEmptySlotArray()
-    {
-        Assert.That(ImageFit.Contain, Is.SameAs(ImageFit.Contain));
-        Assert.That(ImageFit.Contain, Is.Not.SameAs(ImageFit.Cover));
-        // [key, []]: array(2), the key, array(0).
-        Assert.That(MessagePackSerializer.Serialize<ImageFit>(ImageFit.Fill, Wire.Options), Is.EqualTo(new byte[] { 0x92, 0x02, 0x90 }));
-        Assert.That(MessagePackSerializer.Serialize<InputKind>(InputKind.Number, Wire.Options), Is.EqualTo(new byte[] { 0x92, 0x01, 0x90 }));
-        var read = MessagePackSerializer.Deserialize<ImageFit>(new byte[] { 0x92, 0x03, 0x90 }, Wire.Options);
-        Assert.That(read, Is.TypeOf(ImageFit.Unscaled.GetType()));
-    }
 }

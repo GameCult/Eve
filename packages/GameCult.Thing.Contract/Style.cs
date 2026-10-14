@@ -12,8 +12,6 @@ namespace GameCult.Thing.Contract;
 public abstract class Dimension
 {
     internal Dimension() { }
-    public static Dimension Auto => DimensionAuto.Instance;
-    public static Dimension Content => DimensionContent.Instance;
 }
 
 [MessagePackObject]
@@ -49,20 +47,16 @@ public sealed class DimensionFr : Dimension
     }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class DimensionAuto : Dimension
 {
-    internal static readonly DimensionAuto Instance = new DimensionAuto();
-
-    [SerializationConstructor] private DimensionAuto() { }
+    public DimensionAuto() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class DimensionContent : Dimension
 {
-    internal static readonly DimensionContent Instance = new DimensionContent();
-
-    [SerializationConstructor] private DimensionContent() { }
+    public DimensionContent() { }
 }
 
 [Union(0, typeof(DisplayFlex))]
@@ -71,33 +65,24 @@ public sealed class DimensionContent : Dimension
 public abstract class Display
 {
     internal Display() { }
-    public static Display Flex => DisplayFlex.Instance;
-    public static Display Grid => DisplayGrid.Instance;
-    public static Display Block => DisplayBlock.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class DisplayFlex : Display
 {
-    internal static readonly DisplayFlex Instance = new DisplayFlex();
-
-    [SerializationConstructor] private DisplayFlex() { }
+    public DisplayFlex() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class DisplayGrid : Display
 {
-    internal static readonly DisplayGrid Instance = new DisplayGrid();
-
-    [SerializationConstructor] private DisplayGrid() { }
+    public DisplayGrid() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class DisplayBlock : Display
 {
-    internal static readonly DisplayBlock Instance = new DisplayBlock();
-
-    [SerializationConstructor] private DisplayBlock() { }
+    public DisplayBlock() { }
 }
 
 [Union(0, typeof(DirectionRow))]
@@ -107,42 +92,30 @@ public sealed class DisplayBlock : Display
 public abstract class Direction
 {
     internal Direction() { }
-    public static Direction Row => DirectionRow.Instance;
-    public static Direction Column => DirectionColumn.Instance;
-    public static Direction RowReverse => DirectionRowReverse.Instance;
-    public static Direction ColumnReverse => DirectionColumnReverse.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class DirectionRow : Direction
 {
-    internal static readonly DirectionRow Instance = new DirectionRow();
-
-    [SerializationConstructor] private DirectionRow() { }
+    public DirectionRow() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class DirectionColumn : Direction
 {
-    internal static readonly DirectionColumn Instance = new DirectionColumn();
-
-    [SerializationConstructor] private DirectionColumn() { }
+    public DirectionColumn() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class DirectionRowReverse : Direction
 {
-    internal static readonly DirectionRowReverse Instance = new DirectionRowReverse();
-
-    [SerializationConstructor] private DirectionRowReverse() { }
+    public DirectionRowReverse() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class DirectionColumnReverse : Direction
 {
-    internal static readonly DirectionColumnReverse Instance = new DirectionColumnReverse();
-
-    [SerializationConstructor] private DirectionColumnReverse() { }
+    public DirectionColumnReverse() { }
 }
 
 [Union(0, typeof(WrapNoWrap))]
@@ -151,33 +124,24 @@ public sealed class DirectionColumnReverse : Direction
 public abstract class Wrap
 {
     internal Wrap() { }
-    public static Wrap NoWrap => WrapNoWrap.Instance;
-    public static Wrap Wrapped => WrapWrap.Instance;
-    public static Wrap WrapReverse => WrapWrapReverse.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class WrapNoWrap : Wrap
 {
-    internal static readonly WrapNoWrap Instance = new WrapNoWrap();
-
-    [SerializationConstructor] private WrapNoWrap() { }
+    public WrapNoWrap() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class WrapWrap : Wrap
 {
-    internal static readonly WrapWrap Instance = new WrapWrap();
-
-    [SerializationConstructor] private WrapWrap() { }
+    public WrapWrap() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class WrapWrapReverse : Wrap
 {
-    internal static readonly WrapWrapReverse Instance = new WrapWrapReverse();
-
-    [SerializationConstructor] private WrapWrapReverse() { }
+    public WrapWrapReverse() { }
 }
 
 [Union(0, typeof(PositionRelative))]
@@ -185,24 +149,18 @@ public sealed class WrapWrapReverse : Wrap
 public abstract class Position
 {
     internal Position() { }
-    public static Position Relative => PositionRelative.Instance;
-    public static Position Absolute => PositionAbsolute.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class PositionRelative : Position
 {
-    internal static readonly PositionRelative Instance = new PositionRelative();
-
-    [SerializationConstructor] private PositionRelative() { }
+    public PositionRelative() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class PositionAbsolute : Position
 {
-    internal static readonly PositionAbsolute Instance = new PositionAbsolute();
-
-    [SerializationConstructor] private PositionAbsolute() { }
+    public PositionAbsolute() { }
 }
 
 [Union(0, typeof(OverflowVisible))]
@@ -211,33 +169,24 @@ public sealed class PositionAbsolute : Position
 public abstract class Overflow
 {
     internal Overflow() { }
-    public static Overflow Visible => OverflowVisible.Instance;
-    public static Overflow Clip => OverflowClip.Instance;
-    public static Overflow Scroll => OverflowScroll.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class OverflowVisible : Overflow
 {
-    internal static readonly OverflowVisible Instance = new OverflowVisible();
-
-    [SerializationConstructor] private OverflowVisible() { }
+    public OverflowVisible() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class OverflowClip : Overflow
 {
-    internal static readonly OverflowClip Instance = new OverflowClip();
-
-    [SerializationConstructor] private OverflowClip() { }
+    public OverflowClip() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class OverflowScroll : Overflow
 {
-    internal static readonly OverflowScroll Instance = new OverflowScroll();
-
-    [SerializationConstructor] private OverflowScroll() { }
+    public OverflowScroll() { }
 }
 
 [Union(0, typeof(ItemAlignAuto))]
@@ -249,60 +198,42 @@ public sealed class OverflowScroll : Overflow
 public abstract class ItemAlign
 {
     internal ItemAlign() { }
-    public static ItemAlign Auto => ItemAlignAuto.Instance;
-    public static ItemAlign Start => ItemAlignStart.Instance;
-    public static ItemAlign End => ItemAlignEnd.Instance;
-    public static ItemAlign Center => ItemAlignCenter.Instance;
-    public static ItemAlign Stretch => ItemAlignStretch.Instance;
-    public static ItemAlign Baseline => ItemAlignBaseline.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ItemAlignAuto : ItemAlign
 {
-    internal static readonly ItemAlignAuto Instance = new ItemAlignAuto();
-
-    [SerializationConstructor] private ItemAlignAuto() { }
+    public ItemAlignAuto() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ItemAlignStart : ItemAlign
 {
-    internal static readonly ItemAlignStart Instance = new ItemAlignStart();
-
-    [SerializationConstructor] private ItemAlignStart() { }
+    public ItemAlignStart() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ItemAlignEnd : ItemAlign
 {
-    internal static readonly ItemAlignEnd Instance = new ItemAlignEnd();
-
-    [SerializationConstructor] private ItemAlignEnd() { }
+    public ItemAlignEnd() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ItemAlignCenter : ItemAlign
 {
-    internal static readonly ItemAlignCenter Instance = new ItemAlignCenter();
-
-    [SerializationConstructor] private ItemAlignCenter() { }
+    public ItemAlignCenter() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ItemAlignStretch : ItemAlign
 {
-    internal static readonly ItemAlignStretch Instance = new ItemAlignStretch();
-
-    [SerializationConstructor] private ItemAlignStretch() { }
+    public ItemAlignStretch() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ItemAlignBaseline : ItemAlign
 {
-    internal static readonly ItemAlignBaseline Instance = new ItemAlignBaseline();
-
-    [SerializationConstructor] private ItemAlignBaseline() { }
+    public ItemAlignBaseline() { }
 }
 
 [Union(0, typeof(ContentAlignAuto))]
@@ -316,78 +247,54 @@ public sealed class ItemAlignBaseline : ItemAlign
 public abstract class ContentAlign
 {
     internal ContentAlign() { }
-    public static ContentAlign Auto => ContentAlignAuto.Instance;
-    public static ContentAlign Start => ContentAlignStart.Instance;
-    public static ContentAlign End => ContentAlignEnd.Instance;
-    public static ContentAlign Center => ContentAlignCenter.Instance;
-    public static ContentAlign Stretch => ContentAlignStretch.Instance;
-    public static ContentAlign SpaceBetween => ContentAlignSpaceBetween.Instance;
-    public static ContentAlign SpaceAround => ContentAlignSpaceAround.Instance;
-    public static ContentAlign SpaceEvenly => ContentAlignSpaceEvenly.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ContentAlignAuto : ContentAlign
 {
-    internal static readonly ContentAlignAuto Instance = new ContentAlignAuto();
-
-    [SerializationConstructor] private ContentAlignAuto() { }
+    public ContentAlignAuto() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ContentAlignStart : ContentAlign
 {
-    internal static readonly ContentAlignStart Instance = new ContentAlignStart();
-
-    [SerializationConstructor] private ContentAlignStart() { }
+    public ContentAlignStart() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ContentAlignEnd : ContentAlign
 {
-    internal static readonly ContentAlignEnd Instance = new ContentAlignEnd();
-
-    [SerializationConstructor] private ContentAlignEnd() { }
+    public ContentAlignEnd() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ContentAlignCenter : ContentAlign
 {
-    internal static readonly ContentAlignCenter Instance = new ContentAlignCenter();
-
-    [SerializationConstructor] private ContentAlignCenter() { }
+    public ContentAlignCenter() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ContentAlignStretch : ContentAlign
 {
-    internal static readonly ContentAlignStretch Instance = new ContentAlignStretch();
-
-    [SerializationConstructor] private ContentAlignStretch() { }
+    public ContentAlignStretch() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ContentAlignSpaceBetween : ContentAlign
 {
-    internal static readonly ContentAlignSpaceBetween Instance = new ContentAlignSpaceBetween();
-
-    [SerializationConstructor] private ContentAlignSpaceBetween() { }
+    public ContentAlignSpaceBetween() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ContentAlignSpaceAround : ContentAlign
 {
-    internal static readonly ContentAlignSpaceAround Instance = new ContentAlignSpaceAround();
-
-    [SerializationConstructor] private ContentAlignSpaceAround() { }
+    public ContentAlignSpaceAround() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ContentAlignSpaceEvenly : ContentAlign
 {
-    internal static readonly ContentAlignSpaceEvenly Instance = new ContentAlignSpaceEvenly();
-
-    [SerializationConstructor] private ContentAlignSpaceEvenly() { }
+    public ContentAlignSpaceEvenly() { }
 }
 
 [Union(0, typeof(ThemeToken))]
@@ -435,69 +342,48 @@ public sealed class Rgba : ColorRef
 public abstract class Role
 {
     internal Role() { }
-    public static Role Group => RoleGroup.Instance;
-    public static Role Region => RoleRegion.Instance;
-    public static Role List => RoleList.Instance;
-    public static Role ListItem => RoleListItem.Instance;
-    public static Role Heading => RoleHeading.Instance;
-    public static Role Dialog => RoleDialog.Instance;
-    public static Role Toolbar => RoleToolbar.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class RoleGroup : Role
 {
-    internal static readonly RoleGroup Instance = new RoleGroup();
-
-    [SerializationConstructor] private RoleGroup() { }
+    public RoleGroup() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class RoleRegion : Role
 {
-    internal static readonly RoleRegion Instance = new RoleRegion();
-
-    [SerializationConstructor] private RoleRegion() { }
+    public RoleRegion() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class RoleList : Role
 {
-    internal static readonly RoleList Instance = new RoleList();
-
-    [SerializationConstructor] private RoleList() { }
+    public RoleList() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class RoleListItem : Role
 {
-    internal static readonly RoleListItem Instance = new RoleListItem();
-
-    [SerializationConstructor] private RoleListItem() { }
+    public RoleListItem() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class RoleHeading : Role
 {
-    internal static readonly RoleHeading Instance = new RoleHeading();
-
-    [SerializationConstructor] private RoleHeading() { }
+    public RoleHeading() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class RoleDialog : Role
 {
-    internal static readonly RoleDialog Instance = new RoleDialog();
-
-    [SerializationConstructor] private RoleDialog() { }
+    public RoleDialog() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class RoleToolbar : Role
 {
-    internal static readonly RoleToolbar Instance = new RoleToolbar();
-
-    [SerializationConstructor] private RoleToolbar() { }
+    public RoleToolbar() { }
 }
 
 [MessagePackObject]

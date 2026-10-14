@@ -29,7 +29,7 @@ internal static class Builders
     public static BindParts RecordBind(MemberPath member, Format? format) =>
         new(new StateRef("provider.a", "gamecult.thing.test.v1", "row-1"), member, format);
 
-    public static BindParts ItemBind(MemberPath member) => new(StateSource.Item, member, null);
+    public static BindParts ItemBind(MemberPath member) => new(new StateSourceItem(), member, null);
 
     public static CommandRef Command(string id) => new CommandIdRef(id);
 
@@ -55,32 +55,32 @@ internal static class Builders
         List<Dimension>? gridColumns = null,
         List<Dimension>? gridRows = null) =>
         new(
-            display ?? Display.Flex,
-            direction ?? Direction.Column,
-            wrap ?? Wrap.NoWrap,
+            display ?? new DisplayFlex(),
+            direction ?? new DirectionColumn(),
+            wrap ?? new WrapNoWrap(),
             Size(Px(4), Px(8)),
             AllEdges(Px(2)),
-            AllEdges(Dimension.Auto),
-            Size(new DimensionPercent(100), Dimension.Content),
+            AllEdges(new DimensionAuto()),
+            Size(new DimensionPercent(100), new DimensionContent()),
             Size(Px(0), Px(0)),
-            Size(Dimension.Auto, Dimension.Auto),
-            position ?? Position.Relative,
-            AllEdges(Dimension.Auto),
-            overflow ?? Overflow.Visible,
-            alignItems ?? ItemAlign.Stretch,
-            alignSelf ?? ItemAlign.Auto,
-            alignContent ?? ContentAlign.Start,
-            justifyContent ?? ContentAlign.SpaceBetween,
+            Size(new DimensionAuto(), new DimensionAuto()),
+            position ?? new PositionRelative(),
+            AllEdges(new DimensionAuto()),
+            overflow ?? new OverflowVisible(),
+            alignItems ?? new ItemAlignStretch(),
+            alignSelf ?? new ItemAlignAuto(),
+            alignContent ?? new ContentAlignStart(),
+            justifyContent ?? new ContentAlignSpaceBetween(),
             1.0,
             0.0,
-            basis ?? Dimension.Auto,
+            basis ?? new DimensionAuto(),
             gridColumns ?? new List<Dimension>(),
             gridRows ?? new List<Dimension>());
 
     public static Paint PlainPaint() => new(null, null, 0.0);
 
     public static Node Boxed(string id, params Node[] children) =>
-        new BoxNode(Common(id), Style(), PlainPaint(), Role.Group, children.ToList());
+        new BoxNode(Common(id), Style(), PlainPaint(), new RoleGroup(), children.ToList());
 
     public static Node Text(string id, string content) =>
         new TextNode(Common(id), LitText(content), "body", true, null, false);
@@ -115,8 +115,8 @@ internal static class Builders
         return new List<BindParts>
         {
             RecordBind(indexed, number),
-            RecordBind(Names("elapsed"), Format.Duration),
-            RecordBind(Names("at"), Format.Timestamp),
+            RecordBind(Names("elapsed"), new FormatDuration()),
+            RecordBind(Names("at"), new FormatTimestamp()),
             RecordBind(Names("price"), affix),
             RecordBind(Names("plain"), null),
             ItemBind(Names("name")),
@@ -133,19 +133,19 @@ internal static class Builders
         var painted = new BoxNode(
             new NodeCommon("painted", new BoolSourceParam("show"), new TextSourceParam("label")),
             Style(
-                display: Display.Grid,
-                direction: Direction.RowReverse,
-                wrap: Wrap.WrapReverse,
-                position: Position.Absolute,
-                overflow: Overflow.Scroll,
-                alignItems: ItemAlign.Baseline,
-                alignSelf: ItemAlign.Center,
-                alignContent: ContentAlign.SpaceAround,
-                justifyContent: ContentAlign.SpaceEvenly,
+                display: new DisplayGrid(),
+                direction: new DirectionRowReverse(),
+                wrap: new WrapWrapReverse(),
+                position: new PositionAbsolute(),
+                overflow: new OverflowScroll(),
+                alignItems: new ItemAlignBaseline(),
+                alignSelf: new ItemAlignCenter(),
+                alignContent: new ContentAlignSpaceAround(),
+                justifyContent: new ContentAlignSpaceEvenly(),
                 gridColumns: new List<Dimension> { new DimensionFr(1), Px(120) },
-                gridRows: new List<Dimension> { Dimension.Content }),
+                gridRows: new List<Dimension> { new DimensionContent() }),
             new Paint(new ThemeToken("surface.raised"), new Border(new Rgba(1, 2, 3, 255), 1.5), 4.0),
-            Role.Region,
+            new RoleRegion(),
             new List<Node> { Text("deep-text", "deep") });
 
         var repeat = new RepeatNode(
@@ -157,12 +157,12 @@ internal static class Builders
         var leaves = new List<Node>
         {
             new TextNode(Common("t-bound"), boundText, "label", true, null, false),
-            new ImageNode(Common("img"), "icons", "gear", ImageFit.Cover, LitText("a gear")),
+            new ImageNode(Common("img"), "icons", "gear", new ImageFitCover(), LitText("a gear")),
             new ButtonNode(Common("go"), new List<Node> { Text("go-label", "Go") }, Command("go"), boundBool),
             new ToggleNode(Common("flag"), boundBool, new CommandRefParam("toggle")),
             new SliderNode(Common("level"), 0.0, 1.0, 0.25, boundNumber, Command("set-level")),
-            new TextInputNode(Common("name-input"), true, InputKind.Number, LitText("name"), new TextSourceParam("initial"), Command("rename")),
-            new TextInputNode(Common("title-input"), false, InputKind.Text, LitText("title"), new TextSourceParam("initial"), Command("retitle")),
+            new TextInputNode(Common("name-input"), true, new InputKindNumber(), LitText("name"), new TextSourceParam("initial"), Command("rename")),
+            new TextInputNode(Common("title-input"), false, new InputKindText(), LitText("title"), new TextSourceParam("initial"), Command("retitle")),
             new SelectNode(
                 Common("pick"),
                 new LiteralOptions(new List<SelectOption> { new("a", "Alpha") }),
@@ -175,8 +175,8 @@ internal static class Builders
                 Command("pick")),
             repeat,
             new OverlayNode(Common("menu"), new AnchorNode("go"), false, Command("close"), new List<Node> { Text("menu-item", "one") }),
-            new OverlayNode(Common("dialog"), Anchor.Viewport, true, Command("close"), new List<Node>()),
-            new PlotNode(Common("trend"), binds[1].ToBind(), PlotMark.Area, 0.0, null, null, 100.0),
+            new OverlayNode(Common("dialog"), new AnchorViewport(), true, Command("close"), new List<Node>()),
+            new PlotNode(Common("trend"), binds[1].ToBind(), new PlotMarkArea(), 0.0, null, null, 100.0),
             new EmbedNode(Common("viewport"), "world.scene", "main", 640.0, 480.0),
             new UseNode(
                 Common("kv"),
@@ -188,16 +188,16 @@ internal static class Builders
         foreach (var id in new[] { "d3", "d2", "d1" }) deep = Boxed(id, deep);
         var children = new List<Node> { deep };
         children.AddRange(leaves);
-        children.Add(new PlotNode(Common("trend-line"), binds[2].ToBind(), PlotMark.Line, null, null, null, null));
-        children.Add(new PlotNode(Common("trend-bar"), binds[2].ToBind(), PlotMark.Bar, null, null, null, null));
-        var fits = new[] { ImageFit.Contain, ImageFit.Fill, ImageFit.Unscaled };
+        children.Add(new PlotNode(Common("trend-line"), binds[2].ToBind(), new PlotMarkLine(), null, null, null, null));
+        children.Add(new PlotNode(Common("trend-bar"), binds[2].ToBind(), new PlotMarkBar(), null, null, null, null));
+        var fits = new[] { new ImageFitContain(), new ImageFitFill(), new ImageFitUnscaled() };
         for (var index = 0; index < fits.Length; index++)
             children.Add(new ImageNode(Common($"img-fit-{index}"), "icons", "gear", fits[index], LitText("")));
-        var roles = new[] { Role.List, Role.ListItem, Role.Heading, Role.Dialog, Role.Toolbar };
+        var roles = new[] { new RoleList(), new RoleListItem(), new RoleHeading(), new RoleDialog(), new RoleToolbar() };
         for (var index = 0; index < roles.Length; index++)
         {
             var roleStyle = index == 0
-                ? Style(direction: Direction.Row, alignContent: ContentAlign.Auto, justifyContent: ContentAlign.Stretch)
+                ? Style(direction: new DirectionRow(), alignContent: new ContentAlignAuto(), justifyContent: new ContentAlignStretch())
                 : Style();
             children.Add(new BoxNode(Common($"role-{index}"), roleStyle, PlainPaint(), roles[index], new List<Node>()));
         }
@@ -205,17 +205,17 @@ internal static class Builders
         children.Add(new BoxNode(
             Common("block"),
             Style(
-                display: Display.Block,
-                direction: Direction.ColumnReverse,
-                wrap: Wrap.Wrapped,
-                overflow: Overflow.Clip,
-                alignContent: ContentAlign.Center,
-                justifyContent: ContentAlign.End,
-                alignItems: ItemAlign.End,
-                alignSelf: ItemAlign.Start,
-                basis: Dimension.Content),
+                display: new DisplayBlock(),
+                direction: new DirectionColumnReverse(),
+                wrap: new WrapWrap(),
+                overflow: new OverflowClip(),
+                alignContent: new ContentAlignCenter(),
+                justifyContent: new ContentAlignEnd(),
+                alignItems: new ItemAlignEnd(),
+                alignSelf: new ItemAlignStart(),
+                basis: new DimensionContent()),
             PlainPaint(),
-            Role.Group,
+            new RoleGroup(),
             new List<Node>()));
         children.Add(new TextNode(Common("t-param"), new TextSourceParam("title"), "title", true, null, false));
         children.Add(new ToggleNode(new NodeCommon("literal-number", new BoolSourceParam("v"), null), LitBool(false), Command("toggle")));
@@ -255,13 +255,13 @@ internal static class Builders
             3,
             new List<ParamDecl>
             {
-                new("title", ParamKind.Text),
-                new("count", ParamKind.Number),
-                new("on", ParamKind.Bool),
-                new("source", ParamKind.Bind),
-                new("rows", ParamKind.Collection),
-                new("act", ParamKind.Command),
-                new("body", ParamKind.Slot),
+                new("title", new ParamKindText()),
+                new("count", new ParamKindNumber()),
+                new("on", new ParamKindBool()),
+                new("source", new ParamKindBind()),
+                new("rows", new ParamKindCollection()),
+                new("act", new ParamKindCommand()),
+                new("body", new ParamKindSlot()),
             },
             Boxed("panel-root", Text("panel-title", "t"), innerUse));
     }

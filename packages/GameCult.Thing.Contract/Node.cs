@@ -272,42 +272,30 @@ public sealed class UseNode : Node
 public abstract class ImageFit
 {
     internal ImageFit() { }
-    public static ImageFit Contain => ImageFitContain.Instance;
-    public static ImageFit Cover => ImageFitCover.Instance;
-    public static ImageFit Fill => ImageFitFill.Instance;
-    public static ImageFit Unscaled => ImageFitUnscaled.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ImageFitContain : ImageFit
 {
-    internal static readonly ImageFitContain Instance = new ImageFitContain();
-
-    [SerializationConstructor] private ImageFitContain() { }
+    public ImageFitContain() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ImageFitCover : ImageFit
 {
-    internal static readonly ImageFitCover Instance = new ImageFitCover();
-
-    [SerializationConstructor] private ImageFitCover() { }
+    public ImageFitCover() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ImageFitFill : ImageFit
 {
-    internal static readonly ImageFitFill Instance = new ImageFitFill();
-
-    [SerializationConstructor] private ImageFitFill() { }
+    public ImageFitFill() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ImageFitUnscaled : ImageFit
 {
-    internal static readonly ImageFitUnscaled Instance = new ImageFitUnscaled();
-
-    [SerializationConstructor] private ImageFitUnscaled() { }
+    public ImageFitUnscaled() { }
 }
 
 [Union(0, typeof(InputKindText))]
@@ -315,24 +303,18 @@ public sealed class ImageFitUnscaled : ImageFit
 public abstract class InputKind
 {
     internal InputKind() { }
-    public static InputKind Text => InputKindText.Instance;
-    public static InputKind Number => InputKindNumber.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class InputKindText : InputKind
 {
-    internal static readonly InputKindText Instance = new InputKindText();
-
-    [SerializationConstructor] private InputKindText() { }
+    public InputKindText() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class InputKindNumber : InputKind
 {
-    internal static readonly InputKindNumber Instance = new InputKindNumber();
-
-    [SerializationConstructor] private InputKindNumber() { }
+    public InputKindNumber() { }
 }
 
 [Union(0, typeof(LiteralOptions))]
@@ -373,15 +355,12 @@ public sealed class BoundOptions : OptionList
 public abstract class Anchor
 {
     internal Anchor() { }
-    public static Anchor Viewport => AnchorViewport.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class AnchorViewport : Anchor
 {
-    internal static readonly AnchorViewport Instance = new AnchorViewport();
-
-    [SerializationConstructor] private AnchorViewport() { }
+    public AnchorViewport() { }
 }
 
 [MessagePackObject]
@@ -401,33 +380,24 @@ public sealed class AnchorNode : Anchor
 public abstract class PlotMark
 {
     internal PlotMark() { }
-    public static PlotMark Line => PlotMarkLine.Instance;
-    public static PlotMark Bar => PlotMarkBar.Instance;
-    public static PlotMark Area => PlotMarkArea.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class PlotMarkLine : PlotMark
 {
-    internal static readonly PlotMarkLine Instance = new PlotMarkLine();
-
-    [SerializationConstructor] private PlotMarkLine() { }
+    public PlotMarkLine() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class PlotMarkBar : PlotMark
 {
-    internal static readonly PlotMarkBar Instance = new PlotMarkBar();
-
-    [SerializationConstructor] private PlotMarkBar() { }
+    public PlotMarkBar() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class PlotMarkArea : PlotMark
 {
-    internal static readonly PlotMarkArea Instance = new PlotMarkArea();
-
-    [SerializationConstructor] private PlotMarkArea() { }
+    public PlotMarkArea() { }
 }
 
 [Union(0, typeof(TextArg))]
@@ -533,69 +503,48 @@ public sealed class SlotArg : ArgValue
 public abstract class ParamKind
 {
     internal ParamKind() { }
-    public static ParamKind Text => ParamKindText.Instance;
-    public static ParamKind Number => ParamKindNumber.Instance;
-    public static ParamKind Bool => ParamKindBool.Instance;
-    public static ParamKind Bind => ParamKindBind.Instance;
-    public static ParamKind Collection => ParamKindCollection.Instance;
-    public static ParamKind Command => ParamKindCommand.Instance;
-    public static ParamKind Slot => ParamKindSlot.Instance;
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ParamKindText : ParamKind
 {
-    internal static readonly ParamKindText Instance = new ParamKindText();
-
-    [SerializationConstructor] private ParamKindText() { }
+    public ParamKindText() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ParamKindNumber : ParamKind
 {
-    internal static readonly ParamKindNumber Instance = new ParamKindNumber();
-
-    [SerializationConstructor] private ParamKindNumber() { }
+    public ParamKindNumber() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ParamKindBool : ParamKind
 {
-    internal static readonly ParamKindBool Instance = new ParamKindBool();
-
-    [SerializationConstructor] private ParamKindBool() { }
+    public ParamKindBool() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ParamKindBind : ParamKind
 {
-    internal static readonly ParamKindBind Instance = new ParamKindBind();
-
-    [SerializationConstructor] private ParamKindBind() { }
+    public ParamKindBind() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ParamKindCollection : ParamKind
 {
-    internal static readonly ParamKindCollection Instance = new ParamKindCollection();
-
-    [SerializationConstructor] private ParamKindCollection() { }
+    public ParamKindCollection() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ParamKindCommand : ParamKind
 {
-    internal static readonly ParamKindCommand Instance = new ParamKindCommand();
-
-    [SerializationConstructor] private ParamKindCommand() { }
+    public ParamKindCommand() { }
 }
 
-[MessagePackObject(AllowPrivate = true)]
+[MessagePackObject]
 public sealed class ParamKindSlot : ParamKind
 {
-    internal static readonly ParamKindSlot Instance = new ParamKindSlot();
-
-    [SerializationConstructor] private ParamKindSlot() { }
+    public ParamKindSlot() { }
 }
 
 [MessagePackObject]
