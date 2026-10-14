@@ -62,6 +62,7 @@ internal static class Doors
         if (type == typeof(bool)) return true;
         if (type == typeof(byte)) return (byte)1;
         if (type == typeof(byte[])) return new byte[] { 1 };
+        if (type == typeof(ReadOnlyMemory<byte>)) return new ReadOnlyMemory<byte>(new byte[] { 1 });
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IReadOnlyList<>))
             return MakeList(type.GetGenericArguments()[0], 0, depth);
         var arms = type.GetCustomAttributes<UnionAttribute>(false).ToList();

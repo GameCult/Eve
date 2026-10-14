@@ -107,12 +107,12 @@ public sealed class CommandDecl
 public sealed class RecordPayload
 {
     [Key(0)] public string Schema { get; }
-    [Key(1)] public byte[] Bytes { get; }
+    [Key(1)] public ReadOnlyMemory<byte> Bytes { get; }
 
-    public RecordPayload(string schema, byte[] bytes)
+    public RecordPayload(string schema, ReadOnlyMemory<byte> bytes)
     {
         Schema = ThingDomain.Present(schema, "Schema");
-        Bytes = ThingDomain.Present(bytes, "Bytes");
+        Bytes = bytes.ToArray();
     }
 }
 
