@@ -163,4 +163,17 @@ public sealed class ReadOnlyListTests
         Assert.That(slice.Bytes.ToArray(), Is.EqualTo(new byte[] { 5, 6 }));
         Assert.That(System.Runtime.InteropServices.MemoryMarshal.TryGetArray(payload.Bytes, out var segment) && ReferenceEquals(segment.Array, buffer), Is.False);
     }
+
+    [Test]
+    public void ANilPayloadIsRefusedAndAnEmptyOneIsKeptThroughTheWire()
+    {
+        var error = Assert.Throws<ThingDomainException>(() => new RecordPayload("s", default))!;
+        Assert.That(error.Domain, Is.EqualTo("Bytes"));
+        Assert.That(error.Bound, Is.EqualTo("present"));
+
+        var empty = new CommandInvocation("i", "k", 1, "go", new RecordPayload("s", Array.Empty<byte>()), new List<CapturedInput>(), "c", "t", null);
+        var decoded = (CommandInvocation)Wire.Read(typeof(CommandInvocation), Wire.Write(empty));
+        Assert.That(decoded.Payload.Bytes.IsEmpty, Is.True);
+        Assert.That(Wire.Write(decoded), Is.EqualTo(Wire.Write(empty)));
+    }
 }

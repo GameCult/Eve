@@ -113,7 +113,7 @@ public sealed class RecordPayload
     public RecordPayload(string schema, ReadOnlyMemory<byte> bytes)
     {
         Schema = ThingDomain.Present(schema, "Schema");
-        Bytes = bytes.ToArray();
+        Bytes = ThingDomain.Present(bytes, "Bytes").ToArray();
     }
 }
 
