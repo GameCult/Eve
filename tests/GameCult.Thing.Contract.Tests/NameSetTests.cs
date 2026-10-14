@@ -59,10 +59,6 @@ public sealed class NameSetTests
     }
 
     // A persisted entry equal in id and content hash resolves without comparison, so the entries below move both.
-    // CultCache compares a persisted catalog with the package's names where it resolves a persisted schema id that is not
-    // its own (ResolvePersistedSchema). Reopening a single-file store does not call it: a store whose recorded names were
-    // patched (id and Int64 both) opens and reads at b3bd8dd5, so the comparison is exercised on the entry the store
-    // would record.
     [Test]
     public void APersistedCatalogWhoseTypeNameDiffersIsRefusedByTheComparison()
     {
@@ -78,5 +74,68 @@ public sealed class NameSetTests
             "System.Collections.Generic.List<GameCult.Thing.Contract.AssetEntry>");
         Assert.Throws<InvalidOperationException>(() => Wire.Registry.ResolvePersistedSchema(listed.SchemaId, new[] { listed }),
             "a store written when Assets was a List is refused");
+    }
+
+    private static int Patch(byte[] bytes, string from, string to)
+    {
+        var f = System.Text.Encoding.UTF8.GetBytes(from);
+        var t = System.Text.Encoding.UTF8.GetBytes(to);
+        Assert.That(t, Has.Length.EqualTo(f.Length));
+        var count = 0;
+        for (var i = 0; i + f.Length <= bytes.Length; i++)
+        {
+            if (!bytes.AsSpan(i, f.Length).SequenceEqual(f)) continue;
+            t.CopyTo(bytes, i);
+            count++;
+        }
+
+        return count;
+    }
+
+    private static string Moved(string hex) => hex[..^1] + (hex[^1] == '0' ? '1' : '0');
+
+    // CultCache reopens a store by schema id; an id it does not own is resolved by name and compared member by member.
+    // A store whose recorded id and content hash name another schema and whose type name was changed is refused, while
+    // the same patch without the type name opens: the refusal is the type-name comparison, end to end.
+    [Test]
+    public void AStoreWhoseRecordedTypeNameDiffersIsRefusedOnReopen()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"thing-names-{Guid.NewGuid():N}.cc");
+        try
+        {
+            using (var cache = CultCacheMessagePack.Create(path, new CultCacheOpenOptions { Registry = Wire.Registry }))
+            {
+                cache.Commit(b => b.Upsert(Builders.FullAssetCatalog()));
+                cache.FlushAsync().GetAwaiter().GetResult();
+            }
+
+            var entry = Wire.Registry.GetRequired(typeof(AssetCatalog)).ToCatalogEntry();
+            var written = File.ReadAllBytes(path);
+
+            byte[] Patched(bool typeName)
+            {
+                var bytes = (byte[])written.Clone();
+                Assert.That(Patch(bytes, entry.SchemaId, Moved(entry.SchemaId)), Is.GreaterThan(0), "the schema id was recorded");
+                Assert.That(Patch(bytes, entry.ContentHash, Moved(entry.ContentHash)), Is.GreaterThan(0), "the content hash was recorded");
+                if (typeName) Assert.That(Patch(bytes, "System.Int64", "System.Int32"), Is.GreaterThan(0), "a member type name was recorded");
+                return bytes;
+            }
+
+            int Reopen(byte[] bytes)
+            {
+                File.WriteAllBytes(path, bytes);
+                using var cache = CultCacheMessagePack.Create(path, new CultCacheOpenOptions { Registry = Wire.Registry, ReadOnly = true });
+                return cache.GetAll<AssetCatalog>().Count();
+            }
+
+            Assert.That(Reopen(written), Is.EqualTo(1), "the unpatched store reopens");
+            Assert.That(Reopen(Patched(typeName: false)), Is.EqualTo(1), "a moved id and hash with the same names reopens");
+            var error = Assert.Catch(() => Reopen(Patched(typeName: true)))!;
+            Assert.That(Wire.Flatten(error), Does.Contain("changed type").And.Contain("System.Int32").And.Contain("System.Int64"));
+        }
+        finally
+        {
+            File.Delete(path);
+        }
     }
 }
