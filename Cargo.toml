@@ -4,6 +4,6 @@ resolver = "2"
 
 [workspace.dependencies]
 anyhow = "1"
-cultcache-rs = { git = "https://github.com/GameCult/CultLib.git", rev = "b3bd8dd5e5b208b2012392e9c5d6dfee2441aaa7", package = "cultcache-rs" }
+cultcache-rs = { git = "https://github.com/GameCult/CultLib.git", rev = "bbb98eaf660e43ef611dc2f5132df99fe21e2f01", package = "cultcache-rs" }
 serde = { version = "1", features = ["derive"] }
 rmp-serde = "1.3"
