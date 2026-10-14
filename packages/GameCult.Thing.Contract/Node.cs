@@ -29,15 +29,15 @@ public sealed class BoxNode : Node
     [Key(1)] public BoxStyle Style { get; }
     [Key(2)] public Paint Paint { get; }
     [Key(3)] public Role Role { get; }
-    [Key(4)] public List<Node> Children { get; }
+    [Key(4)] public IReadOnlyList<Node> Children { get; }
 
-    public BoxNode(NodeCommon common, BoxStyle style, Paint paint, Role role, List<Node> children)
+    public BoxNode(NodeCommon common, BoxStyle style, Paint paint, Role role, IReadOnlyList<Node> children)
     {
-        Common = common;
-        Style = style;
-        Paint = paint;
-        Role = role;
-        Children = children;
+        Common = ThingDomain.Present(common, "Common");
+        Style = ThingDomain.Present(style, "Style");
+        Paint = ThingDomain.Present(paint, "Paint");
+        Role = ThingDomain.Present(role, "Role");
+        Children = ThingDomain.Items(children, "Children");
     }
 }
 
@@ -53,9 +53,9 @@ public sealed class TextNode : Node
 
     public TextNode(NodeCommon common, TextSource content, string styleToken, bool wrap, int? maxLines, bool selectable)
     {
-        Common = common;
-        Content = content;
-        StyleToken = styleToken;
+        Common = ThingDomain.Present(common, "Common");
+        Content = ThingDomain.Present(content, "Content");
+        StyleToken = ThingDomain.Present(styleToken, "StyleToken");
         Wrap = wrap;
         MaxLines = ThingDomain.Count(maxLines);
         Selectable = selectable;
@@ -73,11 +73,11 @@ public sealed class ImageNode : Node
 
     public ImageNode(NodeCommon common, string catalog, string asset, ImageFit fit, TextSource alt)
     {
-        Common = common;
-        Catalog = catalog;
-        Asset = asset;
-        Fit = fit;
-        Alt = alt;
+        Common = ThingDomain.Present(common, "Common");
+        Catalog = ThingDomain.Present(catalog, "Catalog");
+        Asset = ThingDomain.Present(asset, "Asset");
+        Fit = ThingDomain.Present(fit, "Fit");
+        Alt = ThingDomain.Present(alt, "Alt");
     }
 }
 
@@ -85,16 +85,16 @@ public sealed class ImageNode : Node
 public sealed class ButtonNode : Node
 {
     [Key(0)] public NodeCommon Common { get; }
-    [Key(1)] public List<Node> Content { get; }
+    [Key(1)] public IReadOnlyList<Node> Content { get; }
     [Key(2)] public CommandRef OnActivate { get; }
     [Key(3)] public BoolSource Enabled { get; }
 
-    public ButtonNode(NodeCommon common, List<Node> content, CommandRef onActivate, BoolSource enabled)
+    public ButtonNode(NodeCommon common, IReadOnlyList<Node> content, CommandRef onActivate, BoolSource enabled)
     {
-        Common = common;
-        Content = content;
-        OnActivate = onActivate;
-        Enabled = enabled;
+        Common = ThingDomain.Present(common, "Common");
+        Content = ThingDomain.Items(content, "Content");
+        OnActivate = ThingDomain.Present(onActivate, "OnActivate");
+        Enabled = ThingDomain.Present(enabled, "Enabled");
     }
 }
 
@@ -107,9 +107,9 @@ public sealed class ToggleNode : Node
 
     public ToggleNode(NodeCommon common, BoolSource @checked, CommandRef onChange)
     {
-        Common = common;
-        Checked = @checked;
-        OnChange = onChange;
+        Common = ThingDomain.Present(common, "Common");
+        Checked = ThingDomain.Present(@checked, "Checked");
+        OnChange = ThingDomain.Present(onChange, "OnChange");
     }
 }
 
@@ -125,12 +125,12 @@ public sealed class SliderNode : Node
 
     public SliderNode(NodeCommon common, double min, double max, double step, NumberSource value, CommandRef commit)
     {
-        Common = common;
+        Common = ThingDomain.Present(common, "Common");
         Min = min;
         Max = max;
         Step = step;
-        Value = value;
-        Commit = commit;
+        Value = ThingDomain.Present(value, "Value");
+        Commit = ThingDomain.Present(commit, "Commit");
     }
 }
 
@@ -139,19 +139,19 @@ public sealed class TextInputNode : Node
 {
     [Key(0)] public NodeCommon Common { get; }
     [Key(1)] public bool Multiline { get; }
-    [Key(2)] public InputKind Kind { get; }
+    [Key(2)] public InputKind InputKind { get; }
     [Key(3)] public TextSource Placeholder { get; }
     [Key(4)] public TextSource Initial { get; }
     [Key(5)] public CommandRef Submit { get; }
 
-    public TextInputNode(NodeCommon common, bool multiline, InputKind kind, TextSource placeholder, TextSource initial, CommandRef submit)
+    public TextInputNode(NodeCommon common, bool multiline, InputKind inputKind, TextSource placeholder, TextSource initial, CommandRef submit)
     {
-        Common = common;
+        Common = ThingDomain.Present(common, "Common");
         Multiline = multiline;
-        Kind = kind;
-        Placeholder = placeholder;
-        Initial = initial;
-        Submit = submit;
+        InputKind = ThingDomain.Present(inputKind, "InputKind");
+        Placeholder = ThingDomain.Present(placeholder, "Placeholder");
+        Initial = ThingDomain.Present(initial, "Initial");
+        Submit = ThingDomain.Present(submit, "Submit");
     }
 }
 
@@ -165,10 +165,10 @@ public sealed class SelectNode : Node
 
     public SelectNode(NodeCommon common, OptionList options, Bind value, CommandRef onChange)
     {
-        Common = common;
-        Options = options;
-        Value = value;
-        OnChange = onChange;
+        Common = ThingDomain.Present(common, "Common");
+        Options = ThingDomain.Present(options, "Options");
+        Value = ThingDomain.Present(value, "Value");
+        OnChange = ThingDomain.Present(onChange, "OnChange");
     }
 }
 
@@ -182,10 +182,10 @@ public sealed class RepeatNode : Node
 
     public RepeatNode(NodeCommon common, CollectionSource collection, MemberPath keyMember, Node template)
     {
-        Common = common;
-        Collection = collection;
-        KeyMember = keyMember;
-        Template = template;
+        Common = ThingDomain.Present(common, "Common");
+        Collection = ThingDomain.Present(collection, "Collection");
+        KeyMember = ThingDomain.Present(keyMember, "KeyMember");
+        Template = ThingDomain.Present(template, "Template");
     }
 }
 
@@ -196,15 +196,15 @@ public sealed class OverlayNode : Node
     [Key(1)] public Anchor Anchor { get; }
     [Key(2)] public bool Modal { get; }
     [Key(3)] public CommandRef Dismiss { get; }
-    [Key(4)] public List<Node> Children { get; }
+    [Key(4)] public IReadOnlyList<Node> Children { get; }
 
-    public OverlayNode(NodeCommon common, Anchor anchor, bool modal, CommandRef dismiss, List<Node> children)
+    public OverlayNode(NodeCommon common, Anchor anchor, bool modal, CommandRef dismiss, IReadOnlyList<Node> children)
     {
-        Common = common;
-        Anchor = anchor;
+        Common = ThingDomain.Present(common, "Common");
+        Anchor = ThingDomain.Present(anchor, "Anchor");
         Modal = modal;
-        Dismiss = dismiss;
-        Children = children;
+        Dismiss = ThingDomain.Present(dismiss, "Dismiss");
+        Children = ThingDomain.Items(children, "Children");
     }
 }
 
@@ -221,9 +221,9 @@ public sealed class PlotNode : Node
 
     public PlotNode(NodeCommon common, Bind series, PlotMark mark, double? xMin, double? xMax, double? yMin, double? yMax)
     {
-        Common = common;
-        Series = series;
-        Mark = mark;
+        Common = ThingDomain.Present(common, "Common");
+        Series = ThingDomain.Present(series, "Series");
+        Mark = ThingDomain.Present(mark, "Mark");
         XMin = xMin;
         XMax = xMax;
         YMin = yMin;
@@ -242,9 +242,9 @@ public sealed class EmbedNode : Node
 
     public EmbedNode(NodeCommon common, string slotKind, string slotId, double width, double height)
     {
-        Common = common;
-        SlotKind = slotKind;
-        SlotId = slotId;
+        Common = ThingDomain.Present(common, "Common");
+        SlotKind = ThingDomain.Present(slotKind, "SlotKind");
+        SlotId = ThingDomain.Present(slotId, "SlotId");
         Width = width;
         Height = height;
     }
@@ -255,13 +255,13 @@ public sealed class UseNode : Node
 {
     [Key(0)] public NodeCommon Common { get; }
     [Key(1)] public CompositionRef Composition { get; }
-    [Key(2)] public List<Arg> Args { get; }
+    [Key(2)] public IReadOnlyList<Arg> Args { get; }
 
-    public UseNode(NodeCommon common, CompositionRef composition, List<Arg> args)
+    public UseNode(NodeCommon common, CompositionRef composition, IReadOnlyList<Arg> args)
     {
-        Common = common;
-        Composition = composition;
-        Args = args;
+        Common = ThingDomain.Present(common, "Common");
+        Composition = ThingDomain.Present(composition, "Composition");
+        Args = ThingDomain.Items(args, "Args");
     }
 }
 
@@ -345,11 +345,11 @@ public abstract class OptionList
 [MessagePackObject]
 public sealed class LiteralOptions : OptionList
 {
-    [Key(0)] public List<SelectOption> Options { get; }
+    [Key(0)] public IReadOnlyList<SelectOption> Options { get; }
 
-    public LiteralOptions(List<SelectOption> options)
+    public LiteralOptions(IReadOnlyList<SelectOption> options)
     {
-        Options = options;
+        Options = ThingDomain.Items(options, "Options");
     }
 }
 
@@ -362,9 +362,9 @@ public sealed class BoundOptions : OptionList
 
     public BoundOptions(CollectionSource collection, MemberPath valueMember, MemberPath labelMember)
     {
-        Collection = collection;
-        ValueMember = valueMember;
-        LabelMember = labelMember;
+        Collection = ThingDomain.Present(collection, "Collection");
+        ValueMember = ThingDomain.Present(valueMember, "ValueMember");
+        LabelMember = ThingDomain.Present(labelMember, "LabelMember");
     }
 }
 
@@ -391,7 +391,7 @@ public sealed class AnchorNode : Anchor
 
     public AnchorNode(string node)
     {
-        Node = node;
+        Node = ThingDomain.Present(node, "Node");
     }
 }
 
@@ -449,7 +449,7 @@ public sealed class TextArg : ArgValue
 
     public TextArg(string value)
     {
-        Value = value;
+        Value = ThingDomain.Present(value, "Value");
     }
 }
 
@@ -484,8 +484,8 @@ public sealed class ArgValueBind : ArgValue
 
     public ArgValueBind(StateSource source, MemberPath member, Format? format)
     {
-        Source = source;
-        Member = member;
+        Source = ThingDomain.Present(source, "Source");
+        Member = ThingDomain.Present(member, "Member");
         Format = format;
     }
 }
@@ -497,7 +497,7 @@ public sealed class CollectionArg : ArgValue
 
     public CollectionArg(CollectionSource source)
     {
-        Source = source;
+        Source = ThingDomain.Present(source, "Source");
     }
 }
 
@@ -508,18 +508,18 @@ public sealed class CommandArg : ArgValue
 
     public CommandArg(CommandRef command)
     {
-        Command = command;
+        Command = ThingDomain.Present(command, "Command");
     }
 }
 
 [MessagePackObject]
 public sealed class SlotArg : ArgValue
 {
-    [Key(0)] public List<Node> Nodes { get; }
+    [Key(0)] public IReadOnlyList<Node> Nodes { get; }
 
-    public SlotArg(List<Node> nodes)
+    public SlotArg(IReadOnlyList<Node> nodes)
     {
-        Nodes = nodes;
+        Nodes = ThingDomain.Items(nodes, "Nodes");
     }
 }
 
@@ -607,8 +607,8 @@ public sealed class NodeCommon
 
     public NodeCommon(string id, BoolSource visible, TextSource? a11yLabel)
     {
-        Id = id;
-        Visible = visible;
+        Id = ThingDomain.Present(id, "Id");
+        Visible = ThingDomain.Present(visible, "Visible");
         A11yLabel = a11yLabel;
     }
 }
@@ -621,8 +621,8 @@ public sealed class SelectOption
 
     public SelectOption(string value, string label)
     {
-        Value = value;
-        Label = label;
+        Value = ThingDomain.Present(value, "Value");
+        Label = ThingDomain.Present(label, "Label");
     }
 }
 
@@ -635,7 +635,7 @@ public sealed class CompositionRef
 
     public CompositionRef(string publisher, string name, long version)
     {
-        Publisher = publisher;
+        Publisher = ThingDomain.Present(publisher, "Publisher");
         Name = ThingDomain.Segment(name);
         Version = ThingDomain.Version(version);
     }
@@ -649,8 +649,8 @@ public sealed class Arg
 
     public Arg(string name, ArgValue value)
     {
-        Name = name;
-        Value = value;
+        Name = ThingDomain.Present(name, "Name");
+        Value = ThingDomain.Present(value, "Value");
     }
 }
 
@@ -662,8 +662,8 @@ public sealed class ParamDecl
 
     public ParamDecl(string name, ParamKind kind)
     {
-        Name = name;
-        Kind = kind;
+        Name = ThingDomain.Present(name, "Name");
+        InputKind = ThingDomain.Present(inputKind, "InputKind");
     }
 }
 
@@ -676,16 +676,16 @@ public sealed class SurfaceDocument
     [Key(2)] public long Version { get; }
     [Key(3)] public string Title { get; }
     [Key(4)] public Node Root { get; }
-    [Key(5)] public List<CommandDecl> Commands { get; }
+    [Key(5)] public IReadOnlyList<CommandDecl> Commands { get; }
 
-    public SurfaceDocument(string providerId, string label, long version, string title, Node root, List<CommandDecl> commands)
+    public SurfaceDocument(string providerId, string label, long version, string title, Node root, IReadOnlyList<CommandDecl> commands)
     {
-        ProviderId = providerId;
+        ProviderId = ThingDomain.Present(providerId, "ProviderId");
         Label = ThingDomain.Segment(label);
         Version = ThingDomain.Version(version);
-        Title = title;
-        Root = root;
-        Commands = commands;
+        Title = ThingDomain.Present(title, "Title");
+        Root = ThingDomain.Present(root, "Root");
+        Commands = ThingDomain.Items(commands, "Commands");
     }
 
     [IgnoreMember] public string RecordKey => ThingKeys.SurfaceKey(ProviderId, Label);
@@ -698,16 +698,16 @@ public sealed class CompositionDocument
     [Key(0)] public string Publisher { get; }
     [Key(1)] public string Name { get; }
     [Key(2)] public long Version { get; }
-    [Key(3)] public List<ParamDecl> Params { get; }
+    [Key(3)] public IReadOnlyList<ParamDecl> Params { get; }
     [Key(4)] public Node Body { get; }
 
-    public CompositionDocument(string publisher, string name, long version, List<ParamDecl> @params, Node body)
+    public CompositionDocument(string publisher, string name, long version, IReadOnlyList<ParamDecl> @params, Node body)
     {
-        Publisher = publisher;
+        Publisher = ThingDomain.Present(publisher, "Publisher");
         Name = ThingDomain.Segment(name);
         Version = ThingDomain.Version(version);
-        Params = @params;
-        Body = body;
+        Params = ThingDomain.Items(@params, "Params");
+        Body = ThingDomain.Present(body, "Body");
     }
 
     [IgnoreMember] public string RecordKey => ThingKeys.CompositionKey(Publisher, Name, Version);

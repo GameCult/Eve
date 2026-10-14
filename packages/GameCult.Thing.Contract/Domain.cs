@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace GameCult.Thing.Contract;
 
@@ -19,7 +20,8 @@ public sealed class ThingDomainException : Exception
 }
 
 /// <summary>
-/// The value domains of the contract's numbers and local names. Every constructor whose field carries a domain calls the
+/// The value domains of the contract's numbers, local names and slots. A required slot is never null, and a list is a
+/// private copy that holds no nil item. Every constructor whose field carries a domain calls the
 /// matching check, and every deserializer reaches a value through that constructor, so no door skips a check.
 /// </summary>
 public static class ThingDomain
@@ -42,4 +44,21 @@ public static class ThingDomain
         string.IsNullOrEmpty(value) ? throw new ThingDomainException("Segment", "non-empty")
         : value.IndexOf('.') >= 0 ? throw new ThingDomainException("Segment", "free of '.'")
         : value;
+
+    /// <summary>A required slot: the value, or a refusal naming the slot when it is null.</summary>
+    public static T Present<T>(T? value, string slot) where T : class =>
+        value ?? throw new ThingDomainException(slot, "present");
+
+    /// <summary>
+    /// A required list slot: a read-only copy, so the caller's list cannot change the value afterwards. A null list or
+    /// a null item is refused naming the slot.
+    /// </summary>
+    public static IReadOnlyList<T> Items<T>(IReadOnlyList<T>? items, string slot) where T : class
+    {
+        if (items is null) throw new ThingDomainException(slot, "present");
+        var copy = new T[items.Count];
+        for (var i = 0; i < copy.Length; i++)
+            copy[i] = items[i] ?? throw new ThingDomainException(slot, "free of nil items");
+        return Array.AsReadOnly(copy);
+    }
 }

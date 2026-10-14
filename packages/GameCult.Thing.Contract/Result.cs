@@ -20,7 +20,7 @@ public sealed class PendingOutcome : Outcome
 
     public PendingOutcome(string message)
     {
-        Message = message;
+        Message = ThingDomain.Present(message, "Message");
     }
 }
 
@@ -47,7 +47,7 @@ public sealed class DeniedOutcome : Outcome
 
     public DeniedOutcome(string reason, string? node)
     {
-        Reason = reason;
+        Reason = ThingDomain.Present(reason, "Reason");
         Node = node;
     }
 }
@@ -59,7 +59,7 @@ public sealed class FailedOutcome : Outcome
 
     public FailedOutcome(string reason)
     {
-        Reason = reason;
+        Reason = ThingDomain.Present(reason, "Reason");
     }
 }
 
@@ -77,7 +77,7 @@ public sealed class OpenSurfaceEffect : Effect
 
     public OpenSurfaceEffect(string key)
     {
-        Key = key;
+        Key = ThingDomain.Present(key, "Key");
     }
 }
 
@@ -89,8 +89,8 @@ public sealed class OpenExternalEffect : Effect
 
     public OpenExternalEffect(string url, CommandRef resume)
     {
-        Url = url;
-        Resume = resume;
+        Url = ThingDomain.Present(url, "Url");
+        Resume = ThingDomain.Present(resume, "Resume");
     }
 }
 
@@ -111,22 +111,22 @@ public sealed class CommandResult
     [SerializationConstructor]
     private CommandResult(string invocationId, int seq, Outcome outcome)
     {
-        InvocationId = invocationId;
+        InvocationId = ThingDomain.Present(invocationId, "InvocationId");
         Seq = ThingDomain.Seq(seq);
-        Outcome = outcome;
+        Outcome = ThingDomain.Present(outcome, "Outcome");
     }
 
     [IgnoreMember] public string RecordKey => ThingKeys.ResultKey(InvocationId, Seq);
 
     public static CommandResult Pending(CommandInvocation invocation, int seq, string message) =>
-        new(invocation.InvocationId, seq, new PendingOutcome(message));
+        new(ThingDomain.Present(invocation, "Invocation").InvocationId, seq, new PendingOutcome(message));
 
     public static CommandResult Completed(CommandInvocation invocation, int seq, long? sourceVersion, bool clearDrafts, Effect? effect) =>
-        new(invocation.InvocationId, seq, new CompletedOutcome(sourceVersion, clearDrafts, effect));
+        new(ThingDomain.Present(invocation, "Invocation").InvocationId, seq, new CompletedOutcome(sourceVersion, clearDrafts, effect));
 
     public static CommandResult Denied(CommandInvocation invocation, int seq, string reason, string? node) =>
-        new(invocation.InvocationId, seq, new DeniedOutcome(reason, node));
+        new(ThingDomain.Present(invocation, "Invocation").InvocationId, seq, new DeniedOutcome(reason, node));
 
     public static CommandResult Failed(CommandInvocation invocation, int seq, string reason) =>
-        new(invocation.InvocationId, seq, new FailedOutcome(reason));
+        new(ThingDomain.Present(invocation, "Invocation").InvocationId, seq, new FailedOutcome(reason));
 }

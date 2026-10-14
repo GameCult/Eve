@@ -28,5 +28,8 @@
     <None Include="..\..\crates\thing-contract\tests\goldens\*"
           Link="goldens\%(Filename)%(Extension)"
           CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\tests\thing-contract-parity\*"
+          Link="parity\%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

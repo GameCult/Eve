@@ -18,7 +18,7 @@ public sealed class CommandIdRef : CommandRef
 
     public CommandIdRef(string id)
     {
-        Id = id;
+        Id = ThingDomain.Present(id, "Id");
     }
 }
 
@@ -29,7 +29,7 @@ public sealed class CommandRefParam : CommandRef
 
     public CommandRefParam(string name)
     {
-        Name = name;
+        Name = ThingDomain.Present(name, "Name");
     }
 }
 
@@ -49,7 +49,7 @@ public sealed class TextValue : InputValue
 
     public TextValue(string value)
     {
-        Value = value;
+        Value = ThingDomain.Present(value, "Value");
     }
 }
 
@@ -82,7 +82,7 @@ public sealed class ChoiceValue : InputValue
 
     public ChoiceValue(string value)
     {
-        Value = value;
+        Value = ThingDomain.Present(value, "Value");
     }
 }
 
@@ -91,14 +91,14 @@ public sealed class CommandDecl
 {
     [Key(0)] public string Id { get; }
     [Key(1)] public string PayloadSchema { get; }
-    [Key(2)] public List<string> Captures { get; }
+    [Key(2)] public IReadOnlyList<string> Captures { get; }
     [Key(3)] public string? Confirm { get; }
 
-    public CommandDecl(string id, string payloadSchema, List<string> captures, string? confirm)
+    public CommandDecl(string id, string payloadSchema, IReadOnlyList<string> captures, string? confirm)
     {
-        Id = id;
-        PayloadSchema = payloadSchema;
-        Captures = captures;
+        Id = ThingDomain.Present(id, "Id");
+        PayloadSchema = ThingDomain.Present(payloadSchema, "PayloadSchema");
+        Captures = ThingDomain.Items(captures, "Captures");
         Confirm = confirm;
     }
 }
@@ -111,8 +111,8 @@ public sealed class RecordPayload
 
     public RecordPayload(string schema, byte[] bytes)
     {
-        Schema = schema;
-        Bytes = bytes;
+        Schema = ThingDomain.Present(schema, "Schema");
+        Bytes = ThingDomain.Present(bytes, "Bytes");
     }
 }
 
@@ -124,8 +124,8 @@ public sealed class CapturedInput
 
     public CapturedInput(string node, InputValue value)
     {
-        Node = node;
-        Value = value;
+        Node = ThingDomain.Present(node, "Node");
+        Value = ThingDomain.Present(value, "Value");
     }
 }
 
@@ -138,21 +138,21 @@ public sealed class CommandInvocation
     [Key(2)] public long SurfaceVersion { get; }
     [Key(3)] public string Command { get; }
     [Key(4)] public RecordPayload Payload { get; }
-    [Key(5)] public List<CapturedInput> Captured { get; }
+    [Key(5)] public IReadOnlyList<CapturedInput> Captured { get; }
     [Key(6)] public string Client { get; }
     [Key(7)] public string IssuedAt { get; }
     [Key(8)] public string? Delegation { get; }
 
-    public CommandInvocation(string invocationId, string surfaceKey, long surfaceVersion, string command, RecordPayload payload, List<CapturedInput> captured, string client, string issuedAt, string? delegation)
+    public CommandInvocation(string invocationId, string surfaceKey, long surfaceVersion, string command, RecordPayload payload, IReadOnlyList<CapturedInput> captured, string client, string issuedAt, string? delegation)
     {
-        InvocationId = invocationId;
-        SurfaceKey = surfaceKey;
+        InvocationId = ThingDomain.Present(invocationId, "InvocationId");
+        SurfaceKey = ThingDomain.Present(surfaceKey, "SurfaceKey");
         SurfaceVersion = ThingDomain.Version(surfaceVersion);
-        Command = command;
-        Payload = payload;
-        Captured = captured;
-        Client = client;
-        IssuedAt = issuedAt;
+        Command = ThingDomain.Present(command, "Command");
+        Payload = ThingDomain.Present(payload, "Payload");
+        Captured = ThingDomain.Items(captured, "Captured");
+        Client = ThingDomain.Present(client, "Client");
+        IssuedAt = ThingDomain.Present(issuedAt, "IssuedAt");
         Delegation = delegation;
     }
 

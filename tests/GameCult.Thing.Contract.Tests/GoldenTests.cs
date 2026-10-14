@@ -105,6 +105,8 @@ public sealed class GoldenTests
 
     // ---- the store ----
 
+    // surface.cc's catalog is written by cultcache-rs with empty members, so this proves bytes and keys only; the type
+    // names are NameSetTests.
     [Test]
     public void StoreRead()
     {

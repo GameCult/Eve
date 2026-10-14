@@ -15,9 +15,9 @@ public sealed class AssetEntry
 
     public AssetEntry(string id, string mediaType, string uri, int width, int height)
     {
-        Id = id;
-        MediaType = mediaType;
-        Uri = uri;
+        Id = ThingDomain.Present(id, "Id");
+        MediaType = ThingDomain.Present(mediaType, "MediaType");
+        Uri = ThingDomain.Present(uri, "Uri");
         Width = ThingDomain.Count(width);
         Height = ThingDomain.Count(height);
     }
@@ -30,14 +30,14 @@ public sealed class AssetCatalog
     [Key(0)] public string ProviderId { get; }
     [Key(1)] public string CatalogId { get; }
     [Key(2)] public long Version { get; }
-    [Key(3)] public List<AssetEntry> Assets { get; }
+    [Key(3)] public IReadOnlyList<AssetEntry> Assets { get; }
 
-    public AssetCatalog(string providerId, string catalogId, long version, List<AssetEntry> assets)
+    public AssetCatalog(string providerId, string catalogId, long version, IReadOnlyList<AssetEntry> assets)
     {
-        ProviderId = providerId;
+        ProviderId = ThingDomain.Present(providerId, "ProviderId");
         CatalogId = ThingDomain.Segment(catalogId);
         Version = ThingDomain.Version(version);
-        Assets = assets;
+        Assets = ThingDomain.Items(assets, "Assets");
     }
 
     [IgnoreMember] public string RecordKey => ThingKeys.AssetCatalogKey(ProviderId, CatalogId);

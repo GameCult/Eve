@@ -19,7 +19,7 @@ public sealed class TextLiteral : TextSource
 
     public TextLiteral(string value)
     {
-        Value = value;
+        Value = ThingDomain.Present(value, "Value");
     }
 }
 
@@ -32,8 +32,8 @@ public sealed class TextSourceBound : TextSource
 
     public TextSourceBound(StateSource source, MemberPath member, Format? format)
     {
-        Source = source;
-        Member = member;
+        Source = ThingDomain.Present(source, "Source");
+        Member = ThingDomain.Present(member, "Member");
         Format = format;
     }
 }
@@ -45,7 +45,7 @@ public sealed class TextSourceParam : TextSource
 
     public TextSourceParam(string name)
     {
-        Name = name;
+        Name = ThingDomain.Present(name, "Name");
     }
 }
 
@@ -77,8 +77,8 @@ public sealed class NumberSourceBound : NumberSource
 
     public NumberSourceBound(StateSource source, MemberPath member, Format? format)
     {
-        Source = source;
-        Member = member;
+        Source = ThingDomain.Present(source, "Source");
+        Member = ThingDomain.Present(member, "Member");
         Format = format;
     }
 }
@@ -90,7 +90,7 @@ public sealed class NumberSourceParam : NumberSource
 
     public NumberSourceParam(string name)
     {
-        Name = name;
+        Name = ThingDomain.Present(name, "Name");
     }
 }
 
@@ -122,8 +122,8 @@ public sealed class BoolSourceBound : BoolSource
 
     public BoolSourceBound(StateSource source, MemberPath member, Format? format)
     {
-        Source = source;
-        Member = member;
+        Source = ThingDomain.Present(source, "Source");
+        Member = ThingDomain.Present(member, "Member");
         Format = format;
     }
 }
@@ -135,7 +135,7 @@ public sealed class BoolSourceParam : BoolSource
 
     public BoolSourceParam(string name)
     {
-        Name = name;
+        Name = ThingDomain.Present(name, "Name");
     }
 }
 
@@ -157,8 +157,8 @@ public sealed class StateRef : StateSource
     public StateRef(string? provider, string schema, string key)
     {
         Provider = provider;
-        Schema = schema;
-        Key = key;
+        Schema = ThingDomain.Present(schema, "Schema");
+        Key = ThingDomain.Present(key, "Key");
     }
 }
 
@@ -184,7 +184,7 @@ public sealed class MemberName : MemberStep
 
     public MemberName(string name)
     {
-        Name = name;
+        Name = ThingDomain.Present(name, "Name");
     }
 }
 
@@ -249,8 +249,8 @@ public sealed class AffixFormat : Format
 
     public AffixFormat(string prefix, string suffix)
     {
-        Prefix = prefix;
-        Suffix = suffix;
+        Prefix = ThingDomain.Present(prefix, "Prefix");
+        Suffix = ThingDomain.Present(suffix, "Suffix");
     }
 }
 
@@ -272,8 +272,8 @@ public sealed class RecordsSource : CollectionSource
     public RecordsSource(string? provider, string schema, string keyPrefix)
     {
         Provider = provider;
-        Schema = schema;
-        KeyPrefix = keyPrefix;
+        Schema = ThingDomain.Present(schema, "Schema");
+        KeyPrefix = ThingDomain.Present(keyPrefix, "KeyPrefix");
     }
 }
 
@@ -286,8 +286,8 @@ public sealed class CollectionSourceMember : CollectionSource
 
     public CollectionSourceMember(StateSource source, MemberPath member, Format? format)
     {
-        Source = source;
-        Member = member;
+        Source = ThingDomain.Present(source, "Source");
+        Member = ThingDomain.Present(member, "Member");
         Format = format;
     }
 }
@@ -299,7 +299,7 @@ public sealed class CollectionSourceParam : CollectionSource
 
     public CollectionSourceParam(string name)
     {
-        Name = name;
+        Name = ThingDomain.Present(name, "Name");
     }
 }
 
@@ -312,8 +312,8 @@ public sealed class Bind
 
     public Bind(StateSource source, MemberPath member, Format? format)
     {
-        Source = source;
-        Member = member;
+        Source = ThingDomain.Present(source, "Source");
+        Member = ThingDomain.Present(member, "Member");
         Format = format;
     }
 }
@@ -321,10 +321,10 @@ public sealed class Bind
 [MessagePackObject]
 public sealed class MemberPath
 {
-    [Key(0)] public List<MemberStep> Steps { get; }
+    [Key(0)] public IReadOnlyList<MemberStep> Steps { get; }
 
-    public MemberPath(List<MemberStep> steps)
+    public MemberPath(IReadOnlyList<MemberStep> steps)
     {
-        Steps = steps;
+        Steps = ThingDomain.Items(steps, "Steps");
     }
 }

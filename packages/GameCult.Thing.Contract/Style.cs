@@ -404,7 +404,7 @@ public sealed class ThemeToken : ColorRef
 
     public ThemeToken(string name)
     {
-        Name = name;
+        Name = ThingDomain.Present(name, "Name");
     }
 }
 
@@ -508,8 +508,8 @@ public sealed class Size2
 
     public Size2(Dimension width, Dimension height)
     {
-        Width = width;
-        Height = height;
+        Width = ThingDomain.Present(width, "Width");
+        Height = ThingDomain.Present(height, "Height");
     }
 }
 
@@ -523,10 +523,10 @@ public sealed class Edges
 
     public Edges(Dimension top, Dimension right, Dimension bottom, Dimension left)
     {
-        Top = top;
-        Right = right;
-        Bottom = bottom;
-        Left = left;
+        Top = ThingDomain.Present(top, "Top");
+        Right = ThingDomain.Present(right, "Right");
+        Bottom = ThingDomain.Present(bottom, "Bottom");
+        Left = ThingDomain.Present(left, "Left");
     }
 }
 
@@ -552,32 +552,32 @@ public sealed class BoxStyle
     [Key(16)] public double Grow { get; }
     [Key(17)] public double Shrink { get; }
     [Key(18)] public Dimension Basis { get; }
-    [Key(19)] public List<Dimension> GridColumns { get; }
-    [Key(20)] public List<Dimension> GridRows { get; }
+    [Key(19)] public IReadOnlyList<Dimension> GridColumns { get; }
+    [Key(20)] public IReadOnlyList<Dimension> GridRows { get; }
 
-    public BoxStyle(Display display, Direction direction, Wrap wrap, Size2 gap, Edges padding, Edges margin, Size2 size, Size2 minSize, Size2 maxSize, Position position, Edges inset, Overflow overflow, ItemAlign alignItems, ItemAlign alignSelf, ContentAlign alignContent, ContentAlign justifyContent, double grow, double shrink, Dimension basis, List<Dimension> gridColumns, List<Dimension> gridRows)
+    public BoxStyle(Display display, Direction direction, Wrap wrap, Size2 gap, Edges padding, Edges margin, Size2 size, Size2 minSize, Size2 maxSize, Position position, Edges inset, Overflow overflow, ItemAlign alignItems, ItemAlign alignSelf, ContentAlign alignContent, ContentAlign justifyContent, double grow, double shrink, Dimension basis, IReadOnlyList<Dimension> gridColumns, IReadOnlyList<Dimension> gridRows)
     {
-        Display = display;
-        Direction = direction;
-        Wrap = wrap;
-        Gap = gap;
-        Padding = padding;
-        Margin = margin;
-        Size = size;
-        MinSize = minSize;
-        MaxSize = maxSize;
-        Position = position;
-        Inset = inset;
-        Overflow = overflow;
-        AlignItems = alignItems;
-        AlignSelf = alignSelf;
-        AlignContent = alignContent;
-        JustifyContent = justifyContent;
+        Display = ThingDomain.Present(display, "Display");
+        Direction = ThingDomain.Present(direction, "Direction");
+        Wrap = ThingDomain.Present(wrap, "Wrap");
+        Gap = ThingDomain.Present(gap, "Gap");
+        Padding = ThingDomain.Present(padding, "Padding");
+        Margin = ThingDomain.Present(margin, "Margin");
+        Size = ThingDomain.Present(size, "Size");
+        MinSize = ThingDomain.Present(minSize, "MinSize");
+        MaxSize = ThingDomain.Present(maxSize, "MaxSize");
+        Position = ThingDomain.Present(position, "Position");
+        Inset = ThingDomain.Present(inset, "Inset");
+        Overflow = ThingDomain.Present(overflow, "Overflow");
+        AlignItems = ThingDomain.Present(alignItems, "AlignItems");
+        AlignSelf = ThingDomain.Present(alignSelf, "AlignSelf");
+        AlignContent = ThingDomain.Present(alignContent, "AlignContent");
+        JustifyContent = ThingDomain.Present(justifyContent, "JustifyContent");
         Grow = grow;
         Shrink = shrink;
-        Basis = basis;
-        GridColumns = gridColumns;
-        GridRows = gridRows;
+        Basis = ThingDomain.Present(basis, "Basis");
+        GridColumns = ThingDomain.Items(gridColumns, "GridColumns");
+        GridRows = ThingDomain.Items(gridRows, "GridRows");
     }
 }
 
@@ -589,7 +589,7 @@ public sealed class Border
 
     public Border(ColorRef color, double width)
     {
-        Color = color;
+        Color = ThingDomain.Present(color, "Color");
         Width = width;
     }
 }
