@@ -40,3 +40,9 @@ when absent. Arm keys are fixed for v1.
 | `rgba-channel-out-of-range.bin` | the Rgba slot array `[256, 0, 0, 255]` | refused when decoded as an Rgba: a channel is a byte, 0 to 255 |
 
 Domain refusals are the contract's rule, which the TypeScript and C# packages mirror: each is held to refuse these files, without the leaf set a Rust `u8` or a checked newtype has.
+
+## The nil vector
+
+`nil-positions.tsv` is written only by `crates/thing-contract/tests/nil_positions.rs` (`THING_BLESS=1`). For every element inside an array, at every depth, of each value golden above except `surface.cc` (the eleven `.bin` files from `surface-all-arms` to `asset-catalog`), the test replaces that element with nil (`0xC0`) and decodes the whole payload with the Rust decode door, `rmp_serde::from_slice` into the golden's kind. A row is `golden`, `path` (dotted array indices from the root, e.g. `3.0.1`), the element's byte `start` and `end` in the golden, and `ACCEPT` or `REFUSE`. An accepted variant re-encodes to the spliced bytes. Maps are not walked.
+
+A slot is required exactly when its Rust type is not optional, so `REFUSE` rows are the required slots and `ACCEPT` rows the optional ones. The Rust decode door decides every row; the TypeScript and C# packages keep no list of required slots and are held to every row.

@@ -159,8 +159,10 @@ pub struct TextInputNode {
     pub common: NodeCommon,
     #[cultcache(key = 1)]
     pub multiline: bool,
+    /// Named `input_kind` in every runtime (Rust `input_kind`, C# `InputKind`, TypeScript `inputKind`): a field
+    /// named `kind` collides with the union tag in TypeScript. The wire is the slot key, 2.
     #[cultcache(key = 2)]
-    pub kind: InputKind,
+    pub input_kind: InputKind,
     #[cultcache(key = 3)]
     pub placeholder: TextSource,
     #[cultcache(key = 4)]

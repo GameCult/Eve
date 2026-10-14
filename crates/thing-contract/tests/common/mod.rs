@@ -3,7 +3,28 @@
 
 #![allow(dead_code)]
 
+use std::path::PathBuf;
+
 use thing_contract::*;
+
+pub fn goldens_dir() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/goldens")
+}
+
+pub fn blessing() -> bool {
+    std::env::var("THING_BLESS").as_deref() == Ok("1")
+}
+
+/// Bless the file or compare against it. Returns the committed bytes.
+pub fn golden_bytes(file: &str, produced: &[u8]) -> Vec<u8> {
+    let path = goldens_dir().join(file);
+    if blessing() {
+        std::fs::write(&path, produced).unwrap_or_else(|error| panic!("{file}: {error}"));
+    }
+    let committed = std::fs::read(&path).unwrap_or_else(|error| panic!("{file}: {error}"));
+    assert_eq!(committed, produced, "{file}: the committed golden differs from what the crate writes");
+    committed
+}
 
 pub fn seq(value: i32) -> Seq {
     Seq::new(value).unwrap()

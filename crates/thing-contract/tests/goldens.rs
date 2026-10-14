@@ -16,25 +16,6 @@ const PINNED_CLOCK: &str = "2026-01-01T00:00:00Z";
 // A value that must never appear in a refusal.
 const CANARY: &str = "CANARY-7f3a91c2";
 
-fn goldens_dir() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/goldens")
-}
-
-fn blessing() -> bool {
-    std::env::var("THING_BLESS").as_deref() == Ok("1")
-}
-
-/// Bless the file or compare against it. Returns the committed bytes.
-fn golden_bytes(file: &str, produced: &[u8]) -> Vec<u8> {
-    let path = goldens_dir().join(file);
-    if blessing() {
-        std::fs::write(&path, produced).unwrap_or_else(|error| panic!("{file}: {error}"));
-    }
-    let committed = std::fs::read(&path).unwrap_or_else(|error| panic!("{file}: {error}"));
-    assert_eq!(committed, produced, "{file}: the committed golden differs from what the crate writes");
-    committed
-}
-
 fn golden<T: DatabaseEntry + PartialEq + Debug>(name: &str, value: &T) -> String {
     let produced = rmp_serde::to_vec(value).unwrap();
     let committed = golden_bytes(&format!("{name}.bin"), &produced);
@@ -150,7 +131,7 @@ fn full_surface() -> SurfaceDocument {
         Node::TextInput(TextInputNode {
             common: common("name-input"),
             multiline: true,
-            kind: InputKind::Number,
+            input_kind: InputKind::Number,
             placeholder: lit_text("name"),
             initial: TextSource::Param(param("initial")),
             submit: command("rename"),
@@ -158,7 +139,7 @@ fn full_surface() -> SurfaceDocument {
         Node::TextInput(TextInputNode {
             common: common("title-input"),
             multiline: false,
-            kind: InputKind::Text,
+            input_kind: InputKind::Text,
             placeholder: lit_text("title"),
             initial: TextSource::Param(param("initial")),
             submit: command("retitle"),
