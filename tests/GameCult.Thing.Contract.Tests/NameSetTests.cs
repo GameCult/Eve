@@ -42,7 +42,7 @@ public sealed class NameSetTests
             SchemaId = local.SchemaId[..^1] + (local.SchemaId[^1] == '0' ? '1' : '0'),
             SchemaName = local.SchemaName,
             SchemaVersion = local.SchemaVersion,
-            ContentHash = local.ContentHash,
+            ContentHash = local.ContentHash[..^1] + (local.ContentHash[^1] == '0' ? '1' : '0'),
             CanonicalSchemaJson = local.CanonicalSchemaJson,
             Members = local.Members.Select(m => new CultSchemaMemberCatalogEntry
             {
@@ -58,6 +58,7 @@ public sealed class NameSetTests
         };
     }
 
+    // A persisted entry equal in id and content hash resolves without comparison, so the entries below move both.
     // CultCache compares a persisted catalog with the package's names where it resolves a persisted schema id that is not
     // its own (ResolvePersistedSchema). Reopening a single-file store does not call it: a store whose recorded names were
     // patched (id and Int64 both) opens and reads at b3bd8dd5, so the comparison is exercised on the entry the store
