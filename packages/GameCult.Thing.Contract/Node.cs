@@ -612,7 +612,7 @@ public sealed class ParamDecl
     public ParamDecl(string name, ParamKind kind)
     {
         Name = ThingDomain.Present(name, "Name");
-        InputKind = ThingDomain.Present(inputKind, "InputKind");
+        Kind = ThingDomain.Present(kind, "Kind");
     }
 }
 
