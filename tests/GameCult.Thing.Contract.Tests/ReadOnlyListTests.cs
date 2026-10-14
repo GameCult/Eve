@@ -1,3 +1,4 @@
+using MessagePack;
 using System.Collections;
 using System.Reflection;
 
@@ -165,11 +166,31 @@ public sealed class ReadOnlyListTests
     }
 
     [Test]
-    public void ANilPayloadIsRefusedAndAnEmptyOneIsKeptThroughTheWire()
+    public void EveryEmptyMemoryIsAnEmptyPayloadThatWritesAsRustsEmptyVec()
     {
-        var error = Assert.Throws<ThingDomainException>(() => new RecordPayload("s", default))!;
-        Assert.That(error.Domain, Is.EqualTo("Bytes"));
-        Assert.That(error.Bound, Is.EqualTo("present"));
+        // Rust's empty Vec<u8> is bin8 of length 0 (c4 00); a RecordPayload is [schema, bytes].
+        var rust = new byte[] { 0x92, 0xA1, (byte)'s', 0xC4, 0x00 };
+        var empties = new Dictionary<string, ReadOnlyMemory<byte>>
+        {
+            ["ReadOnlyMemory.Empty"] = ReadOnlyMemory<byte>.Empty,
+            ["Memory.Empty"] = Memory<byte>.Empty,
+            ["default"] = default(ReadOnlyMemory<byte>),
+            ["Array.Empty"] = Array.Empty<byte>(),
+            ["new byte[0]"] = new byte[0],
+        };
+        foreach (var (name, memory) in empties)
+        {
+            var payload = new RecordPayload("s", memory);
+            Assert.That(payload.Bytes.Length, Is.EqualTo(0), name);
+            Assert.That(Wire.Write(payload), Is.EqualTo(rust), name);
+            Assert.That(Wire.Write(Wire.Read(typeof(RecordPayload), rust)), Is.EqualTo(rust), name);
+        }
+    }
+
+    [Test]
+    public void ANilPayloadOnTheWireIsRefusedAndAnEmptyOneIsKeptThroughTheWire()
+    {
+        Assert.Throws<MessagePackSerializationException>(() => Wire.Read(typeof(RecordPayload), new byte[] { 0x92, 0xA1, (byte)'s', 0xC0 }));
 
         var empty = new CommandInvocation("i", "k", 1, "go", new RecordPayload("s", Array.Empty<byte>()), new List<CapturedInput>(), "c", "t", null);
         var decoded = (CommandInvocation)Wire.Read(typeof(CommandInvocation), Wire.Write(empty));

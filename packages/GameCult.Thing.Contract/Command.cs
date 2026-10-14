@@ -104,16 +104,32 @@ public sealed class CommandDecl
     }
 }
 
+/// <summary>
+/// A typed record as its MessagePack bytes. Every empty memory (<c>ReadOnlyMemory&lt;byte&gt;.Empty</c>, a default view,
+/// an empty array) is an empty payload, as Rust's empty <c>Vec&lt;u8&gt;</c> is. A nil on the wire is not an empty
+/// payload: it decodes to a default view the constructor cannot tell from an empty one, so the constructor notes it and
+/// the decode door refuses it once the value is read.
+/// </summary>
 [MessagePackObject]
-public sealed class RecordPayload
+public sealed class RecordPayload : IMessagePackSerializationCallbackReceiver
 {
+    private readonly bool _viewWasDefault;
+
     [Key(0)] public string Schema { get; }
     [Key(1)] public ReadOnlyMemory<byte> Bytes { get; }
 
     public RecordPayload(string schema, ReadOnlyMemory<byte> bytes)
     {
         Schema = ThingDomain.Present(schema, "Schema");
-        Bytes = ThingDomain.Present(bytes, "Bytes").ToArray();
+        _viewWasDefault = bytes.Equals(default(ReadOnlyMemory<byte>));
+        Bytes = bytes.ToArray();
+    }
+
+    void IMessagePackSerializationCallbackReceiver.OnBeforeSerialize() { }
+
+    void IMessagePackSerializationCallbackReceiver.OnAfterDeserialize()
+    {
+        if (_viewWasDefault) throw new ThingDomainException("Bytes", "present");
     }
 }
 

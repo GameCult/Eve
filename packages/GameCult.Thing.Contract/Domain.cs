@@ -50,15 +50,6 @@ public static class ThingDomain
         value ?? throw new ThingDomainException(slot, "present");
 
     /// <summary>
-    /// A required byte slot. A null on the wire decodes to a default view with no backing store, so the default view is
-    /// refused as nil; an empty array is a present, empty payload.
-    /// </summary>
-    public static ReadOnlyMemory<byte> Present(ReadOnlyMemory<byte> value, string slot) =>
-        value.Equals(default(ReadOnlyMemory<byte>))
-            ? throw new ThingDomainException(slot, "present")
-            : value;
-
-    /// <summary>
     /// A required list slot: a read-only copy, so the caller's list cannot change the value afterwards. A null list or
     /// a null item is refused naming the slot.
     /// </summary>
