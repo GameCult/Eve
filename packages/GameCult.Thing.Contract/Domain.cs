@@ -50,11 +50,11 @@ public static class ThingDomain
         value ?? throw new ThingDomainException(slot, "present");
 
     /// <summary>
-    /// A required byte slot. A null on the wire decodes to a default view with no backing store, so a view that is
-    /// empty and backed by nothing is refused as nil; an empty array is a present, empty payload.
+    /// A required byte slot. A null on the wire decodes to a default view with no backing store, so the default view is
+    /// refused as nil; an empty array is a present, empty payload.
     /// </summary>
     public static ReadOnlyMemory<byte> Present(ReadOnlyMemory<byte> value, string slot) =>
-        value.IsEmpty && !System.Runtime.InteropServices.MemoryMarshal.TryGetArray(value, out _)
+        value.Equals(default(ReadOnlyMemory<byte>))
             ? throw new ThingDomainException(slot, "present")
             : value;
 
