@@ -182,15 +182,15 @@ public sealed class ReadOnlyListTests
         {
             var payload = new RecordPayload("s", memory);
             Assert.That(payload.Bytes.Length, Is.EqualTo(0), name);
-            Assert.That(Wire.Write(payload), Is.EqualTo(rust), name);
-            Assert.That(Wire.Write(Wire.Read(typeof(RecordPayload), rust)), Is.EqualTo(rust), name);
+            Assert.That(MessagePackSerializer.Serialize(payload, Wire.Options), Is.EqualTo(rust), name);
+            Assert.That(MessagePackSerializer.Serialize(MessagePackSerializer.Deserialize<RecordPayload>(rust, Wire.Options), Wire.Options), Is.EqualTo(rust), name);
         }
     }
 
     [Test]
     public void ANilPayloadOnTheWireIsRefusedAndAnEmptyOneIsKeptThroughTheWire()
     {
-        Assert.Throws<MessagePackSerializationException>(() => Wire.Read(typeof(RecordPayload), new byte[] { 0x92, 0xA1, (byte)'s', 0xC0 }));
+        Assert.Throws<MessagePackSerializationException>(() => MessagePackSerializer.Deserialize<RecordPayload>(new byte[] { 0x92, 0xA1, (byte)'s', 0xC0 }, Wire.Options));
 
         var empty = new CommandInvocation("i", "k", 1, "go", new RecordPayload("s", Array.Empty<byte>()), new List<CapturedInput>(), "c", "t", null);
         var decoded = (CommandInvocation)Wire.Read(typeof(CommandInvocation), Wire.Write(empty));
